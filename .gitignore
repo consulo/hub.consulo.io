@@ -4,3 +4,5 @@ tomcat.8080/
 /.consulo
 /out
 /target
+/src/main/resources/application.properties
+/src/main/resources/hibernate.cfg.xml
