@@ -16,6 +16,12 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>download</servlet-name>
+		<servlet-class>org.mustbe.consulo.war.servlet.DownloadServlet</servlet-class>
+	</servlet>
+
+
+	<servlet>
 		<servlet-name>statistics-post</servlet-name>
 		<servlet-class>org.mustbe.consulo.war.servlet.StatisticsPostServlet</servlet-class>
 	</servlet>
@@ -38,6 +44,11 @@
 	<servlet-mapping>
 		<servlet-name>plugins-download</servlet-name>
 		<url-pattern>/plugins/download</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>download</servlet-name>
+		<url-pattern>/download</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mustbe.consulo.war.PluginDirManager;
-import org.mustbe.consulo.war.PluginManagerNew;
+import org.mustbe.consulo.war.plugins.PluginDirManager;
+import org.mustbe.consulo.war.plugins.PluginManagerNew;
 import org.mustbe.consulo.war.SystemAvailable;
 
 /**
@@ -23,7 +23,7 @@ public class PluginsListServlet extends HttpServlet
 	{
 		if(!SystemAvailable.INSTANCE.get())
 		{
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 			return;
 		}
 
@@ -31,7 +31,7 @@ public class PluginsListServlet extends HttpServlet
 
 		response.setContentType("text/xml");
 
-		PluginDirManager pluginDir = PluginManagerNew.INSTANCE.findPluginDir(buildValue);
+		PluginDirManager pluginDir = PluginManagerNew.INSTANCE.findByBuild(buildValue);
 
 		PrintWriter writer = response.getWriter();
 		writer.write(pluginDir.getXmlListText());

@@ -12,8 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jdom.Document;
-import org.mustbe.consulo.war.PluginDirManager;
-import org.mustbe.consulo.war.PluginManagerNew;
+import org.mustbe.consulo.war.ide.IdeManager;
+import org.mustbe.consulo.war.plugins.PluginDirManager;
+import org.mustbe.consulo.war.plugins.PluginManagerNew;
 import org.mustbe.consulo.war.SystemAvailable;
 import org.mustbe.consulo.war.util.ApplicationConfiguration;
 import com.intellij.openapi.util.JDOMUtil;
@@ -59,7 +60,8 @@ public class AdminMakeReleaseServlet extends HttpServlet
 
 			copyPlugins(buildNumber);
 
-			PluginManagerNew.INSTANCE.addPluginBuild(buildNumber);
+			PluginManagerNew.INSTANCE.addBuild(buildNumber);
+			IdeManager.INSTANCE.addBuild(buildNumber);
 
 			resp.getWriter().println("Done");
 		}
@@ -75,7 +77,7 @@ public class AdminMakeReleaseServlet extends HttpServlet
 
 	private void copyPlugins(int buildNumber) throws Exception
 	{
-		PluginDirManager snapshotPluginDirManager = PluginManagerNew.INSTANCE.findPluginDir(Integer.MAX_VALUE);
+		PluginDirManager snapshotPluginDirManager = PluginManagerNew.INSTANCE.findByBuild(Integer.MAX_VALUE);
 
 		// when we call it - it ill generate new list and plugins
 		String xmlListText = snapshotPluginDirManager.getXmlListText();

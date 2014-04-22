@@ -1,14 +1,15 @@
-package org.mustbe.consulo.war;
+package org.mustbe.consulo.war.plugins;
 
 import java.io.File;
 
 import org.jetbrains.annotations.NotNull;
+import org.mustbe.consulo.war.ReleaseDirManager;
 
 /**
  * @author VISTALL
  * @since 22.04.14
  */
-public abstract class PluginDirManager
+public abstract class PluginDirManager implements ReleaseDirManager
 {
 	protected static final String EMPTY = "<plugin-repository></plugin-repository>";
 

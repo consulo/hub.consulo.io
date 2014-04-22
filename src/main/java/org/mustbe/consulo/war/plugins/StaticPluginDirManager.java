@@ -1,4 +1,4 @@
-package org.mustbe.consulo.war;
+package org.mustbe.consulo.war.plugins;
 
 import java.io.File;
 
