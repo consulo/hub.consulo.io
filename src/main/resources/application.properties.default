@@ -1,2 +1,3 @@
-vulcan.dir=K:/VULCAN_TEST/vulcan_home
-consulo.plugins.work.dir=K:/VULCAN_TEST/plugins-out
+vulcan.dir=K:/webserver/vulcan
+consulo.plugins.work.dir=K:/webserver/plugins
+consulo.release.work.dir=K:/webserver/releases

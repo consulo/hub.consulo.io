@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mustbe.consulo.war.PluginDirManager;
 import org.mustbe.consulo.war.PluginManagerNew;
+import org.mustbe.consulo.war.SystemAvailable;
 
 /**
  * @author VISTALL
@@ -20,6 +21,12 @@ public class PluginsListServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException
 	{
+		if(!SystemAvailable.INSTANCE.get())
+		{
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
 		int buildValue = PluginManagerNew.toBuild(req.getParameter("build"));
 
 		response.setContentType("text/xml");

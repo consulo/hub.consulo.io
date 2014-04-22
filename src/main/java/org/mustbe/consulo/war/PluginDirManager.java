@@ -20,6 +20,12 @@ public abstract class PluginDirManager
 	}
 
 	@NotNull
+	public File getDir()
+	{
+		return myDir;
+	}
+
+	@NotNull
 	public abstract String getXmlListText();
 
 	@NotNull

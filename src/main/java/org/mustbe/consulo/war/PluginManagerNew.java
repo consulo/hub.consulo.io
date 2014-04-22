@@ -19,14 +19,16 @@ public class PluginManagerNew
 
 	private Map<Integer, PluginDirManager> myPluginDirs = new ConcurrentSkipListMap<Integer, PluginDirManager>();
 
+	private File myWorkDir;
+
 	public PluginManagerNew()
 	{
 		String pluginWorkDir = ApplicationConfiguration.getProperty("consulo.plugins.work.dir");
-		File pluginDir = new File(pluginWorkDir);
+		myWorkDir = new File(pluginWorkDir);
 
-		new File(pluginDir, "SNAPSHOT").mkdirs();
+		new File(myWorkDir, "SNAPSHOT").mkdirs();
 
-		File[] files = pluginDir.listFiles();
+		File[] files = myWorkDir.listFiles();
 		if(files != null)
 		{
 			for(File childDir : files)
@@ -72,5 +74,16 @@ public class PluginManagerNew
 		{
 			return Integer.MAX_VALUE;
 		}
+	}
+
+	@NotNull
+	public File getWorkDir()
+	{
+		return myWorkDir;
+	}
+
+	public void addPluginBuild(int buildNumber)
+	{
+		myPluginDirs.put(buildNumber, new StaticPluginDirManager(new File(myWorkDir, String.valueOf(buildNumber))));
 	}
 }
