@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.mustbe.consulo.war.util.ApplicationConfiguration;
+import org.mustbe.consulo.war.PluginDirManager;
+import org.mustbe.consulo.war.PluginManagerNew;
 
 /**
  * @author VISTALL
@@ -26,11 +27,8 @@ public class PluginsDownloadServlet extends HttpServlet
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		String buildValue = req.getParameter("build");
-		if(buildValue == null)
-		{
-			buildValue = PluginsConstants.SNAPSHOT;
-		}
+
+		int buildValue = PluginManagerNew.toBuild(req.getParameter("build"));
 
 		String uuidValue = req.getParameter("uuid");
 		if(uuidValue == null)
@@ -38,9 +36,9 @@ public class PluginsDownloadServlet extends HttpServlet
 			uuidValue = String.valueOf(System.currentTimeMillis());
 		}
 
-		String property = ApplicationConfiguration.getProperty("consulo.plugins.work.dir");
+		PluginDirManager pluginDir = PluginManagerNew.INSTANCE.findPluginDir(buildValue);
 
-		File file = new File(property, idValue + ".zip");
+		File file = pluginDir.getPlugin(idValue);
 		if(!file.exists())
 		{
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);

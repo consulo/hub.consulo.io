@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mustbe.consulo.war.PluginDirManager;
+import org.mustbe.consulo.war.PluginManagerNew;
+
 /**
  * @author VISTALL
  * @since 21.04.14
@@ -17,15 +20,14 @@ public class PluginsListServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException
 	{
-		String buildValue = req.getParameter("build");
-		if(buildValue == null)
-		{
-			buildValue = PluginsConstants.SNAPSHOT;
-		}
+		int buildValue = PluginManagerNew.toBuild(req.getParameter("build"));
+
 		response.setContentType("text/xml");
 
+		PluginDirManager pluginDir = PluginManagerNew.INSTANCE.findPluginDir(buildValue);
+
 		PrintWriter writer = response.getWriter();
-		writer.write(PluginManager.INSTANCE.getXmlRepoText());
+		writer.write(pluginDir.getXmlListText());
 		writer.close();
 	}
 }

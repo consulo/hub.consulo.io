@@ -25,6 +25,11 @@
 		<servlet-class>org.mustbe.consulo.war.servlet.StatisticsShowServlet</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>admin-make-release</servlet-name>
+		<servlet-class>org.mustbe.consulo.war.servlet.admin.AdminMakeReleaseServlet</servlet-class>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>plugins-list</servlet-name>
 		<url-pattern>/plugins/list</url-pattern>
@@ -44,4 +49,22 @@
 		<servlet-name>statistics-show</servlet-name>
 		<url-pattern>/statistics/show</url-pattern>
 	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>admin-make-release</servlet-name>
+		<url-pattern>/admin/release/make</url-pattern>
+	</servlet-mapping>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>admin</web-resource-name>
+			<url-pattern>/admin/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<login-config>
+		<auth-method>BASIC</auth-method>
+	</login-config>
 </web-app>
