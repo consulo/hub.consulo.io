@@ -56,7 +56,7 @@ public class StatisticsPostServlet extends HttpServlet
 				load = new StatisticEntry(uuid);
 			}
 
-			load.incData(map);
+			load.set(map);
 
 			session.persist(load);
 

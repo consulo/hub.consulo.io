@@ -40,19 +40,11 @@ public class StatisticEntry
 		myValues = new HashMap<String, Long>();
 	}
 
-	public void incData(Map<String, Long> map)
+	public void set(Map<String, Long> map)
 	{
 		for(Map.Entry<String, Long> entry : map.entrySet())
 		{
-			Long aLong = myValues.get(entry.getKey());
-			if(aLong == null)
-			{
-				myValues.put(entry.getKey(), entry.getValue());
-			}
-			else
-			{
-				myValues.put(entry.getKey(), aLong + entry.getValue());
-			}
+			myValues.put(entry.getKey(), entry.getValue());
 		}
 	}
 
