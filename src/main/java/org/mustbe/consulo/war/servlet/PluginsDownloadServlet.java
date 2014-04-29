@@ -52,6 +52,7 @@ public class PluginsDownloadServlet extends HttpServlet
 			return;
 		}
 
+		resp.setContentLength((int) file.length());
 		resp.setContentType("application/octet-stream");
 		resp.setHeader("Content-Disposition", "filename=\"" + file.getName() + "\"");
 		FileUtils.copyFile(file, resp.getOutputStream());

@@ -50,6 +50,7 @@ public class DownloadServlet extends HttpServlet
 			return;
 		}
 
+		resp.setContentLength((int) downloadFile.length());
 		resp.setContentType("application/octet-stream");
 		resp.setHeader("Content-Disposition", "filename=\"" + downloadFile.getName() + "\"");
 		FileUtils.copyFile(downloadFile, resp.getOutputStream());
