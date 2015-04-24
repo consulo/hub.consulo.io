@@ -77,6 +77,12 @@ public class SnapshotPluginDirManager extends PluginDirManager
 		File[] listOfWorkDir = vulcanWorkDirFile.listFiles();
 		for(File file : listOfWorkDir)
 		{
+			String name = file.getName();
+			// skip project if name start with '_' - for example internal plugin
+			if(StringUtil.isChar(name, 0, '_'))
+			{
+				continue;
+			}
 			File distOut = new File(file, "out/artifacts/dist");
 			if(!distOut.exists())
 			{
