@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.mustbe.consulo.war.model.StatisticEntry;
 import org.mustbe.consulo.war.util.HibernateUtil;
 
@@ -47,7 +48,7 @@ public class StatisticsPostServlet extends HttpServlet
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		try
 		{
-			session.beginTransaction();
+			Transaction tx = session.beginTransaction();
 
 			UUID uuid = UUID.fromString(uuidValue);
 			StatisticEntry load = (StatisticEntry) session.get(StatisticEntry.class, uuid);
@@ -60,7 +61,7 @@ public class StatisticsPostServlet extends HttpServlet
 
 			session.persist(load);
 
-			session.getTransaction().commit();
+			tx.commit();
 		}
 		catch(Exception e)
 		{

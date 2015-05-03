@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.mustbe.consulo.war.model.StatisticEntry;
 import org.mustbe.consulo.war.util.HibernateUtil;
 
@@ -33,10 +34,10 @@ public class StatisticsShowServlet extends HttpServlet
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		try
 		{
-			session.beginTransaction();
+			Transaction tx = session.beginTransaction();
 
 			List list = session.createCriteria(StatisticEntry.class).list();
-			session.getTransaction().commit();
+			tx.commit();
 
 			for(Object o : list)
 			{

@@ -1,9 +1,9 @@
 package org.mustbe.consulo.war.util;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
 
 public class HibernateUtil
 {
@@ -15,7 +15,7 @@ public class HibernateUtil
 		{
 			Configuration configuration = new Configuration();
 			configuration.configure();
-			ServiceRegistry serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
+			ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
 			return new Configuration().configure().buildSessionFactory(serviceRegistry);
 		}
 		catch(Throwable ex)
