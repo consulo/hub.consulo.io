@@ -57,7 +57,7 @@ public class UpdateListServlet extends HttpServlet
 				channelElement.setAttribute("id", "CONSULO1EAP");
 				channelElement.setAttribute("name", "Consulo 1 EAP");
 				channelElement.setAttribute("status", "eap");
-				channelElement.setAttribute("url", "https://github.com/consulo/consulo/wiki/Download-links");
+				channelElement.setAttribute("url", "https://github.com/consulo/consulo/wiki/Downloads");
 				channelElement.setAttribute("feedback", "https://github.com/consulo/consulo/issues");
 				channelElement.setAttribute("majorVersion", "1");
 
