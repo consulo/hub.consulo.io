@@ -14,7 +14,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
-import org.mustbe.consulo.war.SystemAvailable;
 import org.mustbe.consulo.war.plugins.PluginManagerNew;
 import com.intellij.openapi.util.JDOMUtil;
 
@@ -39,12 +38,6 @@ public class UpdateListServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException
 	{
-		if(!SystemAvailable.INSTANCE.get())
-		{
-			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
-
 		int buildValue = PluginManagerNew.toBuild(req.getParameter("build"));
 
 		response.setContentType("text/xml");

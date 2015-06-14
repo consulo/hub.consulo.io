@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.mustbe.consulo.war.plugins.PluginDirManager;
 import org.mustbe.consulo.war.plugins.PluginManagerNew;
-import org.mustbe.consulo.war.SystemAvailable;
 
 /**
  * @author VISTALL
@@ -22,12 +21,6 @@ public class PluginsDownloadServlet extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		if(!SystemAvailable.INSTANCE.get())
-		{
-			resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
-
 		String idValue = req.getParameter("id");
 		if(idValue == null)
 		{
