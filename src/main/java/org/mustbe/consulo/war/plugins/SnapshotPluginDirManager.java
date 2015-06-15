@@ -243,7 +243,7 @@ public class SnapshotPluginDirManager extends PluginDirManager
 			Map<String, Long> map = new HashMap<String, Long>();
 			for(PluginInfo pluginInfo : list)
 			{
-				map.replace(pluginInfo.id, pluginInfo.downloadCount);
+				map.put(pluginInfo.id, pluginInfo.downloadCount);
 			}
 			return map;
 		}
