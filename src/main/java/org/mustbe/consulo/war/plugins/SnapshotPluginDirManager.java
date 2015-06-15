@@ -4,16 +4,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
+import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.mustbe.consulo.war.model.PluginInfo;
 import org.mustbe.consulo.war.util.ApplicationConfiguration;
 import org.mustbe.consulo.war.util.ConsuloHelper;
+import org.mustbe.consulo.war.util.HibernateUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
@@ -22,6 +26,7 @@ import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 
@@ -141,6 +146,8 @@ public class SnapshotPluginDirManager extends PluginDirManager
 			pluginsByCategory.putValue(StringUtil.capitalize(category), ideaPluginDescriptor);
 		}
 
+		Map<String, Long> downloadsInfo = getDownloadsInfo();
+
 		Document document = new Document();
 		Element root = new Element("plugin-repository");
 		document.addContent(root);
@@ -157,7 +164,8 @@ public class SnapshotPluginDirManager extends PluginDirManager
 
 				Element ideaPluginElement = new Element("idea-plugin");
 				categoryElement.addContent(ideaPluginElement);
-				ideaPluginElement.setAttribute("downloads", String.valueOf(0));
+				ideaPluginElement.setAttribute("downloads", String.valueOf(ObjectUtils.notNull(downloadsInfo.get(pluginDescriptor.getPluginId()
+						.getIdString()), 0L)));
 				ideaPluginElement.setAttribute("size", String.valueOf(files.get(pluginDescriptor).length()));
 				ideaPluginElement.setAttribute("date", String.valueOf(System.currentTimeMillis()));
 				ideaPluginElement.setAttribute("url", "");
@@ -223,6 +231,31 @@ public class SnapshotPluginDirManager extends PluginDirManager
 			e.printStackTrace();
 		}
 		return text;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, Long> getDownloadsInfo()
+	{
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		try
+		{
+			List<PluginInfo> list = session.createCriteria(PluginInfo.class).list();
+			Map<String, Long> map = new HashMap<String, Long>();
+			for(PluginInfo pluginInfo : list)
+			{
+				map.replace(pluginInfo.id, pluginInfo.downloadCount);
+			}
+			return map;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			session.close();
+		}
+		return Collections.emptyMap();
 	}
 
 	@NotNull

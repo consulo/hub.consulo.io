@@ -9,8 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.mustbe.consulo.war.model.PluginInfo;
 import org.mustbe.consulo.war.plugins.PluginDirManager;
 import org.mustbe.consulo.war.plugins.PluginManagerNew;
+import org.mustbe.consulo.war.util.HibernateUtil;
 
 /**
  * @author VISTALL
@@ -49,5 +53,36 @@ public class PluginsDownloadServlet extends HttpServlet
 		resp.setContentType("application/octet-stream");
 		resp.setHeader("Content-Disposition", "filename=\"" + file.getName() + "\"");
 		FileUtils.copyFile(file, resp.getOutputStream());
+
+		increaseDownloadCount(idValue);
+	}
+
+	private static void increaseDownloadCount(String id)
+	{
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		try
+		{
+			Transaction tx = session.beginTransaction();
+
+			PluginInfo pluginInfo = (PluginInfo) session.get(PluginInfo.class, id);
+			if(pluginInfo == null)
+			{
+				pluginInfo = new PluginInfo(id);
+			}
+
+			pluginInfo.downloadCount ++;
+
+			session.persist(pluginInfo);
+
+			tx.commit();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			session.close();
+		}
 	}
 }

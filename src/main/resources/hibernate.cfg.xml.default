@@ -22,5 +22,6 @@
 		<property name="hibernate.c3p0.validate">true</property>
 
 		<mapping class="org.mustbe.consulo.war.model.StatisticEntry"/>
+		<mapping class="org.mustbe.consulo.war.model.PluginInfo"/>
 	</session-factory>
 </hibernate-configuration>
