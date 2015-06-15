@@ -187,6 +187,29 @@ public class SnapshotPluginDirManager extends PluginDirManager
 				{
 					ideaPluginElement.addContent(new Element("build-project").setText(buildProject));
 				}
+
+				Element ideaVersionElement = null;
+				if(!StringUtil.isEmpty(pluginDescriptor.getSinceBuild()))
+				{
+					ideaVersionElement = new Element("idea-version");
+
+					ideaVersionElement.setAttribute("since-build", pluginDescriptor.getSinceBuild());
+				}
+
+				if(!StringUtil.isEmpty(pluginDescriptor.getUntilBuild()))
+				{
+					if(ideaVersionElement == null)
+					{
+						ideaVersionElement = new Element("idea-version");
+					}
+
+					ideaVersionElement.setAttribute("since-build", pluginDescriptor.getSinceBuild());
+				}
+
+				if(ideaVersionElement != null)
+				{
+					ideaPluginElement.addContent(ideaVersionElement);
+				}
 			}
 		}
 
