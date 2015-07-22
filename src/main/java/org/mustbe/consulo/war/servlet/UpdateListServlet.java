@@ -69,7 +69,7 @@ public class UpdateListServlet extends HttpServlet
 
 				buildElement.addContent(new Element("message").setText("New Consulo build is available"));
 				buildElement.addContent(new Element("button").setAttribute("name", "Download").setAttribute("url",
-						"https://github.com/consulo/consulo/wiki/Download-links").setAttribute("download", "true"));
+						"https://github.com/consulo/consulo/wiki/Downloads").setAttribute("download", "true"));
 
 				Document document = new Document(element);
 				text = JDOMUtil.writeDocument(document, "\n");
