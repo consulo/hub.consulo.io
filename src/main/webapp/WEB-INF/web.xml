@@ -1,24 +1,9 @@
-<!DOCTYPE web-app PUBLIC
-		"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-		"http://java.sun.com/dtd/web-app_2_3.dtd" >
-
-<web-app>
-	<display-name>Consulo War</display-name>
-
-	<servlet>
-		<servlet-name>plugins-list</servlet-name>
-		<servlet-class>org.mustbe.consulo.war.servlet.PluginsListServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>updates-list</servlet-name>
-		<servlet-class>org.mustbe.consulo.war.servlet.UpdateListServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>plugins-download</servlet-name>
-		<servlet-class>org.mustbe.consulo.war.servlet.PluginsDownloadServlet</servlet-class>
-	</servlet>
+<web-app
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="http://java.sun.com/xml/ns/javaee"
+		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+		version="3.0">
+	<display-name>Consulo Webservice</display-name>
 
 	<servlet>
 		<servlet-name>statistics-post</servlet-name>
@@ -31,26 +16,6 @@
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>plugins-list</servlet-name>
-		<url-pattern>/plugins/list</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>updates-list</servlet-name>
-		<url-pattern>/updates/list</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>plugins-download</servlet-name>
-		<url-pattern>/plugins/download</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>download</servlet-name>
-		<url-pattern>/download</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>statistics-post</servlet-name>
 		<url-pattern>/statistics/post</url-pattern>
 	</servlet-mapping>
@@ -60,12 +25,8 @@
 		<url-pattern>/statistics/show</url-pattern>
 	</servlet-mapping>
 
-	<servlet-mapping>
-		<servlet-name>admin-make-release</servlet-name>
-		<url-pattern>/admin/release/make</url-pattern>
-	</servlet-mapping>
 
-	<login-config>
+	<!--<login-config>
 		<auth-method>BASIC</auth-method>
-	</login-config>
+	</login-config> -->
 </web-app>
