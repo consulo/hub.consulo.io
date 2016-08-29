@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
 import com.intellij.openapi.util.io.FileUtil;
 import consulo.webService.RootController;
 import consulo.webService.ServiceIsNotReadyException;
@@ -45,7 +45,7 @@ public class PluginsDeployServlet extends HttpServlet
 			{
 				try (OutputStream output = new FileOutputStream(tempFile))
 				{
-					IOUtils.copy(inputStream, output);
+					ByteStreams.copy(inputStream, output);
 				}
 			}
 

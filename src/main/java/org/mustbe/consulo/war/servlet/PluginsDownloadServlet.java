@@ -8,13 +8,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.mustbe.consulo.war.model.PluginInfo;
 import org.mustbe.consulo.war.plugins.PluginDirManager;
 import org.mustbe.consulo.war.plugins.PluginManagerNew;
 import org.mustbe.consulo.war.util.HibernateUtil;
+import com.google.common.io.Files;
 
 /**
  * @author VISTALL
@@ -52,7 +52,7 @@ public class PluginsDownloadServlet extends HttpServlet
 		resp.setContentLength((int) file.length());
 		resp.setContentType("application/octet-stream");
 		resp.setHeader("Content-Disposition", "filename=\"" + file.getName() + "\"");
-		FileUtils.copyFile(file, resp.getOutputStream());
+		Files.copy(file, resp.getOutputStream());
 
 		increaseDownloadCount(idValue);
 	}
