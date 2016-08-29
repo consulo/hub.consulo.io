@@ -16,7 +16,6 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.mustbe.consulo.war.model.PluginInfo;
 import org.mustbe.consulo.war.util.ApplicationConfiguration;
-import org.mustbe.consulo.war.util.ConsuloHelper;
 import org.mustbe.consulo.war.util.HibernateUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
@@ -42,7 +41,7 @@ public class SnapshotPluginDirManager extends PluginDirManager
 	{
 		super(file);
 
-		ConsuloHelper.init();
+		/*ConsuloHelper.init();
 
 		new Thread()
 		{
@@ -63,7 +62,7 @@ public class SnapshotPluginDirManager extends PluginDirManager
 					}
 				}
 			}
-		}.start();
+		}.start();  */
 	}
 
 	private static String generate()

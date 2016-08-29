@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.SystemProperties;
 import consulo.webService.update.UpdateService;
+import consulo.webService.util.ConsuloHelper;
 
 /**
  * @author VISTALL
@@ -65,6 +66,8 @@ public class RootController implements ServletContextListener
 	public void contextInitialized(ServletContextEvent servletContextEvent)
 	{
 		ourInstance = this;
+
+		ConsuloHelper.init();
 
 		String userHome = SystemProperties.getUserHome();
 

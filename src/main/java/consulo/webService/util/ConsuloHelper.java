@@ -1,4 +1,4 @@
-package org.mustbe.consulo.war.util;
+package consulo.webService.util;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;

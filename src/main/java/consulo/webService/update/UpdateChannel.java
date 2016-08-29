@@ -8,5 +8,7 @@ public enum UpdateChannel
 {
 	release,
 	beta,
-	alpha
+	alpha,
+
+	internal
 }

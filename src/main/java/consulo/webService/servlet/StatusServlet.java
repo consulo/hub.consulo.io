@@ -16,7 +16,7 @@ import consulo.webService.RootController;
  * @author VISTALL
  * @since 28-Aug-16
  */
-@WebServlet(urlPatterns = {"/status"})
+@WebServlet(urlPatterns = {"/v2/status"})
 public class StatusServlet extends HttpServlet
 {
 	@Override
