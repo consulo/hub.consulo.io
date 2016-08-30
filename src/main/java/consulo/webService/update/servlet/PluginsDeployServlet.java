@@ -19,10 +19,10 @@ import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.io.ZipUtil;
-import consulo.webService.RootController;
+import consulo.webService.RootService;
 import consulo.webService.ServiceIsNotReadyException;
+import consulo.webService.update.PluginChannelService;
 import consulo.webService.update.UpdateChannel;
-import consulo.webService.update.UpdateService;
 
 /**
  * @author VISTALL
@@ -50,9 +50,11 @@ public class PluginsDeployServlet extends HttpServlet
 				return;
 			}
 
-			UpdateService updateService = RootController.getInstance().getUpdateService();
+			RootService rootService = RootService.getInstance();
 
-			File tempFile = updateService.createTempFile("deploy", "zip");
+			PluginChannelService pluginChannelService = rootService.getUpdateService(channel);
+
+			File tempFile = rootService.createTempFile("deploy", "zip");
 
 			try (ServletInputStream inputStream = req.getInputStream())
 			{
@@ -62,7 +64,7 @@ public class PluginsDeployServlet extends HttpServlet
 				}
 			}
 
-			File deployUnzip = updateService.createTempFile("deploy_unzip", "");
+			File deployUnzip = rootService.createTempFile("deploy_unzip", "");
 			FileUtilRt.createDirectory(deployUnzip);
 
 			ZipUtil.extract(tempFile, deployUnzip, null);

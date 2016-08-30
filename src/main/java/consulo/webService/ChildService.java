@@ -1,27 +1,25 @@
 package consulo.webService;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import java.io.File;
 
 /**
  * @author VISTALL
  * @since 28-Aug-16
  */
-public abstract class ChildService implements ServletContextListener
+public abstract class ChildService
 {
 	private boolean myInitialized;
 
-	protected abstract void contextInitializedImpl(ServletContextEvent servletContextEvent);
+	protected abstract void initImpl(File pluginChannelDir);
 
 	public String getTitle()
 	{
 		return "Update Service";
 	}
 
-	@Override
-	public void contextInitialized(ServletContextEvent servletContextEvent)
+	public void init(File pluginChannelDir)
 	{
-		contextInitializedImpl(servletContextEvent);
+		initImpl(pluginChannelDir);
 
 		myInitialized = true;
 	}
@@ -29,10 +27,5 @@ public abstract class ChildService implements ServletContextListener
 	public boolean isInitialized()
 	{
 		return myInitialized;
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent servletContextEvent)
-	{
 	}
 }

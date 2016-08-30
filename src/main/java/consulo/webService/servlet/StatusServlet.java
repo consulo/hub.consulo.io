@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import consulo.webService.ChildService;
-import consulo.webService.RootController;
+import consulo.webService.RootService;
 
 /**
  * @author VISTALL
@@ -29,7 +29,7 @@ public class StatusServlet extends HttpServlet
 		out.println("<head>");
 		out.println("<title>Status</title><body>");
 
-		for(ChildService childService : RootController.getInstanceNoState().getChildServices())
+		for(ChildService childService : RootService.getInstanceNoState().getChildServices())
 		{
 			out.append(childService.getTitle()).append(" - <b>").append(childService.isInitialized() ? "Initialized" : "Pending").append("</b><br>");
 		}
