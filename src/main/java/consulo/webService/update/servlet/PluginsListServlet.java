@@ -24,7 +24,7 @@ import consulo.webService.util.GsonUtil;
  * @author VISTALL
  * @since 30-Aug-16
  */
-@WebServlet(urlPatterns = {"/v2/plugins/list"})
+@WebServlet(urlPatterns = {"/api/v2/consulo/plugins/list"})
 public class PluginsListServlet extends HttpServlet
 {
 	private static final Logger LOGGER = Logger.getInstance(PluginsListServlet.class);
