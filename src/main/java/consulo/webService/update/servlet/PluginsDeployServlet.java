@@ -154,7 +154,7 @@ public class PluginsDeployServlet extends HttpServlet
 			pluginNode.length = f.length();
 			pluginNode.targetFile = f;
 
-			File metaFile = new File(f.getParentFile(), f.getName() + ".meta.json");
+			File metaFile = new File(f.getParentFile(), f.getName() + ".json");
 			FileUtilRt.delete(metaFile);
 
 			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
