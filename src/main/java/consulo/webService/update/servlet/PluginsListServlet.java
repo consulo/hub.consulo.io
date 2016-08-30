@@ -8,8 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.intellij.openapi.diagnostic.Logger;
 import consulo.webService.RootService;
 import consulo.webService.ServiceIsNotReadyException;
 import consulo.webService.update.PluginChannelService;
@@ -22,7 +21,7 @@ import consulo.webService.update.UpdateChannel;
 @WebServlet(urlPatterns = {"/v2/plugins/list"})
 public class PluginsListServlet extends HttpServlet
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PluginsListServlet.class);
+	private static final Logger LOGGER = Logger.getInstance(PluginsListServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException

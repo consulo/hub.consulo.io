@@ -53,6 +53,8 @@ public class RootService implements ServletContextListener
 
 	public RootService()
 	{
+		ConsuloHelper.init();
+
 		List<ChildService> childServiceList = new ArrayList<>();
 		for(UpdateChannel channel : UpdateChannel.values())
 		{
@@ -109,8 +111,6 @@ public class RootService implements ServletContextListener
 	public void contextInitialized(ServletContextEvent servletContextEvent)
 	{
 		ourInstance = this;
-
-		ConsuloHelper.init();
 
 		FileUtilRt.createDirectory(myConsuloWebServiceHome);
 

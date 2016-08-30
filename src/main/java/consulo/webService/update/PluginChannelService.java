@@ -1,16 +1,20 @@
 package consulo.webService.update;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.util.CommonProcessors;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.text.VersionComparatorUtil;
 import consulo.webService.ChildService;
@@ -24,7 +28,7 @@ public class PluginChannelService extends ChildService
 {
 	private static class PluginsState
 	{
-		private NavigableSet<PluginNode> myVersions = new TreeSet<>((o1, o2) -> VersionComparatorUtil.compare(o1.version, o2.version));
+		private Map<String, NavigableSet<PluginNode>> myPluginsByPlatformVersion = new TreeMap<>();
 
 		private File myPluginDirectory;
 
@@ -40,6 +44,19 @@ public class PluginChannelService extends ChildService
 			FileUtilRt.createParentDirs(myPluginDirectory);
 		}
 
+		// required write lock
+		public void add(PluginNode pluginNode)
+		{
+			NavigableSet<PluginNode> nodes = myPluginsByPlatformVersion.computeIfAbsent(pluginNode.platformVersion, s -> newTreeSet());
+
+			nodes.add(pluginNode);
+		}
+
+		private static NavigableSet<PluginNode> newTreeSet()
+		{
+			return new TreeSet<>((o1, o2) -> VersionComparatorUtil.compare(o1.version, o2.version));
+		}
+
 		@NotNull
 		public File getFileForPlugin(String version)
 		{
@@ -53,11 +70,13 @@ public class PluginChannelService extends ChildService
 		}
 	}
 
+	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
+
 	private File myPluginChannelDirectory;
 
 	private final UpdateChannel myChannel;
 
-	private Map<String, PluginsState> myPlugins = new ConcurrentHashMap<>();
+	private Map<String, PluginsState> myPlugins = new ConcurrentSkipListMap<>();
 
 	public PluginChannelService(UpdateChannel channel)
 	{
@@ -77,7 +96,6 @@ public class PluginChannelService extends ChildService
 
 			writeConsumer.consume(fileForPlugin);
 
-
 			pluginNode.length = fileForPlugin.length();
 			pluginNode.targetFile = fileForPlugin;
 
@@ -87,7 +105,7 @@ public class PluginChannelService extends ChildService
 
 			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
 
-			pluginsState.myVersions.add(pluginNode);
+			pluginsState.add(pluginNode);
 		}
 		finally
 		{
@@ -114,5 +132,55 @@ public class PluginChannelService extends ChildService
 		FileUtil.createDirectory(channelDir);
 
 		myPluginChannelDirectory = channelDir;
+
+		CommonProcessors.CollectProcessor<File> processor = new CommonProcessors.CollectProcessor<>();
+		FileUtil.visitFiles(myPluginChannelDirectory, processor);
+
+		processor.getResults().parallelStream().forEach(file -> {
+			if(file.getName().endsWith("zip.json"))
+			{
+				try
+				{
+					processJsonFile(file);
+				}
+				catch(Exception e)
+				{
+					LOGGER.error(e.getMessage(), e);
+				}
+			}
+		});
+	}
+
+	private void processJsonFile(File jsonFile) throws Exception
+	{
+		String path = jsonFile.getPath();
+		LOGGER.info("Analyze: " + path);
+
+		PluginNode pluginNode = GsonUtil.get().fromJson(new FileReader(jsonFile), PluginNode.class);
+
+		String name = jsonFile.getName();
+		File zipFile = new File(jsonFile.getParentFile(), name.substring(0, name.length() - 5));
+		if(!zipFile.exists())
+		{
+			LOGGER.warn("Zombie json file: " + path);
+			return;
+		}
+
+		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
+
+		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.lock.readLock();
+		try
+		{
+			writeLock.lock();
+
+			pluginNode.length = zipFile.length();
+			pluginNode.targetFile = zipFile;
+
+			pluginsState.add(pluginNode);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
 	}
 }

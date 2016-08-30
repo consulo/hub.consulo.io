@@ -18,11 +18,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteStreams;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
@@ -42,7 +41,7 @@ import consulo.webService.update.UpdateChannel;
 @WebServlet(urlPatterns = {"/v2/plugins/deploy"})
 public class PluginsDeployServlet extends HttpServlet
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PluginsDeployServlet.class);
+	private static final Logger LOGGER = Logger.getInstance(PluginsDeployServlet.class);
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -128,6 +127,7 @@ public class PluginsDeployServlet extends HttpServlet
 			{
 				CommonProcessors.CollectProcessor<File> fileCollectProcessor = new CommonProcessors.CollectProcessor<>();
 				File ideaPluginDescriptorPath = ideaPluginDescriptor.getPath();
+				assert ideaPluginDescriptorPath != null;
 				FileUtil.visitFiles(ideaPluginDescriptorPath, fileCollectProcessor);
 
 				for(File child : fileCollectProcessor.getResults())
