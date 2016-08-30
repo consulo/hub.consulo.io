@@ -34,7 +34,6 @@ import consulo.webService.ServiceIsNotReadyException;
 import consulo.webService.update.PluginChannelService;
 import consulo.webService.update.PluginNode;
 import consulo.webService.update.UpdateChannel;
-import consulo.webService.util.GsonUtil;
 
 /**
  * @author VISTALL
@@ -112,6 +111,8 @@ public class PluginsDeployServlet extends HttpServlet
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = ideaPluginDescriptor.getPluginId().getIdString();
 		pluginNode.version = stableVersion(ideaPluginDescriptor.getVersion());
+		pluginNode.platformVersion = stableVersion(ideaPluginDescriptor.getPlatformVersion());
+
 		pluginNode.name = ideaPluginDescriptor.getName();
 		pluginNode.category = ideaPluginDescriptor.getCategory();
 		pluginNode.description = ideaPluginDescriptor.getDescription();
@@ -120,8 +121,6 @@ public class PluginsDeployServlet extends HttpServlet
 
 		pluginNode.dependencies = Arrays.stream(ideaPluginDescriptor.getDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
 		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
-		pluginNode.sinceConsuloBuild = stableVersion(ideaPluginDescriptor.getSinceBuild());
-
 		PluginChannelService pluginChannelService = rootService.getUpdateService(channel);
 
 		pluginChannelService.push(pluginNode, f -> {
@@ -151,14 +150,6 @@ public class PluginsDeployServlet extends HttpServlet
 					zipOutputStream.closeEntry();
 				}
 			}
-
-			pluginNode.length = f.length();
-			pluginNode.targetFile = f;
-
-			File metaFile = new File(f.getParentFile(), f.getName() + ".json");
-			FileUtilRt.delete(metaFile);
-
-			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
 		});
 	}
 

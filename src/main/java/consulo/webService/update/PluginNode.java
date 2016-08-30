@@ -18,9 +18,9 @@ public class PluginNode
 	public Long date;
 	public Integer rating;
 	public String version;
+	public String platformVersion;
 	public String[] dependencies;
 	public String[] optionalDependencies;
-	public String sinceConsuloBuild;
 
 	public transient File targetFile;
 }

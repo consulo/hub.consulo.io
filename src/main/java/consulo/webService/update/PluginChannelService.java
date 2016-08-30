@@ -3,14 +3,18 @@ package consulo.webService.update;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ThrowableConsumer;
+import com.intellij.util.text.VersionComparatorUtil;
 import consulo.webService.ChildService;
+import consulo.webService.util.GsonUtil;
 
 /**
  * @author VISTALL
@@ -20,11 +24,13 @@ public class PluginChannelService extends ChildService
 {
 	private static class PluginsState
 	{
-		private Map<String, PluginNode[]> myPlugins = new ConcurrentHashMap<>();
+		private NavigableSet<PluginNode> myVersions = new TreeSet<>((o1, o2) -> VersionComparatorUtil.compare(o1.version, o2.version));
 
 		private File myPluginDirectory;
 
 		private String myPluginId;
+
+		private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 		private PluginsState(File rootDir, String pluginId)
 		{
@@ -51,7 +57,7 @@ public class PluginChannelService extends ChildService
 
 	private final UpdateChannel myChannel;
 
-	private ConcurrentMap<String, PluginsState> myPlugins = new ConcurrentHashMap<>();
+	private Map<String, PluginsState> myPlugins = new ConcurrentHashMap<>();
 
 	public PluginChannelService(UpdateChannel channel)
 	{
@@ -62,9 +68,31 @@ public class PluginChannelService extends ChildService
 	{
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 
-		File fileForPlugin = pluginsState.getFileForPlugin(pluginNode.version);
+		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.lock.readLock();
+		try
+		{
+			writeLock.lock();
 
-		writeConsumer.consume(fileForPlugin);
+			File fileForPlugin = pluginsState.getFileForPlugin(pluginNode.version);
+
+			writeConsumer.consume(fileForPlugin);
+
+
+			pluginNode.length = fileForPlugin.length();
+			pluginNode.targetFile = fileForPlugin;
+
+			File metaFile = new File(fileForPlugin.getParentFile(), fileForPlugin.getName() + ".json");
+
+			FileUtilRt.delete(metaFile);
+
+			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
+
+			pluginsState.myVersions.add(pluginNode);
+		}
+		finally
+		{
+			writeLock.unlock();
+		}
 	}
 
 	public UpdateChannel getChannel()
