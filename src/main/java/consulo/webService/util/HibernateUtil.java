@@ -1,4 +1,4 @@
-package org.mustbe.consulo.war.util;
+package consulo.webService.util;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;

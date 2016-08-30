@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.mustbe.consulo.war.model.PluginInfo;
-import org.mustbe.consulo.war.util.HibernateUtil;
+import consulo.webService.model.PluginInfo;
+import consulo.webService.util.HibernateUtil;
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.diagnostic.Logger;
 import consulo.webService.RootService;

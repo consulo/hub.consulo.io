@@ -1,4 +1,4 @@
-package org.mustbe.consulo.war.servlet;
+package consulo.webService.statistics.servlet;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -7,19 +7,21 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.mustbe.consulo.war.model.StatisticEntry;
-import org.mustbe.consulo.war.util.HibernateUtil;
+import consulo.webService.util.HibernateUtil;
+import consulo.webService.model.StatisticEntry;
 
 /**
  * @author VISTALL
  * @since 21.04.14
  */
+@WebServlet(urlPatterns = {"/api/v2/consulo/statistics/post"})
 public class StatisticsPostServlet extends HttpServlet
 {
 	@Override

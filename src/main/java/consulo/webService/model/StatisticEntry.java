@@ -1,4 +1,4 @@
-package org.mustbe.consulo.war.model;
+package consulo.webService.model;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -3,30 +3,5 @@
 		xmlns="http://java.sun.com/xml/ns/javaee"
 		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 		version="3.0">
-	<display-name>Consulo Webservice</display-name>
-
-	<servlet>
-		<servlet-name>statistics-post</servlet-name>
-		<servlet-class>org.mustbe.consulo.war.servlet.StatisticsPostServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>statistics-show</servlet-name>
-		<servlet-class>org.mustbe.consulo.war.servlet.StatisticsShowServlet</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>statistics-post</servlet-name>
-		<url-pattern>/statistics/post</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>statistics-show</servlet-name>
-		<url-pattern>/statistics/show</url-pattern>
-	</servlet-mapping>
-
-
-	<!--<login-config>
-		<auth-method>BASIC</auth-method>
-	</login-config> -->
+	<display-name>Consulo Webservice API</display-name>
 </web-app>

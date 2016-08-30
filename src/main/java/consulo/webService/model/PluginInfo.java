@@ -1,4 +1,4 @@
-package org.mustbe.consulo.war.model;
+package consulo.webService.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
