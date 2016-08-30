@@ -41,7 +41,7 @@ public class PluginChannelService extends ChildService
 			FileUtilRt.createParentDirs(zipFile);
 			if(zipFile.exists())
 			{
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Plugin " + myPluginId + "=" + version + " is already uploaded");
 			}
 			return zipFile;
 		}
