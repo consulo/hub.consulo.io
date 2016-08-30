@@ -86,7 +86,7 @@ public class PluginsDeployServlet extends HttpServlet
 		}
 		catch(ServiceIsNotReadyException e)
 		{
-			resp.sendRedirect("/v2/status");
+			resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		}
 		catch(Exception e)
 		{

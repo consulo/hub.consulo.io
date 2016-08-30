@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
@@ -83,6 +84,32 @@ public class PluginChannelService extends ChildService
 	public PluginChannelService(UpdateChannel channel)
 	{
 		myChannel = channel;
+	}
+
+	@Nullable
+	public PluginNode select(@NotNull String platformVersion, @Nullable String pluginId)
+	{
+		PluginsState state = myPlugins.get(pluginId);
+		if(state == null)
+		{
+			return null;
+		}
+
+		state.myLock.readLock().lock();
+		try
+		{
+			NavigableSet<PluginNode> pluginNodes = state.myPluginsByPlatformVersion.get(platformVersion);
+			if(pluginNodes == null || pluginNodes.isEmpty())
+			{
+				return null;
+			}
+
+			return pluginNodes.last();
+		}
+		finally
+		{
+			state.myLock.readLock().unlock();
+		}
 	}
 
 	@NotNull

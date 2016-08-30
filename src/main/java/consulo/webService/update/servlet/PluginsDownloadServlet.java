@@ -1,9 +1,9 @@
 package consulo.webService.update.servlet;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,14 +18,13 @@ import consulo.webService.ServiceIsNotReadyException;
 import consulo.webService.update.PluginChannelService;
 import consulo.webService.update.PluginNode;
 import consulo.webService.update.UpdateChannel;
-import consulo.webService.util.GsonUtil;
 
 /**
  * @author VISTALL
  * @since 30-Aug-16
  */
-@WebServlet(urlPatterns = {"/api/v2/consulo/plugins/list"})
-public class PluginsListServlet extends HttpServlet
+@WebServlet(urlPatterns = {"/api/v2/consulo/plugins/download"})
+public class PluginsDownloadServlet extends HttpServlet
 {
 	private static final Logger LOGGER = Logger.getInstance(PluginsListServlet.class);
 
@@ -49,21 +48,37 @@ public class PluginsListServlet extends HttpServlet
 				return;
 			}
 
+			String pluginId = req.getParameter("pluginId");
+			if(pluginId == null)
+			{
+				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+
 			RootService rootService = RootService.getInstance();
 
 			PluginChannelService channelService = rootService.getUpdateService(channel);
 
-			PluginNode[] select = channelService.select(platformVersion);
-
-			String json = GsonUtil.get().toJson(select);
-
-			byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-			resp.setHeader("Content-Type", "application/json");
-			resp.setHeader("Content-Length", String.valueOf(bytes.length));
-
-			try(OutputStream stream = resp.getOutputStream())
+			PluginNode select = channelService.select(platformVersion, pluginId);
+			if(select == null)
 			{
-				ByteStreams.copy(new ByteArrayInputStream(bytes), stream);
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+
+			File targetFile = select.targetFile;
+			assert targetFile != null;
+
+			resp.setContentLength((int) targetFile.length());
+			resp.setContentType("application/octet-stream");
+			resp.setHeader("Content-Disposition", "filename=\"" + targetFile.getName() + "\"");
+
+			try (FileInputStream fileInputStream = new FileInputStream(targetFile))
+			{
+				try (OutputStream stream = resp.getOutputStream())
+				{
+					ByteStreams.copy(fileInputStream, stream);
+				}
 			}
 		}
 		catch(ServiceIsNotReadyException e)
