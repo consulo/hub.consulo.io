@@ -11,6 +11,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.mustbe.consulo.war.model.PluginInfo;
+import org.mustbe.consulo.war.util.HibernateUtil;
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.diagnostic.Logger;
 import consulo.webService.RootService;
@@ -80,6 +84,8 @@ public class PluginsDownloadServlet extends HttpServlet
 					ByteStreams.copy(fileInputStream, stream);
 				}
 			}
+
+			//TODO [VISTALL] for future usage> increaseDownloadCount(pluginId);
 		}
 		catch(ServiceIsNotReadyException e)
 		{
@@ -90,6 +96,35 @@ public class PluginsDownloadServlet extends HttpServlet
 			LOGGER.error(e.getMessage(), e);
 
 			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+		}
+	}
+
+	private static void increaseDownloadCount(String id)
+	{
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		try
+		{
+			Transaction tx = session.beginTransaction();
+
+			PluginInfo pluginInfo = (PluginInfo) session.get(PluginInfo.class, id);
+			if(pluginInfo == null)
+			{
+				pluginInfo = new PluginInfo(id);
+			}
+
+			pluginInfo.downloadCount ++;
+
+			session.persist(pluginInfo);
+
+			tx.commit();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			session.close();
 		}
 	}
 }
