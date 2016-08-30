@@ -11,9 +11,10 @@ import javax.servlet.annotation.WebListener;
 
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.SystemProperties;
-import consulo.webService.update.UpdateChannel;
 import consulo.webService.update.PluginChannelService;
+import consulo.webService.update.UpdateChannel;
 import consulo.webService.util.ConsuloHelper;
 
 /**
@@ -93,7 +94,7 @@ public class RootService implements ServletContextListener
 		File file = new File(myTempUploadDirectory, prefix + "_" + l + "." + ext);
 		if(file.exists())
 		{
-			FileUtil.delete(file);
+			FileUtilRt.delete(file);
 		}
 
 		return file;
