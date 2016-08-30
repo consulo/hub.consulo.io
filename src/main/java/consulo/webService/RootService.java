@@ -10,7 +10,6 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.jetbrains.annotations.NotNull;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.SystemProperties;
 import consulo.webService.update.PluginChannelService;
@@ -113,14 +112,14 @@ public class RootService implements ServletContextListener
 
 		ConsuloHelper.init();
 
-		FileUtil.createDirectory(myConsuloWebServiceHome);
+		FileUtilRt.createDirectory(myConsuloWebServiceHome);
 
 		myTempUploadDirectory = new File(myConsuloWebServiceHome, "tempUpload");
-
-		FileUtil.createDirectory(myTempUploadDirectory);
+		FileUtilRt.delete(myTempUploadDirectory);
+		FileUtilRt.createDirectory(myTempUploadDirectory);
 
 		File pluginChannelDir = new File(myConsuloWebServiceHome, "plugin");
-		FileUtil.createDirectory(pluginChannelDir);
+		FileUtilRt.createDirectory(pluginChannelDir);
 
 		for(ChildService service : myChildServices)
 		{
