@@ -59,7 +59,7 @@ public class PluginsListServlet extends HttpServlet
 
 			byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 			resp.setHeader("Content-Type", "application/json");
-			resp.setHeader("Content-Lenght", String.valueOf(bytes.length));
+			resp.setHeader("Content-Length", String.valueOf(bytes.length));
 
 			try(OutputStream stream = resp.getOutputStream())
 			{
