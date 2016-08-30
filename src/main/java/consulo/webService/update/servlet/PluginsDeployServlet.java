@@ -26,6 +26,7 @@ import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.io.ZipUtil;
 import consulo.webService.RootService;
@@ -110,7 +111,7 @@ public class PluginsDeployServlet extends HttpServlet
 
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = ideaPluginDescriptor.getPluginId().getIdString();
-		pluginNode.version = ideaPluginDescriptor.getVersion();
+		pluginNode.version = stableVersion(ideaPluginDescriptor.getVersion());
 		pluginNode.name = ideaPluginDescriptor.getName();
 		pluginNode.category = ideaPluginDescriptor.getCategory();
 		pluginNode.description = ideaPluginDescriptor.getDescription();
@@ -119,7 +120,7 @@ public class PluginsDeployServlet extends HttpServlet
 
 		pluginNode.dependencies = Arrays.stream(ideaPluginDescriptor.getDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
 		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
-		pluginNode.sinceConsuloBuild = ideaPluginDescriptor.getSinceBuild();
+		pluginNode.sinceConsuloBuild = stableVersion(ideaPluginDescriptor.getSinceBuild());
 
 		PluginChannelService pluginChannelService = rootService.getUpdateService(channel);
 
@@ -159,5 +160,14 @@ public class PluginsDeployServlet extends HttpServlet
 
 			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
 		});
+	}
+
+	private static String stableVersion(String value)
+	{
+		if(StringUtil.isEmpty(value) || "SNAPSHOT".equals(value))
+		{
+			throw new IllegalArgumentException("Empty or snapshot version is not acceptable");
+		}
+		return value;
 	}
 }
