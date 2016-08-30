@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
  */
 public class GsonUtil
 {
-	private static final Gson ourGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create();
+	private static final Gson ourGson = new GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).create();
 
 	public static Gson get()
 	{

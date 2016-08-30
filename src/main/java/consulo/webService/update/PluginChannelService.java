@@ -3,6 +3,8 @@ package consulo.webService.update;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.TreeMap;
@@ -28,13 +30,13 @@ public class PluginChannelService extends ChildService
 {
 	private static class PluginsState
 	{
-		private Map<String, NavigableSet<PluginNode>> myPluginsByPlatformVersion = new TreeMap<>();
+		private final Map<String, NavigableSet<PluginNode>> myPluginsByPlatformVersion = new TreeMap<>();
 
-		private File myPluginDirectory;
+		private final File myPluginDirectory;
 
-		private String myPluginId;
+		private final String myPluginId;
 
-		private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+		private final ReentrantReadWriteLock myLock = new ReentrantReadWriteLock();
 
 		private PluginsState(File rootDir, String pluginId)
 		{
@@ -83,14 +85,40 @@ public class PluginChannelService extends ChildService
 		myChannel = channel;
 	}
 
+	@NotNull
+	public PluginNode[] select(@NotNull String platformVersion)
+	{
+		List<PluginNode> list = new ArrayList<>();
+		for(PluginsState state : myPlugins.values())
+		{
+			state.myLock.readLock().lock();
+			try
+			{
+				NavigableSet<PluginNode> pluginNodes = state.myPluginsByPlatformVersion.get(platformVersion);
+				if(pluginNodes == null || pluginNodes.isEmpty())
+				{
+					continue;
+				}
+
+				PluginNode last = pluginNodes.last();
+				list.add(last.clone());
+			}
+			finally
+			{
+				state.myLock.readLock().unlock();
+			}
+		}
+		return list.isEmpty() ? PluginNode.EMPTY_ARRAY : list.toArray(new PluginNode[list.size()]);
+	}
+
 	public void push(PluginNode pluginNode, ThrowableConsumer<File, IOException> writeConsumer) throws IOException
 	{
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 
-		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.lock.readLock();
+		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.myLock.readLock();
+		writeLock.lock();
 		try
 		{
-			writeLock.lock();
 
 			File fileForPlugin = pluginsState.getFileForPlugin(pluginNode.version);
 
@@ -98,6 +126,7 @@ public class PluginChannelService extends ChildService
 
 			pluginNode.length = fileForPlugin.length();
 			pluginNode.targetFile = fileForPlugin;
+			pluginNode.clean();
 
 			File metaFile = new File(fileForPlugin.getParentFile(), fileForPlugin.getName() + ".json");
 
@@ -157,6 +186,7 @@ public class PluginChannelService extends ChildService
 		LOGGER.info("Analyze: " + path);
 
 		PluginNode pluginNode = GsonUtil.get().fromJson(new FileReader(jsonFile), PluginNode.class);
+		pluginNode.clean();
 
 		String name = jsonFile.getName();
 		File zipFile = new File(jsonFile.getParentFile(), name.substring(0, name.length() - 5));
@@ -168,7 +198,7 @@ public class PluginChannelService extends ChildService
 
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 
-		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.lock.readLock();
+		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.myLock.readLock();
 		try
 		{
 			writeLock.lock();
