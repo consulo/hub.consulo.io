@@ -38,7 +38,7 @@ import consulo.webService.update.UpdateChannel;
  * @author VISTALL
  * @since 28-Aug-16
  */
-@WebServlet(urlPatterns = {"/api/v2/consulo/plugins/deploy"})
+@WebServlet(urlPatterns = {"/v2/consulo/plugins/deploy"})
 public class PluginsDeployServlet extends HttpServlet
 {
 	private static final Logger LOGGER = Logger.getInstance(PluginsDeployServlet.class);

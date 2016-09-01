@@ -27,7 +27,7 @@ import consulo.webService.update.UpdateChannel;
  * @author VISTALL
  * @since 30-Aug-16
  */
-@WebServlet(urlPatterns = {"/api/v2/consulo/plugins/download"})
+@WebServlet(urlPatterns = {"/v2/consulo/plugins/download"})
 public class PluginsDownloadServlet extends HttpServlet
 {
 	private static final Logger LOGGER = Logger.getInstance(PluginsListServlet.class);

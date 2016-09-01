@@ -22,7 +22,7 @@ import consulo.webService.util.GsonUtil;
  * @author VISTALL
  * @since 28-Aug-16
  */
-@WebServlet(urlPatterns = {"/api/v2/status"})
+@WebServlet(urlPatterns = {"/v2/status"})
 public class StatusServlet extends HttpServlet
 {
 	@Override
