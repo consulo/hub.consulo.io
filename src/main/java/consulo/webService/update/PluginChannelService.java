@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -31,7 +32,7 @@ public class PluginChannelService extends ChildService
 {
 	private static class PluginsState
 	{
-		private final Map<String, NavigableSet<PluginNode>> myPluginsByPlatformVersion = new TreeMap<>();
+		private final NavigableMap<String, NavigableSet<PluginNode>> myPluginsByPlatformVersion = new TreeMap<>();
 
 		private final File myPluginDirectory;
 
@@ -74,6 +75,7 @@ public class PluginChannelService extends ChildService
 	}
 
 	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
+	private static final String SNAPSHOT = "SNAPSHOT";
 
 	private File myPluginChannelDirectory;
 
@@ -98,7 +100,7 @@ public class PluginChannelService extends ChildService
 		state.myLock.readLock().lock();
 		try
 		{
-			NavigableSet<PluginNode> pluginNodes = state.myPluginsByPlatformVersion.get(platformVersion);
+			NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, state);
 			if(pluginNodes == null || pluginNodes.isEmpty())
 			{
 				return null;
@@ -121,7 +123,7 @@ public class PluginChannelService extends ChildService
 			state.myLock.readLock().lock();
 			try
 			{
-				NavigableSet<PluginNode> pluginNodes = state.myPluginsByPlatformVersion.get(platformVersion);
+				NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, state);
 				if(pluginNodes == null || pluginNodes.isEmpty())
 				{
 					continue;
@@ -137,6 +139,20 @@ public class PluginChannelService extends ChildService
 		}
 		return list.isEmpty() ? PluginNode.EMPTY_ARRAY : list.toArray(new PluginNode[list.size()]);
 	}
+
+	// guarded by lock
+	@Nullable
+	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, PluginsState state)
+	{
+		NavigableMap<String, NavigableSet<PluginNode>> map = state.myPluginsByPlatformVersion;
+		if(SNAPSHOT.equals(platformVersion))
+		{
+			Map.Entry<String, NavigableSet<PluginNode>> entry = map.lastEntry();
+			return entry == null ? null : entry.getValue();
+		}
+		return map.get(platformVersion);
+	}
+
 
 	public void push(PluginNode pluginNode, ThrowableConsumer<File, IOException> writeConsumer) throws IOException
 	{
