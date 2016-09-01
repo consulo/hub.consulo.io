@@ -50,7 +50,7 @@ public class PluginsListServlet extends HttpServlet
 				return;
 			}
 
-			boolean pretty = StringUtil.parseBoolean(req.getParameter("channel"), false);
+			boolean pretty = StringUtil.parseBoolean(req.getParameter("pretty"), false);
 
 			RootService rootService = RootService.getInstance();
 
