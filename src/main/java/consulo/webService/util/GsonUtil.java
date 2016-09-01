@@ -19,7 +19,7 @@ public class GsonUtil
 	@NotNull
 	public static Gson prettyGet()
 	{
-		return ourGson;
+		return ourPrettyGson;
 	}
 
 	@NotNull
