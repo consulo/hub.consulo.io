@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.text.StringUtil;
 import consulo.webService.RootService;
 import consulo.webService.ServiceIsNotReadyException;
 import consulo.webService.update.PluginChannelService;
@@ -49,13 +50,15 @@ public class PluginsListServlet extends HttpServlet
 				return;
 			}
 
+			boolean pretty = StringUtil.parseBoolean(req.getParameter("channel"), false);
+
 			RootService rootService = RootService.getInstance();
 
 			PluginChannelService channelService = rootService.getUpdateService(channel);
 
 			PluginNode[] select = channelService.select(platformVersion);
 
-			String json = GsonUtil.get().toJson(select);
+			String json = (pretty ? GsonUtil.prettyGet() : GsonUtil.get()).toJson(select);
 
 			byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
 			resp.setHeader("Content-Type", "application/json");
