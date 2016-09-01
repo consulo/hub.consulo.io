@@ -6,9 +6,10 @@ package consulo.webService.update;
  */
 public enum UpdateChannel
 {
-	release,
-	beta,
-	alpha,
+	release, // every month
+	beta,    // every week
+	alpha,   // every day
+	nightly, // every commit
 
 	internal
 }
