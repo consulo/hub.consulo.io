@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -118,8 +121,18 @@ public class PluginsDeployServlet extends HttpServlet
 		pluginNode.date = System.currentTimeMillis();
 		pluginNode.vendor = ideaPluginDescriptor.getVendor();
 
-		pluginNode.dependencies = Arrays.stream(ideaPluginDescriptor.getDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
-		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
+		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
+
+		Set<PluginId> deps = new TreeSet<>();
+		Collections.addAll(deps, ideaPluginDescriptor.getDependentPluginIds());
+
+		for(PluginId pluginId : ideaPluginDescriptor.getOptionalDependentPluginIds())
+		{
+			deps.remove(pluginId);
+		}
+
+		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
+
 		PluginChannelService pluginChannelService = rootService.getUpdateService(channel);
 
 		pluginChannelService.push(pluginNode, f -> {
