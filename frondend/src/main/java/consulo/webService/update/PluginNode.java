@@ -3,6 +3,7 @@ package consulo.webService.update;
 import java.io.File;
 
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.ArrayUtilRt;
 
 /**
  * @author VISTALL
@@ -10,6 +11,13 @@ import com.intellij.util.ArrayUtil;
  */
 public class PluginNode implements Cloneable
 {
+	public static class Extension
+	{
+		public String key;
+
+		public String[] values = ArrayUtilRt.EMPTY_STRING_ARRAY;
+	}
+
 	private static final String CORE_PLUGIN = "com.intellij";
 
 	public static final PluginNode[] EMPTY_ARRAY = new PluginNode[0];
@@ -27,6 +35,7 @@ public class PluginNode implements Cloneable
 	public String platformVersion;
 	public String[] dependencies;
 	public String[] optionalDependencies;
+	public Extension[] extensions;
 
 	public transient File targetFile;
 

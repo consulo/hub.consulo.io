@@ -23,7 +23,7 @@ public class Analyzer
 		@Override
 		public void error(String message, @Nullable Throwable t, String... details)
 		{
-			System.out.println(message);
+			//
 		}
 	}
 

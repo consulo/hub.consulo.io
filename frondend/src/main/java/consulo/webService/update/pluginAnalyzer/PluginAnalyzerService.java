@@ -88,12 +88,11 @@ public class PluginAnalyzerService extends ChildService
 		}
 	}
 
-	public void analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor) throws Exception
+	@NotNull
+	public MultiMap<String, String> analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor) throws Exception
 	{
 		List<URL> urls = new ArrayList<>();
 		urls.addAll(platformClassUrls);
-
-		File path = ideaPluginDescriptor.getPath();
 
 		for(File file : ideaPluginDescriptor.getClassPath())
 		{
@@ -105,6 +104,12 @@ public class PluginAnalyzerService extends ChildService
 		Class<?> analyzerClass = urlClassLoader.loadClass(Analyzer.class.getName());
 		analyzerClass.getDeclaredMethod("before").invoke(null);
 
+		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
+		if(extensions == null)
+		{
+			return MultiMap.empty();
+		}
+
 		MultiMap<String, String> data = new MultiMap<String, String>()
 		{
 			@NotNull
@@ -114,12 +119,6 @@ public class PluginAnalyzerService extends ChildService
 				return new TreeSet<>();
 			}
 		};
-
-		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
-		if(extensions == null)
-		{
-			return;
-		}
 
 		for(Map.Entry<String, Collection<Element>> entry : extensions.entrySet())
 		{
@@ -175,7 +174,7 @@ public class PluginAnalyzerService extends ChildService
 			}
 		}
 
-		System.out.println("test");
+		return data;
 	}
 
 	private static void invokeSilent(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Exception> consumer)

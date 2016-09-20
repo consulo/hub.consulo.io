@@ -8,8 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -25,7 +27,9 @@ import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
+import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 import consulo.webService.RootService;
 import consulo.webService.ServiceIsNotReadyException;
@@ -81,15 +85,6 @@ public class PluginDeploy
 
 		PluginAnalyzerService pluginAnalyzerService = rootService.getPluginAnalyzerService();
 
-		try
-		{
-			pluginAnalyzerService.analyze(ideaPluginDescriptor);
-		}
-		catch(Exception e)
-		{
-			LOGGER.info(e);
-		}
-
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = ideaPluginDescriptor.getPluginId().getIdString();
 		pluginNode.version = stableVersion(ideaPluginDescriptor.getVersion());
@@ -114,6 +109,27 @@ public class PluginDeploy
 		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
 
 		PluginChannelService pluginChannelService = rootService.getUpdateService(channel);
+
+		try
+		{
+			PluginNode.Extension[] extensions = new PluginNode.Extension[0];
+
+			MultiMap<String, String> extensionsMap = pluginAnalyzerService.analyze(ideaPluginDescriptor);
+			for(Map.Entry<String, Collection<String>> entry : extensionsMap.entrySet())
+			{
+				PluginNode.Extension extension = new PluginNode.Extension();
+				extension.key = entry.getKey();
+				extension.values = ArrayUtil.toStringArray(entry.getValue());
+
+				extensions = ArrayUtil.append(extensions, extension);
+			}
+
+			pluginNode.extensions = extensions;
+		}
+		catch(Exception e)
+		{
+			LOGGER.info(e);
+		}
 
 		pluginChannelService.push(pluginNode, f -> {
 			try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(f)))
