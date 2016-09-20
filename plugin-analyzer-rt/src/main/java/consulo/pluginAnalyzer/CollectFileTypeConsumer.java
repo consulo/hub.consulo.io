@@ -7,9 +7,12 @@ import java.util.Set;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.fileTypes.ExactFileNameMatcher;
+import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
+import com.intellij.openapi.fileTypes.WildcardFileNameMatcher;
 import com.intellij.openapi.util.text.StringUtil;
 
 /**
@@ -42,13 +45,23 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 		List<String> split = StringUtil.split(extensions, EXTENSION_DELIMITER);
 		for(String ext : split)
 		{
-			myExtensions.add(ext.toLowerCase(Locale.US));
+			consume(fileType, new ExtensionFileNameMatcher(ext.toLowerCase(Locale.US)));
 		}
 	}
 
 	@Override
 	public void consume(@NotNull FileType fileType, FileNameMatcher... fileNameMatchers)
 	{
+		for(FileNameMatcher fileNameMatcher : fileNameMatchers)
+		{
+			// we accept only our file matches
+			if(fileNameMatcher instanceof ExactFileNameMatcher ||
+					fileNameMatcher instanceof ExtensionFileNameMatcher ||
+					fileNameMatcher instanceof WildcardFileNameMatcher)
+			{
+				myExtensions.add(fileNameMatcher.getPresentableString());
+			}
+		}
 	}
 
 	@Nullable

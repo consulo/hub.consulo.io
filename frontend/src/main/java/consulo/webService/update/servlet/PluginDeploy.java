@@ -47,7 +47,7 @@ public class PluginDeploy
 	private static final Logger LOGGER = Logger.getInstance(PluginDeploy.class);
 
 	@VisibleForTesting
-	public static void deployPlugin(UpdateChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws ServiceIsNotReadyException, IOException
+	public static PluginNode deployPlugin(UpdateChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws ServiceIsNotReadyException, IOException
 	{
 		RootService rootService = RootService.getInstance();
 
@@ -62,17 +62,19 @@ public class PluginDeploy
 		}
 
 		File deployUnzip = rootService.createTempFile("deploy_unzip", "");
+
 		FileUtilRt.createDirectory(deployUnzip);
 
 		ZipUtil.extract(tempFile, deployUnzip, null);
 
-		loadPlugin(rootService, channel, deployUnzip);
+		PluginNode pluginNode = loadPlugin(rootService, channel, deployUnzip);
 
-		FileUtilRt.delete(tempFile);
-		FileUtilRt.delete(deployUnzip);
+		rootService.asyncDelete(tempFile);
+		rootService.asyncDelete(deployUnzip);
+		return pluginNode;
 	}
 
-	private static void loadPlugin(RootService rootService, UpdateChannel channel, File deployUnzip) throws IOException
+	private static PluginNode loadPlugin(RootService rootService, UpdateChannel channel, File deployUnzip) throws IOException
 	{
 		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<IdeaPluginDescriptorImpl>();
 		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1);
@@ -114,7 +116,7 @@ public class PluginDeploy
 		{
 			PluginNode.Extension[] extensions = new PluginNode.Extension[0];
 
-			MultiMap<String, String> extensionsMap = pluginAnalyzerService.analyze(ideaPluginDescriptor);
+			MultiMap<String, String> extensionsMap = pluginAnalyzerService.analyze(ideaPluginDescriptor, pluginChannelService, pluginNode.dependencies);
 			for(Map.Entry<String, Collection<String>> entry : extensionsMap.entrySet())
 			{
 				PluginNode.Extension extension = new PluginNode.Extension();
@@ -160,6 +162,8 @@ public class PluginDeploy
 				}
 			}
 		});
+
+		return pluginNode;
 	}
 
 	private static String stableVersion(String value)

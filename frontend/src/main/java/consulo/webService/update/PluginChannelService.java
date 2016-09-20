@@ -75,7 +75,7 @@ public class PluginChannelService extends ChildService
 	}
 
 	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
-	private static final String SNAPSHOT = "SNAPSHOT";
+	public static final String SNAPSHOT = "SNAPSHOT";
 
 	private File myPluginChannelDirectory;
 

@@ -42,6 +42,12 @@ public class ConsuloHelper
 			infoOrWarn(message, t);
 		}
 
+		@Override
+		public void error(String message, @Nullable Throwable t, String... details)
+		{
+			infoOrWarn(message, t, details);
+		}
+
 		public void infoOrWarn(String message, @Nullable Throwable t, String... details)
 		{
 			System.out.println(message);
