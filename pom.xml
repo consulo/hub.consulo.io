@@ -9,6 +9,6 @@
 
 	<modules>
 		<module>plugin-analyzer-rt</module>
-		<module>frondend</module>
+		<module>frontend</module>
 	</modules>
 </project>
