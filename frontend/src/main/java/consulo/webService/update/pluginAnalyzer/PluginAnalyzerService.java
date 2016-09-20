@@ -3,6 +3,7 @@ package consulo.webService.update.pluginAnalyzer;
 import gnu.trove.THashMap;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.jdom.Document;
@@ -114,6 +116,13 @@ public class PluginAnalyzerService extends ChildService
 		{
 			@NotNull
 			@Override
+			protected Map<String, Collection<String>> createMap()
+			{
+				return new TreeMap<>();
+			}
+
+			@NotNull
+			@Override
 			protected Collection<String> createCollection()
 			{
 				return new TreeSet<>();
@@ -132,7 +141,23 @@ public class PluginAnalyzerService extends ChildService
 						{
 							Class<?> aClass = urlClassLoader.loadClass(implementation);
 
-							Object configurationType = aClass.newInstance();
+							Constructor constructorForNew = null;
+							Constructor<?>[] declaredConstructors = aClass.getDeclaredConstructors();
+							for(Constructor<?> declaredConstructor : declaredConstructors)
+							{
+								if(declaredConstructor.getParameterCount() == 0)
+								{
+									declaredConstructor.setAccessible(true);
+									constructorForNew = declaredConstructor;
+								}
+							}
+
+							if(constructorForNew == null)
+							{
+								return;
+							}
+
+							Object configurationType = constructorForNew.newInstance();
 
 							Method getId = aClass.getDeclaredMethod("getId");
 							String id = (String) getId.invoke(configurationType);
@@ -158,7 +183,10 @@ public class PluginAnalyzerService extends ChildService
 
 							analyzeFileType.invoke(null, ext, fileTypeFactory);
 
-							data.putValues(key, ext);
+							if(!ext.isEmpty())
+							{
+								data.putValues(key, ext);
+							}
 						}
 					});
 					break;
