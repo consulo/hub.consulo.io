@@ -1,4 +1,4 @@
-# Consulo webservice
+# Consulo webservice api [![Build Status](http://must-be.org/jenkins/view/consulo-webservices/job/consulo-webservice-api/badge/icon)](http://must-be.org/jenkins/view/consulo-webservices/job/consulo-webservice-api/)
 
 Channels
  * release
