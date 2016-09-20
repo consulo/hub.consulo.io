@@ -177,11 +177,19 @@ public class PluginAnalyzerService extends ChildService
 
 							Class<?> fileTypeFactoryClass = Class.forName("com.intellij.openapi.fileTypes.FileTypeFactory", true, urlClassLoader);
 
-							Method analyzeFileType = analyzerClass.getDeclaredMethod("analyzeFileType", Set.class, fileTypeFactoryClass);
-
 							Set<String> ext = new TreeSet<>();
 
-							analyzeFileType.invoke(null, ext, fileTypeFactory);
+							Method analyzeFileType = analyzerClass.getDeclaredMethod("analyzeFileType", Set.class, fileTypeFactoryClass);
+							try
+							{
+								analyzeFileType.invoke(null, ext, fileTypeFactory);
+							}
+							catch(Throwable e)
+							{
+								// somebodies can insert some logic in factory (com.intellij.xml.XmlFileTypeFactory:38)
+								// it can failed, but - we before logic, extensions can be registered
+								//LOGGER.error(e);
+							}
 
 							if(!ext.isEmpty())
 							{
