@@ -124,7 +124,7 @@ public class PluginDeploy
 				extensions = ArrayUtil.append(extensions, extension);
 			}
 
-			pluginNode.extensions = extensions;
+			pluginNode.extensions = extensions.length == 0 ? null : extensions;
 		}
 		catch(Exception e)
 		{
