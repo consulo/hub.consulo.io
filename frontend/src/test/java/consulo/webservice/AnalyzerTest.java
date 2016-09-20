@@ -54,6 +54,17 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.fileTypeFactory");
 
 		assertTrue(ArrayUtil.contains("*.xml", pluginNode.extensions[0].values));
+
+	}
+	@Test
+	public void testGradlePlugin() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/org.jetbrains.plugins.gradle_155.zip");
+
+		assertEquals(pluginNode.id, "org.jetbrains.plugins.gradle");
+		assertNotNull(pluginNode.extensions);
+		assertEquals(pluginNode.extensions.length, 1);
+		assertEquals(pluginNode.extensions[0].values[0], "GradleRunConfiguration");
 	}
 
 	private PluginNode loadPlugin(String... pluginPaths) throws Exception

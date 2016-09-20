@@ -58,6 +58,10 @@ public class PluginAnalyzerService extends ChildService
 		addUrlByClass("com.intellij.execution.configurations.ConfigurationType");
 		// platform-impl
 		addUrlByClass("consulo.extension.impl.ModuleExtensionImpl");
+		// external-system-api
+		addUrlByClass("com.intellij.openapi.externalSystem.model.ExternalProject");
+		// external-system-impl
+		addUrlByClass("com.intellij.openapi.externalSystem.action.AttachExternalProjectAction");
 		// extensions
 		addUrlByClass(PluginId.class);
 		// picocontainer
@@ -161,6 +165,9 @@ public class PluginAnalyzerService extends ChildService
 			}
 		};
 
+		Class<?> configurationTypeClass = urlClassLoader.loadClass("com.intellij.execution.configurations.ConfigurationType");
+		Method configurationTypeIdMethod = configurationTypeClass.getDeclaredMethod("getId");
+
 		for(Map.Entry<String, Collection<Element>> entry : extensions.entrySet())
 		{
 			String key = entry.getKey();
@@ -191,8 +198,7 @@ public class PluginAnalyzerService extends ChildService
 
 							Object configurationType = constructorForNew.newInstance();
 
-							Method getId = aClass.getDeclaredMethod("getId");
-							String id = (String) getId.invoke(configurationType);
+							String id = (String) configurationTypeIdMethod.invoke(configurationType);
 
 							data.putValue(key, id);
 						}
@@ -246,7 +252,7 @@ public class PluginAnalyzerService extends ChildService
 		return data;
 	}
 
-	private static void forEachQuiet(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Exception> consumer)
+	private static void forEachQuiet(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Throwable> consumer)
 	{
 		for(Element element : entry.getValue())
 		{
@@ -254,7 +260,7 @@ public class PluginAnalyzerService extends ChildService
 			{
 				consumer.consume(element);
 			}
-			catch(Exception e)
+			catch(Throwable e)
 			{
 				LOGGER.info(e);
 			}
