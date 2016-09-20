@@ -135,7 +135,7 @@ public class PluginAnalyzerService extends ChildService
 			switch(key)
 			{
 				case "com.intellij.configurationType":
-					invokeSilent(entry, element -> {
+					forEachQuiet(entry, element -> {
 						String implementation = element.getAttributeValue("implementation");
 						if(implementation != null)
 						{
@@ -167,7 +167,7 @@ public class PluginAnalyzerService extends ChildService
 					});
 					break;
 				case "com.intellij.fileTypeFactory":
-					invokeSilent(entry, element -> {
+					forEachQuiet(entry, element -> {
 						String implementation = element.getAttributeValue("implementation");
 						if(implementation != null)
 						{
@@ -191,7 +191,7 @@ public class PluginAnalyzerService extends ChildService
 					});
 					break;
 				case "com.intellij.moduleExtensionProvider":
-					invokeSilent(entry, element -> {
+					forEachQuiet(entry, element -> {
 						String extensionKey = element.getAttributeValue("key");
 						if(extensionKey != null)
 						{
@@ -205,7 +205,7 @@ public class PluginAnalyzerService extends ChildService
 		return data;
 	}
 
-	private static void invokeSilent(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Exception> consumer)
+	private static void forEachQuiet(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Exception> consumer)
 	{
 		for(Element element : entry.getValue())
 		{
