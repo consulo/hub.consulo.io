@@ -1,6 +1,9 @@
 package consulo.webService.update.servlet;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.io.FileUtil;
+import consulo.webService.RootService;
 import consulo.webService.ServiceIsNotReadyException;
 import consulo.webService.update.UpdateChannel;
 
@@ -40,6 +45,14 @@ public class PluginsDeployServlet extends HttpServlet
 				return;
 			}
 
+			String keyFromClient = req.getHeader("Authorization");
+			String keyFromFs = loadDeployKey();
+			if(!Objects.equals(keyFromClient, keyFromFs))
+			{
+				resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+
 			PluginDeploy.deployPlugin(channel, req::getInputStream);
 		}
 		catch(ServiceIsNotReadyException e)
@@ -52,5 +65,12 @@ public class PluginsDeployServlet extends HttpServlet
 
 			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
 		}
+	}
+
+	private static String loadDeployKey() throws ServiceIsNotReadyException, IOException
+	{
+		RootService rootService = RootService.getInstance();
+		File file = new File(rootService.getConsuloWebServiceHome(), "deploy.key");
+		return file.exists() ? FileUtil.loadTextAndClose(new FileInputStream(file)) : null;
 	}
 }
