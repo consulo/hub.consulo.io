@@ -11,10 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import consulo.webService.model.PluginInfo;
-import consulo.webService.util.HibernateUtil;
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.diagnostic.Logger;
 import consulo.webService.RootService;
@@ -101,7 +97,7 @@ public class PluginsDownloadServlet extends HttpServlet
 
 	private static void increaseDownloadCount(String id)
 	{
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		/*Session session = HibernateUtil.getSessionFactory().openSession();
 		try
 		{
 			Transaction tx = session.beginTransaction();
@@ -125,6 +121,6 @@ public class PluginsDownloadServlet extends HttpServlet
 		finally
 		{
 			session.close();
-		}
+		}   */
 	}
 }

@@ -4,18 +4,12 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import consulo.webService.util.HibernateUtil;
-import consulo.webService.model.StatisticEntry;
 
 /**
  * @author VISTALL
@@ -47,7 +41,7 @@ public class StatisticsPostServlet extends HttpServlet
 			return;
 		}
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		/*Session session = HibernateUtil.getSessionFactory().openSession();
 		try
 		{
 			Transaction tx = session.beginTransaction();
@@ -72,7 +66,7 @@ public class StatisticsPostServlet extends HttpServlet
 		finally
 		{
 			session.close();
-		}
+		} */
 	}
 
 	@Override

@@ -2,19 +2,12 @@ package consulo.webService.statistics.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import consulo.webService.model.StatisticEntry;
-import consulo.webService.util.HibernateUtil;
 
 /**
  * @author VISTALL
@@ -33,7 +26,7 @@ public class StatisticsShowServlet extends HttpServlet
 		out.println("<head>");
 		out.println("<title>Statistics</title><body>");
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
+		/*Session session = HibernateUtil.getSessionFactory().openSession();
 		try
 		{
 			Transaction tx = session.beginTransaction();
@@ -55,7 +48,7 @@ public class StatisticsShowServlet extends HttpServlet
 		finally
 		{
 			session.close();
-		}
+		} */
 		out.println("</body></html>");
 		out.close();
 	}
