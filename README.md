@@ -14,7 +14,6 @@ Models
     "id": "",
     "name": "",
     "dependencies": ["id1", "id2"]
-    ...
   }
 ```
 
