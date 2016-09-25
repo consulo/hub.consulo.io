@@ -6,16 +6,25 @@ Channels
  * alpha
  * nightly
  * internal
+ 
+ Models
+ * PluginNode 
+ ```json
+ "id": "",
+ "name": "",
+ "dependencies": ["id1", "id2"]
+ ```
 
 API
  * **GET** /v2/consulo/plugins/download?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pluginId={pluginId}
      * Return zip file with plugin, or 404
      * All parameters required
  * **GET** /v2/consulo/plugins/list?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pretty={true|false}
-     * Return json file with plugin list
+     * Return json with **PluginNode[]** (array of PluginNode)
      * All parameters required, except **pretty**
  * **POST** /v2/consulo/plugins/deploy?channel={channel}
      * Deploying plugin artifact(as zip file) to plugin manager.
+     * Return json with **PluginNode** 
      * On error will send status code 403
  * **GET** /v2/status
     * Return json file contains status of api
