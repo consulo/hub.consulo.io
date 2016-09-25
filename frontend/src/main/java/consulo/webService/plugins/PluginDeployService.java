@@ -1,4 +1,4 @@
-package consulo.webService.update.servlet;
+package consulo.webService.plugins;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,11 +17,13 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import com.google.common.io.ByteStreams;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
@@ -31,27 +33,31 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
-import consulo.webService.RootService;
-import consulo.webService.ServiceIsNotReadyException;
-import consulo.webService.update.PluginChannelService;
-import consulo.webService.update.PluginNode;
-import consulo.webService.update.UpdateChannel;
-import consulo.webService.update.pluginAnalyzer.PluginAnalyzerService;
+import consulo.webService.PluginChannelsService;
 
 /**
  * @author VISTALL
  * @since 20-Sep-16
  */
-public class PluginDeploy
+@Service
+public class PluginDeployService
 {
-	private static final Logger LOGGER = Logger.getInstance(PluginDeploy.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PluginDeployService.class);
 
-	@VisibleForTesting
-	public static PluginNode deployPlugin(UpdateChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws ServiceIsNotReadyException, IOException
+	private PluginChannelsService myPluginChannelsService;
+
+	private PluginAnalyzerService myPluginAnalyzerService;
+
+	@Autowired
+	public PluginDeployService(PluginChannelsService pluginChannelsService, PluginAnalyzerService pluginAnalyzerService)
 	{
-		RootService rootService = RootService.getInstance();
+		myPluginChannelsService = pluginChannelsService;
+		myPluginAnalyzerService = pluginAnalyzerService;
+	}
 
-		File tempFile = rootService.createTempFile("deploy", "zip");
+	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws IOException
+	{
+		File tempFile = myPluginChannelsService.createTempFile("deploy", "zip");
 
 		try (InputStream inputStream = streamSupplier.compute())
 		{
@@ -61,20 +67,20 @@ public class PluginDeploy
 			}
 		}
 
-		File deployUnzip = rootService.createTempFile("deploy_unzip", "");
+		File deployUnzip = myPluginChannelsService.createTempFile("deploy_unzip", "");
 
 		FileUtilRt.createDirectory(deployUnzip);
 
 		ZipUtil.extract(tempFile, deployUnzip, null);
 
-		PluginNode pluginNode = loadPlugin(rootService, channel, deployUnzip);
+		PluginNode pluginNode = loadPlugin(myPluginChannelsService, channel, deployUnzip);
 
-		rootService.asyncDelete(tempFile);
-		rootService.asyncDelete(deployUnzip);
+		myPluginChannelsService.asyncDelete(tempFile);
+		myPluginChannelsService.asyncDelete(deployUnzip);
 		return pluginNode;
 	}
 
-	private static PluginNode loadPlugin(RootService rootService, UpdateChannel channel, File deployUnzip) throws IOException
+	private PluginNode loadPlugin(PluginChannelsService pluginChannelsService, PluginChannel channel, File deployUnzip) throws IOException
 	{
 		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<IdeaPluginDescriptorImpl>();
 		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1);
@@ -84,8 +90,6 @@ public class PluginDeploy
 		}
 
 		IdeaPluginDescriptorImpl ideaPluginDescriptor = pluginDescriptors.get(0);
-
-		PluginAnalyzerService pluginAnalyzerService = rootService.getPluginAnalyzerService();
 
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = ideaPluginDescriptor.getPluginId().getIdString();
@@ -110,13 +114,13 @@ public class PluginDeploy
 
 		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
 
-		PluginChannelService pluginChannelService = rootService.getUpdateService(channel);
+		PluginChannelService pluginChannelService = pluginChannelsService.getUpdateService(channel);
 
 		try
 		{
 			PluginNode.Extension[] extensions = new PluginNode.Extension[0];
 
-			MultiMap<String, String> extensionsMap = pluginAnalyzerService.analyze(ideaPluginDescriptor, pluginChannelService, pluginNode.dependencies);
+			MultiMap<String, String> extensionsMap = myPluginAnalyzerService.analyze(ideaPluginDescriptor, pluginChannelService, pluginNode.dependencies);
 			for(Map.Entry<String, Collection<String>> entry : extensionsMap.entrySet())
 			{
 				PluginNode.Extension extension = new PluginNode.Extension();
@@ -130,7 +134,7 @@ public class PluginDeploy
 		}
 		catch(Exception e)
 		{
-			LOGGER.info(e);
+			LOGGER.info(e.getMessage(), e);
 		}
 
 		pluginChannelService.push(pluginNode, f -> {

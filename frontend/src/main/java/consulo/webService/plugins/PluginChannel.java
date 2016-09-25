@@ -1,10 +1,10 @@
-package consulo.webService.update;
+package consulo.webService.plugins;
 
 /**
  * @author VISTALL
  * @since 28-Aug-16
  */
-public enum UpdateChannel
+public enum PluginChannel
 {
 	release, // every month
 	beta,    // every week

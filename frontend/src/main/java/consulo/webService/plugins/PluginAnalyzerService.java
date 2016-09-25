@@ -1,4 +1,4 @@
-package consulo.webService.update.pluginAnalyzer;
+package consulo.webService.plugins;
 
 import gnu.trove.THashMap;
 
@@ -18,10 +18,13 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.picocontainer.PicoContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.lang.Language;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.util.ArrayUtil;
@@ -32,23 +35,30 @@ import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 import com.intellij.util.lang.UrlClassLoader;
 import consulo.pluginAnalyzer.Analyzer;
-import consulo.webService.ChildService;
-import consulo.webService.RootService;
-import consulo.webService.update.PluginChannelService;
-import consulo.webService.update.PluginNode;
+import consulo.webService.PluginChannelsService;
 
 /**
  * @author VISTALL
  * @since 20-Sep-16
  */
-public class PluginAnalyzerService extends ChildService
+@Service
+public class PluginAnalyzerService
 {
-	private static final Logger LOGGER = Logger.getInstance(PluginAnalyzerService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerService.class);
 
 	private final List<URL> platformClassUrls = new ArrayList<>();
 
-	@Override
-	protected void initImpl(File pluginChannelDir)
+	private PluginChannelsService myPluginChannelsService;
+
+	@Autowired
+	public PluginAnalyzerService(PluginChannelsService pluginChannelsService)
+	{
+		myPluginChannelsService = pluginChannelsService;
+
+		init();
+	}
+
+	private void init()
 	{
 		// core-api
 		addUrlByClass(Language.class);
@@ -105,8 +115,6 @@ public class PluginAnalyzerService extends ChildService
 		List<URL> urls = new ArrayList<>();
 		urls.addAll(platformClassUrls);
 
-		RootService rootService = RootService.getInstance();
-
 		File[] forRemove = new File[0];
 		for(String dependencyId : dependencies)
 		{
@@ -116,7 +124,7 @@ public class PluginAnalyzerService extends ChildService
 				continue;
 			}
 
-			File analyzeUnzip = rootService.createTempFile("analyze_unzip", "");
+			File analyzeUnzip = myPluginChannelsService.createTempFile("analyze_unzip", "");
 			forRemove = ArrayUtil.append(forRemove, analyzeUnzip);
 
 			ZipUtil.extract(pluginNode.targetFile, analyzeUnzip, null);
@@ -248,7 +256,7 @@ public class PluginAnalyzerService extends ChildService
 			}
 		}
 
-		rootService.asyncDelete(forRemove);
+		myPluginChannelsService.asyncDelete(forRemove);
 		return data;
 	}
 
@@ -262,7 +270,7 @@ public class PluginAnalyzerService extends ChildService
 			}
 			catch(Throwable e)
 			{
-				LOGGER.info(e);
+				LOGGER.info(e.getMessage(), e);
 			}
 		}
 	}

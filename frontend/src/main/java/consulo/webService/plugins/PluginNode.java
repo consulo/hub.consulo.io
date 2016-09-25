@@ -1,7 +1,8 @@
-package consulo.webService.update;
+package consulo.webService.plugins;
 
 import java.io.File;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ArrayUtilRt;
 
@@ -9,6 +10,7 @@ import com.intellij.util.ArrayUtilRt;
  * @author VISTALL
  * @since 30-Aug-16
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PluginNode implements Cloneable
 {
 	public static class Extension

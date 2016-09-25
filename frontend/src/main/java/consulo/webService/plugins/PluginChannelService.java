@@ -1,4 +1,4 @@
-package consulo.webService.update;
+package consulo.webService.plugins;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,14 +21,13 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.text.VersionComparatorUtil;
-import consulo.webService.ChildService;
 import consulo.webService.util.GsonUtil;
 
 /**
  * @author VISTALL
  * @since 28-Aug-16
  */
-public class PluginChannelService extends ChildService
+public class PluginChannelService
 {
 	private static class PluginsState
 	{
@@ -79,11 +78,11 @@ public class PluginChannelService extends ChildService
 
 	private File myPluginChannelDirectory;
 
-	private final UpdateChannel myChannel;
+	private final PluginChannel myChannel;
 
 	private Map<String, PluginsState> myPlugins = new ConcurrentSkipListMap<>();
 
-	public PluginChannelService(UpdateChannel channel)
+	public PluginChannelService(PluginChannel channel)
 	{
 		myChannel = channel;
 	}
@@ -185,7 +184,7 @@ public class PluginChannelService extends ChildService
 		}
 	}
 
-	public UpdateChannel getChannel()
+	public PluginChannel getChannel()
 	{
 		return myChannel;
 	}
@@ -196,7 +195,6 @@ public class PluginChannelService extends ChildService
 		return myPluginChannelDirectory;
 	}
 
-	@Override
 	public void initImpl(File pluginChannelDir)
 	{
 		File channelDir = new File(pluginChannelDir, myChannel.name());

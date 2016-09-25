@@ -3,17 +3,16 @@ package consulo.webservice;
 import java.io.File;
 import java.io.InputStream;
 
-import javax.servlet.ServletContextEvent;
-
 import org.junit.Assert;
 import org.junit.Test;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
-import consulo.webService.RootService;
-import consulo.webService.update.PluginNode;
-import consulo.webService.update.UpdateChannel;
-import consulo.webService.update.servlet.PluginDeploy;
+import consulo.webService.PluginChannelsService;
+import consulo.webService.plugins.PluginAnalyzerService;
+import consulo.webService.plugins.PluginDeployService;
+import consulo.webService.plugins.PluginNode;
+import consulo.webService.plugins.PluginChannel;
 
 /**
  * @author VISTALL
@@ -56,6 +55,7 @@ public class AnalyzerTest extends Assert
 		assertTrue(ArrayUtil.contains("*.xml", pluginNode.extensions[0].values));
 
 	}
+
 	@Test
 	public void testGradlePlugin() throws Exception
 	{
@@ -83,16 +83,20 @@ public class AnalyzerTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		RootService rootService = new RootService(canonicalPath);
+		PluginChannelsService pluginChannelsService = new PluginChannelsService(canonicalPath);
 
-		rootService.contextInitialized(new ServletContextEvent(DummyServletContext.ourDummyInstance));
+		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(pluginChannelsService);
+
+		PluginDeployService deploy = new PluginDeployService(pluginChannelsService, pluginAnalyzerService);
+
+		pluginChannelsService.contextInitialized();
 
 		PluginNode lastNode = null;
 		for(String pluginPath : pluginPaths)
 		{
 			InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
 
-			lastNode = PluginDeploy.deployPlugin(UpdateChannel.internal, () -> resourceAsStream);
+			lastNode = deploy.deployPlugin(PluginChannel.internal, () -> resourceAsStream);
 		}
 
 		FileUtilRt.delete(tempDir);
