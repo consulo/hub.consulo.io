@@ -17,7 +17,7 @@ Models
   }
 ```
 
-API
+Methods
  * **GET** /v2/consulo/plugins/download?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pluginId={pluginId}
      * Return zip file with plugin, or 404
      * All parameters required
