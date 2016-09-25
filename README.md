@@ -26,5 +26,3 @@ API
      * Deploying plugin artifact(as zip file) to plugin manager.
      * Return json with **PluginNode** 
      * On error will send status code 403
- * **GET** /v2/status
-    * Return json file contains status of api
