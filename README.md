@@ -9,14 +9,14 @@ Channels
  
 Models
  * PluginNode 
-  ```json
+```json
   { 
     "id": "",
     "name": "",
     "dependencies": ["id1", "id2"]
     ...
   }
-  ```
+```
 
 API
  * **GET** /v2/consulo/plugins/download?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pluginId={pluginId}
