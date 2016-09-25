@@ -7,13 +7,16 @@ Channels
  * nightly
  * internal
  
- Models
+Models
  * PluginNode 
- ```json
- "id": "",
- "name": "",
- "dependencies": ["id1", "id2"]
- ```
+  ```json
+  { 
+    "id": "",
+    "name": "",
+    "dependencies": ["id1", "id2"]
+    ...
+  }
+  ```
 
 API
  * **GET** /v2/consulo/plugins/download?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pluginId={pluginId}
