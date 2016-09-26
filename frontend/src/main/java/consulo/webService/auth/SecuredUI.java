@@ -21,14 +21,8 @@ import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
+import consulo.webService.auth.mongo.service.UserService;
 
 @SpringUI
 // No @Push annotation, we are going to enable it programmatically when the user logs on
@@ -48,6 +42,9 @@ public class SecuredUI extends UI
 	@Autowired
 	ErrorView errorView;
 
+	@Autowired
+	private UserService myUserService;
+
 	private Label timeAndUser;
 
 	private Timer timer;
@@ -62,13 +59,13 @@ public class SecuredUI extends UI
 		}
 		else
 		{
-			showLogin();
+			notAuthorized();
 		}
 	}
 
-	private void showLogin()
+	private void notAuthorized()
 	{
-		setContent(new LoginForm(this::login));
+		setContent(new LoginOrRegisterForm(this::login, this::register));
 	}
 
 	private void showMain()
@@ -165,6 +162,15 @@ public class SecuredUI extends UI
 		{
 			return false;
 		}
+	}
+
+	private boolean register(String username, String password)
+	{
+		if(!myUserService.registerUser(username, password))
+		{
+			return false;
+		}
+		return login(username, password);
 	}
 
 	private void logout()

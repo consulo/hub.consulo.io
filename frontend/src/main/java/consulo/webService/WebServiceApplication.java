@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,11 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
 import consulo.webService.auth.mongo.domain.Role;
-import consulo.webService.auth.mongo.domain.UserAccount;
-import consulo.webService.auth.mongo.domain.UserAccountStatus;
-import consulo.webService.auth.mongo.service.DbService;
 import consulo.webService.auth.mongo.service.LocalAuthenticationProvider;
-import consulo.webService.auth.mongo.service.UserService;
 
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 //@ServletComponentScan(basePackages = "consulo.webService")
@@ -66,39 +63,25 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		private LocalAuthenticationProvider myLocalAuthenticationProvider;
 
 		@Autowired
-		private UserService myUserService;
-
-		@Autowired
-		private PasswordEncoder myPasswordEncoder;
-
-		@Autowired
 		private MongoOperations myMongoOperations;
 
-		@Autowired
-		protected DbService dbService;
+		//@Autowired
+		//protected DbService dbService;
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception
 		{
 			auth.authenticationProvider(myLocalAuthenticationProvider);
 
-			dbService.cleanUp();
-
-			myMongoOperations.insert(new Role("ROLE_USER"), "role");
-			myMongoOperations.insert(new Role("ROLE_ADMIN"), "role");
-
-			UserAccount user = new UserAccount();
-			user.setUsername("vistall.valeriy@gmail.com");
-			user.setPassword(myPasswordEncoder.encode("test"));
-			user.addRole(myUserService.getRole("ROLE_ADMIN"));
-			user.addRole(myUserService.getRole("ROLE_USER"));
-
-			myUserService.create(user);
-
-			user.setEnabled(true);
-			user.setStatus(UserAccountStatus.STATUS_APPROVED.name());
-
-			myUserService.save(user);
+			try
+			{
+				myMongoOperations.insert(new Role("ROLE_USER"), "role");
+				myMongoOperations.insert(new Role("ROLE_ADMIN"), "role");
+			}
+			catch(DuplicateKeyException e)
+			{
+				// don't throw error on duplicate
+			}
 		}
 
 		@Bean

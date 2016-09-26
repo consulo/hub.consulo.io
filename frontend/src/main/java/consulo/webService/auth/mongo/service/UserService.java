@@ -1,6 +1,8 @@
 package consulo.webService.auth.mongo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import consulo.webService.auth.mongo.domain.Role;
@@ -18,6 +20,33 @@ public class UserService
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Autowired
+	private PasswordEncoder myPasswordEncoder;
+
+	@Autowired
+	private MongoOperations myMongoOperations;
+
+	public boolean registerUser(String username, String password)
+	{
+		UserAccount user = new UserAccount();
+		user.setUsername(username);
+		user.setPassword(myPasswordEncoder.encode(password));
+
+		//user.addRole(getRole("ROLE_ADMIN"));
+		user.addRole(getRole("ROLE_USER"));
+
+		if(!create(user))
+		{
+			return false;
+		}
+
+		user.setEnabled(true);
+		user.setStatus(UserAccountStatus.STATUS_APPROVED.name());
+
+		save(user);
+		return true;
+	}
 
 	public Role getRole(String role)
 	{
