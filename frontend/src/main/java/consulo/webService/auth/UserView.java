@@ -7,15 +7,18 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 @SpringView(name = "") // Root view
-public class UserView extends VerticalLayout implements View {
+public class UserView extends VerticalLayout implements View
+{
 
-    public UserView() {
-        setMargin(true);
-        addComponent(new Label("User view"));
-    }
+	public UserView()
+	{
+		setMargin(true);
+		addComponent(new Label("User view"));
+	}
 
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
-        // NOP
-    }
+	@Override
+	public void enter(ViewChangeListener.ViewChangeEvent event)
+	{
+		// NOP
+	}
 }

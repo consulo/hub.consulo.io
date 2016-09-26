@@ -7,15 +7,18 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 @SpringView
-public class AdminView extends VerticalLayout implements View {
+public class AdminView extends VerticalLayout implements View
+{
 
-    public AdminView() {
-        setMargin(true);
-        addComponent(new Label("Admin view"));
-    }
+	public AdminView()
+	{
+		setMargin(true);
+		addComponent(new Label("Admin view"));
+	}
 
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
-        // NOP
-    }
+	@Override
+	public void enter(ViewChangeListener.ViewChangeEvent event)
+	{
+		// NOP
+	}
 }
