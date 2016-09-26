@@ -21,13 +21,17 @@ import consulo.webService.PluginChannelsService;
 @RestController
 public class PluginChannelRestController
 {
-	@Autowired
-	private PluginChannelsService myPluginChannelsService;
+	private final PluginChannelsService myPluginChannelsService;
+	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	private PluginDeployService myPluginDeployService;
+	public PluginChannelRestController(PluginChannelsService pluginChannelsService, PluginDeployService pluginDeployService)
+	{
+		myPluginChannelsService = pluginChannelsService;
+		myPluginDeployService = pluginDeployService;
+	}
 
-	@RequestMapping("/v2/consulo/plugins/download")
+	@RequestMapping("/api/plugins/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion, @RequestParam("pluginId") String pluginId)
 	{
 		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
@@ -43,13 +47,13 @@ public class PluginChannelRestController
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + targetFile.getName() + "\"").body(targetFile);
 	}
 
-	@RequestMapping(value = "/v2/consulo/plugins/deploy", method = RequestMethod.POST)
+	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
 	public PluginNode deploy(@RequestParam("channel") PluginChannel channel, @RequestBody(required = true) MultipartFile file) throws IOException
 	{
 		return myPluginDeployService.deployPlugin(channel, file::getInputStream);
 	}
 
-	@RequestMapping("/v2/consulo/plugins/list")
+	@RequestMapping("/api/plugins/list")
 	public PluginNode[] list(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion)
 	{
 		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
