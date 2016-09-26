@@ -56,7 +56,7 @@ public class SecuredUI extends UI
 	protected void init(VaadinRequest request)
 	{
 		getPage().setTitle("Vaadin and Spring Security Demo - Hybrid Security");
-		if(SecurityUtils.isLoggedIn())
+		if(SecurityUtil.isLoggedIn())
 		{
 			showMain();
 		}

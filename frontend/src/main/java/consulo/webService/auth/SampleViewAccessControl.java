@@ -16,11 +16,11 @@ public class SampleViewAccessControl implements ViewAccessControl
 	{
 		if(beanName.equals("adminView"))
 		{
-			return SecurityUtils.hasRole("ROLE_ADMIN");
+			return SecurityUtil.hasRole("ROLE_ADMIN");
 		}
 		else
 		{
-			return SecurityUtils.hasRole("ROLE_USER");
+			return SecurityUtil.hasRole("ROLE_USER");
 		}
 	}
 }
