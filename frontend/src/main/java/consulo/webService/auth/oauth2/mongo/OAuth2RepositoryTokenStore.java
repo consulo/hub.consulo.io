@@ -125,7 +125,7 @@ public class OAuth2RepositoryTokenStore implements TokenStore
 	{
 		String name = (String) authentication.getOAuth2Request().getExtensions().get("name");
 
-		OAuth2AuthenticationAccessToken token = oAuth2AccessTokenRepository.findByAuthenticationId(authenticationKeyGenerator.extractKey(authentication), name);
+		OAuth2AuthenticationAccessToken token = oAuth2AccessTokenRepository.findByAuthenticationIdAndName(authenticationKeyGenerator.extractKey(authentication), name);
 		return token == null ? null : token.getoAuth2AccessToken();
 	}
 

@@ -1,5 +1,9 @@
 package consulo.webService.auth.oauth2.domain;
 
+import java.io.Serializable;
+import java.util.Date;
+
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -10,14 +14,16 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
  * @since 22/05/2013
  */
 @Document(collection = "oauth2AccessToken")
-public class OAuth2AuthenticationAccessToken extends BaseEntity
+public class OAuth2AuthenticationAccessToken implements Serializable
 {
+	@Id
 	private String tokenId;
 	private OAuth2AccessToken oAuth2AccessToken;
 	private String authenticationId;
 	private String userName;
 	private String clientId;
 	private String name;
+	private Date timeCreated = new Date();
 
 	public OAuth2AuthenticationAccessToken()
 	{
@@ -31,6 +37,11 @@ public class OAuth2AuthenticationAccessToken extends BaseEntity
 		this.userName = authentication.getName();
 		this.clientId = authentication.getOAuth2Request().getClientId();
 		this.name = (String) authentication.getOAuth2Request().getExtensions().get("name");
+	}
+
+	public Date getTimeCreated()
+	{
+		return timeCreated;
 	}
 
 	public String getName()
@@ -61,5 +72,33 @@ public class OAuth2AuthenticationAccessToken extends BaseEntity
 	public String getClientId()
 	{
 		return clientId;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o)
+		{
+			return true;
+		}
+		if(!(o instanceof OAuth2AuthenticationAccessToken))
+		{
+			return false;
+		}
+
+		OAuth2AuthenticationAccessToken token = (OAuth2AuthenticationAccessToken) o;
+
+		if(tokenId != null ? !tokenId.equals(token.tokenId) : token.tokenId != null)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return tokenId != null ? tokenId.hashCode() : 0;
 	}
 }
