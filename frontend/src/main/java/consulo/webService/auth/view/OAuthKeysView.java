@@ -15,6 +15,7 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.util.containers.ContainerUtil;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.StringLengthValidator;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
@@ -99,7 +100,9 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 				window.close();
 			});
+			okButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
 			okButton.addStyleName(ValoTheme.BUTTON_TINY);
+			okButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
 			HorizontalLayout content = new HorizontalLayout(new Label("Name: "), textField, okButton);
 			content.setMargin(true);
