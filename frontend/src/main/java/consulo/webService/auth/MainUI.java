@@ -26,6 +26,7 @@ import consulo.webService.auth.ui.SideMenuUI;
 import consulo.webService.auth.view.AccessDeniedView;
 import consulo.webService.auth.view.DashboardView;
 import consulo.webService.auth.view.ErrorView;
+import consulo.webService.auth.view.OAuthKeysView;
 import consulo.webService.auth.view.UserInfoView;
 
 @SpringUI
@@ -81,6 +82,7 @@ public class MainUI extends UI
 		sideMenu.setUserNavigation(UserInfoView.ID);
 
 		sideMenu.addNavigation("Dashboard", FontAwesome.HOME, DashboardView.ID);
+		sideMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.ID);
 
 		sideMenu.addMenuItem("Logout", FontAwesome.SIGN_OUT, this::logout);
 
