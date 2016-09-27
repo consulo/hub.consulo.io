@@ -13,12 +13,12 @@ import consulo.webService.auth.mongo.service.UserService;
  * @since 26-Sep-16
  */
 @Service
-public class CustomUserDetailsService implements UserDetailsService
+public class MongoUserDetailsService implements UserDetailsService
 {
 	private final UserService userRepository;
 
 	@Autowired
-	public CustomUserDetailsService(UserService userRepository)
+	public MongoUserDetailsService(UserService userRepository)
 	{
 		this.userRepository = userRepository;
 	}

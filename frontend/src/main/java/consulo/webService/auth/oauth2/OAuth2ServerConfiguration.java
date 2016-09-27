@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,9 +16,11 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
+import consulo.webService.auth.oauth2.mongo.OAuth2RepositoryTokenStore;
 
 /**
  * @author VISTALL
@@ -26,6 +29,8 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 @Configuration
 public class OAuth2ServerConfiguration
 {
+	public static final String DEFAULT_CLIENT_ID = "consulo";
+
 	private static final String RESOURCE_ID = "restservice";
 
 	@Configuration
@@ -50,27 +55,47 @@ public class OAuth2ServerConfiguration
 	@EnableAuthorizationServer
 	protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter
 	{
-
-		private TokenStore tokenStore = new InMemoryTokenStore();
-
 		@Autowired
 		@Qualifier("authenticationManagerBean")
-		private AuthenticationManager authenticationManager;
+		private AuthenticationManager myAuthenticationManager;
 
 		@Autowired
-		private CustomUserDetailsService userDetailsService;
+		private MongoUserDetailsService myUserDetailsService;
+
+		@Autowired
+		@Lazy
+		private ClientDetailsService myClientDetailsService;
+
+		@Autowired
+		@Lazy
+		private OAuth2RepositoryTokenStore myTokenStore;
+
+		@Autowired
+		private OAuth2AccessTokenRepository myAccessTokenRepository;
+
+		@Autowired
+		@Lazy
+		private DefaultOAuth2RequestFactory myDefaultOAuth2RequestFactory;
 
 		@Override
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception
 		{
-			endpoints.tokenStore(this.tokenStore).authenticationManager(this.authenticationManager).userDetailsService(userDetailsService)
-					.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
+			endpoints.tokenStore(myTokenStore);
+			endpoints.authenticationManager(myAuthenticationManager);
+			endpoints.userDetailsService(myUserDetailsService);
+			endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
 		}
 
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception
 		{
-			clients.inMemory().withClient("clientapp").authorizedGrantTypes("password", "refresh_token").authorities("USER").scopes("read", "write").resourceIds(RESOURCE_ID).secret("123456");
+			clients.inMemory().withClient(DEFAULT_CLIENT_ID).authorizedGrantTypes("password", "refresh_token").authorities("USER").scopes("read", "write").resourceIds(RESOURCE_ID).secret("123456");
+		}
+
+		@Bean
+		public OAuth2RepositoryTokenStore tokenStore()
+		{
+			return new OAuth2RepositoryTokenStore(myAccessTokenRepository, myDefaultOAuth2RequestFactory);
 		}
 
 		@Bean
@@ -78,9 +103,16 @@ public class OAuth2ServerConfiguration
 		public DefaultTokenServices tokenServices()
 		{
 			DefaultTokenServices tokenServices = new DefaultTokenServices();
-			tokenServices.setSupportRefreshToken(true);
-			tokenServices.setTokenStore(this.tokenStore);
+			tokenServices.setSupportRefreshToken(false);
+			tokenServices.setAccessTokenValiditySeconds(Integer.MAX_VALUE);
+			tokenServices.setTokenStore(myTokenStore);
 			return tokenServices;
+		}
+
+		@Bean
+		public DefaultOAuth2RequestFactory defaultOAuth2RequestFactory()
+		{
+			return new DefaultOAuth2RequestFactory(myClientDetailsService);
 		}
 	}
 }

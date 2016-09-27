@@ -15,12 +15,12 @@ $v-textfield-bevel: false;
 $v-textfield-shadow: false;
 $v-textfield-border: 1px solid v-shade;
 $v-link-text-decoration: none;
-$v-overlay-shadow: 0 0 0 2px #000;
-$v-overlay-border-width: 2px; // For IE8
+$v-overlay-shadow: 0 0 0 1px #000;
+$v-overlay-border-width: 1px; // For IE8
 $v-window-shadow: $v-overlay-shadow;
 $v-selection-overlay-background-color: #fff;
 $v-selection-overlay-padding-horizontal: 0;
 $v-selection-overlay-padding-vertical: 6px;
-$v-panel-border: 2px solid v-shade;
+$v-panel-border: 1px solid v-shade;
 
 @import "../valo/valo";
