@@ -70,7 +70,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 			logger.warn("Username {}: not approved", username);
 			throw new BadCredentialsException("User has not been approved");
 		}
-		if(!user.getEnabled())
+		if(!user.isEnabled())
 		{
 			logger.warn("Username {}: disabled", username);
 			throw new BadCredentialsException("User disabled");
@@ -86,7 +86,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 			auths = AuthorityUtils.NO_AUTHORITIES;
 		}
 
-		return new User(username, password, user.getEnabled(), // enabled
+		return new User(username, password, user.isEnabled(), // enabled
 				true, // account not expired
 				true, // credentials not expired
 				true, // account not locked

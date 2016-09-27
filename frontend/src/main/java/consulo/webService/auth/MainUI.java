@@ -1,10 +1,5 @@
 package consulo.webService.auth;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,27 +10,29 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.DefaultErrorHandler;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import consulo.webService.auth.mongo.service.UserService;
 import consulo.webService.auth.ui.CaptchaFactory;
+import consulo.webService.auth.ui.SideMenu;
+import consulo.webService.auth.ui.SideMenuUI;
+import consulo.webService.auth.view.AccessDeniedView;
+import consulo.webService.auth.view.DashboardView;
+import consulo.webService.auth.view.ErrorView;
+import consulo.webService.auth.view.UserInfoView;
 
 @SpringUI
+@SideMenuUI
 // No @Push annotation, we are going to enable it programmatically when the user logs on
 @Theme("tests-valo-metro")
-public class SecuredUI extends UI
+public class MainUI extends UI
 {
 
 	@Autowired
@@ -56,17 +53,13 @@ public class SecuredUI extends UI
 	@Autowired
 	private CaptchaFactory myCaptchaFactory;
 
-	private Label timeAndUser;
-
-	private Timer timer;
-
 	@Override
 	protected void init(VaadinRequest request)
 	{
-		getPage().setTitle("Vaadin and Spring Security Demo - Hybrid Security");
+		getPage().setTitle("Hub");
 		if(SecurityUtil.isLoggedIn())
 		{
-			showMain();
+			buildUI();
 		}
 		else
 		{
@@ -79,77 +72,26 @@ public class SecuredUI extends UI
 		setContent(new LoginOrRegisterForm(myCaptchaFactory, this::login, this::register));
 	}
 
-	private void showMain()
+	private void buildUI()
 	{
-		VerticalLayout layout = new VerticalLayout();
-		layout.setMargin(true);
-		layout.setSpacing(true);
-		layout.setSizeFull();
+		SideMenu sideMenu = new SideMenu();
+		sideMenu.setMenuCaption("Hub");
+		sideMenu.setUserIcon(FontAwesome.USER);
+		sideMenu.setUserName(SecurityContextHolder.getContext().getAuthentication().getName());
+		sideMenu.setUserNavigation(UserInfoView.ID);
 
-		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setSpacing(true);
-		layout.addComponent(buttons);
+		sideMenu.addNavigation("Dashboard", FontAwesome.HOME, DashboardView.ID);
 
-		buttons.addComponent(new Button("Invoke user method", event -> {
-			// This method should be accessible by both 'user' and 'admin'.
-			Notification.show(backendService.userMethod());
-		}));
-		buttons.addComponent(new Button("Navigate to user view", event -> {
-			getNavigator().navigateTo("");
-		}));
-		buttons.addComponent(new Button("Invoke admin method", event -> {
-			// This method should be accessible by 'admin' only.
-			Notification.show(backendService.adminMethod());
-		}));
-		buttons.addComponent(new Button("Navigate to admin view", event -> {
-			getNavigator().navigateTo("admin");
-		}));
-		buttons.addComponent(new Button("Logout", event -> logout()));
-		timeAndUser = new Label();
-		timeAndUser.setSizeUndefined();
-		buttons.addComponent(timeAndUser);
-		buttons.setComponentAlignment(timeAndUser, Alignment.MIDDLE_LEFT);
+		sideMenu.addMenuItem("Logout", FontAwesome.SIGN_OUT, this::logout);
 
-		Panel viewContainer = new Panel();
-		viewContainer.setSizeFull();
-		layout.addComponent(viewContainer);
-		layout.setExpandRatio(viewContainer, 1.0f);
+		setContent(sideMenu);
 
-		setContent(layout);
 		setErrorHandler(this::handleError);
 
-		Navigator navigator = new Navigator(this, viewContainer);
+		Navigator navigator = new Navigator(this, sideMenu);
 		navigator.addProvider(viewProvider);
 		navigator.setErrorView(errorView);
 		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
-		// Fire up a timer to demonstrate server push. Do NOT use timers in real-world applications, use a thread pool.
-		timer = new Timer();
-		timer.schedule(new TimerTask()
-		{
-			@Override
-			public void run()
-			{
-				updateTimeAndUser();
-			}
-		}, 1000L, 1000L);
-	}
-
-	@Override
-	public void detach()
-	{
-		if(timer != null)
-		{
-			timer.cancel();
-		}
-		super.detach();
-	}
-
-	private void updateTimeAndUser()
-	{
-		// Demonstrate that server push works and that you can even access the security context from within the
-		// access(...) method.
-		access(() -> timeAndUser.setValue(String.format("The server-side time is %s and the current user is %s", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")),
-				SecurityContextHolder.getContext().getAuthentication().getName())));
 	}
 
 	private boolean login(String username, String password)
@@ -165,8 +107,10 @@ public class SecuredUI extends UI
 			// used WEBSOCKET_XHR and skipped this step completely.
 			getPushConfiguration().setTransport(Transport.WEBSOCKET);
 			getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
-			// Show the main UI
-			showMain();
+
+			buildUI();
+
+			getNavigator().navigateTo(getNavigator().getState());
 			return true;
 		}
 		catch(AuthenticationException ex)
@@ -187,6 +131,7 @@ public class SecuredUI extends UI
 	private void logout()
 	{
 		getPage().reload();
+		getPage().setUriFragment(null, false);
 		getSession().close();
 	}
 

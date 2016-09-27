@@ -1,4 +1,4 @@
-package consulo.webService.auth;
+package consulo.webService.auth.view;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -6,14 +6,15 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-@SpringView
-public class AdminView extends VerticalLayout implements View
+@SpringView(name = DashboardView.ID)
+public class DashboardView extends VerticalLayout implements View
 {
+	public static final String ID = "";
 
-	public AdminView()
+	public DashboardView()
 	{
 		setMargin(true);
-		addComponent(new Label("Admin view"));
+		addComponent(new Label("Dashboard"));
 	}
 
 	@Override

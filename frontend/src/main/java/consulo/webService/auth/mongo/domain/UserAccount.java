@@ -1,8 +1,10 @@
 package consulo.webService.auth.mongo.domain;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -11,9 +13,12 @@ import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Document
-public class UserAccount
+public class UserAccount implements UserDetails
 {
 	@Id
 	private String id;
@@ -25,7 +30,7 @@ public class UserAccount
 	private String firstname;
 	private String lastname;
 	private String status;
-	private Boolean enabled;
+	private boolean enabled;
 
 	@DBRef
 	private List<Role> roles = new ArrayList<Role>();
@@ -45,9 +50,33 @@ public class UserAccount
 		return username;
 	}
 
+	@Override
+	public boolean isAccountNonExpired()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired()
+	{
+		return true;
+	}
+
 	public void setUsername(String username)
 	{
 		this.username = username;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities()
+	{
+		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getId())).collect(Collectors.toList());
 	}
 
 	public String getPassword()
@@ -90,7 +119,7 @@ public class UserAccount
 		this.status = status;
 	}
 
-	public Boolean getEnabled()
+	public boolean isEnabled()
 	{
 		return enabled;
 	}
