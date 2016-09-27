@@ -13,16 +13,16 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import com.wcs.wcslib.vaadin.widget.recaptcha.ReCaptcha;
-import com.wcs.wcslib.vaadin.widget.recaptcha.shared.ReCaptchaOptions;
+import consulo.webService.auth.ui.Captcha;
+import consulo.webService.auth.ui.CaptchaFactory;
 
 public class LoginOrRegisterForm extends VerticalLayout
 {
-	private ReCaptcha myReCaptcha;
+	private Captcha myCaptcha;
 	private TextField myEmailTextField;
 	private PasswordField myPasswordField;
 
-	public LoginOrRegisterForm(LoginOrRegisterCallback loginCallback, LoginOrRegisterCallback registerCallback)
+	public LoginOrRegisterForm(CaptchaFactory captchaFactory, LoginOrRegisterCallback loginCallback, LoginOrRegisterCallback registerCallback)
 	{
 		VerticalLayout mainPanel = new VerticalLayout();
 		mainPanel.setSizeUndefined();
@@ -45,12 +45,7 @@ public class LoginOrRegisterForm extends VerticalLayout
 		myPasswordField.addValidator(new StringLengthValidator("Bad password", 1, Integer.MAX_VALUE, false));
 		mainPanel.addComponent(myPasswordField);
 
-		ReCaptchaOptions reCaptchaOptions = new ReCaptchaOptions();
-		reCaptchaOptions.type = "image";
-		reCaptchaOptions.theme = "light";
-		reCaptchaOptions.sitekey = "6LeUWtwSAAAAAM8RcPWKcjKjTroM8K7iK0Oikh6l";
-
-		myReCaptcha = new ReCaptcha("6LeUWtwSAAAAAMN_ao4CuJfC8sh1sWeh0rQPftbQ", reCaptchaOptions);
+		myCaptcha = captchaFactory.create();
 
 		Button loginButton = new Button("Login", createListener("Login failed", loginCallback));
 		loginButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -58,7 +53,7 @@ public class LoginOrRegisterForm extends VerticalLayout
 
 		Button registerButton = new Button("Register", createListener("Register failed", registerCallback));
 
-		mainPanel.addComponent(myReCaptcha);
+		mainPanel.addComponent(myCaptcha.getComponent());
 
 		HorizontalLayout buttonsPanel = new HorizontalLayout(loginButton, registerButton);
 		buttonsPanel.setComponentAlignment(registerButton, Alignment.MIDDLE_RIGHT);
@@ -71,7 +66,7 @@ public class LoginOrRegisterForm extends VerticalLayout
 	private Button.ClickListener createListener(String error, LoginOrRegisterCallback callback)
 	{
 		return event -> {
-			if(!myReCaptcha.validate())
+			if(!myCaptcha.isValid())
 			{
 				Notification notification = new Notification("ReCaptcha is bad", Notification.Type.ERROR_MESSAGE);
 				notification.setPosition(Position.TOP_RIGHT);
@@ -80,7 +75,7 @@ public class LoginOrRegisterForm extends VerticalLayout
 				return;
 			}
 
-			clearReCaptcha();
+			myCaptcha.refresh();
 
 			if(!myEmailTextField.isValid() || !myPasswordField.isValid())
 			{
@@ -99,14 +94,6 @@ public class LoginOrRegisterForm extends VerticalLayout
 				notification.show(Page.getCurrent());
 			}
 		};
-	}
-
-	private void clearReCaptcha()
-	{
-		if(!myReCaptcha.isEmpty())
-		{
-			myReCaptcha.reload();
-		}
 	}
 
 	@FunctionalInterface

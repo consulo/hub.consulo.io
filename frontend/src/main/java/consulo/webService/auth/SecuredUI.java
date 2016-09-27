@@ -21,8 +21,16 @@ import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 import consulo.webService.auth.mongo.service.UserService;
+import consulo.webService.auth.ui.CaptchaFactory;
 
 @SpringUI
 // No @Push annotation, we are going to enable it programmatically when the user logs on
@@ -45,6 +53,9 @@ public class SecuredUI extends UI
 	@Autowired
 	private UserService myUserService;
 
+	@Autowired
+	private CaptchaFactory myCaptchaFactory;
+
 	private Label timeAndUser;
 
 	private Timer timer;
@@ -65,7 +76,7 @@ public class SecuredUI extends UI
 
 	private void notAuthorized()
 	{
-		setContent(new LoginOrRegisterForm(this::login, this::register));
+		setContent(new LoginOrRegisterForm(myCaptchaFactory, this::login, this::register));
 	}
 
 	private void showMain()
