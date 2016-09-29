@@ -37,7 +37,6 @@ public class OAuth2ServerConfiguration
 	@EnableResourceServer
 	protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 	{
-
 		@Override
 		public void configure(ResourceServerSecurityConfigurer resources)
 		{
@@ -47,7 +46,7 @@ public class OAuth2ServerConfiguration
 		@Override
 		public void configure(HttpSecurity http) throws Exception
 		{
-			http.authorizeRequests().antMatchers("/api").authenticated();
+			http.authorizeRequests().antMatchers("/**").authenticated();
 		}
 	}
 
@@ -89,7 +88,7 @@ public class OAuth2ServerConfiguration
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception
 		{
-			clients.inMemory().withClient(DEFAULT_CLIENT_ID).authorizedGrantTypes("password", "refresh_token").authorities("USER").scopes("read", "write").resourceIds(RESOURCE_ID).secret("123456");
+			clients.inMemory().withClient(DEFAULT_CLIENT_ID).authorizedGrantTypes("password").authorities("USER").scopes("read", "write").resourceIds(RESOURCE_ID).secret("123456");
 		}
 
 		@Bean

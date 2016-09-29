@@ -1,10 +1,10 @@
 package consulo.webService.errorReporter;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import consulo.webService.auth.mongo.domain.UserAccount;
 
 /**
  * @author VISTALL
@@ -13,9 +13,8 @@ import consulo.webService.auth.mongo.domain.UserAccount;
 @RestController
 public class ErrorReportRestController
 {
-	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
-	public void create(@AuthenticationPrincipal UserAccount user)
+	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.GET)
+	public void create(@AuthenticationPrincipal(errorOnInvalidType = true) Authentication user)
 	{
-		System.out.println("test");
 	}
 }
