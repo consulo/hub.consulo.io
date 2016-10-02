@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.DefaultErrorHandler;
@@ -25,6 +26,7 @@ import consulo.webService.auth.ui.SideMenu;
 import consulo.webService.auth.ui.SideMenuUI;
 import consulo.webService.auth.view.AccessDeniedView;
 import consulo.webService.auth.view.DashboardView;
+import consulo.webService.auth.view.ErrorReportsView;
 import consulo.webService.auth.view.ErrorView;
 import consulo.webService.auth.view.OAuthKeysView;
 import consulo.webService.auth.view.UserInfoView;
@@ -33,6 +35,7 @@ import consulo.webService.auth.view.UserInfoView;
 @SideMenuUI
 // No @Push annotation, we are going to enable it programmatically when the user logs on
 @Theme("tests-valo-metro")
+@StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class MainUI extends UI
 {
 
@@ -82,6 +85,7 @@ public class MainUI extends UI
 		sideMenu.setUserNavigation(UserInfoView.ID);
 
 		sideMenu.addNavigation("Dashboard", FontAwesome.HOME, DashboardView.ID);
+		sideMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.ID);
 		sideMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.ID);
 
 		sideMenu.addMenuItem("Logout", FontAwesome.SIGN_OUT, this::logout);

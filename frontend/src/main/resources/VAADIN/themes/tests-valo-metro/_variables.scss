@@ -1,6 +1,6 @@
 $v-app-loading-text: "loading";
 
-$v-font-family: "Source Sans Pro", sans-serif;
+$v-font-family: 'Roboto', sans-serif;
 $v-app-background-color: #fff;
 $v-background-color: #eee;
 $v-focus-color: #0072C6;
@@ -22,5 +22,6 @@ $v-selection-overlay-background-color: #fff;
 $v-selection-overlay-padding-horizontal: 0;
 $v-selection-overlay-padding-vertical: 6px;
 $v-panel-border: 1px solid v-shade;
+$v-font-weight: 400;
 
 @import "../valo/valo";
