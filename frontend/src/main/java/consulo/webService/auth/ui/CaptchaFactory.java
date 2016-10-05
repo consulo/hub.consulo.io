@@ -61,9 +61,9 @@ public class CaptchaFactory
 			ReCaptchaOptions reCaptchaOptions = new ReCaptchaOptions();
 			reCaptchaOptions.type = "image";
 			reCaptchaOptions.theme = "light";
-			reCaptchaOptions.sitekey = "6LeUWtwSAAAAAM8RcPWKcjKjTroM8K7iK0Oikh6l";
+			reCaptchaOptions.sitekey = myEnvironment.getProperty("recaptcha.site.key");
 
-			ReCaptcha reCaptcha = new ReCaptcha("6LeUWtwSAAAAAMN_ao4CuJfC8sh1sWeh0rQPftbQ", reCaptchaOptions);
+			ReCaptcha reCaptcha = new ReCaptcha(myEnvironment.getProperty("recaptch.private.key"), reCaptchaOptions);
 
 			return new Captcha()
 			{
