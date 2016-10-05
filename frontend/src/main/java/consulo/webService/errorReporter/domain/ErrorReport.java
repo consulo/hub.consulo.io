@@ -48,7 +48,6 @@ public class ErrorReport implements Serializable
 	private String reporterEmail;
 	private ErrorReporterStatus status = ErrorReporterStatus.UNKNOWN;
 
-	@Indexed
 	private String stackTrace;
 
 	private long createDate = System.currentTimeMillis();
