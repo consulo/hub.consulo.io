@@ -1,6 +1,7 @@
 package consulo.webService;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.MultipartConfigElement;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -40,6 +41,13 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		public StandardServletMultipartResolver multipartResolver()
 		{
 			return new StandardServletMultipartResolver();
+		}
+
+		@Bean
+		public MultipartConfigElement multipartConfigElement()
+		{
+			int _128mb = 128 * 1024 * 1024;
+			return new MultipartConfigElement(null, _128mb, _128mb, -1);
 		}
 
 		@Bean
