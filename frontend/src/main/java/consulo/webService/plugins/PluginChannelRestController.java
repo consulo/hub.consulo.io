@@ -1,18 +1,22 @@
 package consulo.webService.plugins;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.intellij.openapi.util.io.FileUtil;
 import consulo.webService.PluginChannelsService;
 
 /**
@@ -49,8 +53,16 @@ public class PluginChannelRestController
 	}
 
 	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
-	public PluginNode deploy(@RequestParam("channel") PluginChannel channel, @RequestBody(required = true) MultipartFile file) throws IOException
+	public PluginNode deploy(@RequestParam("channel") PluginChannel channel, @RequestBody(required = true) MultipartFile file, @RequestHeader("Authorization") String authorization) throws IOException
 	{
+		String keyFromClient = authorization;
+		String keyFromFs = loadDeployKey();
+		//TODO [VISTALL] removed this hack later - use oauth
+		if(!Objects.equals(keyFromClient, keyFromFs))
+		{
+			throw new IOException("bad auth");
+		}
+
 		return myPluginDeployService.deployPlugin(channel, file::getInputStream);
 	}
 
@@ -60,5 +72,11 @@ public class PluginChannelRestController
 		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
 
 		return channelService.select(platformVersion);
+	}
+
+	private String loadDeployKey() throws IOException
+	{
+		File file = new File(myPluginChannelsService.getConsuloWebServiceHome(), "deploy.key");
+		return file.exists() ? FileUtil.loadTextAndClose(new FileInputStream(file)) : null;
 	}
 }
