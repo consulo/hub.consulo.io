@@ -21,7 +21,7 @@ Methods
  * **GET** /api/plugins/download?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pluginId={pluginId}
      * Return zip file with plugin, or 404
      * All parameters required
- * **GET** /api/plugins/list?channel={channel}&platformVersion={platformVersion|SNAPSHOT}&pretty={true|false}
+ * **GET** /api/plugins/list?channel={channel}&platformVersion={platformVersion|SNAPSHOT}
      * Return json with **PluginNode[]** (array of PluginNode)
  * **POST** /api/plugins/deploy?channel={channel}
      * Deploying plugin artifact(as zip file) to plugin manager.
