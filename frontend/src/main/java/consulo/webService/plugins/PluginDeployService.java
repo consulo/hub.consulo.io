@@ -70,7 +70,7 @@ public class PluginDeployService
 		pluginNode.platformVersion = String.valueOf(platformVersion);
 		pluginNode.date = System.currentTimeMillis();
 
-		PluginChannelService pluginChannelService = myPluginChannelsService.getUpdateService(channel);
+		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		pluginChannelService.push(pluginNode, "tar.gz", f -> {
 			FileUtilRt.copy(tempFile, f);
@@ -139,7 +139,7 @@ public class PluginDeployService
 
 		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
 
-		PluginChannelService pluginChannelService = pluginChannelsService.getUpdateService(channel);
+		PluginChannelService pluginChannelService = pluginChannelsService.getRepositoryByChannel(channel);
 
 		try
 		{

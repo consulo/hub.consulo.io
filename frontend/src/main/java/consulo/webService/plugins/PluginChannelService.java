@@ -74,7 +74,7 @@ public class PluginChannelService
 		}
 	}
 
-	private static final String[] ourPlatformPluginIds = {"consulo-win-no-jre", "consulo-linux-no-jre", "consulo-mac-no-jre"};
+	public static final String[] ourPlatformPluginIds = {"consulo-win-no-jre", "consulo-linux-no-jre", "consulo-mac-no-jre"};
 
 	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
 	public static final String SNAPSHOT = "SNAPSHOT";

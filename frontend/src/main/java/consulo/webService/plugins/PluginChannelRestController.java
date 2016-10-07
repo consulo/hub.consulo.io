@@ -66,7 +66,7 @@ public class PluginChannelRestController
 	@RequestMapping("/api/repository/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion, @RequestParam("pluginId") String pluginId)
 	{
-		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
+		PluginChannelService channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		PluginNode select = channelService.select(platformVersion, pluginId);
 		if(select == null)
@@ -115,7 +115,7 @@ public class PluginChannelRestController
 	@RequestMapping("/api/repository/list")
 	public PluginNode[] list(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion)
 	{
-		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
+		PluginChannelService channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		return channelService.select(platformVersion);
 	}

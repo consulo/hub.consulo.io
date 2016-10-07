@@ -57,7 +57,7 @@ public class PluginChannelsService
 	}
 
 	@NotNull
-	public PluginChannelService getUpdateService(@NotNull PluginChannel channel)
+	public PluginChannelService getRepositoryByChannel(@NotNull PluginChannel channel)
 	{
 		return myChildServices[channel.ordinal()];
 	}
