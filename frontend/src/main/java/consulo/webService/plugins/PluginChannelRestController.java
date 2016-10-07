@@ -36,7 +36,34 @@ public class PluginChannelRestController
 		myPluginDeployService = pluginDeployService;
 	}
 
+	// deprecated api methods
+
 	@RequestMapping("/api/plugins/download")
+	@Deprecated
+	public ResponseEntity<?> downloadDeprecated(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion, @RequestParam("pluginId") String pluginId)
+	{
+		return download(channel, platformVersion, pluginId);
+	}
+
+	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
+	@Deprecated
+	public PluginNode pluginDeployDeprecated(@RequestParam("channel") PluginChannel channel,
+			@RequestBody(required = true) MultipartFile file,
+			@RequestHeader("Authorization") String authorization) throws IOException
+	{
+		return pluginDeploy(channel, file, authorization);
+	}
+
+	@RequestMapping("/api/plugins/list")
+	@Deprecated
+	public PluginNode[] listDeprecated(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion)
+	{
+		return list(channel, platformVersion);
+	}
+
+	// api methods
+
+	@RequestMapping("/api/repository/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion, @RequestParam("pluginId") String pluginId)
 	{
 		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
@@ -52,7 +79,7 @@ public class PluginChannelRestController
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + targetFile.getName() + "\"").body(new FileSystemResource(targetFile));
 	}
 
-	@RequestMapping(value = "/api/plugins/platformDeploy", method = RequestMethod.POST)
+	@RequestMapping(value = "/api/repository/platformDeploy", method = RequestMethod.POST)
 	public PluginNode platformDeploy(@RequestParam("channel") PluginChannel channel,
 			@RequestBody(required = true) MultipartFile file,
 			@RequestParam("platformVersion") int platformVersion,
@@ -69,8 +96,10 @@ public class PluginChannelRestController
 		return myPluginDeployService.deployPlatform(channel, platformVersion, file);
 	}
 
-	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
-	public PluginNode deploy(@RequestParam("channel") PluginChannel channel, @RequestBody(required = true) MultipartFile file, @RequestHeader("Authorization") String authorization) throws IOException
+	@RequestMapping(value = "/api/repository/pluginDeploy", method = RequestMethod.POST)
+	public PluginNode pluginDeploy(@RequestParam("channel") PluginChannel channel,
+			@RequestBody(required = true) MultipartFile file,
+			@RequestHeader("Authorization") String authorization) throws IOException
 	{
 		String keyFromClient = authorization;
 		String keyFromFs = loadDeployKey();
@@ -83,7 +112,7 @@ public class PluginChannelRestController
 		return myPluginDeployService.deployPlugin(channel, file::getInputStream);
 	}
 
-	@RequestMapping("/api/plugins/list")
+	@RequestMapping("/api/repository/list")
 	public PluginNode[] list(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion)
 	{
 		PluginChannelService channelService = myPluginChannelsService.getUpdateService(channel);
