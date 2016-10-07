@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.ByteStreams;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
@@ -53,6 +54,30 @@ public class PluginDeployService
 	{
 		myPluginChannelsService = pluginChannelsService;
 		myPluginAnalyzerService = pluginAnalyzerService;
+	}
+
+	public PluginNode deployPlatform(PluginChannel channel, int platformVersion, MultipartFile multipartFile) throws IOException
+	{
+		File tempFile = myPluginChannelsService.createTempFile("deploy", "tar.gz");
+
+		multipartFile.transferTo(tempFile);
+
+		String nameWithoutExtension = multipartFile.getOriginalFilename().replace(".tar.gz", "");
+
+		PluginNode pluginNode = new PluginNode();
+		pluginNode.id = nameWithoutExtension;
+		pluginNode.version = String.valueOf(platformVersion);
+		pluginNode.platformVersion = String.valueOf(platformVersion);
+		pluginNode.date = System.currentTimeMillis();
+
+		PluginChannelService pluginChannelService = myPluginChannelsService.getUpdateService(channel);
+
+		pluginChannelService.push(pluginNode, "tar.gz", f -> {
+			FileUtilRt.copy(tempFile, f);
+		});
+
+		myPluginChannelsService.asyncDelete(tempFile);
+		return pluginNode;
 	}
 
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws IOException
@@ -137,7 +162,7 @@ public class PluginDeployService
 			LOGGER.info(e.getMessage(), e);
 		}
 
-		pluginChannelService.push(pluginNode, f -> {
+		pluginChannelService.push(pluginNode, "zip", f -> {
 			try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(f)))
 			{
 				CommonProcessors.CollectProcessor<File> fileCollectProcessor = new CommonProcessors.CollectProcessor<>();

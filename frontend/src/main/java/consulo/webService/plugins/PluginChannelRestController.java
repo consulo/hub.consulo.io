@@ -52,6 +52,23 @@ public class PluginChannelRestController
 		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + targetFile.getName() + "\"").body(new FileSystemResource(targetFile));
 	}
 
+	@RequestMapping(value = "/api/plugins/platformDeploy", method = RequestMethod.POST)
+	public PluginNode platformDeploy(@RequestParam("channel") PluginChannel channel,
+			@RequestBody(required = true) MultipartFile file,
+			@RequestParam("platformVersion") int platformVersion,
+			@RequestHeader("Authorization") String authorization) throws IOException
+	{
+		String keyFromClient = authorization;
+		String keyFromFs = loadDeployKey();
+		//TODO [VISTALL] removed this hack later - use oauth
+		if(!Objects.equals(keyFromClient, keyFromFs))
+		{
+			throw new IOException("bad auth");
+		}
+
+		return myPluginDeployService.deployPlatform(channel, platformVersion, file);
+	}
+
 	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
 	public PluginNode deploy(@RequestParam("channel") PluginChannel channel, @RequestBody(required = true) MultipartFile file, @RequestHeader("Authorization") String authorization) throws IOException
 	{

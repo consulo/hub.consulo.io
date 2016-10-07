@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.text.VersionComparatorUtil;
@@ -61,9 +62,9 @@ public class PluginChannelService
 		}
 
 		@NotNull
-		public File getFileForPlugin(String version)
+		public File getFileForPlugin(String version, String ext)
 		{
-			File zipFile = new File(myPluginDirectory, myPluginId + "_" + version + ".zip");
+			File zipFile = new File(myPluginDirectory, myPluginId + "_" + version + "." + ext);
 			FileUtilRt.createParentDirs(zipFile);
 			if(zipFile.exists())
 			{
@@ -73,6 +74,8 @@ public class PluginChannelService
 		}
 	}
 
+	private static final String[] ourPlatformPluginIds = {"consulo-win-no-jre", "consulo-linux-no-jre", "consulo-mac-no-jre"};
+
 	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
 	public static final String SNAPSHOT = "SNAPSHOT";
 
@@ -80,7 +83,7 @@ public class PluginChannelService
 
 	private final PluginChannel myChannel;
 
-	private Map<String, PluginsState> myPlugins = new ConcurrentSkipListMap<>();
+	private final Map<String, PluginsState> myPlugins = new ConcurrentSkipListMap<>();
 
 	public PluginChannelService(PluginChannel channel)
 	{
@@ -141,10 +144,10 @@ public class PluginChannelService
 
 	// guarded by lock
 	@Nullable
-	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, PluginsState state)
+	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, @NotNull PluginsState state)
 	{
 		NavigableMap<String, NavigableSet<PluginNode>> map = state.myPluginsByPlatformVersion;
-		if(SNAPSHOT.equals(platformVersion))
+		if(SNAPSHOT.equals(platformVersion) || ArrayUtil.contains(state.myPluginId, ourPlatformPluginIds))
 		{
 			Map.Entry<String, NavigableSet<PluginNode>> entry = map.lastEntry();
 			return entry == null ? null : entry.getValue();
@@ -153,7 +156,7 @@ public class PluginChannelService
 	}
 
 
-	public void push(PluginNode pluginNode, ThrowableConsumer<File, IOException> writeConsumer) throws IOException
+	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<File, IOException> writeConsumer) throws IOException
 	{
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 
@@ -162,7 +165,7 @@ public class PluginChannelService
 		try
 		{
 
-			File fileForPlugin = pluginsState.getFileForPlugin(pluginNode.version);
+			File fileForPlugin = pluginsState.getFileForPlugin(pluginNode.version, ext);
 
 			writeConsumer.consume(fileForPlugin);
 
@@ -207,7 +210,8 @@ public class PluginChannelService
 		FileUtil.visitFiles(myPluginChannelDirectory, processor);
 
 		processor.getResults().parallelStream().forEach(file -> {
-			if(file.getName().endsWith("zip.json"))
+			String name = file.getName();
+			if(name.endsWith("zip.json") || name.endsWith("tar.gz.json"))
 			{
 				try
 				{
@@ -230,8 +234,8 @@ public class PluginChannelService
 		pluginNode.clean();
 
 		String name = jsonFile.getName();
-		File zipFile = new File(jsonFile.getParentFile(), name.substring(0, name.length() - 5));
-		if(!zipFile.exists())
+		File targetArchive = new File(jsonFile.getParentFile(), name.substring(0, name.length() - 5));
+		if(!targetArchive.exists())
 		{
 			LOGGER.warn("Zombie json file: " + path);
 			return;
@@ -244,8 +248,8 @@ public class PluginChannelService
 		{
 			writeLock.lock();
 
-			pluginNode.length = zipFile.length();
-			pluginNode.targetFile = zipFile;
+			pluginNode.length = targetArchive.length();
+			pluginNode.targetFile = targetArchive;
 
 			pluginsState.add(pluginNode);
 		}
