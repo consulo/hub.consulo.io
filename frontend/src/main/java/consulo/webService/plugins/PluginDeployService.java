@@ -67,6 +67,7 @@ public class PluginDeployService
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = nameWithoutExtension;
 		pluginNode.version = String.valueOf(platformVersion);
+		pluginNode.name = "Platform";
 		pluginNode.platformVersion = String.valueOf(platformVersion);
 		pluginNode.date = System.currentTimeMillis();
 
