@@ -230,7 +230,11 @@ public class PluginChannelService
 		String path = jsonFile.getPath();
 		LOGGER.info("Analyze: " + path);
 
-		PluginNode pluginNode = GsonUtil.get().fromJson(new FileReader(jsonFile), PluginNode.class);
+		PluginNode pluginNode;
+		try(FileReader fileReader = new FileReader(jsonFile))
+		{
+			pluginNode = GsonUtil.get().fromJson(fileReader, PluginNode.class);
+		}
 		pluginNode.clean();
 
 		String name = jsonFile.getName();
