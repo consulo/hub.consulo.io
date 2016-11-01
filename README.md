@@ -30,7 +30,7 @@ Methods
      * Return json with **PluginNode** 
      * On error will send status code 403
 
-  * **POST** /api/repository/platformDeploy?channel={channel}
+ * **POST** /api/repository/platformDeploy?channel={channel}
     * Deploying platform artifact(as tar.gz file) to repository.
     * Return json with **PluginNode**
     * On error will send status code 403
