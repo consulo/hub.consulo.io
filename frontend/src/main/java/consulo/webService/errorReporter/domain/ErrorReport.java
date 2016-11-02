@@ -34,7 +34,7 @@ public class ErrorReport implements Serializable
 	private boolean appIsInternal;
 
 	private String lastAction;
-	private Integer previousException;
+	private String previousException;
 	private String message;
 	private String description;
 	private Integer assigneeId;
@@ -201,12 +201,12 @@ public class ErrorReport implements Serializable
 		this.lastAction = lastAction;
 	}
 
-	public Integer getPreviousException()
+	public String getPreviousException()
 	{
 		return previousException;
 	}
 
-	public void setPreviousException(Integer previousException)
+	public void setPreviousException(String previousException)
 	{
 		this.previousException = previousException;
 	}

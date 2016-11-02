@@ -71,13 +71,13 @@ public class ErrorReportRestController
 		String appBuild = errorReport.getAppBuild();
 		if(appBuild == null)
 		{
-			return resultWithMessage(CreateResult.BAD_REPORT, "'appBuild' required");
+			return resultWithMessage(CreateResult.BAD_REPORT, null, "'appBuild' required");
 		}
 
 		String appUpdateChannel = errorReport.getAppUpdateChannel();
 		if(appUpdateChannel == null)
 		{
-			return resultWithMessage(CreateResult.BAD_REPORT, "'appUpdateChannel' required");
+			return resultWithMessage(CreateResult.BAD_REPORT, null, "'appUpdateChannel' required");
 		}
 
 		PluginChannel pluginChannel = PluginChannel.valueOf(appUpdateChannel);
@@ -87,7 +87,7 @@ public class ErrorReportRestController
 		String osName = errorReport.getOsName();
 		if(osName == null)
 		{
-			return resultWithMessage(CreateResult.BAD_REPORT, "'osName' required");
+			return resultWithMessage(CreateResult.BAD_REPORT, null, "'osName' required");
 		}
 
 		OS os = OS.find(osName);
@@ -102,7 +102,7 @@ public class ErrorReportRestController
 			int lastVersion = Integer.parseInt(platformLastNode.version);
 			if(platformVersion < lastVersion)
 			{
-				return resultWithMessage(CreateResult.PLATFORM_UPDATE_REQUIRED, null);
+				return resultWithMessage(CreateResult.PLATFORM_UPDATE_REQUIRED, null, null);
 			}
 		}
 
@@ -121,7 +121,7 @@ public class ErrorReportRestController
 			int lastPluginVersion = Integer.parseInt(pluginNode.version);
 			if(pluginVersion < lastPluginVersion)
 			{
-				return resultWithMessage(CreateResult.PLUGIN_UPDATE_REQUIRED, entry.getKey());
+				return resultWithMessage(CreateResult.PLUGIN_UPDATE_REQUIRED, null, entry.getKey());
 			}
 		}
 
@@ -132,13 +132,17 @@ public class ErrorReportRestController
 			myErrorReportAttachmentRepository.save(attachment);
 		}
 
-		return resultWithMessage(CreateResult.OK, null);
+		return resultWithMessage(CreateResult.OK, errorReport.getId(), null);
 	}
 
-	private static Map<String, String> resultWithMessage(CreateResult result, String message)
+	private static Map<String, String> resultWithMessage(CreateResult result, String id, String message)
 	{
 		Map<String, String> map = new HashMap<>(1);
 		map.put("type", result.name());
+		if(id != null)
+		{
+			map.put("id", id);
+		}
 		if(message != null)
 		{
 			map.put("message", message);
