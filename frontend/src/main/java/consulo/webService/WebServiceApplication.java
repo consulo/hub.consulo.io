@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import consulo.webService.auth.Roles;
 import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
 import consulo.webService.auth.mongo.domain.Role;
 import consulo.webService.auth.mongo.service.LocalAuthenticationProvider;
@@ -83,8 +84,8 @@ public class WebServiceApplication extends SpringBootServletInitializer
 
 			try
 			{
-				myMongoOperations.insert(new Role("ROLE_USER"), "role");
-				myMongoOperations.insert(new Role("ROLE_ADMIN"), "role");
+				myMongoOperations.insert(new Role(Roles.ROLE_USER), "role");
+				myMongoOperations.insert(new Role(Roles.ROLE_ADMIN), "role");
 			}
 			catch(DuplicateKeyException e)
 			{

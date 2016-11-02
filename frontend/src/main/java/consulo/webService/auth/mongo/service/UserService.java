@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import consulo.webService.auth.Roles;
 import consulo.webService.auth.mongo.domain.Role;
 import consulo.webService.auth.mongo.domain.UserAccount;
 import consulo.webService.auth.mongo.domain.UserAccountStatus;
@@ -34,7 +35,7 @@ public class UserService
 		user.setPassword(myPasswordEncoder.encode(password));
 
 		//user.addRole(getRole("ROLE_ADMIN"));
-		user.addRole(getRole("ROLE_USER"));
+		user.addRole(getRole(Roles.ROLE_USER));
 
 		if(!create(user))
 		{

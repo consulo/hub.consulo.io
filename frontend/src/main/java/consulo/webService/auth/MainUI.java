@@ -25,6 +25,7 @@ import consulo.webService.auth.ui.CaptchaFactory;
 import consulo.webService.auth.ui.SideMenu;
 import consulo.webService.auth.ui.SideMenuUI;
 import consulo.webService.auth.view.AccessDeniedView;
+import consulo.webService.auth.view.AdminErrorReportsView;
 import consulo.webService.auth.view.DashboardView;
 import consulo.webService.auth.view.ErrorReportsView;
 import consulo.webService.auth.view.ErrorView;
@@ -87,6 +88,11 @@ public class MainUI extends UI
 		sideMenu.addNavigation("Dashboard", FontAwesome.HOME, DashboardView.ID);
 		sideMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.ID);
 		sideMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.ID);
+
+		if(SecurityUtil.hasRole(Roles.ROLE_ADMIN))
+		{
+			sideMenu.addNavigation("Admin / Error Reports", FontAwesome.BOLT, AdminErrorReportsView.ID);
+		}
 
 		sideMenu.addMenuItem("Logout", FontAwesome.SIGN_OUT, this::logout);
 
