@@ -40,9 +40,12 @@ public class PluginChannelRestController
 
 	@RequestMapping("/api/plugins/download")
 	@Deprecated
-	public ResponseEntity<?> downloadDeprecated(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion, @RequestParam("pluginId") String pluginId)
+	public ResponseEntity<?> downloadDeprecated(@RequestParam("channel") PluginChannel channel,
+			@RequestParam("platformVersion") String platformVersion,
+			@RequestParam("pluginId") String pluginId,
+			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		return download(channel, platformVersion, pluginId);
+		return download(channel, platformVersion, pluginId, platformBuildSelect);
 	}
 
 	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
@@ -56,19 +59,24 @@ public class PluginChannelRestController
 
 	@RequestMapping("/api/plugins/list")
 	@Deprecated
-	public PluginNode[] listDeprecated(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion)
+	public PluginNode[] listDeprecated(@RequestParam("channel") PluginChannel channel,
+			@RequestParam("platformVersion") String platformVersion,
+			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		return list(channel, platformVersion);
+		return list(channel, platformVersion, platformBuildSelect);
 	}
 
 	// api methods
 
 	@RequestMapping("/api/repository/download")
-	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion, @RequestParam("pluginId") String pluginId)
+	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
+			@RequestParam("platformVersion") String platformVersion,
+			@RequestParam("pluginId") String pluginId,
+			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
 		PluginChannelService channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
-		PluginNode select = channelService.select(platformVersion, pluginId);
+		PluginNode select = channelService.select(platformVersion, pluginId, platformBuildSelect);
 		if(select == null)
 		{
 			return ResponseEntity.notFound().build();
@@ -113,11 +121,13 @@ public class PluginChannelRestController
 	}
 
 	@RequestMapping("/api/repository/list")
-	public PluginNode[] list(@RequestParam("channel") PluginChannel channel, @RequestParam("platformVersion") String platformVersion)
+	public PluginNode[] list(@RequestParam("channel") PluginChannel channel,
+			@RequestParam("platformVersion") String platformVersion,
+			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
 		PluginChannelService channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
-		return channelService.select(platformVersion);
+		return channelService.select(platformVersion, platformBuildSelect);
 	}
 
 	private String loadDeployKey() throws IOException

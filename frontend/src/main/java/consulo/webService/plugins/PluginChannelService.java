@@ -91,7 +91,7 @@ public class PluginChannelService
 	}
 
 	@Nullable
-	public PluginNode select(@NotNull String platformVersion, @Nullable String pluginId)
+	public PluginNode select(@NotNull String platformVersion, @Nullable String pluginId, boolean platformBuildSelect)
 	{
 		PluginsState state = myPlugins.get(pluginId);
 		if(state == null)
@@ -102,7 +102,7 @@ public class PluginChannelService
 		state.myLock.readLock().lock();
 		try
 		{
-			NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, state);
+			NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, state, platformBuildSelect);
 			if(pluginNodes == null || pluginNodes.isEmpty())
 			{
 				return null;
@@ -117,7 +117,7 @@ public class PluginChannelService
 	}
 
 	@NotNull
-	public PluginNode[] select(@NotNull String platformVersion)
+	public PluginNode[] select(@NotNull String platformVersion, boolean platformBuildSelect)
 	{
 		List<PluginNode> list = new ArrayList<>();
 		for(PluginsState state : myPlugins.values())
@@ -125,7 +125,7 @@ public class PluginChannelService
 			state.myLock.readLock().lock();
 			try
 			{
-				NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, state);
+				NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, state, platformBuildSelect);
 				if(pluginNodes == null || pluginNodes.isEmpty())
 				{
 					continue;
@@ -144,10 +144,10 @@ public class PluginChannelService
 
 	// guarded by lock
 	@Nullable
-	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, @NotNull PluginsState state)
+	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, @NotNull PluginsState state, boolean platformBuildSelect)
 	{
 		NavigableMap<String, NavigableSet<PluginNode>> map = state.myPluginsByPlatformVersion;
-		if(SNAPSHOT.equals(platformVersion) || ArrayUtil.contains(state.myPluginId, ourPlatformPluginIds))
+		if(SNAPSHOT.equals(platformVersion) || !platformBuildSelect && ArrayUtil.contains(state.myPluginId, ourPlatformPluginIds))
 		{
 			Map.Entry<String, NavigableSet<PluginNode>> entry = map.lastEntry();
 			return entry == null ? null : entry.getValue();
