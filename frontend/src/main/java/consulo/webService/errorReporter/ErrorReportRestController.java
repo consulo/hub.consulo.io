@@ -35,9 +35,16 @@ public class ErrorReportRestController
 
 	private static enum OS
 	{
-		win,
-		linux,
-		mac;
+		win(PluginChannelService.ourStandardWinId),
+		linux(PluginChannelService.ourStandardLinuxId),
+		mac(PluginChannelService.ourStandardMacId);
+
+		private String myPluginId;
+
+		OS(String pluginId)
+		{
+			myPluginId = pluginId;
+		}
 
 		public static OS find(String osProperty)
 		{
@@ -92,7 +99,7 @@ public class ErrorReportRestController
 
 		OS os = OS.find(osName);
 
-		String platformPluginId = PluginChannelService.ourPlatformPluginIds[os.ordinal()];
+		String platformPluginId = os.myPluginId;
 
 		PluginNode platformLastNode = repository.select(PluginChannelService.SNAPSHOT, platformPluginId, false);
 

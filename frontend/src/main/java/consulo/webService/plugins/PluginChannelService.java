@@ -74,7 +74,20 @@ public class PluginChannelService
 		}
 	}
 
-	public static final String[] ourPlatformPluginIds = {"consulo-win-no-jre", "consulo-linux-no-jre", "consulo-mac-no-jre"};
+	public static final String ourStandardWinId = "consulo-win-no-jre";
+	public static final String ourStandardLinuxId = "consulo-linux-no-jre";
+	public static final String ourStandardMacId = "consulo-mac-no-jre";
+
+	private static final String[] ourPlatformPluginIds = {
+			ourStandardWinId,
+			"consulo-win",
+			"consulo-win64",
+			ourStandardLinuxId,
+			"consulo-linux",
+			"consulo-linux64",
+			ourStandardMacId,
+			"consulo-mac64"
+	};
 
 	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
 	public static final String SNAPSHOT = "SNAPSHOT";
@@ -231,7 +244,7 @@ public class PluginChannelService
 		LOGGER.info("Analyze: " + path);
 
 		PluginNode pluginNode;
-		try(FileReader fileReader = new FileReader(jsonFile))
+		try (FileReader fileReader = new FileReader(jsonFile))
 		{
 			pluginNode = GsonUtil.get().fromJson(fileReader, PluginNode.class);
 		}
