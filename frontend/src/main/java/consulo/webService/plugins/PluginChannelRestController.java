@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.intellij.openapi.util.io.FileUtil;
-import consulo.webService.PluginChannelsService;
+import consulo.webService.UserConfigurationService;
 
 /**
  * @author VISTALL
@@ -26,13 +26,13 @@ import consulo.webService.PluginChannelsService;
 @RestController
 public class PluginChannelRestController
 {
-	private final PluginChannelsService myPluginChannelsService;
+	private final UserConfigurationService myUserConfigurationService;
 	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	public PluginChannelRestController(PluginChannelsService pluginChannelsService, PluginDeployService pluginDeployService)
+	public PluginChannelRestController(UserConfigurationService userConfigurationService, PluginDeployService pluginDeployService)
 	{
-		myPluginChannelsService = pluginChannelsService;
+		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;
 	}
 
@@ -74,7 +74,7 @@ public class PluginChannelRestController
 			@RequestParam("pluginId") String pluginId,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		PluginChannelService channelService = myPluginChannelsService.getRepositoryByChannel(channel);
+		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
 		PluginNode select = channelService.select(platformVersion, pluginId, platformBuildSelect);
 		if(select == null)
@@ -125,14 +125,14 @@ public class PluginChannelRestController
 			@RequestParam("platformVersion") String platformVersion,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		PluginChannelService channelService = myPluginChannelsService.getRepositoryByChannel(channel);
+		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
 		return channelService.select(platformVersion, platformBuildSelect);
 	}
 
 	private String loadDeployKey() throws IOException
 	{
-		File file = new File(myPluginChannelsService.getConsuloWebServiceHome(), "deploy.key");
+		File file = new File(myUserConfigurationService.getConsuloWebServiceHome(), "deploy.key");
 		return file.exists() ? FileUtil.loadTextAndClose(new FileInputStream(file)) : null;
 	}
 }

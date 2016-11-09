@@ -13,8 +13,8 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.webService.auth.ui.Captcha;
-import consulo.webService.auth.ui.CaptchaFactory;
+import consulo.webService.ui.components.Captcha;
+import consulo.webService.ui.components.CaptchaFactory;
 
 public class LoginOrRegisterForm extends VerticalLayout
 {

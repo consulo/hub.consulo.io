@@ -12,6 +12,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.shared.communication.PushMode;
@@ -19,9 +20,7 @@ import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
 import consulo.webService.auth.mongo.service.UserService;
-import consulo.webService.auth.ui.CaptchaFactory;
 import consulo.webService.auth.ui.SideMenu;
 import consulo.webService.auth.ui.SideMenuUI;
 import consulo.webService.auth.view.AccessDeniedView;
@@ -31,26 +30,24 @@ import consulo.webService.auth.view.ErrorReportsView;
 import consulo.webService.auth.view.ErrorView;
 import consulo.webService.auth.view.OAuthKeysView;
 import consulo.webService.auth.view.UserInfoView;
+import consulo.webService.ui.BaseUI;
+import consulo.webService.ui.components.CaptchaFactory;
 
-@SpringUI
+@SpringUI(path = "dash")
 @SideMenuUI
 // No @Push annotation, we are going to enable it programmatically when the user logs on
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
-public class MainUI extends UI
+public class DashboardUI extends BaseUI
 {
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
 	@Autowired
-	AuthenticationManager authenticationManager;
+	private SpringViewProvider viewProvider;
 
 	@Autowired
-	BackendService backendService;
-
-	@Autowired
-	SpringViewProvider viewProvider;
-
-	@Autowired
-	ErrorView errorView;
+	private ErrorView errorView;
 
 	@Autowired
 	private UserService myUserService;
@@ -59,9 +56,9 @@ public class MainUI extends UI
 	private CaptchaFactory myCaptchaFactory;
 
 	@Override
-	protected void init(VaadinRequest request)
+	protected void initImpl(VaadinRequest request, Page page)
 	{
-		getPage().setTitle("Hub");
+		page.setTitle("Dashboard");
 		if(SecurityUtil.isLoggedIn())
 		{
 			buildUI();

@@ -1,4 +1,4 @@
-package consulo.webService.auth;
+package consulo.webService.ui;
 
 import javax.servlet.ServletException;
 
@@ -8,9 +8,8 @@ import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.spring.server.SpringVaadinServlet;
 
 @Component("vaadinServlet")
-public class CustomServlet extends SpringVaadinServlet
+public class VaadinServlet extends SpringVaadinServlet
 {
-
 	@Override
 	protected void servletInitialized() throws ServletException
 	{

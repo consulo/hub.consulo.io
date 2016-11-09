@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import consulo.webService.PluginChannelsService;
+import consulo.webService.UserConfigurationService;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReportAttachment;
 import consulo.webService.errorReporter.mongo.ErrorReportAttachmentRepository;
@@ -70,7 +70,7 @@ public class ErrorReportRestController
 	private ErrorReportAttachmentRepository myErrorReportAttachmentRepository;
 
 	@Autowired
-	private PluginChannelsService myPluginChannelsService;
+	private UserConfigurationService myUserConfigurationService;
 
 	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
 	public Map<String, String> create(@RequestBody ErrorReport errorReport) throws IOException
@@ -89,7 +89,7 @@ public class ErrorReportRestController
 
 		PluginChannel pluginChannel = PluginChannel.valueOf(appUpdateChannel);
 
-		PluginChannelService repository = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
+		PluginChannelService repository = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
 
 		String osName = errorReport.getOsName();
 		if(osName == null)

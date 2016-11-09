@@ -8,7 +8,7 @@ import org.junit.Test;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
-import consulo.webService.PluginChannelsService;
+import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
@@ -83,13 +83,13 @@ public class AnalyzerTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		PluginChannelsService pluginChannelsService = new PluginChannelsService(canonicalPath);
+		UserConfigurationService userConfigurationService = new UserConfigurationService(canonicalPath);
 
-		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(pluginChannelsService);
+		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 
-		PluginDeployService deploy = new PluginDeployService(pluginChannelsService, pluginAnalyzerService);
+		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService);
 
-		pluginChannelsService.contextInitialized();
+		userConfigurationService.contextInitialized();
 
 		PluginNode lastNode = null;
 		for(String pluginPath : pluginPaths)

@@ -1,4 +1,4 @@
-package consulo.webService.auth.ui;
+package consulo.webService.ui.components;
 
 import org.jetbrains.annotations.NotNull;
 import com.vaadin.ui.Component;

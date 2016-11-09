@@ -1,6 +1,10 @@
 package consulo.webService;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -8,23 +12,29 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.PostConstruct;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.SystemProperties;
+import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.util.ConsuloHelper;
+import consulo.webService.util.PropertySet;
 
 /**
  * @author VISTALL
  * @since 28-Aug-16
  */
 @Service
-public class PluginChannelsService
+public class UserConfigurationService
 {
-	private final PluginChannelService[] myChildServices;
+	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerService.class);
+
+	private final PluginChannelService[] myPluginChannelServices;
 
 	private final File myConsuloWebServiceHome;
 
@@ -34,21 +44,63 @@ public class PluginChannelsService
 
 	private Executor myExecutor = Executors.newFixedThreadPool(Integer.MAX_VALUE);
 
-	public PluginChannelsService()
+	private PropertySet myPropertySet;
+
+	public UserConfigurationService()
 	{
 		this(SystemProperties.getUserHome());
 	}
 
+	public PropertySet getPropertySet()
+	{
+		return myPropertySet;
+	}
+
+	public void setProperties(Properties properties)
+	{
+		File file = new File(myConsuloWebServiceHome, "config.xml");
+		FileUtilRt.delete(file);
+
+		try (FileOutputStream fileOutputStream = new FileOutputStream(file))
+		{
+			properties.storeToXML(fileOutputStream, "hub.consulo.io");
+
+			reloadProperties();
+		}
+		catch(IOException e)
+		{
+			LOGGER.error(e.getMessage(), e);
+		}
+	}
+
+	private void reloadProperties()
+	{
+		File file = new File(myConsuloWebServiceHome, "config.xml");
+		if(file.exists())
+		{
+			Properties properties = new Properties();
+			try
+			{
+				properties.loadFromXML(new FileInputStream(file));
+				myPropertySet = new PropertySet(properties);
+			}
+			catch(Exception e)
+			{
+				LOGGER.error(e.getMessage(), e);
+			}
+		}
+	}
+
 	@VisibleForTesting
-	public PluginChannelsService(String userHome)
+	public UserConfigurationService(String userHome)
 	{
 		ConsuloHelper.init();
 
 		PluginChannel[] values = PluginChannel.values();
-		myChildServices = new PluginChannelService[values.length];
+		myPluginChannelServices = new PluginChannelService[values.length];
 		for(int i = 0; i < values.length; i++)
 		{
-			myChildServices[i] = new PluginChannelService(values[i]);
+			myPluginChannelServices[i] = new PluginChannelService(values[i]);
 		}
 
 		myConsuloWebServiceHome = new File(userHome, ".consuloWebservice");
@@ -59,7 +111,7 @@ public class PluginChannelsService
 	@NotNull
 	public PluginChannelService getRepositoryByChannel(@NotNull PluginChannel channel)
 	{
-		return myChildServices[channel.ordinal()];
+		return myPluginChannelServices[channel.ordinal()];
 	}
 
 	@NotNull
@@ -108,7 +160,9 @@ public class PluginChannelsService
 		File pluginChannelDir = new File(myConsuloWebServiceHome, "plugin");
 		FileUtilRt.createDirectory(pluginChannelDir);
 
-		for(PluginChannelService service : myChildServices)
+		reloadProperties();
+
+		for(PluginChannelService service : myPluginChannelServices)
 		{
 			service.initImpl(pluginChannelDir);
 		}

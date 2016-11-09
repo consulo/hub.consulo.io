@@ -34,7 +34,7 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
-import consulo.webService.PluginChannelsService;
+import consulo.webService.UserConfigurationService;
 
 /**
  * @author VISTALL
@@ -45,20 +45,20 @@ public class PluginDeployService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PluginDeployService.class);
 
-	private PluginChannelsService myPluginChannelsService;
+	private UserConfigurationService myUserConfigurationService;
 
 	private PluginAnalyzerService myPluginAnalyzerService;
 
 	@Autowired
-	public PluginDeployService(PluginChannelsService pluginChannelsService, PluginAnalyzerService pluginAnalyzerService)
+	public PluginDeployService(UserConfigurationService userConfigurationService, PluginAnalyzerService pluginAnalyzerService)
 	{
-		myPluginChannelsService = pluginChannelsService;
+		myUserConfigurationService = userConfigurationService;
 		myPluginAnalyzerService = pluginAnalyzerService;
 	}
 
 	public PluginNode deployPlatform(PluginChannel channel, int platformVersion, MultipartFile multipartFile) throws IOException
 	{
-		File tempFile = myPluginChannelsService.createTempFile("deploy", "tar.gz");
+		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
 		multipartFile.transferTo(tempFile);
 
@@ -71,19 +71,19 @@ public class PluginDeployService
 		pluginNode.platformVersion = String.valueOf(platformVersion);
 		pluginNode.date = System.currentTimeMillis();
 
-		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(channel);
+		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
 		pluginChannelService.push(pluginNode, "tar.gz", f -> {
 			FileUtilRt.copy(tempFile, f);
 		});
 
-		myPluginChannelsService.asyncDelete(tempFile);
+		myUserConfigurationService.asyncDelete(tempFile);
 		return pluginNode;
 	}
 
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws IOException
 	{
-		File tempFile = myPluginChannelsService.createTempFile("deploy", "zip");
+		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");
 
 		try (InputStream inputStream = streamSupplier.compute())
 		{
@@ -93,20 +93,20 @@ public class PluginDeployService
 			}
 		}
 
-		File deployUnzip = myPluginChannelsService.createTempFile("deploy_unzip", "");
+		File deployUnzip = myUserConfigurationService.createTempFile("deploy_unzip", "");
 
 		FileUtilRt.createDirectory(deployUnzip);
 
 		ZipUtil.extract(tempFile, deployUnzip, null);
 
-		PluginNode pluginNode = loadPlugin(myPluginChannelsService, channel, deployUnzip);
+		PluginNode pluginNode = loadPlugin(myUserConfigurationService, channel, deployUnzip);
 
-		myPluginChannelsService.asyncDelete(tempFile);
-		myPluginChannelsService.asyncDelete(deployUnzip);
+		myUserConfigurationService.asyncDelete(tempFile);
+		myUserConfigurationService.asyncDelete(deployUnzip);
 		return pluginNode;
 	}
 
-	private PluginNode loadPlugin(PluginChannelsService pluginChannelsService, PluginChannel channel, File deployUnzip) throws IOException
+	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws IOException
 	{
 		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<IdeaPluginDescriptorImpl>();
 		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1);
@@ -140,7 +140,7 @@ public class PluginDeployService
 
 		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
 
-		PluginChannelService pluginChannelService = pluginChannelsService.getRepositoryByChannel(channel);
+		PluginChannelService pluginChannelService = userConfigurationService.getRepositoryByChannel(channel);
 
 		try
 		{

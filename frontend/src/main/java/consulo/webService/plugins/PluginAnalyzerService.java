@@ -35,7 +35,7 @@ import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 import com.intellij.util.lang.UrlClassLoader;
 import consulo.pluginAnalyzer.Analyzer;
-import consulo.webService.PluginChannelsService;
+import consulo.webService.UserConfigurationService;
 
 /**
  * @author VISTALL
@@ -48,12 +48,12 @@ public class PluginAnalyzerService
 
 	private final List<URL> platformClassUrls = new ArrayList<>();
 
-	private PluginChannelsService myPluginChannelsService;
+	private UserConfigurationService myUserConfigurationService;
 
 	@Autowired
-	public PluginAnalyzerService(PluginChannelsService pluginChannelsService)
+	public PluginAnalyzerService(UserConfigurationService userConfigurationService)
 	{
-		myPluginChannelsService = pluginChannelsService;
+		myUserConfigurationService = userConfigurationService;
 
 		init();
 	}
@@ -124,7 +124,7 @@ public class PluginAnalyzerService
 				continue;
 			}
 
-			File analyzeUnzip = myPluginChannelsService.createTempFile("analyze_unzip", "");
+			File analyzeUnzip = myUserConfigurationService.createTempFile("analyze_unzip", "");
 			forRemove = ArrayUtil.append(forRemove, analyzeUnzip);
 
 			ZipUtil.extract(pluginNode.targetFile, analyzeUnzip, null);
@@ -256,7 +256,7 @@ public class PluginAnalyzerService
 			}
 		}
 
-		myPluginChannelsService.asyncDelete(forRemove);
+		myUserConfigurationService.asyncDelete(forRemove);
 		return data;
 	}
 
