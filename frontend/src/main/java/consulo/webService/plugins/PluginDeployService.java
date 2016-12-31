@@ -73,9 +73,7 @@ public class PluginDeployService
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
-		pluginChannelService.push(pluginNode, "tar.gz", f -> {
-			FileUtilRt.copy(tempFile, f);
-		});
+		pluginChannelService.push(pluginNode, "tar.gz", f -> FileUtilRt.copy(tempFile, f));
 
 		myUserConfigurationService.asyncDelete(tempFile);
 		return pluginNode;
@@ -108,7 +106,7 @@ public class PluginDeployService
 
 	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws IOException
 	{
-		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<IdeaPluginDescriptorImpl>();
+		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
 		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1);
 		if(pluginDescriptors.size() != 1)
 		{
