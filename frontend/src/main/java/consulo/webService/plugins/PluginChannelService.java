@@ -222,23 +222,10 @@ public class PluginChannelService
 		CommonProcessors.CollectProcessor<File> processor = new CommonProcessors.CollectProcessor<>();
 		FileUtil.visitFiles(myPluginChannelDirectory, processor);
 
-		processor.getResults().parallelStream().forEach(file -> {
-			String name = file.getName();
-			if(name.endsWith("zip.json") || name.endsWith("tar.gz.json"))
-			{
-				try
-				{
-					processJsonFile(file);
-				}
-				catch(Exception e)
-				{
-					LOGGER.error(e.getMessage(), e);
-				}
-			}
-		});
+		processor.getResults().parallelStream().filter(file -> file.getName().endsWith("zip.json") || file.getName().endsWith("tar.gz.json")).forEach(this::processJsonFile);
 	}
 
-	private void processJsonFile(File jsonFile) throws Exception
+	private void processJsonFile(File jsonFile)
 	{
 		String path = jsonFile.getPath();
 		LOGGER.info("Analyze: " + path);
@@ -248,6 +235,12 @@ public class PluginChannelService
 		{
 			pluginNode = GsonUtil.get().fromJson(fileReader, PluginNode.class);
 		}
+		catch(IOException e)
+		{
+			LOGGER.error(e);
+			return;
+		}
+
 		pluginNode.clean();
 
 		String name = jsonFile.getName();
