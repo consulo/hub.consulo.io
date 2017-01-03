@@ -169,7 +169,7 @@ public class PluginChannelService
 	}
 
 
-	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<File, IOException> writeConsumer) throws IOException
+	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<File, Exception> writeConsumer) throws Exception
 	{
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 

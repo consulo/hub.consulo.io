@@ -43,6 +43,7 @@ public class TarGzArchive
 	public void prepare(@NotNull File targetDirectory) throws IOException
 	{
 		FileUtilRt.delete(targetDirectory);
+		FileUtilRt.createDirectory(targetDirectory);
 
 		try (TarArchiveInputStream ais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(myFile))))
 		{

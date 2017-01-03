@@ -17,6 +17,8 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,7 @@ import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.plugins.archive.TarGzArchive;
 
 /**
  * @author VISTALL
@@ -56,30 +59,76 @@ public class PluginDeployService
 		myPluginAnalyzerService = pluginAnalyzerService;
 	}
 
-	public PluginNode deployPlatform(PluginChannel channel, int platformVersion, MultipartFile multipartFile) throws IOException
+	@NotNull
+	public PluginNode deployPlatform(PluginChannel channel, int platformVersion, MultipartFile multipartFile) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
 		multipartFile.transferTo(tempFile);
 
-		String nameWithoutExtension = multipartFile.getOriginalFilename().replace(".tar.gz", "");
+		File deployPlatform = myUserConfigurationService.createTempFile("deploy_platform_extract", null);
 
+		TarGzArchive archive = new TarGzArchive(tempFile);
+
+		archive.prepare(deployPlatform);
+
+		String pluginId = multipartFile.getOriginalFilename().replace(".tar.gz", "");
+
+		PluginNode pluginNode = deployPlatformImpl(channel, pluginId, platformVersion, archive, "tar.gz");
+
+		if(pluginId.startsWith("consulo-win"))
+		{
+			// special hack for windows
+			deployPlatformImpl(channel, pluginId + "-zip", platformVersion, archive, "zip");
+		}
+
+		myUserConfigurationService.asyncDelete(tempFile);
+		myUserConfigurationService.asyncDelete(deployPlatform);
+
+		return pluginNode;
+	}
+
+	@NotNull
+	private PluginNode deployPlatformImpl(PluginChannel channel, String pluginId, int platformVersion, TarGzArchive archive, String ext) throws Exception
+	{
 		PluginNode pluginNode = new PluginNode();
-		pluginNode.id = nameWithoutExtension;
+		pluginNode.id = pluginId;
 		pluginNode.version = String.valueOf(platformVersion);
 		pluginNode.name = "Platform";
 		pluginNode.platformVersion = String.valueOf(platformVersion);
 		pluginNode.date = System.currentTimeMillis();
 
+		// remove old plugin channel markets
+		for(PluginChannel pluginChannel : PluginChannel.values())
+		{
+			archive.removeEntry(makePluginChannelFileName(pluginId, pluginChannel));
+		}
+
+		archive.putEntry(makePluginChannelFileName(pluginId, channel), ArrayUtil.EMPTY_BYTE_ARRAY);
+
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
-		pluginChannelService.push(pluginNode, "tar.gz", f -> FileUtilRt.copy(tempFile, f));
+		String type = ext.equals("zip") ? ArchiveStreamFactory.ZIP : ArchiveStreamFactory.TAR;
 
-		myUserConfigurationService.asyncDelete(tempFile);
+		pluginChannelService.push(pluginNode, ext, f -> archive.create(f, type));
+
 		return pluginNode;
 	}
 
-	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws IOException
+	private static String makePluginChannelFileName(String pluginId, PluginChannel pluginChannel)
+	{
+		boolean mac = pluginId.startsWith("consulo-mac");
+		if(mac)
+		{
+			return "Consulo.app/Contents/." + pluginChannel.name();
+		}
+		else
+		{
+			return "Consulo/." + pluginChannel.name();
+		}
+	}
+
+	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");
 
@@ -104,7 +153,7 @@ public class PluginDeployService
 		return pluginNode;
 	}
 
-	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws IOException
+	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
 	{
 		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
 		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1);

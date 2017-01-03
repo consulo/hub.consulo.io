@@ -12,12 +12,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.PostConstruct;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.SystemProperties;
 import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginChannel;
@@ -115,11 +117,11 @@ public class UserConfigurationService
 	}
 
 	@NotNull
-	public File createTempFile(String prefix, String ext)
+	public File createTempFile(String prefix, @Nullable String ext)
 	{
 		long l = myTempCount.incrementAndGet();
 
-		File file = new File(myTempUploadDirectory, prefix + "_" + l + "." + ext);
+		File file = new File(myTempUploadDirectory, StringUtil.isEmpty(ext) ? prefix + "_" + l : prefix + "_" + l + "." + ext);
 		if(file.exists())
 		{
 			FileUtilRt.delete(file);

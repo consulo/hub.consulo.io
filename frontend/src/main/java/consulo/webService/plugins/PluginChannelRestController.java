@@ -45,14 +45,14 @@ public class PluginChannelRestController
 			@RequestParam("pluginId") String pluginId,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		return download(channel, platformVersion, pluginId, platformBuildSelect);
+		return download(channel, platformVersion, pluginId, platformBuildSelect, false);
 	}
 
 	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
 	@Deprecated
 	public PluginNode pluginDeployDeprecated(@RequestParam("channel") PluginChannel channel,
 			@RequestBody(required = true) MultipartFile file,
-			@RequestHeader("Authorization") String authorization) throws IOException
+			@RequestHeader("Authorization") String authorization) throws Exception
 	{
 		return pluginDeploy(channel, file, authorization);
 	}
@@ -72,11 +72,23 @@ public class PluginChannelRestController
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
 			@RequestParam("platformVersion") String platformVersion,
 			@RequestParam("pluginId") String pluginId,
-			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
+			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
+			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip)
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
-		PluginNode select = channelService.select(platformVersion, pluginId, platformBuildSelect);
+		String pluginIdNew = pluginId;
+		if(zip)
+		{
+			pluginIdNew = pluginId + "-zip";
+		}
+
+		PluginNode select = channelService.select(platformVersion, pluginIdNew, platformBuildSelect);
+		if(select == null)
+		{
+			select = channelService.select(platformVersion, pluginId, platformBuildSelect);
+		}
+
 		if(select == null)
 		{
 			return ResponseEntity.notFound().build();
@@ -91,7 +103,7 @@ public class PluginChannelRestController
 	public PluginNode platformDeploy(@RequestParam("channel") PluginChannel channel,
 			@RequestBody(required = true) MultipartFile file,
 			@RequestParam("platformVersion") int platformVersion,
-			@RequestHeader("Authorization") String authorization) throws IOException
+			@RequestHeader("Authorization") String authorization) throws Exception
 	{
 		String keyFromClient = authorization;
 		String keyFromFs = loadDeployKey();
@@ -107,7 +119,7 @@ public class PluginChannelRestController
 	@RequestMapping(value = "/api/repository/pluginDeploy", method = RequestMethod.POST)
 	public PluginNode pluginDeploy(@RequestParam("channel") PluginChannel channel,
 			@RequestBody(required = true) MultipartFile file,
-			@RequestHeader("Authorization") String authorization) throws IOException
+			@RequestHeader("Authorization") String authorization) throws Exception
 	{
 		String keyFromClient = authorization;
 		String keyFromFs = loadDeployKey();
