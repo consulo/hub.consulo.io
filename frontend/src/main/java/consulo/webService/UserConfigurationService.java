@@ -51,17 +51,17 @@ public class UserConfigurationService
 
 	private Executor myExecutor = Executors.newFixedThreadPool(Integer.MAX_VALUE, new ThreadFactory()
 	{
-		private final ThreadGroup ourGroup = new ThreadGroup("async delete");
+		private final ThreadGroup myGroup = new ThreadGroup("async delete");
 
 		{
-			ourGroup.setMaxPriority(Thread.MIN_PRIORITY);
+			myGroup.setMaxPriority(Thread.MIN_PRIORITY);
 		}
 
 		@NotNull
 		@Override
 		public Thread newThread(@NotNull Runnable r)
 		{
-			return new Thread(ourGroup, r);
+			return new Thread(myGroup, r);
 		}
 	});
 
