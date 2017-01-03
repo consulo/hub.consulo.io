@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.io.FileUtilRt;
@@ -44,13 +46,44 @@ public class UserConfigurationService
 
 	private AtomicLong myTempCount = new AtomicLong();
 
-	private Executor myExecutor = Executors.newFixedThreadPool(Integer.MAX_VALUE);
+	private Executor myExecutor = Executors.newFixedThreadPool(Integer.MAX_VALUE, new ThreadFactory()
+	{
+		private final ThreadGroup ourGroup = new ThreadGroup("async delete");
+
+		{
+			ourGroup.setMaxPriority(Thread.MIN_PRIORITY);
+		}
+
+		@NotNull
+		@Override
+		public Thread newThread(@NotNull Runnable r)
+		{
+			return new Thread(ourGroup, r);
+		}
+	});
 
 	private PropertySet myPropertySet;
 
 	public UserConfigurationService()
 	{
 		this(SystemProperties.getUserHome());
+	}
+
+	@VisibleForTesting
+	public UserConfigurationService(String userHome)
+	{
+		ConsuloHelper.init();
+
+		PluginChannel[] values = PluginChannel.values();
+		myPluginChannelServices = new PluginChannelService[values.length];
+		for(int i = 0; i < values.length; i++)
+		{
+			myPluginChannelServices[i] = new PluginChannelService(values[i]);
+		}
+
+		myConsuloWebServiceHome = new File(userHome, ".consuloWebservice");
+
+		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConsuloWebServiceHome.getPath());
 	}
 
 	public PropertySet getPropertySet()
@@ -61,7 +94,7 @@ public class UserConfigurationService
 	public void setProperties(Properties properties)
 	{
 		File file = new File(myConsuloWebServiceHome, "config.xml");
-		FileUtilRt.delete(file);
+		FileSystemUtils.deleteRecursively(file);
 
 		try (FileOutputStream fileOutputStream = new FileOutputStream(file))
 		{
@@ -93,23 +126,6 @@ public class UserConfigurationService
 		}
 	}
 
-	@VisibleForTesting
-	public UserConfigurationService(String userHome)
-	{
-		ConsuloHelper.init();
-
-		PluginChannel[] values = PluginChannel.values();
-		myPluginChannelServices = new PluginChannelService[values.length];
-		for(int i = 0; i < values.length; i++)
-		{
-			myPluginChannelServices[i] = new PluginChannelService(values[i]);
-		}
-
-		myConsuloWebServiceHome = new File(userHome, ".consuloWebservice");
-
-		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConsuloWebServiceHome.getPath());
-	}
-
 	@NotNull
 	public PluginChannelService getRepositoryByChannel(@NotNull PluginChannel channel)
 	{
@@ -124,7 +140,7 @@ public class UserConfigurationService
 		File file = new File(myTempUploadDirectory, StringUtil.isEmpty(ext) ? prefix + "_" + l : prefix + "_" + l + "." + ext);
 		if(file.exists())
 		{
-			FileUtilRt.delete(file);
+			FileSystemUtils.deleteRecursively(file);
 		}
 
 		return file;
@@ -139,7 +155,7 @@ public class UserConfigurationService
 		myExecutor.execute(() -> {
 			for(File file : files)
 			{
-				FileUtilRt.delete(file);
+				FileSystemUtils.deleteRecursively(file);
 			}
 		});
 	}
@@ -156,7 +172,7 @@ public class UserConfigurationService
 		FileUtilRt.createDirectory(myConsuloWebServiceHome);
 
 		myTempUploadDirectory = new File(myConsuloWebServiceHome, "tempUpload");
-		FileUtilRt.delete(myTempUploadDirectory);
+		FileSystemUtils.deleteRecursively(myTempUploadDirectory);
 		FileUtilRt.createDirectory(myTempUploadDirectory);
 
 		File pluginChannelDir = new File(myConsuloWebServiceHome, "plugin");

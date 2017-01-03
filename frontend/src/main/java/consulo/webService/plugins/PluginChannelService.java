@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
@@ -188,7 +189,7 @@ public class PluginChannelService
 
 			File metaFile = new File(fileForPlugin.getParentFile(), fileForPlugin.getName() + ".json");
 
-			FileUtilRt.delete(metaFile);
+			FileSystemUtils.deleteRecursively(metaFile);
 
 			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
 

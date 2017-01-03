@@ -22,6 +22,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.io.StreamUtil;
 import com.intellij.util.io.tar.TarEntry;
@@ -42,7 +43,7 @@ public class TarGzArchive
 
 	public void prepare(@NotNull File targetDirectory) throws IOException
 	{
-		FileUtilRt.delete(targetDirectory);
+		FileSystemUtils.deleteRecursively(targetDirectory);
 		FileUtilRt.createDirectory(targetDirectory);
 
 		try (TarArchiveInputStream ais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(myFile))))

@@ -33,7 +33,6 @@ public class PluginChannelIteration
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
 	}
 
-
 	/**
 	 * every hour
 	 */

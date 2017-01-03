@@ -5,14 +5,14 @@ import java.io.InputStream;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginAnalyzerService;
+import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
-import consulo.webService.plugins.PluginChannel;
 
 /**
  * @author VISTALL
@@ -77,7 +77,7 @@ public class AnalyzerTest extends Assert
 		{
 			for(File child : files)
 			{
-				FileUtilRt.delete(child);
+				FileSystemUtils.deleteRecursively(child);
 			}
 		}
 
@@ -99,7 +99,7 @@ public class AnalyzerTest extends Assert
 			lastNode = deploy.deployPlugin(PluginChannel.internal, () -> resourceAsStream);
 		}
 
-		FileUtilRt.delete(tempDir);
+		FileSystemUtils.deleteRecursively(tempDir);
 		return lastNode;
 	}
 }
