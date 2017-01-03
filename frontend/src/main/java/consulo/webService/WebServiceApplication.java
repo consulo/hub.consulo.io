@@ -10,8 +10,13 @@ import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -27,6 +32,7 @@ import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
 import consulo.webService.auth.mongo.domain.Role;
 import consulo.webService.auth.mongo.service.LocalAuthenticationProvider;
 
+@EnableScheduling
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 //@ServletComponentScan(basePackages = "consulo.webService")
 //@ComponentScan(basePackages = "consulo.webService")
@@ -55,6 +61,18 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		public PasswordEncoder passwordEncoder()
 		{
 			return new BCryptPasswordEncoder();
+		}
+
+		@Bean
+		public TaskExecutor taskExecutor()
+		{
+			return new ThreadPoolTaskExecutor();
+		}
+
+		@Bean
+		public TaskScheduler taskScheduler()
+		{
+			return new ThreadPoolTaskScheduler();
 		}
 
 		@PostConstruct

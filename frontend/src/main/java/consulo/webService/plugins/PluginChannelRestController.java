@@ -1,10 +1,10 @@
 package consulo.webService.plugins;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Objects;
 
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.intellij.openapi.util.io.FileUtil;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.util.PropertyKeys;
 
 /**
  * @author VISTALL
@@ -106,7 +106,7 @@ public class PluginChannelRestController
 			@RequestHeader("Authorization") String authorization) throws Exception
 	{
 		String keyFromClient = authorization;
-		String keyFromFs = loadDeployKey();
+		String keyFromFs = getDeployKey();
 		//TODO [VISTALL] removed this hack later - use oauth
 		if(!Objects.equals(keyFromClient, keyFromFs))
 		{
@@ -122,7 +122,7 @@ public class PluginChannelRestController
 			@RequestHeader("Authorization") String authorization) throws Exception
 	{
 		String keyFromClient = authorization;
-		String keyFromFs = loadDeployKey();
+		String keyFromFs = getDeployKey();
 		//TODO [VISTALL] removed this hack later - use oauth
 		if(!Objects.equals(keyFromClient, keyFromFs))
 		{
@@ -142,9 +142,9 @@ public class PluginChannelRestController
 		return channelService.select(platformVersion, platformBuildSelect);
 	}
 
-	private String loadDeployKey() throws IOException
+	@Nullable
+	private String getDeployKey()
 	{
-		File file = new File(myUserConfigurationService.getConsuloWebServiceHome(), "deploy.key");
-		return file.exists() ? FileUtil.loadTextAndClose(new FileInputStream(file)) : null;
+		return myUserConfigurationService.getPropertySet().getStringProperty(PropertyKeys.DEPLOY_KEY);
 	}
 }

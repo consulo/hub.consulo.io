@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import com.google.common.annotations.VisibleForTesting;
@@ -27,6 +29,7 @@ import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.util.ConsuloHelper;
+import consulo.webService.util.PropertyKeys;
 import consulo.webService.util.PropertySet;
 
 /**
@@ -40,7 +43,7 @@ public class UserConfigurationService
 
 	private final PluginChannelService[] myPluginChannelServices;
 
-	private final File myConsuloWebServiceHome;
+	private final File myConfigDirectory;
 
 	private File myTempUploadDirectory;
 
@@ -63,6 +66,8 @@ public class UserConfigurationService
 	});
 
 	private PropertySet myPropertySet;
+	@Autowired
+	private TaskExecutor myTaskExecutor;
 
 	public UserConfigurationService()
 	{
@@ -81,9 +86,11 @@ public class UserConfigurationService
 			myPluginChannelServices[i] = new PluginChannelService(values[i]);
 		}
 
-		myConsuloWebServiceHome = new File(userHome, ".consuloWebservice");
+		myConfigDirectory = new File(userHome, ".consuloWebservice");
 
-		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConsuloWebServiceHome.getPath());
+		FileUtilRt.createDirectory(myConfigDirectory);
+
+		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConfigDirectory.getPath());
 	}
 
 	public PropertySet getPropertySet()
@@ -93,7 +100,7 @@ public class UserConfigurationService
 
 	public void setProperties(Properties properties)
 	{
-		File file = new File(myConsuloWebServiceHome, "config.xml");
+		File file = new File(myConfigDirectory, "config.xml");
 		FileSystemUtils.deleteRecursively(file);
 
 		try (FileOutputStream fileOutputStream = new FileOutputStream(file))
@@ -110,7 +117,7 @@ public class UserConfigurationService
 
 	private void reloadProperties()
 	{
-		File file = new File(myConsuloWebServiceHome, "config.xml");
+		File file = new File(myConfigDirectory, "config.xml");
 		if(file.exists())
 		{
 			Properties properties = new Properties();
@@ -118,6 +125,8 @@ public class UserConfigurationService
 			{
 				properties.loadFromXML(new FileInputStream(file));
 				myPropertySet = new PropertySet(properties);
+
+				onPropertySetChanged(myPropertySet);
 			}
 			catch(Exception e)
 			{
@@ -160,29 +169,35 @@ public class UserConfigurationService
 		});
 	}
 
-	@NotNull
-	public File getConsuloWebServiceHome()
-	{
-		return myConsuloWebServiceHome;
-	}
-
 	@PostConstruct
 	public void contextInitialized()
 	{
-		FileUtilRt.createDirectory(myConsuloWebServiceHome);
-
-		myTempUploadDirectory = new File(myConsuloWebServiceHome, "tempUpload");
-		FileSystemUtils.deleteRecursively(myTempUploadDirectory);
-		FileUtilRt.createDirectory(myTempUploadDirectory);
-
-		File pluginChannelDir = new File(myConsuloWebServiceHome, "plugin");
-		FileUtilRt.createDirectory(pluginChannelDir);
-
 		reloadProperties();
+	}
 
-		for(PluginChannelService service : myPluginChannelServices)
-		{
-			service.initImpl(pluginChannelDir);
-		}
+	private void onPropertySetChanged(@NotNull PropertySet propertySet)
+	{
+		myTaskExecutor.execute(() -> {
+			String workDirValue = propertySet.getStringProperty(PropertyKeys.WORKING_DIRECTORY);
+			if(StringUtil.isEmpty(workDirValue))
+			{
+				workDirValue = myConfigDirectory.getPath();
+			}
+
+			File workingDirectory = new File(workDirValue);
+			FileUtilRt.createDirectory(workingDirectory);
+
+			myTempUploadDirectory = new File(workingDirectory, "tempUpload");
+			FileSystemUtils.deleteRecursively(myTempUploadDirectory);
+			FileUtilRt.createDirectory(myTempUploadDirectory);
+
+			File pluginChannelDir = new File(workingDirectory, "plugin");
+			FileUtilRt.createDirectory(pluginChannelDir);
+
+			for(PluginChannelService service : myPluginChannelServices)
+			{
+				service.initImpl(pluginChannelDir);
+			}
+		});
 	}
 }

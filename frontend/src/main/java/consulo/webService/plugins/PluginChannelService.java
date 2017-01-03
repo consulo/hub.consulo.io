@@ -201,17 +201,6 @@ public class PluginChannelService
 		}
 	}
 
-	public PluginChannel getChannel()
-	{
-		return myChannel;
-	}
-
-	@NotNull
-	public File getPluginChannelDirectory()
-	{
-		return myPluginChannelDirectory;
-	}
-
 	public void initImpl(File pluginChannelDir)
 	{
 		File channelDir = new File(pluginChannelDir, myChannel.name());

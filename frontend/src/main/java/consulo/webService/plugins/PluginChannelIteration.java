@@ -22,7 +22,7 @@ public class PluginChannelIteration
 		myUserConfigurationService = userConfigurationService;
 	}
 
-	@Scheduled(cron = "0 * * * *")
+	@Scheduled(cron = "0 * * * * *")
 	public void cleanup()
 	{
 		Arrays.stream(PluginChannel.values()).parallel().forEach(this::cleanup);
@@ -36,7 +36,7 @@ public class PluginChannelIteration
 	/**
 	 * every hour
 	 */
-	@Scheduled(cron = "0 * * * *")
+	@Scheduled(cron = "0 * * * * *")
 	public void iterAlpha()
 	{
 		iterate(PluginChannel.nightly, PluginChannel.alpha);
@@ -45,7 +45,7 @@ public class PluginChannelIteration
 	/**
 	 * every week
 	 */
-	@Scheduled(cron = "0 0 * * MON")
+	@Scheduled(cron = "0 0 * * * MON")
 	public void iterBeta()
 	{
 		iterate(PluginChannel.alpha, PluginChannel.beta);
@@ -54,7 +54,7 @@ public class PluginChannelIteration
 	/**
 	 * every month
 	 */
-	@Scheduled(cron = "0 0 1 * *")
+	@Scheduled(cron = "0 0 1 * * *")
 	public void iterRelease()
 	{
 		iterate(PluginChannel.beta, PluginChannel.release);
