@@ -271,7 +271,7 @@ public class PluginChannelService
 				PluginNode last = pluginNodes.last();
 
 				PluginNode lastCloned = last.clone();
-				lastCloned.downloads = statisticsService.getDownloads(last.id);
+				lastCloned.downloads = statisticsService.getDownloadStat(last.id).size();
 				list.add(lastCloned);
 			}
 			finally

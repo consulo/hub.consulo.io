@@ -18,6 +18,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginChannel;
+import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.ui.RepositoryChannelUI;
 import consulo.webService.ui.util.TidyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
@@ -34,6 +35,9 @@ public class RepositoryUI extends BaseUI
 {
 	@Autowired
 	private UserConfigurationService myUserConfigurationService;
+
+	@Autowired
+	private PluginStatisticsService myPluginStatisticsService;
 
 	private RepositoryChannelUI myRepositoryChannelUI;
 
@@ -84,7 +88,7 @@ public class RepositoryUI extends BaseUI
 				p.setUriFragment(getUrlFragment(value, null));
 			}
 
-			verticalLayout.addComponent(myRepositoryChannelUI = new RepositoryChannelUI(p, value, myUserConfigurationService, selectedPluginId));
+			verticalLayout.addComponent(myRepositoryChannelUI = new RepositoryChannelUI(p, value, myUserConfigurationService, myPluginStatisticsService, selectedPluginId));
 			verticalLayout.setExpandRatio(myRepositoryChannelUI, 1);
 		});
 

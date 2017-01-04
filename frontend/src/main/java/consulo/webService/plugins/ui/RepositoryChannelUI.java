@@ -1,12 +1,7 @@
 package consulo.webService.plugins.ui;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.text.DateFormatSymbols;
+import java.util.*;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,11 +20,14 @@ import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.calendar.event.BasicEvent;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginNode;
+import consulo.webService.plugins.PluginStatisticsService;
+import consulo.webService.plugins.mongo.MongoDownloadStat;
 import consulo.webService.ui.RepositoryUI;
 import consulo.webService.ui.util.TidyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
@@ -41,12 +39,18 @@ import consulo.webService.ui.util.VaadinUIUtil;
 public class RepositoryChannelUI extends HorizontalLayout
 {
 	private final UserConfigurationService myUserConfigurationService;
+	private final PluginStatisticsService myPluginStatisticsService;
 
 	private final HorizontalLayout myRightLayout;
 
-	public RepositoryChannelUI(Page page, @NotNull PluginChannel pluginChannel, @NotNull UserConfigurationService userConfigurationService, @Nullable String selectedPluginId)
+	public RepositoryChannelUI(Page page,
+			@NotNull PluginChannel pluginChannel,
+			@NotNull UserConfigurationService userConfigurationService,
+			@NotNull PluginStatisticsService pluginStatisticsService,
+			@Nullable String selectedPluginId)
 	{
 		myUserConfigurationService = userConfigurationService;
+		myPluginStatisticsService = pluginStatisticsService;
 
 		setSizeFull();
 
@@ -152,20 +156,52 @@ public class RepositoryChannelUI extends HorizontalLayout
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);
 
-		PluginNode next = collection.iterator().next();
+		PluginNode pluginNode = collection.iterator().next();
 
-		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TidyComponents.newLabel(next.id)));
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TidyComponents.newLabel(getPluginNodeName(next))));
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TidyComponents.newLabel(next.category)));
-		if(!StringUtil.isEmpty(next.vendor))
+		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TidyComponents.newLabel(pluginNode.id)));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TidyComponents.newLabel(getPluginNodeName(pluginNode))));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TidyComponents.newLabel(pluginNode.category)));
+		if(!StringUtil.isEmpty(pluginNode.vendor))
 		{
-			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TidyComponents.newLabel(next.vendor)));
+			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TidyComponents.newLabel(pluginNode.vendor)));
 		}
 
-		if(!StringUtil.isEmpty(next.description))
+		List<MongoDownloadStat> downloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
+
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TidyComponents.newLabel(String.valueOf(downloadStat.size()))));
+
+		com.vaadin.ui.Calendar calendar = new com.vaadin.ui.Calendar()
+		{
+			protected String[] getDayNamesShort()
+			{
+				DateFormatSymbols s = new DateFormatSymbols(getLocale());
+				return Arrays.copyOfRange(s.getShortWeekdays(), 1, 8);
+			}
+		};
+		calendar.setWidth(25, Unit.EM);
+		calendar.setHeight(18, Unit.EM);
+
+		for(MongoDownloadStat mongoDownloadStat : downloadStat)
+		{
+			calendar.addEvent(new BasicEvent("download", "", new Date(mongoDownloadStat.getTime())));
+		}
+
+		HorizontalLayout calendarControl = new HorizontalLayout();
+		calendarControl.setSpacing(true);
+
+		calendarControl.addComponent(TidyComponents.newLabel("Download statistics"));
+		calendarControl.addComponent(TidyComponents.newButton("Month view", event -> switchToMonthView(calendar)));
+
+		verticalLayout.addComponent(calendarControl);
+
+		switchToMonthView(calendar);
+
+		verticalLayout.addComponent(calendar);
+
+		if(!StringUtil.isEmpty(pluginNode.description))
 		{
 			TextArea area = new TextArea();
-			area.setValue(next.description);
+			area.setValue(pluginNode.description);
 			area.setReadOnly(true);
 			area.setWidth(100, Unit.PERCENTAGE);
 			area.addStyleName(ValoTheme.TEXTAREA_SMALL);
@@ -174,6 +210,20 @@ public class RepositoryChannelUI extends HorizontalLayout
 		}
 
 		return verticalLayout;
+	}
+
+	private void switchToMonthView(com.vaadin.ui.Calendar calendarComponent)
+	{
+		Calendar calendar = Calendar.getInstance();
+		int rollAmount = calendar.get(GregorianCalendar.DAY_OF_MONTH) - 1;
+		calendar.add(GregorianCalendar.DAY_OF_MONTH, -rollAmount);
+
+		calendarComponent.setStartDate(calendar.getTime());
+
+		calendar.add(GregorianCalendar.MONTH, 1);
+		calendar.add(GregorianCalendar.DATE, -1);
+
+		calendarComponent.setEndDate(calendar.getTime());
 	}
 
 	private static String getPluginNodeName(PluginNode pluginNode)

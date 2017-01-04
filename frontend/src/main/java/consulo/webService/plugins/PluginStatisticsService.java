@@ -1,6 +1,7 @@
 package consulo.webService.plugins;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import com.intellij.util.containers.ContainerUtil;
 import consulo.webService.plugins.mongo.MongoDownloadStat;
 import consulo.webService.plugins.mongo.MongoDownloadStatRepository;
 import consulo.webService.plugins.mongo.MongoPluginNode;
@@ -53,14 +55,27 @@ public class PluginStatisticsService
 		info.myDownloadStat.add(new MongoDownloadStat(System.currentTimeMillis(), channel, version, platformVersion));
 	}
 
-	public int getDownloads(@NotNull String pluginId)
+	@NotNull
+	public List<MongoDownloadStat> getDownloadStat(@NotNull String pluginId)
+	{
+		List<MongoDownloadStat> stats = getMongoDownloadStatFromMongo(pluginId);
+
+		PluginInfo pluginInfo = myBlock.myPluginInfos.get(pluginId);
+		if(pluginInfo != null)
+		{
+			return ContainerUtil.concat(stats, pluginInfo.myDownloadStat);
+		}
+		return stats;
+	}
+
+	private List<MongoDownloadStat> getMongoDownloadStatFromMongo(@NotNull String pluginId)
 	{
 		MongoPluginNode pluginNode = myMongoPluginNodeRepository.findOne(pluginId);
 		if(pluginNode == null)
 		{
-			return 0;
+			return Collections.emptyList();
 		}
-		return pluginNode.getDownloadStat().size();
+		return pluginNode.getDownloadStat();
 	}
 
 	@Scheduled(fixedRate = 60 * 1000)
