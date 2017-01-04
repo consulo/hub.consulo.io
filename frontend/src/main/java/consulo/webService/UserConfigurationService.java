@@ -66,17 +66,19 @@ public class UserConfigurationService
 	});
 
 	private PropertySet myPropertySet;
-	@Autowired
 	private TaskExecutor myTaskExecutor;
 
-	public UserConfigurationService()
+	@Autowired
+	public UserConfigurationService(@NotNull TaskExecutor taskExecutor)
 	{
-		this(SystemProperties.getUserHome());
+		this(SystemProperties.getUserHome(), taskExecutor);
 	}
 
 	@VisibleForTesting
-	public UserConfigurationService(String userHome)
+	public UserConfigurationService(String userHome, @NotNull TaskExecutor taskExecutor)
 	{
+		myTaskExecutor = taskExecutor;
+
 		ConsuloHelper.init();
 
 		PluginChannel[] values = PluginChannel.values();

@@ -2,6 +2,7 @@ package consulo.webservice;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
+import consulo.webService.util.PropertyKeys;
 
 /**
  * @author VISTALL
@@ -71,19 +73,17 @@ public class AnalyzerTest extends Assert
 	{
 		assertTrue(pluginPaths.length != 0);
 
-		File tempDir = FileUtil.createTempDirectory("webService", "");
-		File[] files = tempDir.listFiles();
-		if(files != null)
-		{
-			for(File child : files)
-			{
-				FileSystemUtils.deleteRecursively(child);
-			}
-		}
+		File tempDir = FileUtil.createTempDirectory("webService", null);
+
+		FileSystemUtils.deleteRecursively(tempDir);
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		UserConfigurationService userConfigurationService = new UserConfigurationService(canonicalPath);
+		UserConfigurationService userConfigurationService = new UserConfigurationService(canonicalPath, Runnable::run);
+		Properties properties = new Properties();
+		properties.setProperty(PropertyKeys.WORKING_DIRECTORY, canonicalPath);
+
+		userConfigurationService.setProperties(properties);
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 
