@@ -16,8 +16,10 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
-import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
@@ -86,13 +88,22 @@ public class PluginChannelService
 		@NotNull
 		public File getFileForPlugin(String version, String ext)
 		{
-			File zipFile = new File(myPluginDirectory, myPluginId + "_" + version + "." + ext);
-			FileUtilRt.createParentDirs(zipFile);
-			if(zipFile.exists())
+			File artifactFile = new File(myPluginDirectory, myPluginId + "_" + version + "." + ext);
+			FileUtilRt.createParentDirs(artifactFile);
+			if(artifactFile.exists())
 			{
-				throw new IllegalArgumentException("Plugin " + myPluginId + "=" + version + " is already uploaded");
+				File jsonFile = new File(myPluginDirectory, artifactFile.getName() + ".json");
+				if(jsonFile.exists())
+				{
+					throw new IllegalArgumentException("Plugin " + myPluginId + "=" + version + " is already uploaded");
+				}
+				else
+				{
+					LOGGER.warn("Zombie archive was deleted: " + artifactFile.getPath());
+					artifactFile.delete();
+				}
 			}
-			return zipFile;
+			return artifactFile;
 		}
 	}
 
@@ -120,7 +131,7 @@ public class PluginChannelService
 		return ArrayUtil.contains(pluginId, ourPlatformPluginIds);
 	}
 
-	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PluginChannelService.class);
 	public static final String SNAPSHOT = "SNAPSHOT";
 
 	private File myPluginChannelDirectory;
@@ -132,6 +143,40 @@ public class PluginChannelService
 	public PluginChannelService(PluginChannel channel)
 	{
 		myChannel = channel;
+	}
+
+	public boolean isInRepository(String pluginId, String version, String platformVersion)
+	{
+		PluginsState state = myPlugins.get(pluginId);
+		if(state == null)
+		{
+			return false;
+		}
+
+		state.myLock.readLock().lock();
+		try
+		{
+			NavigableSet<PluginNode> nodes = state.myPluginsByPlatformVersion.get(platformVersion);
+
+			if(nodes == null)
+			{
+				return false;
+			}
+
+			for(PluginNode node : nodes)
+			{
+				if(Comparing.equal(version, node.version))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+		finally
+		{
+			state.myLock.readLock().unlock();
+		}
 	}
 
 	@Nullable
@@ -266,7 +311,7 @@ public class PluginChannelService
 		}
 		catch(IOException e)
 		{
-			LOGGER.error(e);
+			LOGGER.error(e.getMessage(), e);
 			return;
 		}
 

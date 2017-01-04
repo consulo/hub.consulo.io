@@ -32,7 +32,7 @@ public class PluginChannelIteration
 		myPluginDeployService = pluginDeployService;
 	}
 
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void cleanup()
 	{
 		Arrays.stream(PluginChannel.values()).parallel().forEach(this::cleanup);
@@ -46,7 +46,7 @@ public class PluginChannelIteration
 	/**
 	 * every hour
 	 */
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void iterAlpha()
 	{
 		iterate(PluginChannel.nightly, PluginChannel.alpha);
@@ -55,7 +55,7 @@ public class PluginChannelIteration
 	/**
 	 * every week
 	 */
-	@Scheduled(cron = "0 0 * * * MON")
+	@Scheduled(cron = "0 0 0 * * MON")
 	public void iterBeta()
 	{
 		iterate(PluginChannel.alpha, PluginChannel.beta);
@@ -64,7 +64,7 @@ public class PluginChannelIteration
 	/**
 	 * every month
 	 */
-	@Scheduled(cron = "0 0 1 * * *")
+	@Scheduled(cron = "0 0 0 1 * *")
 	public void iterRelease()
 	{
 		iterate(PluginChannel.beta, PluginChannel.release);
@@ -76,12 +76,19 @@ public class PluginChannelIteration
 		PluginChannelService toChannel = myUserConfigurationService.getRepositoryByChannel(to);
 
 		fromChannel.iteratePluginNodes(originalNode -> {
+			if(toChannel.isInRepository(originalNode.id, originalNode.version, originalNode.platformVersion))
+			{
+				return;
+			}
+
 			PluginNode node = originalNode.clone();
 			try
 			{
 				File targetFile = originalNode.targetFile;
 
 				assert targetFile != null;
+
+				logger.info("iterate pluginId=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", from=" + from + ", to=" + to);
 
 				// platform nodes have special logic
 				if(PluginChannelService.isPlatformNode(node.id))
