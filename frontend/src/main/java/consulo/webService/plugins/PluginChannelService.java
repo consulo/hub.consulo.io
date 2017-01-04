@@ -88,18 +88,19 @@ public class PluginChannelService
 		@NotNull
 		public File getFileForPlugin(String version, String ext)
 		{
-			File artifactFile = new File(myPluginDirectory, myPluginId + "_" + version + "." + ext);
+			String fileName = myPluginId + "_" + version + "." + ext;
+			File artifactFile = new File(myPluginDirectory, fileName);
 			FileUtilRt.createParentDirs(artifactFile);
 			if(artifactFile.exists())
 			{
-				File jsonFile = new File(myPluginDirectory, artifactFile.getName() + ".json");
+				File jsonFile = new File(myPluginDirectory, fileName + ".json");
 				if(jsonFile.exists())
 				{
 					throw new IllegalArgumentException("Plugin " + myPluginId + "=" + version + " is already uploaded");
 				}
 				else
 				{
-					LOGGER.warn("Zombie archive was deleted: " + artifactFile.getPath());
+					logger.warn("Zombie archive was deleted: " + artifactFile.getPath());
 					artifactFile.delete();
 				}
 			}
@@ -131,7 +132,7 @@ public class PluginChannelService
 		return ArrayUtil.contains(pluginId, ourPlatformPluginIds);
 	}
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PluginChannelService.class);
+	private static final Logger logger = LoggerFactory.getLogger(PluginChannelService.class);
 	public static final String SNAPSHOT = "SNAPSHOT";
 
 	private File myPluginChannelDirectory;
@@ -176,6 +177,53 @@ public class PluginChannelService
 		finally
 		{
 			state.myLock.readLock().unlock();
+		}
+	}
+
+	public void remove(String pluginId, String version, String platformVersion)
+	{
+		PluginsState state = myPlugins.get(pluginId);
+		if(state == null)
+		{
+			return;
+		}
+
+		ReentrantReadWriteLock.WriteLock writeLock = state.myLock.writeLock();
+		writeLock.lock();
+		try
+		{
+			NavigableSet<PluginNode> nodes = state.myPluginsByPlatformVersion.get(platformVersion);
+
+			if(nodes == null)
+			{
+				return;
+			}
+
+			PluginNode target = null;
+			for(PluginNode node : nodes)
+			{
+				if(Comparing.equal(version, node.version))
+				{
+					target = node;
+					break;
+				}
+			}
+
+			if(target != null)
+			{
+				nodes.remove(target);
+
+				File targetFile = target.targetFile;
+
+				targetFile.delete();
+
+				File jsonFile = new File(targetFile.getParentFile(), targetFile.getName() + ".json");
+				jsonFile.delete();
+			}
+		}
+		finally
+		{
+			writeLock.unlock();
 		}
 	}
 
@@ -302,7 +350,7 @@ public class PluginChannelService
 	private void processJsonFile(File jsonFile)
 	{
 		String path = jsonFile.getPath();
-		LOGGER.info("Analyze: " + path);
+		logger.info("Analyze: " + path);
 
 		PluginNode pluginNode;
 		try (FileReader fileReader = new FileReader(jsonFile))
@@ -311,7 +359,7 @@ public class PluginChannelService
 		}
 		catch(IOException e)
 		{
-			LOGGER.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			return;
 		}
 
@@ -321,7 +369,9 @@ public class PluginChannelService
 		File targetArchive = new File(jsonFile.getParentFile(), name.substring(0, name.length() - 5));
 		if(!targetArchive.exists())
 		{
-			LOGGER.warn("Zombie json file: " + path);
+			jsonFile.delete();
+
+			logger.warn("Zombie json file: " + path);
 			return;
 		}
 

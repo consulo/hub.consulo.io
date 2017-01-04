@@ -1,7 +1,10 @@
 package consulo.webService.plugins;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -19,6 +22,8 @@ import consulo.webService.UserConfigurationService;
 @Component
 public class PluginChannelIteration
 {
+	private static final String ourConsuloBootBuild = "1528";
+
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIteration.class);
 
 	private final UserConfigurationService myUserConfigurationService;
@@ -32,7 +37,7 @@ public class PluginChannelIteration
 		myPluginDeployService = pluginDeployService;
 	}
 
-	@Scheduled(cron = "0 0 * * * *")
+	@Scheduled(cron = "0 * * * * *")
 	public void cleanup()
 	{
 		Arrays.stream(PluginChannel.values()).parallel().forEach(this::cleanup);
@@ -40,7 +45,31 @@ public class PluginChannelIteration
 
 	private void cleanup(PluginChannel pluginChannel)
 	{
+		List<PluginNode> toRemove = new ArrayList<>();
+		long _60days = TimeUnit.DAYS.toMillis(60);
+
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+		pluginChannelService.iteratePluginNodes(originalNode -> {
+
+			// special case dont remove cold boot build
+			if(pluginChannel == PluginChannel.nightly && PluginChannelService.ourStandardWinId.equals(originalNode.id) && originalNode.version.equals(ourConsuloBootBuild))
+			{
+				return;
+			}
+
+			long diff = System.currentTimeMillis() - originalNode.date;
+			if(diff > _60days)
+			{
+				toRemove.add(originalNode);
+			}
+		});
+
+		for(PluginNode node : toRemove)
+		{
+			logger.info("removing pluginId=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", channel=" + pluginChannel);
+
+			pluginChannelService.remove(node.id, node.version, node.platformVersion);
+		}
 	}
 
 	/**
