@@ -1,5 +1,6 @@
 package consulo.webService.plugins.ui;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.text.DateFormatUtilRt;
 import com.intellij.util.text.VersionComparatorUtil;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Component;
@@ -61,7 +63,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 		setExpandRatio(myRightLayout, 1f);
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel();
-		panel.setSplitPosition(80, Unit.PERCENTAGE);
+		panel.setSplitPosition(70, Unit.PERCENTAGE);
 		panel.setSizeFull();
 		myRightLayout.addComponent(panel);
 
@@ -124,7 +126,10 @@ public class RepositoryChannelUI extends HorizontalLayout
 					UUID uuid = UUID.randomUUID();
 
 					tree.addItem(uuid);
-					tree.setItemCaption(uuid, "build #" + node.version);
+
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTimeInMillis(node.date);
+					tree.setItemCaption(uuid, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
 
 					tree.setParent(uuid, entry.getKey());
 					tree.setChildrenAllowed(uuid, false);
