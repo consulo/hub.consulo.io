@@ -35,7 +35,7 @@ public class TarGzArchive
 {
 	private final Map<String, TarGzArchiveEntry> myEntries = new LinkedHashMap<>();
 
-	public void prepare(@NotNull File from, @NotNull File targetDirectory) throws IOException
+	public void extract(@NotNull File from, @NotNull File targetDirectory) throws IOException
 	{
 		FileSystemUtils.deleteRecursively(targetDirectory);
 		FileUtilRt.createDirectory(targetDirectory);

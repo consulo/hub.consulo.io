@@ -82,7 +82,7 @@ public class PluginDeployService
 
 		TarGzArchive archive = new TarGzArchive();
 
-		archive.prepare(tempFile, deployPlatform);
+		archive.extract(tempFile, deployPlatform);
 
 		PluginNode pluginNode = deployPlatformImpl(channel, pluginId, platformVersion, archive, "tar.gz");
 

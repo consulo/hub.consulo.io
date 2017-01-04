@@ -19,6 +19,7 @@ import consulo.webService.plugins.PluginChannelIteration;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
+import consulo.webService.plugins.archive.TarGzArchive;
 import consulo.webService.util.PropertyKeys;
 
 /**
@@ -78,6 +79,15 @@ public class PluginIterationTest extends Assert
 		assertNotNull(pluginNodeInAlpha);
 		assertNotNull(pluginNodeInAlpha.targetFile);
 		assertTrue(pluginNodeInAlpha.targetFile.exists());
+
+		TarGzArchive archive = new TarGzArchive();
+
+		File testDir = myUserConfigurationService.createTempFile("test_extract_iter", null);
+
+		archive.extract(pluginNodeInAlpha.targetFile, testDir);
+
+		assertTrue(archive.removeEntry("Consulo/.alpha"));
+		assertFalse(archive.removeEntry("Consulo/.nightly"));
 	}
 
 	@NotNull
@@ -85,17 +95,13 @@ public class PluginIterationTest extends Assert
 	{
 		InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
 
-		File tempFile = File.createTempFile("platformTemp", ".tar.gz");
+		File tempFile = myUserConfigurationService.createTempFile("platformTemp", ".tar.gz");
 		try (FileOutputStream outputStream = new FileOutputStream(tempFile))
 		{
 			FileUtil.copy(resourceAsStream, outputStream);
 		}
 
-		PluginNode pluginNode = myDeployService.deployPlatform(channel, platformVersion, pluginId, tempFile);
-
-		tempFile.delete();
-
-		return pluginNode;
+		return myDeployService.deployPlatform(channel, platformVersion, pluginId, tempFile);
 	}
 
 	@Test
