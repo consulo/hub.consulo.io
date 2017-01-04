@@ -1,10 +1,15 @@
 package consulo.webService.plugins;
 
+import java.io.File;
 import java.util.Arrays;
 
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import com.intellij.openapi.util.io.FileUtilRt;
 import consulo.webService.UserConfigurationService;
 
 /**
@@ -14,12 +19,17 @@ import consulo.webService.UserConfigurationService;
 @Component
 public class PluginChannelIteration
 {
-	private UserConfigurationService myUserConfigurationService;
+	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIteration.class);
+
+	private final UserConfigurationService myUserConfigurationService;
+
+	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	public PluginChannelIteration(UserConfigurationService userConfigurationService)
+	public PluginChannelIteration(UserConfigurationService userConfigurationService, PluginDeployService pluginDeployService)
 	{
 		myUserConfigurationService = userConfigurationService;
+		myPluginDeployService = pluginDeployService;
 	}
 
 	@Scheduled(cron = "0 * * * * *")
@@ -60,8 +70,39 @@ public class PluginChannelIteration
 		iterate(PluginChannel.beta, PluginChannel.release);
 	}
 
-	private static void iterate(PluginChannel from, PluginChannel to)
+	public void iterate(@NotNull PluginChannel from, @NotNull PluginChannel to)
 	{
+		PluginChannelService fromChannel = myUserConfigurationService.getRepositoryByChannel(from);
+		PluginChannelService toChannel = myUserConfigurationService.getRepositoryByChannel(to);
 
+		fromChannel.iteratePluginNodes(originalNode -> {
+			PluginNode node = originalNode.clone();
+			try
+			{
+				File targetFile = originalNode.targetFile;
+
+				assert targetFile != null;
+
+				// platform nodes have special logic
+				if(PluginChannelService.isPlatformNode(node.id))
+				{
+					// special windows archive will processed as while deploying tar.gz files
+					if(node.id.endsWith("-zip"))
+					{
+						return;
+					}
+
+					myPluginDeployService.deployPlatform(to, Integer.parseInt(node.platformVersion), node.id, targetFile);
+				}
+				else
+				{
+					toChannel.push(node, "zip", file -> FileUtilRt.copy(targetFile, file));
+				}
+			}
+			catch(Exception e)
+			{
+				logger.error("Problem with plugin node: " + originalNode.id + ":" + originalNode.version, e);
+			}
+		});
 	}
 }

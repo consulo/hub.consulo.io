@@ -34,19 +34,13 @@ import com.intellij.util.io.tar.TarEntry;
 public class TarGzArchive
 {
 	private final Map<String, TarGzArchiveEntry> myEntries = new LinkedHashMap<>();
-	private final File myFile;
 
-	public TarGzArchive(File file)
-	{
-		myFile = file;
-	}
-
-	public void prepare(@NotNull File targetDirectory) throws IOException
+	public void prepare(@NotNull File from, @NotNull File targetDirectory) throws IOException
 	{
 		FileSystemUtils.deleteRecursively(targetDirectory);
 		FileUtilRt.createDirectory(targetDirectory);
 
-		try (TarArchiveInputStream ais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(myFile))))
+		try (TarArchiveInputStream ais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from))))
 		{
 			TarArchiveEntry tempEntry;
 			while((tempEntry = (TarArchiveEntry) ais.getNextEntry()) != null)
@@ -79,6 +73,8 @@ public class TarGzArchive
 				}
 				else
 				{
+					FileUtilRt.createParentDirs(targetFile);
+
 					try (OutputStream stream = new FileOutputStream(targetFile))
 					{
 						StreamUtil.copyStreamContent(ais, stream);

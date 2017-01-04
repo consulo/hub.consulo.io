@@ -46,7 +46,7 @@ import consulo.webService.plugins.archive.TarGzArchive;
 @Service
 public class PluginDeployService
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PluginDeployService.class);
+	private static final Logger logger = LoggerFactory.getLogger(PluginDeployService.class);
 
 	private UserConfigurationService myUserConfigurationService;
 
@@ -60,19 +60,29 @@ public class PluginDeployService
 	}
 
 	@NotNull
-	public PluginNode deployPlatform(PluginChannel channel, int platformVersion, MultipartFile multipartFile) throws Exception
+	public PluginNode deployPlatform(@NotNull PluginChannel channel, int platformVersion, @NotNull MultipartFile multipartFile) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
 		multipartFile.transferTo(tempFile);
 
+		String pluginId = multipartFile.getOriginalFilename().replace(".tar.gz", "");
+
+		PluginNode pluginNode = deployPlatform(channel, platformVersion, pluginId, tempFile);
+
+		myUserConfigurationService.asyncDelete(tempFile);
+
+		return pluginNode;
+	}
+
+	@NotNull
+	public PluginNode deployPlatform(@NotNull PluginChannel channel, int platformVersion, @NotNull String pluginId, @NotNull File tempFile) throws Exception
+	{
 		File deployPlatform = myUserConfigurationService.createTempFile("deploy_platform_extract", null);
 
-		TarGzArchive archive = new TarGzArchive(tempFile);
+		TarGzArchive archive = new TarGzArchive();
 
-		archive.prepare(deployPlatform);
-
-		String pluginId = multipartFile.getOriginalFilename().replace(".tar.gz", "");
+		archive.prepare(tempFile, deployPlatform);
 
 		PluginNode pluginNode = deployPlatformImpl(channel, pluginId, platformVersion, archive, "tar.gz");
 
@@ -82,7 +92,6 @@ public class PluginDeployService
 			deployPlatformImpl(channel, pluginId + "-zip", platformVersion, archive, "zip");
 		}
 
-		myUserConfigurationService.asyncDelete(tempFile);
 		myUserConfigurationService.asyncDelete(deployPlatform);
 
 		return pluginNode;
@@ -96,7 +105,6 @@ public class PluginDeployService
 		pluginNode.version = String.valueOf(platformVersion);
 		pluginNode.name = "Platform";
 		pluginNode.platformVersion = String.valueOf(platformVersion);
-		pluginNode.date = System.currentTimeMillis();
 
 		// remove old plugin channel markets
 		for(PluginChannel pluginChannel : PluginChannel.values())
@@ -172,7 +180,6 @@ public class PluginDeployService
 		pluginNode.name = ideaPluginDescriptor.getName();
 		pluginNode.category = ideaPluginDescriptor.getCategory();
 		pluginNode.description = ideaPluginDescriptor.getDescription();
-		pluginNode.date = System.currentTimeMillis();
 		pluginNode.vendor = ideaPluginDescriptor.getVendor();
 
 		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
@@ -207,7 +214,7 @@ public class PluginDeployService
 		}
 		catch(Exception e)
 		{
-			LOGGER.info(e.getMessage(), e);
+			logger.info(e.getMessage(), e);
 		}
 
 		pluginChannelService.push(pluginNode, "zip", f -> {

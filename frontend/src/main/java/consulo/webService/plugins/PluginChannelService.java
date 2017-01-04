@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,12 +53,32 @@ public class PluginChannelService
 		// required write lock
 		public void add(PluginNode pluginNode)
 		{
-			NavigableSet<PluginNode> nodes = myPluginsByPlatformVersion.computeIfAbsent(pluginNode.platformVersion, s -> newTreeSet());
+			NavigableSet<PluginNode> nodes = myPluginsByPlatformVersion.computeIfAbsent(pluginNode.platformVersion, PluginsState::newTreeSet);
 
 			nodes.add(pluginNode);
 		}
 
-		private static NavigableSet<PluginNode> newTreeSet()
+		@NotNull
+		public List<PluginNode> getAll()
+		{
+			ReentrantReadWriteLock.ReadLock readLock = myLock.readLock();
+			readLock.lock();
+			try
+			{
+				List<PluginNode> list = new ArrayList<>();
+				for(NavigableSet<PluginNode> pluginNodes : myPluginsByPlatformVersion.values())
+				{
+					list.addAll(pluginNodes);
+				}
+				return list;
+			}
+			finally
+			{
+				readLock.unlock();
+			}
+		}
+
+		private static NavigableSet<PluginNode> newTreeSet(@NotNull String unused)
 		{
 			return new TreeSet<>((o1, o2) -> VersionComparatorUtil.compare(o1.version, o2.version));
 		}
@@ -87,8 +108,17 @@ public class PluginChannelService
 			"consulo-linux",
 			"consulo-linux64",
 			ourStandardMacId,
-			"consulo-mac64"
+			"consulo-mac64",
+			// special case for windows
+			ourStandardWinId + "-zip",
+			"consulo-win" + "-zip",
+			"consulo-win64" + "-zip",
 	};
+
+	public static boolean isPlatformNode(String pluginId)
+	{
+		return ArrayUtil.contains(pluginId, ourPlatformPluginIds);
+	}
 
 	private static final Logger LOGGER = Logger.getInstance(PluginChannelService.class);
 	public static final String SNAPSHOT = "SNAPSHOT";
@@ -161,7 +191,7 @@ public class PluginChannelService
 	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, @NotNull PluginsState state, boolean platformBuildSelect)
 	{
 		NavigableMap<String, NavigableSet<PluginNode>> map = state.myPluginsByPlatformVersion;
-		if(SNAPSHOT.equals(platformVersion) || !platformBuildSelect && ArrayUtil.contains(state.myPluginId, ourPlatformPluginIds))
+		if(SNAPSHOT.equals(platformVersion) || !platformBuildSelect && isPlatformNode(state.myPluginId))
 		{
 			Map.Entry<String, NavigableSet<PluginNode>> entry = map.lastEntry();
 			return entry == null ? null : entry.getValue();
@@ -169,6 +199,14 @@ public class PluginChannelService
 		return map.get(platformVersion);
 	}
 
+	public void iteratePluginNodes(@NotNull Consumer<PluginNode> consumer)
+	{
+		for(PluginsState pluginsState : myPlugins.values())
+		{
+			List<PluginNode> nodes = pluginsState.getAll();
+			nodes.forEach(consumer);
+		}
+	}
 
 	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<File, Exception> writeConsumer) throws Exception
 	{
@@ -183,6 +221,7 @@ public class PluginChannelService
 
 			writeConsumer.consume(fileForPlugin);
 
+			pluginNode.date = System.currentTimeMillis();
 			pluginNode.length = fileForPlugin.length();
 			pluginNode.targetFile = fileForPlugin;
 			pluginNode.clean();
