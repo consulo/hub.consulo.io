@@ -51,5 +51,4 @@ public class Role
 	{
 		return new HashCodeBuilder().append(id).toHashCode();
 	}
-
 }

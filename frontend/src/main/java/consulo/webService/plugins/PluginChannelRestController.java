@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -28,12 +29,14 @@ public class PluginChannelRestController
 {
 	private final UserConfigurationService myUserConfigurationService;
 	private final PluginDeployService myPluginDeployService;
+	private final PluginStatisticsService myPluginStatisticsService;
 
 	@Autowired
-	public PluginChannelRestController(UserConfigurationService userConfigurationService, PluginDeployService pluginDeployService)
+	public PluginChannelRestController(@NotNull UserConfigurationService userConfigurationService, @NotNull PluginDeployService pluginDeployService, @NotNull PluginStatisticsService pluginStatisticsService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;
+		myPluginStatisticsService = pluginStatisticsService;
 	}
 
 	// deprecated api methods
@@ -45,7 +48,7 @@ public class PluginChannelRestController
 			@RequestParam("pluginId") String pluginId,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		return download(channel, platformVersion, pluginId, platformBuildSelect, false);
+		return download(channel, platformVersion, pluginId, false, platformBuildSelect, false);
 	}
 
 	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
@@ -72,6 +75,7 @@ public class PluginChannelRestController
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
 			@RequestParam("platformVersion") String platformVersion,
 			@RequestParam("pluginId") String pluginId,
+			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
 			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip)
 	{
@@ -92,6 +96,11 @@ public class PluginChannelRestController
 		if(select == null)
 		{
 			return ResponseEntity.notFound().build();
+		}
+
+		if(!noTracking)
+		{
+			myPluginStatisticsService.increaseDownload(pluginId, channel, select.version, platformVersion);
 		}
 
 		File targetFile = select.targetFile;
@@ -139,7 +148,7 @@ public class PluginChannelRestController
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
-		return channelService.select(platformVersion, platformBuildSelect);
+		return channelService.select(myPluginStatisticsService, platformVersion, platformBuildSelect);
 	}
 
 	@Nullable

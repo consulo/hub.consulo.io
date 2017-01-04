@@ -254,7 +254,7 @@ public class PluginChannelService
 	}
 
 	@NotNull
-	public PluginNode[] select(@NotNull String platformVersion, boolean platformBuildSelect)
+	public PluginNode[] select(@NotNull PluginStatisticsService statisticsService, @NotNull String platformVersion, boolean platformBuildSelect)
 	{
 		List<PluginNode> list = new ArrayList<>();
 		for(PluginsState state : myPlugins.values())
@@ -269,7 +269,10 @@ public class PluginChannelService
 				}
 
 				PluginNode last = pluginNodes.last();
-				list.add(last.clone());
+
+				PluginNode lastCloned = last.clone();
+				lastCloned.downloads = statisticsService.getDownloads(last.id);
+				list.add(lastCloned);
 			}
 			finally
 			{
