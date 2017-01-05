@@ -14,8 +14,10 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginStatisticsService;
@@ -44,7 +46,8 @@ public class RepositoryUI extends BaseUI
 	@Override
 	protected void initImpl(VaadinRequest request, Page page)
 	{
-		getPage().setTitle("Platform & Plugin Repository");
+		String content = "Platform & Plugin Repository";
+		getPage().setTitle(content);
 
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setSizeFull();
@@ -54,6 +57,10 @@ public class RepositoryUI extends BaseUI
 		headerLayout.setMargin(true);
 		headerLayout.setWidth(100, Unit.PERCENTAGE);
 		verticalLayout.addComponent(headerLayout);
+
+		Label header = new Label(content);
+		header.addStyleName(ValoTheme.LABEL_HUGE);
+		headerLayout.addComponent(header);
 
 		ComboBox channelBox = TidyComponents.newComboBox();
 		for(PluginChannel channel : PluginChannel.values())
