@@ -95,6 +95,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 			}
 			return o1.name.compareToIgnoreCase(o2.name);
 		});
+
 		for(Map.Entry<String, Collection<PluginNode>> entry : multimap.asMap().entrySet())
 		{
 			map.put(entry.getValue().iterator().next(), entry.getKey());
@@ -151,7 +152,11 @@ public class RepositoryChannelUI extends HorizontalLayout
 				tree.addItem(entry.getKey());
 				tree.setItemCaption(entry.getKey(), "Consulo #" + entry.getKey());
 
-				lastPluginNodeByVersion = entry.getValue().iterator().next();
+				if(lastPluginNodeByVersion == null)
+				{
+					lastPluginNodeByVersion = entry.getValue().iterator().next();
+				}
+
 				if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
 				{
 					for(PluginNode node : entry.getValue())
