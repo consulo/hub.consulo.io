@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -83,7 +84,11 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			HorizontalLayout rightLayout = new HorizontalLayout();
 			rightLayout.setSpacing(true);
 
-			addRightButtons(errorReport, lineLayout, rightLayout);
+			List<Consumer<ErrorReport>> onUpdate = new ArrayList<>();
+
+			addRightButtons(authentication, errorReport, lineLayout, rightLayout, onUpdate);
+
+			fireChanged(onUpdate, errorReport);
 
 			shortLine.addComponent(rightLayout);
 			shortLine.setComponentAlignment(rightLayout, Alignment.MIDDLE_RIGHT);
@@ -92,14 +97,26 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		}
 	}
 
-	protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout)
+	protected static void fireChanged(List<Consumer<ErrorReport>> consumers, ErrorReport report)
+	{
+		for(Consumer<ErrorReport> consumer : consumers)
+		{
+			consumer.accept(report);
+		}
+	}
+
+	protected void addRightButtons(Authentication authentication, ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
 		Button detailsButton = new Button("Details");
 		detailsButton.addStyleName(ValoTheme.BUTTON_TINY);
-		if(errorReport.getStatus() == ErrorReporterStatus.FIXED)
-		{
-			detailsButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		}
+
+		onUpdate.add(e -> {
+			if(e.getStatus() == ErrorReporterStatus.FIXED)
+			{
+				detailsButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			}
+		});
+
 		detailsButton.addClickListener(e -> {
 			int componentCount = lineLayout.getComponentCount();
 			if(componentCount == 2)
@@ -114,7 +131,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 				{
 					field.setAccessible(true);
 					Class<?> type = field.getType();
-					if(type == String.class || type == Boolean.class || type == Integer.class || type.isEnum())
+					if(type == String.class || type == Boolean.class || type == Integer.class || type == Long.class || type.isEnum())
 					{
 						rows.add(Couple.of(field.getName(), field.getName()));
 					}
@@ -127,14 +144,14 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 				lineLayout.addComponent(layout);
 
-				fill(layout, errorReport, rows);
+				fill(layout, errorReport, rows, onUpdate);
 			}
 		});
 
 		rightLayout.addComponent(detailsButton);
 	}
 
-	private static void fill(GridLayout gridLayout, ErrorReport errorReport, List<Couple<String>> list)
+	private static void fill(GridLayout gridLayout, ErrorReport errorReport, List<Couple<String>> list, List<Consumer<ErrorReport>> onUpdate)
 	{
 		int row = 0;
 
@@ -144,9 +161,9 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 			Object rawValue = ReflectionUtil.getField(ErrorReport.class, errorReport, null, couple.getSecond());
 
-			String value = String.valueOf(rawValue);
+			String value = rawValue == null ? null : String.valueOf(rawValue);
 
-			Property<String> textField = null;
+			final Property<String> textField;
 			if(value != null && StringUtil.containsLineBreak(value))
 			{
 				textField = new TextArea();
@@ -158,10 +175,20 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			}
 
 			((Component) textField).setWidth(100, Unit.PERCENTAGE);
-			textField.setValue(value);
+			textField.setValue(StringUtil.notNullize(value));
 			textField.setReadOnly(true);
 
 			gridLayout.addComponent((Component) textField, 1, row);
+
+			onUpdate.add(report -> {
+				Object rawValue2 = ReflectionUtil.getField(ErrorReport.class, report, null, couple.getSecond());
+
+				String value2 = rawValue2 == null ? null : String.valueOf(rawValue2);
+
+				textField.setReadOnly(false);
+				textField.setValue(StringUtil.notNullize(value2));
+				textField.setReadOnly(true);
+			});
 
 			row++;
 		}

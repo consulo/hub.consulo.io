@@ -46,6 +46,11 @@ public class ErrorReport implements Serializable
 	// status fields
 	@Indexed
 	private String reporterEmail;
+	@Indexed
+	private String changedByEmail;
+
+	private Long changeTime;
+
 	private ErrorReporterStatus status = ErrorReporterStatus.UNKNOWN;
 
 	private String stackTrace;
@@ -89,6 +94,26 @@ public class ErrorReport implements Serializable
 	public void setReporterEmail(String reporterEmail)
 	{
 		this.reporterEmail = reporterEmail;
+	}
+
+	public Long getChangeTime()
+	{
+		return changeTime;
+	}
+
+	public void setChangeTime(Long changeTime)
+	{
+		this.changeTime = changeTime;
+	}
+
+	public String getChangedByEmail()
+	{
+		return changedByEmail;
+	}
+
+	public void setChangedByEmail(String changedByEmail)
+	{
+		this.changedByEmail = changedByEmail;
 	}
 
 	public String getOsName()
