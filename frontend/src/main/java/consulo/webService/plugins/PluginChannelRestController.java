@@ -47,7 +47,8 @@ public class PluginChannelRestController
 			@RequestParam("pluginId") String pluginId,
 			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
-			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip)
+			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
+			@RequestParam(value = "version", required = false) String version)
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
@@ -57,10 +58,10 @@ public class PluginChannelRestController
 			pluginIdNew = pluginId + "-zip";
 		}
 
-		PluginNode select = channelService.select(platformVersion, pluginIdNew, platformBuildSelect);
+		PluginNode select = channelService.select(platformVersion, pluginIdNew, version, platformBuildSelect);
 		if(select == null)
 		{
-			select = channelService.select(platformVersion, pluginId, platformBuildSelect);
+			select = channelService.select(platformVersion, pluginId, version, platformBuildSelect);
 		}
 
 		if(select == null)

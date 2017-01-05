@@ -101,7 +101,7 @@ public class ErrorReportRestController
 
 		String platformPluginId = os.myPluginId;
 
-		PluginNode platformLastNode = repository.select(PluginChannelService.SNAPSHOT, platformPluginId, false);
+		PluginNode platformLastNode = repository.select(PluginChannelService.SNAPSHOT, platformPluginId, null, false);
 
 		int platformVersion = appBuild.equals(PluginChannelService.SNAPSHOT) ? Integer.MAX_VALUE : Integer.parseInt(appBuild);
 		if(platformLastNode != null)
@@ -118,7 +118,7 @@ public class ErrorReportRestController
 		{
 			int pluginVersion = Integer.parseInt(entry.getValue());
 
-			PluginNode pluginNode = repository.select(appBuild, entry.getKey(), false);
+			PluginNode pluginNode = repository.select(appBuild, entry.getKey(), null, false);
 			// if we don't have plugin at our repository - skip it
 			if(pluginNode == null)
 			{

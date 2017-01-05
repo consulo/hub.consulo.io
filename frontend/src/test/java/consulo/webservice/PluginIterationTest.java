@@ -73,7 +73,7 @@ public class PluginIterationTest extends Assert
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(PluginChannel.alpha);
 
-		PluginNode pluginNodeInAlpha = pluginChannelService.select(platformNode.platformVersion, platformNode.id, false);
+		PluginNode pluginNodeInAlpha = pluginChannelService.select(platformNode.platformVersion, platformNode.id, null, false);
 		assertNotNull(pluginNodeInAlpha);
 		assertEquals(pluginNodeInAlpha.id, platformNode.id);
 		assertNotNull(pluginNodeInAlpha);
@@ -113,7 +113,7 @@ public class PluginIterationTest extends Assert
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(PluginChannel.alpha);
 
-		PluginNode pluginNodeInAlpha = pluginChannelService.select(pluginNode.platformVersion, pluginNode.id, false);
+		PluginNode pluginNodeInAlpha = pluginChannelService.select(pluginNode.platformVersion, pluginNode.id, null, false);
 		assertNotNull(pluginNodeInAlpha);
 		assertEquals(pluginNodeInAlpha.id, pluginNode.id);
 		assertNotNull(pluginNodeInAlpha);

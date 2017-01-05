@@ -228,7 +228,7 @@ public class PluginChannelService
 	}
 
 	@Nullable
-	public PluginNode select(@NotNull String platformVersion, @Nullable String pluginId, boolean platformBuildSelect)
+	public PluginNode select(@NotNull String platformVersion, @NotNull String pluginId, @Nullable String version, boolean platformBuildSelect)
 	{
 		PluginsState state = myPlugins.get(pluginId);
 		if(state == null)
@@ -245,7 +245,22 @@ public class PluginChannelService
 				return null;
 			}
 
-			return pluginNodes.last();
+			if(version != null)
+			{
+				for(PluginNode pluginNode : pluginNodes)
+				{
+					if(Comparing.equal(pluginNode.version, version))
+					{
+						return pluginNode;
+					}
+				}
+
+				return null;
+			}
+			else
+			{
+				return pluginNodes.last();
+			}
 		}
 		finally
 		{

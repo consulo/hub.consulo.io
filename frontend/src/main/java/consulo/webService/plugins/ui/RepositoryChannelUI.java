@@ -141,6 +141,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 					builder.append("channel=").append(myPluginChannel.name()).append("&");
 					builder.append("platformVersion=").append(pluginNode.platformVersion).append("&");
 					builder.append("pluginId=").append(pluginNode.id).append("&");
+					builder.append("version=").append(pluginNode.version).append("&");
 					builder.append("platformBuildSelect=").append("true");
 
 					getUI().getPage().open(builder.toString(), "");

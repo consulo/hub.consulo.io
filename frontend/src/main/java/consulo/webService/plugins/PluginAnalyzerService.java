@@ -118,7 +118,7 @@ public class PluginAnalyzerService
 		File[] forRemove = new File[0];
 		for(String dependencyId : dependencies)
 		{
-			PluginNode pluginNode = channelService.select(PluginChannelService.SNAPSHOT, dependencyId, false);
+			PluginNode pluginNode = channelService.select(PluginChannelService.SNAPSHOT, dependencyId, null, false);
 			if(pluginNode == null)
 			{
 				continue;
