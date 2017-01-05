@@ -117,6 +117,8 @@ public class RepositoryChannelUI extends HorizontalLayout
 				sortByVersion.put(pluginNode.platformVersion, pluginNode);
 			}
 
+			PluginNode lastPluginNode = null;
+
 			Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
 
 			Tree tree = new Tree("Versions");
@@ -127,6 +129,11 @@ public class RepositoryChannelUI extends HorizontalLayout
 
 				for(PluginNode node : entry.getValue())
 				{
+					if(lastPluginNode == null)
+					{
+						lastPluginNode = node;
+					}
+
 					UUID uuid = UUID.randomUUID();
 
 					tree.addItem(uuid);
@@ -140,7 +147,8 @@ public class RepositoryChannelUI extends HorizontalLayout
 				}
 			}
 
-			panel.setFirstComponent(buildInfo(pluginNodes));
+			assert lastPluginNode != null;
+			panel.setFirstComponent(buildInfo(lastPluginNode));
 			panel.setSecondComponent(tree);
 		});
 
@@ -150,13 +158,12 @@ public class RepositoryChannelUI extends HorizontalLayout
 		}
 	}
 
-	private Component buildInfo(Collection<PluginNode> collection)
+	@NotNull
+	private Component buildInfo(@NotNull PluginNode pluginNode)
 	{
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);
-
-		PluginNode pluginNode = collection.iterator().next();
 
 		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TidyComponents.newLabel(pluginNode.id)));
 		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TidyComponents.newLabel(getPluginNodeName(pluginNode))));
