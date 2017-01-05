@@ -122,18 +122,37 @@ public class RepositoryChannelUI extends HorizontalLayout
 				sortByVersion.put(pluginNode.platformVersion, pluginNode);
 			}
 
-			PluginNode lastPluginNode = null;
+			PluginNode lastPluginNodeByVersion = null;
 
 			Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
 
+			Map<Object, PluginNode> downloadInfo = new HashMap<>();
+
 			Tree tree = new Tree("Versions");
+
+			tree.addItemClickListener(e -> {
+				Object id = e.getItemId();
+
+				PluginNode pluginNode = downloadInfo.get(id);
+				if(pluginNode != null)
+				{
+					StringBuilder builder = new StringBuilder("/api/repository/download?");
+					builder.append("channel=").append(myPluginChannel.name()).append("&");
+					builder.append("platformVersion=").append(pluginNode.platformVersion).append("&");
+					builder.append("pluginId=").append(pluginNode.id).append("&");
+					builder.append("platformBuildSelect=").append("true");
+
+					getUI().getPage().open(builder.toString(), "");
+				}
+			});
+
 			for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
 			{
 				tree.addItem(entry.getKey());
 				tree.setItemCaption(entry.getKey(), "Consulo #" + entry.getKey());
 
-				lastPluginNode = entry.getValue().iterator().next();
-				if(!PluginChannelService.isPlatformNode(lastPluginNode.id))
+				lastPluginNodeByVersion = entry.getValue().iterator().next();
+				if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
 				{
 					for(PluginNode node : entry.getValue())
 					{
@@ -147,16 +166,19 @@ public class RepositoryChannelUI extends HorizontalLayout
 
 						tree.setParent(uuid, entry.getKey());
 						tree.setChildrenAllowed(uuid, false);
+
+						downloadInfo.put(uuid, node);
 					}
 				}
 				else
 				{
+					downloadInfo.put(entry.getKey(), lastPluginNodeByVersion);
 					tree.setChildrenAllowed(entry.getKey(), false);
 				}
 			}
 
-			assert lastPluginNode != null;
-			panel.setFirstComponent(buildInfo(lastPluginNode));
+			assert lastPluginNodeByVersion != null;
+			panel.setFirstComponent(buildInfo(lastPluginNodeByVersion));
 			panel.setSecondComponent(tree);
 		});
 
