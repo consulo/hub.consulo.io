@@ -15,7 +15,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginChannel;
-import consulo.webService.plugins.PluginChannelIteration;
+import consulo.webService.plugins.PluginChannelIterationService;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
@@ -29,7 +29,7 @@ import consulo.webService.util.PropertyKeys;
 public class PluginIterationTest extends Assert
 {
 	private PluginDeployService myDeployService;
-	private PluginChannelIteration myPluginChannelIteration;
+	private PluginChannelIterationService myPluginChannelIterationService;
 	private UserConfigurationService myUserConfigurationService;
 
 	private File myTempDir;
@@ -53,7 +53,7 @@ public class PluginIterationTest extends Assert
 
 		myDeployService = new PluginDeployService(myUserConfigurationService, pluginAnalyzerService);
 
-		myPluginChannelIteration = new PluginChannelIteration(myUserConfigurationService, myDeployService);
+		myPluginChannelIterationService = new PluginChannelIterationService(myUserConfigurationService, myDeployService);
 
 		myUserConfigurationService.contextInitialized();
 	}
@@ -69,7 +69,7 @@ public class PluginIterationTest extends Assert
 	{
 		PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, "consulo-win-no-jre", "/consulo-win-no-jre_1554.tar.gz");
 
-		myPluginChannelIteration.iterate(PluginChannel.nightly, PluginChannel.alpha);
+		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(PluginChannel.alpha);
 
@@ -109,7 +109,7 @@ public class PluginIterationTest extends Assert
 	{
 		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "/com.intellij.xml_108.zip");
 
-		myPluginChannelIteration.iterate(PluginChannel.nightly, PluginChannel.alpha);
+		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(PluginChannel.alpha);
 

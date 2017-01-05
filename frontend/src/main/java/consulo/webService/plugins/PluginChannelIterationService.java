@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import com.intellij.openapi.util.io.FileUtilRt;
 import consulo.webService.UserConfigurationService;
 
@@ -19,19 +19,19 @@ import consulo.webService.UserConfigurationService;
  * @author VISTALL
  * @since 03-Jan-17
  */
-@Component
-public class PluginChannelIteration
+@Service
+public class PluginChannelIterationService
 {
 	private static final String ourConsuloBootBuild = "1528";
 
-	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIteration.class);
+	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
 	private final UserConfigurationService myUserConfigurationService;
 
 	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	public PluginChannelIteration(UserConfigurationService userConfigurationService, PluginDeployService pluginDeployService)
+	public PluginChannelIterationService(UserConfigurationService userConfigurationService, PluginDeployService pluginDeployService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;

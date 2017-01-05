@@ -25,6 +25,7 @@ import consulo.webService.auth.ui.SideMenu;
 import consulo.webService.auth.ui.SideMenuUI;
 import consulo.webService.auth.view.AccessDeniedView;
 import consulo.webService.auth.view.AdminErrorReportsView;
+import consulo.webService.auth.view.AdminRepositoryView;
 import consulo.webService.auth.view.DashboardView;
 import consulo.webService.auth.view.ErrorReportsView;
 import consulo.webService.auth.view.ErrorView;
@@ -88,7 +89,8 @@ public class DashboardUI extends BaseUI
 
 		if(SecurityUtil.hasRole(Roles.ROLE_ADMIN))
 		{
-			sideMenu.addNavigation("Admin / Error Reports", FontAwesome.BOLT, AdminErrorReportsView.ID);
+			sideMenu.addNavigation("Admin | Error Reports", FontAwesome.BOLT, AdminErrorReportsView.ID);
+			sideMenu.addNavigation("Admin | Repository", FontAwesome.PLUG, AdminRepositoryView.ID);
 		}
 
 		sideMenu.addMenuItem("Logout", FontAwesome.SIGN_OUT, this::logout);

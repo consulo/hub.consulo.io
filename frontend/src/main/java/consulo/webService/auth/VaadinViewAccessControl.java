@@ -5,6 +5,7 @@ import com.intellij.util.ArrayUtil;
 import com.vaadin.spring.access.ViewAccessControl;
 import com.vaadin.ui.UI;
 import consulo.webService.auth.view.AdminErrorReportsView;
+import consulo.webService.auth.view.AdminRepositoryView;
 
 /**
  * This demonstrates how you can control access to views.
@@ -12,7 +13,7 @@ import consulo.webService.auth.view.AdminErrorReportsView;
 @Component
 public class VaadinViewAccessControl implements ViewAccessControl
 {
-	private static final String[] ourWantAdminRole = new String[]{makeBeanName(AdminErrorReportsView.ID)};
+	private static final String[] ourWantAdminRole = new String[]{makeBeanName(AdminErrorReportsView.ID), makeBeanName(AdminRepositoryView.ID)};
 
 	@Override
 	public boolean isAccessGranted(UI ui, String beanName)
