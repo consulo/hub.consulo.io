@@ -81,7 +81,6 @@ public class RepositoryChannelUI extends HorizontalLayout
 
 		// name -> id
 		Map<PluginNode, String> map = new TreeMap<>((o1, o2) -> {
-			int i = o1.name.compareTo(o2.name);
 			if(PluginChannelService.isPlatformNode(o1.id))
 			{
 				return -1;
@@ -90,7 +89,11 @@ public class RepositoryChannelUI extends HorizontalLayout
 			{
 				return 1;
 			}
-			return i;
+			else if(PluginChannelService.isPlatformNode(o1.id) && PluginChannelService.isPlatformNode(o2.id))
+			{
+				return getPluginNodeName(o1).compareToIgnoreCase(getPluginNodeName(o2));
+			}
+			return o1.name.compareToIgnoreCase(o2.name);
 		});
 		for(Map.Entry<String, Collection<PluginNode>> entry : multimap.asMap().entrySet())
 		{
@@ -129,23 +132,26 @@ public class RepositoryChannelUI extends HorizontalLayout
 				tree.addItem(entry.getKey());
 				tree.setItemCaption(entry.getKey(), "Consulo #" + entry.getKey());
 
-				for(PluginNode node : entry.getValue())
+				lastPluginNode = entry.getValue().iterator().next();
+				if(!PluginChannelService.isPlatformNode(lastPluginNode.id))
 				{
-					if(lastPluginNode == null)
+					for(PluginNode node : entry.getValue())
 					{
-						lastPluginNode = node;
+						UUID uuid = UUID.randomUUID();
+
+						tree.addItem(uuid);
+
+						Calendar calendar = Calendar.getInstance();
+						calendar.setTimeInMillis(node.date);
+						tree.setItemCaption(uuid, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
+
+						tree.setParent(uuid, entry.getKey());
+						tree.setChildrenAllowed(uuid, false);
 					}
-
-					UUID uuid = UUID.randomUUID();
-
-					tree.addItem(uuid);
-
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTimeInMillis(node.date);
-					tree.setItemCaption(uuid, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
-
-					tree.setParent(uuid, entry.getKey());
-					tree.setChildrenAllowed(uuid, false);
+				}
+				else
+				{
+					tree.setChildrenAllowed(entry.getKey(), false);
 				}
 			}
 
