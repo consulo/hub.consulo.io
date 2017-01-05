@@ -39,36 +39,6 @@ public class PluginChannelRestController
 		myPluginStatisticsService = pluginStatisticsService;
 	}
 
-	// deprecated api methods
-
-	@RequestMapping("/api/plugins/download")
-	@Deprecated
-	public ResponseEntity<?> downloadDeprecated(@RequestParam("channel") PluginChannel channel,
-			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam("pluginId") String pluginId,
-			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
-	{
-		return download(channel, platformVersion, pluginId, false, platformBuildSelect, false);
-	}
-
-	@RequestMapping(value = "/api/plugins/deploy", method = RequestMethod.POST)
-	@Deprecated
-	public PluginNode pluginDeployDeprecated(@RequestParam("channel") PluginChannel channel,
-			@RequestBody(required = true) MultipartFile file,
-			@RequestHeader("Authorization") String authorization) throws Exception
-	{
-		return pluginDeploy(channel, file, authorization);
-	}
-
-	@RequestMapping("/api/plugins/list")
-	@Deprecated
-	public PluginNode[] listDeprecated(@RequestParam("channel") PluginChannel channel,
-			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
-	{
-		return list(channel, platformVersion, platformBuildSelect);
-	}
-
 	// api methods
 
 	@RequestMapping("/api/repository/download")
