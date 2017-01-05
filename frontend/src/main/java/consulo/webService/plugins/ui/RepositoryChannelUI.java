@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
@@ -76,7 +75,8 @@ public class RepositoryChannelUI extends HorizontalLayout
 
 		PluginChannelService repositoryByChannel = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
 
-		Multimap<String, PluginNode> multimap = ArrayListMultimap.create();
+		Comparator<PluginNode> pluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
+		Multimap<String, PluginNode> multimap =TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), pluginNodeComparator);
 		repositoryByChannel.iteratePluginNodes(pluginNode -> multimap.put(pluginNode.id, pluginNode));
 
 		// name -> id
@@ -112,7 +112,6 @@ public class RepositoryChannelUI extends HorizontalLayout
 			Collection<PluginNode> pluginNodes = multimap.get(pluginId);
 
 			// version -> nodes
-			Comparator<PluginNode> pluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
 			SortedSetMultimap<String, PluginNode> sortByVersion = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), pluginNodeComparator);
 
 			for(PluginNode pluginNode : pluginNodes)
