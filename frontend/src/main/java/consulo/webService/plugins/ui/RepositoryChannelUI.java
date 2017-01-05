@@ -2,6 +2,7 @@ package consulo.webService.plugins.ui;
 
 import java.text.DateFormatSymbols;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +41,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 {
 	private final UserConfigurationService myUserConfigurationService;
 	private final PluginStatisticsService myPluginStatisticsService;
+	private final PluginChannel myPluginChannel;
 
 	private final HorizontalLayout myRightLayout;
 
@@ -49,6 +51,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 			@NotNull PluginStatisticsService pluginStatisticsService,
 			@Nullable String selectedPluginId)
 	{
+		myPluginChannel = pluginChannel;
 		myUserConfigurationService = userConfigurationService;
 		myPluginStatisticsService = pluginStatisticsService;
 
@@ -173,9 +176,10 @@ public class RepositoryChannelUI extends HorizontalLayout
 			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TidyComponents.newLabel(pluginNode.vendor)));
 		}
 
-		List<MongoDownloadStat> downloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
+		List<MongoDownloadStat> allDownloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
+		List<MongoDownloadStat> channelDownloadStat = allDownloadStat.stream().filter(it -> it.getChannel().equals(myPluginChannel.name())).collect(Collectors.toList());
 
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TidyComponents.newLabel(String.valueOf(downloadStat.size()))));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TidyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.size() + ")")));
 
 		com.vaadin.ui.Calendar calendar = new com.vaadin.ui.Calendar()
 		{
@@ -188,7 +192,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 		calendar.setWidth(25, Unit.EM);
 		calendar.setHeight(18, Unit.EM);
 
-		for(MongoDownloadStat mongoDownloadStat : downloadStat)
+		for(MongoDownloadStat mongoDownloadStat : channelDownloadStat)
 		{
 			calendar.addEvent(new BasicEvent("download", "", new Date(mongoDownloadStat.getTime())));
 		}
