@@ -175,6 +175,17 @@ public class RepositoryChannelUI extends HorizontalLayout
 			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TidyComponents.newLabel(pluginNode.vendor)));
 		}
 
+		if(!StringUtil.isEmpty(pluginNode.description))
+		{
+			TextArea area = new TextArea();
+			area.setValue(pluginNode.description);
+			area.setReadOnly(true);
+			area.setWidth(100, Unit.PERCENTAGE);
+			area.addStyleName(ValoTheme.TEXTAREA_SMALL);
+			area.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
+			verticalLayout.addComponent(area);
+		}
+
 		List<MongoDownloadStat> allDownloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
 		List<MongoDownloadStat> channelDownloadStat = allDownloadStat.stream().filter(it -> it.getChannel().equals(myPluginChannel.name())).collect(Collectors.toList());
 
@@ -207,17 +218,6 @@ public class RepositoryChannelUI extends HorizontalLayout
 		switchToMonthView(calendar);
 
 		verticalLayout.addComponent(calendar);
-
-		if(!StringUtil.isEmpty(pluginNode.description))
-		{
-			TextArea area = new TextArea();
-			area.setValue(pluginNode.description);
-			area.setReadOnly(true);
-			area.setWidth(100, Unit.PERCENTAGE);
-			area.addStyleName(ValoTheme.TEXTAREA_SMALL);
-			area.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-			verticalLayout.addComponent(area);
-		}
 
 		return verticalLayout;
 	}
