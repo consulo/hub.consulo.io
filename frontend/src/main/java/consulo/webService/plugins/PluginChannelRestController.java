@@ -71,7 +71,7 @@ public class PluginChannelRestController
 
 		if(!noTracking)
 		{
-			myPluginStatisticsService.increaseDownload(pluginId, channel, select.version, platformVersion);
+			myPluginStatisticsService.increaseDownload(pluginIdNew, channel, select.version, platformVersion);
 		}
 
 		File targetFile = select.targetFile;
