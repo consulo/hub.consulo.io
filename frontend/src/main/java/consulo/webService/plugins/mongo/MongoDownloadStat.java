@@ -21,6 +21,7 @@ public class MongoDownloadStat
 	private String channel;
 	private String version;
 	private String platformVersion;
+	private Boolean viaUpdate;
 
 	public MongoDownloadStat()
 	{
@@ -32,6 +33,16 @@ public class MongoDownloadStat
 		this.channel = channel.name();
 		this.version = version;
 		this.platformVersion = platformVersion;
+	}
+
+	public void setViaUpdate(Boolean viaUpdate)
+	{
+		this.viaUpdate = viaUpdate;
+	}
+
+	public Boolean getViaUpdate()
+	{
+		return viaUpdate;
 	}
 
 	public String getId()

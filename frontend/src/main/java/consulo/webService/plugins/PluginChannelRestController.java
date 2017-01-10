@@ -48,6 +48,7 @@ public class PluginChannelRestController
 			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
 			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
+			@RequestParam(value = "viaUpdate", defaultValue = "false", required = false) boolean viaUpdate,
 			@RequestParam(value = "version", required = false) String version)
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
@@ -72,7 +73,7 @@ public class PluginChannelRestController
 
 		if(!noTracking)
 		{
-			myPluginStatisticsService.increaseDownload(pluginIdNew, channel, select.version, platformVersion);
+			myPluginStatisticsService.increaseDownload(pluginIdNew, channel, select.version, platformVersion, viaUpdate);
 		}
 
 		File targetFile = select.targetFile;

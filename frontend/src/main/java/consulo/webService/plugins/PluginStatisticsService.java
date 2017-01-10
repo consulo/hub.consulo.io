@@ -46,13 +46,18 @@ public class PluginStatisticsService
 		myMongoDownloadStatRepository = mongoDownloadStatRepository;
 	}
 
-	public void increaseDownload(@NotNull String pluginId, PluginChannel channel, @NotNull String version, @NotNull String platformVersion)
+	public void increaseDownload(@NotNull String pluginId, PluginChannel channel, @NotNull String version, @NotNull String platformVersion, boolean viaUpdate)
 	{
 		Block block = myBlock;
 
 		PluginInfo info = block.myPluginInfos.computeIfAbsent(pluginId, s -> new PluginInfo());
 
-		info.myDownloadStat.add(new MongoDownloadStat(System.currentTimeMillis(), channel, version, platformVersion));
+		MongoDownloadStat downloadStat = new MongoDownloadStat(System.currentTimeMillis(), channel, version, platformVersion);
+		if(viaUpdate)
+		{
+			downloadStat.setViaUpdate(true);
+		}
+		info.myDownloadStat.add(downloadStat);
 	}
 
 	@NotNull
