@@ -44,7 +44,7 @@ public class PluginChannelRestController
 	@RequestMapping("/api/repository/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
 			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam("pluginId") String pluginId,
+			@RequestParam("pluginId") final String pluginId,
 			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
 			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
@@ -61,7 +61,8 @@ public class PluginChannelRestController
 		PluginNode select = channelService.select(platformVersion, pluginIdNew, version, platformBuildSelect);
 		if(select == null)
 		{
-			select = channelService.select(platformVersion, pluginId, version, platformBuildSelect);
+			pluginIdNew = pluginId;
+			select = channelService.select(platformVersion, pluginIdNew, version, platformBuildSelect);
 		}
 
 		if(select == null)
