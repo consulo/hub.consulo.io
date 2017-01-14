@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtilRt;
 import consulo.webService.UserConfigurationService;
 
@@ -22,7 +23,7 @@ import consulo.webService.UserConfigurationService;
 @Service
 public class PluginChannelIterationService
 {
-	private static final String ourConsuloBootBuild = "1528";
+	private static final String ourConsuloBootBuild = "1550";
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
@@ -49,10 +50,10 @@ public class PluginChannelIterationService
 		long _60days = TimeUnit.DAYS.toMillis(60);
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
-		pluginChannelService.iteratePluginNodes(originalNode -> {
-
+		pluginChannelService.iteratePluginNodes(originalNode ->
+		{
 			// special case dont remove cold boot build
-			if(pluginChannel == PluginChannel.nightly && PluginChannelService.ourStandardWinId.equals(originalNode.id) && originalNode.version.equals(ourConsuloBootBuild))
+			if(pluginChannel == PluginChannel.nightly && weNeedSkip(originalNode))
 			{
 				return;
 			}
@@ -70,6 +71,19 @@ public class PluginChannelIterationService
 
 			pluginChannelService.remove(node.id, node.version, node.platformVersion);
 		}
+	}
+
+	private static boolean weNeedSkip(PluginNode pluginNode)
+	{
+		if(PluginChannelService.ourStandardWinId.equals(pluginNode.id) && pluginNode.version.equals(ourConsuloBootBuild))
+		{
+			return true;
+		}
+		if(PluginChannelService.isPlatformNode(pluginNode.id))
+		{
+			return false;
+		}
+		return Comparing.equal(pluginNode.platformVersion, ourConsuloBootBuild);
 	}
 
 	/**
@@ -104,7 +118,8 @@ public class PluginChannelIterationService
 		PluginChannelService fromChannel = myUserConfigurationService.getRepositoryByChannel(from);
 		PluginChannelService toChannel = myUserConfigurationService.getRepositoryByChannel(to);
 
-		fromChannel.iteratePluginNodes(originalNode -> {
+		fromChannel.iteratePluginNodes(originalNode ->
+		{
 			if(toChannel.isInRepository(originalNode.id, originalNode.version, originalNode.platformVersion))
 			{
 				return;
