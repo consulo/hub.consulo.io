@@ -178,7 +178,7 @@ public class RepositoryChannelUI extends HorizontalLayout
 				}
 				else
 				{
-					downloadInfo.put(entry.getKey(), lastPluginNodeByVersion);
+					downloadInfo.put(entry.getKey(), entry.getValue().iterator().next());
 					tree.setChildrenAllowed(entry.getKey(), false);
 				}
 			}
