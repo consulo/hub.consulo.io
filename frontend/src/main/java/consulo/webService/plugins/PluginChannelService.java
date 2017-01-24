@@ -1,17 +1,14 @@
 package consulo.webService.plugins;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -29,6 +26,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ThrowableConsumer;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.text.VersionComparatorUtil;
 import consulo.webService.util.GsonUtil;
 
@@ -363,22 +361,26 @@ public class PluginChannelService
 
 		myPluginChannelDirectory = channelDir;
 
-		Set<File> files = new THashSet<>();
-		FileUtil.visitFiles(myPluginChannelDirectory, file ->
+		File[] pluginIdDirectories = myPluginChannelDirectory.listFiles();
+		if(pluginIdDirectories == null)
 		{
-			if(file.getName().endsWith("zip.json") || file.getName().endsWith("tar.gz.json"))
-			{
-				files.add(file);
-			}
-			return true;
-		});
+			logger.info("Loading empty. Channel: " + myChannel);
+			return;
+		}
 
 		long time = System.currentTimeMillis();
+		Map<String, List<Pair<PluginNode, File>>> map = ContainerUtil.newConcurrentMap();
 
-		Map<String, List<Pair<PluginNode, File>>> map = new THashMap<>();
-		files.forEach(file -> processJsonFile(file, map));
+		Arrays.stream(pluginIdDirectories).parallel().filter(File::isDirectory).forEach(file -> {
+			File[] files = file.listFiles();
+			if(files != null)
+			{
+				Arrays.stream(files).parallel().filter(child -> child.getName().endsWith("zip.json") || child.getName().endsWith("tar.gz.json")).forEach(t -> processJsonFile(t, map));
+			}
+		});
 
 		map.entrySet().parallelStream().forEach(this::processEntry);
+
 		logger.info("Loading done by " + (System.currentTimeMillis() - time) + " ms. Channel: " + myChannel);
 	}
 
@@ -409,7 +411,7 @@ public class PluginChannelService
 			return;
 		}
 
-		List<Pair<PluginNode, File>> list = map.computeIfAbsent(pluginNode.id, it -> new ArrayList<>());
+		List<Pair<PluginNode, File>> list = map.computeIfAbsent(pluginNode.id, it -> ContainerUtil.createConcurrentList());
 		list.add(Pair.create(pluginNode, targetArchive));
 	}
 
