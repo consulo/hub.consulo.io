@@ -112,6 +112,12 @@ public class PluginAnalyzerService
 	@NotNull
 	public MultiMap<String, String> analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor, PluginChannelService channelService, String[] dependencies) throws Exception
 	{
+		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
+		if(extensions == null)
+		{
+			return MultiMap.empty();
+		}
+
 		List<URL> urls = new ArrayList<>();
 		urls.addAll(platformClassUrls);
 
@@ -143,13 +149,6 @@ public class PluginAnalyzerService
 		for(File file : ideaPluginDescriptor.getClassPath())
 		{
 			urls.add(file.toURI().toURL());
-		}
-
-		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
-		if(extensions == null)
-		{
-			myUserConfigurationService.asyncDelete(forRemove);
-			return MultiMap.empty();
 		}
 
 		MultiMap<String, String> data = new MultiMap<String, String>()
