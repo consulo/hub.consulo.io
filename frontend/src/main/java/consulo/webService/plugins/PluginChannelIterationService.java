@@ -110,7 +110,7 @@ public class PluginChannelIterationService
 	@Scheduled(cron = "0 0 0 1 * *")
 	public void iterRelease()
 	{
-		iterate(PluginChannel.beta, PluginChannel.release);
+		//iterate(PluginChannel.beta, PluginChannel.release);
 	}
 
 	public void iterate(@NotNull PluginChannel from, @NotNull PluginChannel to)
