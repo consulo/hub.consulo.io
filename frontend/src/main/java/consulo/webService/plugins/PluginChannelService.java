@@ -362,7 +362,9 @@ public class PluginChannelService
 		CommonProcessors.CollectProcessor<File> processor = new CommonProcessors.CollectProcessor<>();
 		FileUtil.visitFiles(myPluginChannelDirectory, processor);
 
+		long time = System.currentTimeMillis();
 		processor.getResults().parallelStream().filter(file -> file.getName().endsWith("zip.json") || file.getName().endsWith("tar.gz.json")).forEach(this::processJsonFile);
+		logger.info("Loading done by " + (System.currentTimeMillis() - time) + " ms. Channel: " + myChannel);
 	}
 
 	private void processJsonFile(File jsonFile)
@@ -395,7 +397,7 @@ public class PluginChannelService
 
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 
-		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.myLock.readLock();
+		ReentrantReadWriteLock.WriteLock writeLock = pluginsState.myLock.writeLock();
 		try
 		{
 			writeLock.lock();
