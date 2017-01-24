@@ -35,6 +35,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 import consulo.pluginAnalyzer.Analyzer;
+import consulo.ui.Component;
 import consulo.webService.UserConfigurationService;
 
 /**
@@ -64,6 +65,8 @@ public class PluginAnalyzerService
 		addUrlByClass(Language.class);
 		// core-impl
 		addUrlByClass(SingleRootFileViewProvider.class);
+		// ui-api
+		addUrlByClass(Component.class);
 		// platform-api
 		addUrlByClass("com.intellij.execution.configurations.ConfigurationType");
 		// platform-impl
