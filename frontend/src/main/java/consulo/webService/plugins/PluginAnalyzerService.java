@@ -258,6 +258,8 @@ public class PluginAnalyzerService
 						break;
 				}
 			}
+
+			analyzerClass.getDeclaredMethod("after").invoke(null);
 		}
 		finally
 		{

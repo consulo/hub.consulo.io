@@ -11,6 +11,8 @@ import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.util.concurrency.AppExecutorUtil;
+import com.intellij.util.concurrency.AppScheduledExecutorService;
 
 /**
  * @author VISTALL
@@ -48,13 +50,15 @@ public class Analyzer
 		}
 	}
 
+	private static Disposable ourRootDisposable = Disposer.newDisposable();
+
 	// called by reflection inside PluginAnalyzerService
 	public static void before()
 	{
 		Logger.setFactory(SilentFactory.class);
 
 		// we need create app, and disable UnitTest mode, some plugins check it in fileTypeFactory
-		new CoreApplicationEnvironment(Disposer.newDisposable())
+		new CoreApplicationEnvironment(ourRootDisposable)
 		{
 			@NotNull
 			@Override
@@ -70,6 +74,15 @@ public class Analyzer
 				};
 			}
 		};
+	}
+
+	// called by reflection inside PluginAnalyzerService
+	public static void after()
+	{
+		Disposer.dispose(ourRootDisposable);
+
+		AppScheduledExecutorService service = (AppScheduledExecutorService) AppExecutorUtil.getAppScheduledExecutorService();
+		service.shutdownAppScheduledExecutorService();
 	}
 
 	// called by reflection inside PluginAnalyzerService
