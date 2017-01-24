@@ -6,6 +6,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,7 +34,6 @@ import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
-import com.intellij.util.lang.UrlClassLoader;
 import consulo.pluginAnalyzer.Analyzer;
 import consulo.webService.UserConfigurationService;
 
@@ -145,14 +145,10 @@ public class PluginAnalyzerService
 			urls.add(file.toURI().toURL());
 		}
 
-		UrlClassLoader urlClassLoader = UrlClassLoader.build().urls(urls).useCache(false).get();
-
-		Class<?> analyzerClass = urlClassLoader.loadClass(Analyzer.class.getName());
-		analyzerClass.getDeclaredMethod("before").invoke(null);
-
 		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
 		if(extensions == null)
 		{
+			myUserConfigurationService.asyncDelete(forRemove);
 			return MultiMap.empty();
 		}
 
@@ -173,90 +169,102 @@ public class PluginAnalyzerService
 			}
 		};
 
-		Class<?> configurationTypeClass = urlClassLoader.loadClass("com.intellij.execution.configurations.ConfigurationType");
-		Method configurationTypeIdMethod = configurationTypeClass.getDeclaredMethod("getId");
-
-		for(Map.Entry<String, Collection<Element>> entry : extensions.entrySet())
+		try (URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()])))
 		{
-			String key = entry.getKey();
-			switch(key)
-			{
-				case "com.intellij.configurationType":
-					forEachQuiet(entry, element -> {
-						String implementation = element.getAttributeValue("implementation");
-						if(implementation != null)
-						{
-							Class<?> aClass = urlClassLoader.loadClass(implementation);
+			Class<?> analyzerClass = urlClassLoader.loadClass(Analyzer.class.getName());
+			analyzerClass.getDeclaredMethod("before").invoke(null);
 
-							Constructor constructorForNew = null;
-							Constructor<?>[] declaredConstructors = aClass.getDeclaredConstructors();
-							for(Constructor<?> declaredConstructor : declaredConstructors)
+			Class<?> configurationTypeClass = urlClassLoader.loadClass("com.intellij.execution.configurations.ConfigurationType");
+			Method configurationTypeIdMethod = configurationTypeClass.getDeclaredMethod("getId");
+
+			for(Map.Entry<String, Collection<Element>> entry : extensions.entrySet())
+			{
+				String key = entry.getKey();
+				switch(key)
+				{
+					case "com.intellij.configurationType":
+						forEachQuiet(entry, element ->
+						{
+							String implementation = element.getAttributeValue("implementation");
+							if(implementation != null)
 							{
-								if(declaredConstructor.getParameterCount() == 0)
+								Class<?> aClass = urlClassLoader.loadClass(implementation);
+
+								Constructor constructorForNew = null;
+								Constructor<?>[] declaredConstructors = aClass.getDeclaredConstructors();
+								for(Constructor<?> declaredConstructor : declaredConstructors)
 								{
-									declaredConstructor.setAccessible(true);
-									constructorForNew = declaredConstructor;
+									if(declaredConstructor.getParameterCount() == 0)
+									{
+										declaredConstructor.setAccessible(true);
+										constructorForNew = declaredConstructor;
+									}
+								}
+
+								if(constructorForNew == null)
+								{
+									return;
+								}
+
+								Object configurationType = constructorForNew.newInstance();
+
+								String id = (String) configurationTypeIdMethod.invoke(configurationType);
+
+								data.putValue(key, id);
+							}
+						});
+						break;
+					case "com.intellij.fileTypeFactory":
+						forEachQuiet(entry, element ->
+						{
+							String implementation = element.getAttributeValue("implementation");
+							if(implementation != null)
+							{
+								Class<?> aClass = urlClassLoader.loadClass(implementation);
+
+								Object fileTypeFactory = aClass.newInstance();
+
+								Class<?> fileTypeFactoryClass = Class.forName("com.intellij.openapi.fileTypes.FileTypeFactory", true, urlClassLoader);
+
+								Set<String> ext = new TreeSet<>();
+
+								Method analyzeFileType = analyzerClass.getDeclaredMethod("analyzeFileType", Set.class, fileTypeFactoryClass);
+								try
+								{
+									analyzeFileType.invoke(null, ext, fileTypeFactory);
+								}
+								catch(Throwable e)
+								{
+									// somebodies can insert foreign logic in factory (com.intellij.xml.XmlFileTypeFactory:38)
+									// it can failed, but - before logic, extensions can be registered
+									//LOGGER.error(e);
+								}
+
+								if(!ext.isEmpty())
+								{
+									data.putValues(key, ext);
 								}
 							}
-
-							if(constructorForNew == null)
-							{
-								return;
-							}
-
-							Object configurationType = constructorForNew.newInstance();
-
-							String id = (String) configurationTypeIdMethod.invoke(configurationType);
-
-							data.putValue(key, id);
-						}
-					});
-					break;
-				case "com.intellij.fileTypeFactory":
-					forEachQuiet(entry, element -> {
-						String implementation = element.getAttributeValue("implementation");
-						if(implementation != null)
+						});
+						break;
+					case "com.intellij.moduleExtensionProvider":
+						forEachQuiet(entry, element ->
 						{
-							Class<?> aClass = urlClassLoader.loadClass(implementation);
-
-							Object fileTypeFactory = aClass.newInstance();
-
-							Class<?> fileTypeFactoryClass = Class.forName("com.intellij.openapi.fileTypes.FileTypeFactory", true, urlClassLoader);
-
-							Set<String> ext = new TreeSet<>();
-
-							Method analyzeFileType = analyzerClass.getDeclaredMethod("analyzeFileType", Set.class, fileTypeFactoryClass);
-							try
+							String extensionKey = element.getAttributeValue("key");
+							if(extensionKey != null)
 							{
-								analyzeFileType.invoke(null, ext, fileTypeFactory);
+								data.putValue(key, extensionKey);
 							}
-							catch(Throwable e)
-							{
-								// somebodies can insert foreign logic in factory (com.intellij.xml.XmlFileTypeFactory:38)
-								// it can failed, but - before logic, extensions can be registered
-								//LOGGER.error(e);
-							}
-
-							if(!ext.isEmpty())
-							{
-								data.putValues(key, ext);
-							}
-						}
-					});
-					break;
-				case "com.intellij.moduleExtensionProvider":
-					forEachQuiet(entry, element -> {
-						String extensionKey = element.getAttributeValue("key");
-						if(extensionKey != null)
-						{
-							data.putValue(key, extensionKey);
-						}
-					});
-					break;
+						});
+						break;
+				}
 			}
 		}
+		finally
+		{
+			myUserConfigurationService.asyncDelete(forRemove);
+		}
 
-		myUserConfigurationService.asyncDelete(forRemove);
 		return data;
 	}
 
