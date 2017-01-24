@@ -169,7 +169,7 @@ public class PluginAnalyzerService
 			}
 		};
 
-		try (URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()])))
+		try (URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]), null))
 		{
 			Class<?> analyzerClass = urlClassLoader.loadClass(Analyzer.class.getName());
 			analyzerClass.getDeclaredMethod("before").invoke(null);
@@ -224,7 +224,7 @@ public class PluginAnalyzerService
 
 								Object fileTypeFactory = aClass.newInstance();
 
-								Class<?> fileTypeFactoryClass = Class.forName("com.intellij.openapi.fileTypes.FileTypeFactory", true, urlClassLoader);
+								Class<?> fileTypeFactoryClass = urlClassLoader.loadClass("com.intellij.openapi.fileTypes.FileTypeFactory");
 
 								Set<String> ext = new TreeSet<>();
 
