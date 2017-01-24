@@ -370,7 +370,6 @@ public class PluginChannelService
 	private void processJsonFile(File jsonFile)
 	{
 		String path = jsonFile.getPath();
-		logger.info("Analyze: " + path);
 
 		PluginNode pluginNode;
 		try (FileReader fileReader = new FileReader(jsonFile))
