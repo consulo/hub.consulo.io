@@ -1,5 +1,8 @@
 package consulo.webService.plugins;
 
+import gnu.trove.THashMap;
+import gnu.trove.THashSet;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -20,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.CommonProcessors;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.text.VersionComparatorUtil;
 import consulo.webService.util.GsonUtil;
@@ -359,15 +363,26 @@ public class PluginChannelService
 
 		myPluginChannelDirectory = channelDir;
 
-		CommonProcessors.CollectProcessor<File> processor = new CommonProcessors.CollectProcessor<>();
-		FileUtil.visitFiles(myPluginChannelDirectory, processor);
+		Set<File> files = new THashSet<>();
+		FileUtil.visitFiles(myPluginChannelDirectory, file ->
+		{
+			if(file.getName().endsWith("zip.json") || file.getName().endsWith("tar.gz.json"))
+			{
+				files.add(file);
+			}
+			return true;
+		});
 
 		long time = System.currentTimeMillis();
-		processor.getResults().parallelStream().filter(file -> file.getName().endsWith("zip.json") || file.getName().endsWith("tar.gz.json")).forEach(this::processJsonFile);
+
+		Map<String, List<Pair<PluginNode, File>>> map = new THashMap<>();
+		files.forEach(file -> processJsonFile(file, map));
+
+		map.entrySet().parallelStream().forEach(this::processEntry);
 		logger.info("Loading done by " + (System.currentTimeMillis() - time) + " ms. Channel: " + myChannel);
 	}
 
-	private void processJsonFile(File jsonFile)
+	private void processJsonFile(File jsonFile, Map<String, List<Pair<PluginNode, File>>> map)
 	{
 		String path = jsonFile.getPath();
 
@@ -394,17 +409,32 @@ public class PluginChannelService
 			return;
 		}
 
-		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
+		List<Pair<PluginNode, File>> list = map.computeIfAbsent(pluginNode.id, it -> new ArrayList<>());
+		list.add(Pair.create(pluginNode, targetArchive));
+	}
+
+	private void processEntry(Map.Entry<String, List<Pair<PluginNode, File>>> entry)
+	{
+		String pluginId = entry.getKey();
+		List<Pair<PluginNode, File>> value = entry.getValue();
+
+		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginId, id -> new PluginsState(myPluginChannelDirectory, pluginId));
 
 		ReentrantReadWriteLock.WriteLock writeLock = pluginsState.myLock.writeLock();
 		try
 		{
 			writeLock.lock();
 
-			pluginNode.length = targetArchive.length();
-			pluginNode.targetFile = targetArchive;
+			for(Pair<PluginNode, File> pair : value)
+			{
+				PluginNode pluginNode = pair.getFirst();
+				File targetArchive = pair.getSecond();
 
-			pluginsState.add(pluginNode);
+				pluginNode.length = targetArchive.length();
+				pluginNode.targetFile = targetArchive;
+
+				pluginsState.add(pluginNode);
+			}
 		}
 		finally
 		{
