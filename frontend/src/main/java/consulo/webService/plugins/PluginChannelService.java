@@ -323,7 +323,7 @@ public class PluginChannelService
 	{
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
 
-		ReentrantReadWriteLock.ReadLock writeLock = pluginsState.myLock.readLock();
+		ReentrantReadWriteLock.WriteLock writeLock = pluginsState.myLock.writeLock();
 		writeLock.lock();
 		try
 		{
