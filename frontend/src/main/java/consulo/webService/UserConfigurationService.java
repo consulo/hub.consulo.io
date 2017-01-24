@@ -198,7 +198,14 @@ public class UserConfigurationService
 
 			for(PluginChannelService service : myPluginChannelServices)
 			{
-				service.initImpl(pluginChannelDir);
+				try
+				{
+					service.initImpl(pluginChannelDir);
+				}
+				catch(Exception e)
+				{
+					LOGGER.error(e.getMessage(), e);
+				}
 			}
 		});
 	}
