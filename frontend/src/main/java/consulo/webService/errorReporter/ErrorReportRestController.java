@@ -6,10 +6,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import consulo.webService.ServiceConstants;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
+import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReportAttachment;
 import consulo.webService.errorReporter.mongo.ErrorReportAttachmentRepository;
@@ -27,17 +31,12 @@ public class ErrorReportRestController
 {
 	private static enum CreateResult
 	{
-		OK,
-		PLATFORM_UPDATE_REQUIRED,
-		PLUGIN_UPDATE_REQUIRED,
-		BAD_REPORT
+		OK, PLATFORM_UPDATE_REQUIRED, PLUGIN_UPDATE_REQUIRED, BAD_REPORT, BAD_OAUTHK_KEY
 	}
 
 	private static enum OS
 	{
-		win(PluginChannelService.ourStandardWinId),
-		linux(PluginChannelService.ourStandardLinuxId),
-		mac(PluginChannelService.ourStandardMacId);
+		win(PluginChannelService.ourStandardWinId), linux(PluginChannelService.ourStandardLinuxId), mac(PluginChannelService.ourStandardMacId);
 
 		private String myPluginId;
 
@@ -72,8 +71,11 @@ public class ErrorReportRestController
 	@Autowired
 	private UserConfigurationService myUserConfigurationService;
 
+	@Autowired
+	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
+
 	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
-	public Map<String, String> create(@RequestBody ErrorReport errorReport) throws IOException
+	public Map<String, String> create(@RequestHeader(value = "Authorization", required = false) String authorizationKey, @RequestBody ErrorReport errorReport) throws IOException
 	{
 		String appBuild = errorReport.getAppBuild();
 		if(appBuild == null)
@@ -132,7 +134,21 @@ public class ErrorReportRestController
 			}
 		}
 
-		errorReport.setReporterEmail("vistall.valeriy@gmail.com");
+		if(authorizationKey != null)
+		{
+			OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorizationKey);
+			if(token == null)
+			{
+				return resultWithMessage(CreateResult.BAD_OAUTHK_KEY, errorReport.getId(), null);
+			}
+
+			errorReport.setReporterEmail(token.getUserName());
+		}
+		else
+		{
+			errorReport.setReporterEmail(ServiceConstants.ourBotEmail);
+		}
+
 		errorReport = myErrorReportRepository.save(errorReport);
 		for(ErrorReportAttachment attachment : errorReport.getAttachments())
 		{
