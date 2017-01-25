@@ -8,7 +8,6 @@ import consulo.webService.auth.mongo.domain.UserAccount;
 
 public interface UserAccountRepository extends MongoRepository<UserAccount, String>
 {
-
 	UserAccount findByUsername(final String username);
 
 	List<UserAccount> findByUsernameAndPassword(final String username, final String password);
