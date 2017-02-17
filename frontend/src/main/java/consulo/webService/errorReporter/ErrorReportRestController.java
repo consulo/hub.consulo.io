@@ -115,12 +115,12 @@ public class ErrorReportRestController
 			}
 		}
 
-		Map<String, String> affectedPluginIds = errorReport.getAffectedPluginIds();
-		for(Map.Entry<String, String> entry : affectedPluginIds.entrySet())
+		ErrorReport.AffectedPlugin[] affectedPlugins = errorReport.getAffectedPlugins();
+		for(ErrorReport.AffectedPlugin entry : affectedPlugins)
 		{
-			int pluginVersion = Integer.parseInt(entry.getValue());
+			int pluginVersion = Integer.parseInt(entry.getPluginVersion());
 
-			PluginNode pluginNode = repository.select(appBuild, entry.getKey(), null, false);
+			PluginNode pluginNode = repository.select(appBuild, entry.getPluginId(), null, false);
 			// if we don't have plugin at our repository - skip it
 			if(pluginNode == null)
 			{
@@ -130,7 +130,7 @@ public class ErrorReportRestController
 			int lastPluginVersion = Integer.parseInt(pluginNode.version);
 			if(pluginVersion < lastPluginVersion)
 			{
-				return resultWithMessage(CreateResult.PLUGIN_UPDATE_REQUIRED, null, entry.getKey());
+				return resultWithMessage(CreateResult.PLUGIN_UPDATE_REQUIRED, null, entry.getPluginId());
 			}
 		}
 

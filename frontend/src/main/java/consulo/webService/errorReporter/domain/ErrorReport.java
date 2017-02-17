@@ -1,7 +1,6 @@
 package consulo.webService.errorReporter.domain;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -17,6 +16,32 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "errorReport")
 public class ErrorReport implements Serializable
 {
+	public static class AffectedPlugin
+	{
+		private String pluginId;
+		private String pluginVersion;
+
+		public void setPluginId(String pluginId)
+		{
+			this.pluginId = pluginId;
+		}
+
+		public void setPluginVersion(String pluginVersion)
+		{
+			this.pluginVersion = pluginVersion;
+		}
+
+		public String getPluginVersion()
+		{
+			return pluginVersion;
+		}
+
+		public String getPluginId()
+		{
+			return pluginId;
+		}
+	}
+
 	@Id
 	private final String id = UUID.randomUUID().toString();
 
@@ -38,7 +63,7 @@ public class ErrorReport implements Serializable
 	private String message;
 	private String description;
 	private Integer assigneeId;
-	private Map<String, String> affectedPluginIds;
+	private AffectedPlugin[] affectedPlugins = new AffectedPlugin[0];
 
 	@DBRef
 	private ErrorReportAttachment[] attachments;
@@ -276,14 +301,14 @@ public class ErrorReport implements Serializable
 		this.assigneeId = assigneeId;
 	}
 
-	public Map<String, String> getAffectedPluginIds()
+	public AffectedPlugin[] getAffectedPlugins()
 	{
-		return affectedPluginIds;
+		return affectedPlugins;
 	}
 
-	public void setAffectedPluginIds(Map<String, String> affectedPluginIds)
+	public void setAffectedPlugins(AffectedPlugin[] affectedPlugins)
 	{
-		this.affectedPluginIds = affectedPluginIds;
+		this.affectedPlugins = affectedPlugins;
 	}
 
 	public ErrorReportAttachment[] getAttachments()
