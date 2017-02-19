@@ -4,8 +4,8 @@ import org.springframework.stereotype.Component;
 import com.intellij.util.ArrayUtil;
 import com.vaadin.spring.access.ViewAccessControl;
 import com.vaadin.ui.UI;
-import consulo.webService.auth.view.AdminErrorReportsView;
-import consulo.webService.auth.view.AdminRepositoryView;
+import consulo.webService.errorReporter.view.AdminErrorReportsView;
+import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.auth.view.AdminUserView;
 
 /**

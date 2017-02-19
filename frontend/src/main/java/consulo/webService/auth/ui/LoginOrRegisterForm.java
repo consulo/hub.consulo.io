@@ -1,4 +1,4 @@
-package consulo.webService.auth;
+package consulo.webService.auth.ui;
 
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.StringLengthValidator;

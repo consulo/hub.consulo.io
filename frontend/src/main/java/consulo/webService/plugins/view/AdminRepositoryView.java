@@ -1,4 +1,4 @@
-package consulo.webService.auth.view;
+package consulo.webService.plugins.view;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;

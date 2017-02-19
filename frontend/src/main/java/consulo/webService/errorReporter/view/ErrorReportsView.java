@@ -1,4 +1,4 @@
-package consulo.webService.auth.view;
+package consulo.webService.errorReporter.view;
 
 import java.util.List;
 
