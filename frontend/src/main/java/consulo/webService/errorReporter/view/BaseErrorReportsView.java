@@ -65,7 +65,6 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		list.setWidth(100, Unit.PERCENTAGE);
 		addComponent(list);
 
-
 		for(ErrorReport errorReport : errorReports)
 		{
 			VerticalLayout lineLayout = new VerticalLayout();
