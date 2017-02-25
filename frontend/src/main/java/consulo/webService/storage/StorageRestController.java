@@ -84,7 +84,7 @@ public class StorageRestController
 	}
 
 	@RequestMapping(value = "/api/storage/getFile", method = RequestMethod.GET)
-	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestHeader("Authorization") String authorization)
+	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @RequestHeader("Authorization") String authorization)
 	{
 		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
 		if(token == null)
@@ -95,8 +95,14 @@ public class StorageRestController
 		MongoStorageFile storageFile = myStorageFileRepository.findByEmailAndFilePath(token.getUserName(), filePath);
 		if(storageFile == null)
 		{
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.notFound().build();
 		}
+
+		if(storageFile.getModCount() == modCount)
+		{
+			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+		}
+
 		return ResponseEntity.ok(new ByteArrayResource(storageFile.getData()));
 	}
 

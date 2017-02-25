@@ -53,7 +53,7 @@ public class PluginChannelIterationService
 		pluginChannelService.iteratePluginNodes(originalNode ->
 		{
 			// special case dont remove cold boot build
-			if(pluginChannel == PluginChannel.nightly && weNeedSkip(originalNode))
+			if((pluginChannel == PluginChannel.nightly || pluginChannel == PluginChannel.internal) && weNeedSkip(originalNode))
 			{
 				return;
 			}
