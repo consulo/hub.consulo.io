@@ -23,7 +23,7 @@ import consulo.webService.UserConfigurationService;
 @Service
 public class PluginChannelIterationService
 {
-	private static final String ourConsuloBootBuild = "1550";
+	private static final String ourConsuloBootBuild = "1555";
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
