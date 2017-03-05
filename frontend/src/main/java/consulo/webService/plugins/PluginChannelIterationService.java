@@ -47,7 +47,7 @@ public class PluginChannelIterationService
 	private void cleanup(PluginChannel pluginChannel)
 	{
 		List<PluginNode> toRemove = new ArrayList<>();
-		long _60days = TimeUnit.DAYS.toMillis(60);
+		long _15days = TimeUnit.DAYS.toMillis(15);
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
 		pluginChannelService.iteratePluginNodes(originalNode ->
@@ -59,7 +59,7 @@ public class PluginChannelIterationService
 			}
 
 			long diff = System.currentTimeMillis() - originalNode.date;
-			if(diff > _60days)
+			if(diff > _15days)
 			{
 				toRemove.add(originalNode);
 			}
