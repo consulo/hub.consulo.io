@@ -58,6 +58,11 @@ public class PluginChannelIterationService
 				return;
 			}
 
+			if(pluginChannelService.isLatest(originalNode))
+			{
+				return;
+			}
+
 			long diff = System.currentTimeMillis() - originalNode.date;
 			if(diff > _15days)
 			{

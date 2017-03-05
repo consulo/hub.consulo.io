@@ -321,6 +321,34 @@ public class PluginChannelService
 		}
 	}
 
+	public boolean isLatest(@NotNull PluginNode pluginNode)
+	{
+		PluginsState state = myPlugins.get(pluginNode.id);
+		if(state == null)
+		{
+			return false;
+		}
+
+		ReentrantReadWriteLock.ReadLock readLock = state.myLock.readLock();
+		try
+		{
+			readLock.lock();
+
+			NavigableSet<PluginNode> set = state.myPluginsByPlatformVersion.get(pluginNode.platformVersion);
+			if(set == null || set.isEmpty())
+			{
+				return false;
+			}
+
+			PluginNode last = set.last();
+			return last.version.equals(pluginNode.version);
+		}
+		finally
+		{
+			readLock.unlock();
+		}
+	}
+
 	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<File, Exception> writeConsumer) throws Exception
 	{
 		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsState(myPluginChannelDirectory, pluginNode.id));
@@ -371,7 +399,8 @@ public class PluginChannelService
 		long time = System.currentTimeMillis();
 		Map<String, List<Pair<PluginNode, File>>> map = ContainerUtil.newConcurrentMap();
 
-		Arrays.stream(pluginIdDirectories).parallel().filter(File::isDirectory).forEach(file -> {
+		Arrays.stream(pluginIdDirectories).parallel().filter(File::isDirectory).forEach(file ->
+		{
 			File[] files = file.listFiles();
 			if(files != null)
 			{
