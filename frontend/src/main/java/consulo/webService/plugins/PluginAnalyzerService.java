@@ -5,6 +5,7 @@ import gnu.trove.THashMap;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class PluginAnalyzerService
 
 			platformClassUrls.add(new File(jarPathForClass).toURI().toURL());
 		}
-		catch(ClassNotFoundException | java.net.MalformedURLException e)
+		catch(ClassNotFoundException | MalformedURLException e)
 		{
 			LOGGER.error("Class " + clazzName + " is not found", e);
 		}
