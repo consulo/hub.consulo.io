@@ -1,12 +1,15 @@
 package consulo.webService.errorReporter.view;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -32,24 +35,48 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 		switch(errorReport.getStatus())
 		{
 			case UNKNOWN:
-				Button fixedButton = TidyComponents.newButton("Fix");
-				fixedButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-				fixedButton.addClickListener(e ->
+				List<Button> adminButtons = new ArrayList<>(5);
+				for(ErrorReporterStatus status : ErrorReporterStatus.values())
 				{
-					if(errorReport.getStatus() != ErrorReporterStatus.FIXED)
+					if(status == ErrorReporterStatus.UNKNOWN)
 					{
-						errorReport.setChangedByEmail(authentication.getName());
-						errorReport.setChangeTime(System.currentTimeMillis());
-						errorReport.setStatus(ErrorReporterStatus.FIXED);
-
-						fireChanged(onUpdate, errorReport);
-						myErrorReportRepository.save(errorReport);
+						continue;
 					}
-					rightLayout.removeComponent(fixedButton);
+
+					Button button = TidyComponents.newButton(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+					if(status == ErrorReporterStatus.FIXED)
+					{
+						button.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+					}
+
+					adminButtons.add(button);
+
+					button.addClickListener(e ->
+					{
+						if(errorReport.getStatus() != status)
+						{
+							errorReport.setChangedByEmail(authentication.getName());
+							errorReport.setChangeTime(System.currentTimeMillis());
+							errorReport.setStatus(status);
+
+							fireChanged(onUpdate, errorReport);
+							myErrorReportRepository.save(errorReport);
+						}
+					});
+
+					rightLayout.addComponent(button);
+				}
+
+				onUpdate.add(report ->
+				{
+					if(report.getStatus() != ErrorReporterStatus.UNKNOWN)
+					{
+						for(Button adminButton : adminButtons)
+						{
+							rightLayout.removeComponent(adminButton);
+						}
+					}
 				});
-				rightLayout.addComponent(fixedButton);
-				break;
-			case FIXED:
 				break;
 		}
 

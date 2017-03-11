@@ -7,5 +7,7 @@ package consulo.webService.errorReporter.domain;
 public enum ErrorReporterStatus
 {
 	UNKNOWN,
-	FIXED
+	FIXED,
+	OBSOLETE,
+	DUPLICATE
 }
