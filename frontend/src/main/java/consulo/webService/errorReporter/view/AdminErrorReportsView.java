@@ -1,8 +1,9 @@
 package consulo.webService.errorReporter.view;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.springframework.data.domain.Page;
@@ -14,7 +15,6 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
@@ -32,54 +32,47 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 	@Override
 	protected void addRightButtons(Authentication authentication, ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
-		switch(errorReport.getStatus())
+		HorizontalLayout panel = new HorizontalLayout();
+		panel.setSpacing(true);
+		rightLayout.addComponent(panel);
+
+		Map<ErrorReporterStatus, Button> adminButtons = new LinkedHashMap<>();
+		for(ErrorReporterStatus status : ErrorReporterStatus.values())
 		{
-			case UNKNOWN:
-				List<Button> adminButtons = new ArrayList<>(5);
-				for(ErrorReporterStatus status : ErrorReporterStatus.values())
+			Button button = TidyComponents.newButton(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+			button.addStyleName("errorViewButton" + StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+
+			adminButtons.put(status, button);
+
+			button.addClickListener(e ->
+			{
+				if(errorReport.getStatus() != status)
 				{
-					if(status == ErrorReporterStatus.UNKNOWN)
-					{
-						continue;
-					}
+					errorReport.setChangedByEmail(authentication.getName());
+					errorReport.setChangeTime(System.currentTimeMillis());
+					errorReport.setStatus(status);
 
-					Button button = TidyComponents.newButton(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
-					if(status == ErrorReporterStatus.FIXED)
-					{
-						button.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-					}
-
-					adminButtons.add(button);
-
-					button.addClickListener(e ->
-					{
-						if(errorReport.getStatus() != status)
-						{
-							errorReport.setChangedByEmail(authentication.getName());
-							errorReport.setChangeTime(System.currentTimeMillis());
-							errorReport.setStatus(status);
-
-							fireChanged(onUpdate, errorReport);
-							myErrorReportRepository.save(errorReport);
-						}
-					});
-
-					rightLayout.addComponent(button);
+					fireChanged(onUpdate, errorReport);
+					myErrorReportRepository.save(errorReport);
 				}
-
-				onUpdate.add(report ->
-				{
-					if(report.getStatus() != ErrorReporterStatus.UNKNOWN)
-					{
-						for(Button adminButton : adminButtons)
-						{
-							rightLayout.removeComponent(adminButton);
-						}
-					}
-				});
-				break;
+			});
 		}
 
+		onUpdate.add(report ->
+		{
+			panel.removeAllComponents();
+
+			for(ErrorReporterStatus errorReporterStatus : ErrorReporterStatus.values())
+			{
+				if(errorReporterStatus == report.getStatus())
+				{
+					continue;
+				}
+
+				Button button = adminButtons.get(errorReporterStatus);
+				panel.addComponent(button);
+			}
+		});
 		super.addRightButtons(authentication, errorReport, lineLayout, rightLayout, onUpdate);
 	}
 

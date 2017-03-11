@@ -19,6 +19,7 @@ import com.intellij.util.ReflectionUtil;
 import com.vaadin.data.Property;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -121,7 +122,6 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		label.setValue(String.format("Error Reports (%d, page: %d)", page.getNumberOfElements(), myPage));
 
-		boolean step = true;
 		for(ErrorReport errorReport : page)
 		{
 			VerticalLayout lineLayout = new VerticalLayout();
@@ -129,24 +129,36 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 			HorizontalLayout shortLine = new HorizontalLayout();
 			lineLayout.addComponent(shortLine);
-			lineLayout.addStyleName(step ? "errorViewLineLayout" : "errorViewLineLayout2");
-
-			step = !step;
+			lineLayout.addStyleName("errorViewLineLayout");
 
 			shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			shortLine.setWidth(100, Unit.PERCENTAGE);
 
-			shortLine.addComponent(TidyComponents.newLabel("Message: " + errorReport.getMessage()));
-			shortLine.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+			HorizontalLayout leftLayout = new HorizontalLayout();
+			leftLayout.setSpacing(true);
+			leftLayout.addComponent(TidyComponents.newLabel("Message: " + errorReport.getMessage()));
+			leftLayout.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
 
 			HorizontalLayout rightLayout = new HorizontalLayout();
 			rightLayout.setSpacing(true);
 
 			List<Consumer<ErrorReport>> onUpdate = new ArrayList<>();
 
+			onUpdate.add(report ->
+			{
+				for(ErrorReporterStatus status : ErrorReporterStatus.values())
+				{
+					lineLayout.removeStyleName("errorViewLineLayout" + StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+				}
+
+				lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
+			});
 			addRightButtons(authentication, errorReport, lineLayout, rightLayout, onUpdate);
 
 			fireChanged(onUpdate, errorReport);
+
+			shortLine.addComponent(leftLayout);
+			shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
 
 			shortLine.addComponent(rightLayout);
 			shortLine.setComponentAlignment(rightLayout, Alignment.MIDDLE_RIGHT);
@@ -191,14 +203,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	protected void addRightButtons(Authentication authentication, ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
 		Button detailsButton = TidyComponents.newButton("Details");
-
-		onUpdate.add(e ->
-		{
-			if(e.getStatus() == ErrorReporterStatus.FIXED)
-			{
-				detailsButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-			}
-		});
+		detailsButton.setIcon(FontAwesome.NAVICON);
 
 		detailsButton.addClickListener(e ->
 		{

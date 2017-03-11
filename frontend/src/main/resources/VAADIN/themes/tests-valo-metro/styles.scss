@@ -21,20 +21,49 @@ div.sidemenu-ui {
 {
 	padding-left: 5px;
 	border-top: lightgray solid 1px;
-	border-left: lightskyblue solid 4px;
 	border-bottom: lightgray solid 1px;
 	border-right: lightgray solid 1px;
 	margin-top: 2px;
 	margin-bottom: 2px;
 }
 
-.errorViewLineLayout2
+.errorViewLineLayoutFixed
 {
-	padding-left: 5px;
-	border-top: lightgray solid 1px;
-	border-left: lightblue solid 4px;
-	border-bottom: lightgray solid 1px;
-	border-right: lightgray solid 1px;
-	margin-top: 2px;
-	margin-bottom: 2px;
+	border-left: limegreen solid 4px;
+}
+
+.errorViewLineLayoutUnknown
+{
+	border-left: gold solid 4px;
+}
+
+.errorViewLineLayoutDuplicate
+{
+	border-left: gray solid 4px;
+}
+
+.errorViewLineLayoutObsolete
+{
+	border-left: lightgray solid 4px;
+}
+
+//
+.errorViewButtonFixed
+{
+	border-left: limegreen solid 2px !important;
+}
+
+.errorViewButtonUnknown
+{
+	border-left: gold solid 2px !important;
+}
+
+.errorViewButtonDuplicate
+{
+	border-left: gray solid 2px !important;
+}
+
+.errorViewButtonObsolete
+{
+	border-left: lightgray solid 2px !important;
 }
