@@ -15,6 +15,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.ui.install.Installer;
+import consulo.webService.ui.util.TidyComponents;
 
 /**
  * @author VISTALL
@@ -50,11 +51,11 @@ public class RootUI extends UI
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setSpacing(true);
 
-		Button repoButton = new Button("Platform & Plugin Repository");
+		Button repoButton = TidyComponents.newButton("Platform & Plugin Repository");
 		repoButton.addClickListener(event -> getUI().getPage().setLocation("repo"));
 		layout.addComponent(repoButton);
 
-		Button dashButton = new Button("Dashboard");
+		Button dashButton = TidyComponents.newButton("Dashboard");
 		dashButton.addClickListener(event -> getUI().getPage().setLocation("dash"));
 		layout.addComponent(dashButton);
 

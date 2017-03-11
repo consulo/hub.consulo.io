@@ -33,6 +33,7 @@ public class LoginOrRegisterForm extends VerticalLayout
 		setComponentAlignment(mainPanel, Alignment.MIDDLE_CENTER);
 
 		myEmailTextField = new TextField("Email");
+		myEmailTextField.addStyleName(ValoTheme.TEXTAREA_SMALL);
 		myEmailTextField.setWidth(100, Unit.PERCENTAGE);
 		myEmailTextField.setImmediate(true);
 		myEmailTextField.addValidator(new EmailValidator("Bad email"));
@@ -40,6 +41,7 @@ public class LoginOrRegisterForm extends VerticalLayout
 		mainPanel.addComponent(myEmailTextField);
 
 		myPasswordField = new PasswordField("Password");
+		myPasswordField.addStyleName(ValoTheme.TEXTAREA_SMALL);
 		myPasswordField.setWidth(100, Unit.PERCENTAGE);
 		//myPasswordField.setValidationVisible(true);
 		myPasswordField.addValidator(new StringLengthValidator("Bad password", 1, Integer.MAX_VALUE, false));
@@ -49,10 +51,11 @@ public class LoginOrRegisterForm extends VerticalLayout
 
 		Button loginButton = new Button("Login", createListener("Login failed", loginCallback));
 		loginButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
+		loginButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		loginButton.setClickShortcut(ShortcutAction.KeyCode.ENTER);
 
 		Button registerButton = new Button("Register", createListener("Register failed", registerCallback));
-
+		registerButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		mainPanel.addComponent(myCaptcha.getComponent());
 
 		HorizontalLayout buttonsPanel = new HorizontalLayout(loginButton, registerButton);
