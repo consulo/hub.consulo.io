@@ -119,7 +119,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		Page<ErrorReport> page = getReports(authentication, myPage, myFilters.toArray(new ErrorReporterStatus[myFilters.size()]), ourPageSize);
 
-		label.setValue(String.format("Error Reports (%d, page: %d)", page.getSize(), myPage));
+		label.setValue(String.format("Error Reports (%d, page: %d)", page.getNumberOfElements(), myPage));
 
 		boolean step = true;
 		for(ErrorReport errorReport : page)
