@@ -1,11 +1,11 @@
 package consulo.webService.errorReporter.mongo;
 
-import java.util.List;
-
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import consulo.webService.errorReporter.domain.ErrorReport;
+import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 
 /**
  * @author VISTALL
@@ -15,7 +15,12 @@ public interface ErrorReportRepository extends MongoRepository<ErrorReport, Stri
 {
 	String CREATE_DATE = "createDate";
 
-	List<ErrorReport> findByReporterEmail(String email, Sort sort);
+	@NotNull
+	Page<ErrorReport> findByReporterEmail(String email, Pageable pageable);
 
-	List<ErrorReport> findByReporterEmail(String email, Pageable pageable);
+	@NotNull
+	Page<ErrorReport> findByReporterEmailAndStatusIn(String email, ErrorReporterStatus[] errorReporterStatuses, Pageable pageable);
+
+	@NotNull
+	Page<ErrorReport> findByStatusIn(ErrorReporterStatus[] errorReporterStatuses, Pageable pageable);
 }

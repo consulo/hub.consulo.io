@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.intellij.openapi.util.Couple;
@@ -40,27 +40,24 @@ import consulo.webService.ui.util.TidyComponents;
  */
 public abstract class BaseErrorReportsView extends VerticalLayout implements View
 {
+	private static final int ourPageSize = 50;
+
 	@Autowired
 	protected ErrorReportRepository myErrorReportRepository;
 
-	private Set<ErrorReporterStatus> myFilters = new HashSet<>();
+	private final Set<ErrorReporterStatus> myFilters = new HashSet<>();
+	private int myPage = 0;
 
 	public BaseErrorReportsView()
 	{
 		setMargin(true);
 	}
 
-	protected abstract List<ErrorReport> getReports(Authentication authentication);
+	protected abstract Page<ErrorReport> getReports(Authentication authentication, int page, ErrorReporterStatus[] errorReporterStatuses, int ourPageSize);
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
-		{
-			return;
-		}
-
 		HorizontalLayout header = new HorizontalLayout();
 		header.setWidth(100, Unit.PERCENTAGE);
 		Label label = new Label();
@@ -68,6 +65,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		header.addComponent(label);
 
 		HorizontalLayout filters = new HorizontalLayout();
+		filters.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 		filters.setSpacing(true);
 		filters.addComponent(TidyComponents.newLabel("State: "));
 
@@ -92,10 +90,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 				{
 					myFilters.remove(status);
 				}
-
-				reportList.removeAllComponents();
-
-				build(authentication, label, reportList);
+				build(label, reportList);
 			});
 
 			filters.addComponent(filterBox);
@@ -109,25 +104,34 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		myFilters.add(ErrorReporterStatus.UNKNOWN);
 
-		build(authentication, label, reportList);
+		build(label, reportList);
 	}
 
-	private void build(Authentication authentication, Label label, VerticalLayout list)
+	private void build(Label label, VerticalLayout reportList)
 	{
-		List<ErrorReport> errorReports = getReports(authentication);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication == null)
+		{
+			return;
+		}
 
-		errorReports = errorReports.stream().filter(report -> myFilters.contains(report.getStatus())).collect(Collectors.toList());
+		reportList.removeAllComponents();
 
-		updateHeader(label, errorReports.size());
+		Page<ErrorReport> page = getReports(authentication, myPage, myFilters.toArray(new ErrorReporterStatus[myFilters.size()]), ourPageSize);
 
-		for(ErrorReport errorReport : errorReports)
+		label.setValue(String.format("Error Reports (%d, page: %d)", page.getSize(), myPage));
+
+		boolean step = true;
+		for(ErrorReport errorReport : page)
 		{
 			VerticalLayout lineLayout = new VerticalLayout();
-			lineLayout.addStyleName(ValoTheme.LAYOUT_CARD);
 			lineLayout.setWidth(100, Unit.PERCENTAGE);
 
 			HorizontalLayout shortLine = new HorizontalLayout();
 			lineLayout.addComponent(shortLine);
+			lineLayout.addStyleName(step ? "errorViewLineLayout" : "errorViewLineLayout2");
+
+			step = !step;
 
 			shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			shortLine.setWidth(100, Unit.PERCENTAGE);
@@ -147,13 +151,33 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			shortLine.addComponent(rightLayout);
 			shortLine.setComponentAlignment(rightLayout, Alignment.MIDDLE_RIGHT);
 
-			list.addComponent(lineLayout);
+			reportList.addComponent(lineLayout);
 		}
-	}
 
-	private void updateHeader(Label label, int size)
-	{
-		label.setValue(String.format("Error Reports (%d)", size));
+		if(page.hasPrevious() || page.hasNext())
+		{
+			HorizontalLayout pageLayout = new HorizontalLayout();
+			pageLayout.setMargin(true);
+			pageLayout.setSpacing(true);
+			if(page.hasPrevious())
+			{
+				pageLayout.addComponent(TidyComponents.newButton("Prev", event ->
+				{
+					myPage--;
+					build(label, reportList);
+				}));
+			}
+			if(page.hasNext())
+			{
+				pageLayout.addComponent(TidyComponents.newButton("Next", event ->
+				{
+					myPage++;
+					build(label, reportList);
+				}));
+			}
+			reportList.addComponent(pageLayout);
+			reportList.setComponentAlignment(pageLayout, Alignment.MIDDLE_CENTER);
+		}
 	}
 
 	protected static void fireChanged(List<Consumer<ErrorReport>> consumers, ErrorReport report)

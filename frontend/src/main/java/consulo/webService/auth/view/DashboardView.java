@@ -1,8 +1,7 @@
 package consulo.webService.auth.view;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -92,7 +91,7 @@ public class DashboardView extends VerticalLayout implements View
 
 	private Component buildLastErrorReports(Authentication authentication)
 	{
-		List<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 15, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
+		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 15, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setHeight(100, Unit.PERCENTAGE);

@@ -3,6 +3,8 @@ package consulo.webService.errorReporter.view;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import com.vaadin.spring.annotation.SpringView;
@@ -32,7 +34,8 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			case UNKNOWN:
 				Button fixedButton = TidyComponents.newButton("Fix");
 				fixedButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-				fixedButton.addClickListener(e -> {
+				fixedButton.addClickListener(e ->
+				{
 					if(errorReport.getStatus() != ErrorReporterStatus.FIXED)
 					{
 						errorReport.setChangedByEmail(authentication.getName());
@@ -54,8 +57,8 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 	}
 
 	@Override
-	protected List<ErrorReport> getReports(Authentication authentication)
+	protected Page<ErrorReport> getReports(Authentication authentication, int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize)
 	{
-		return myErrorReportRepository.findAll(new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE));
+		return myErrorReportRepository.findByStatusIn(errorReporterStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
 	}
 }
