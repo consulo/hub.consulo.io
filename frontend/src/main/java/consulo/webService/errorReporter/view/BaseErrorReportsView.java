@@ -67,7 +67,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		HorizontalLayout filters = new HorizontalLayout();
 		filters.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 		filters.setSpacing(true);
-		filters.addComponent(TidyComponents.newLabel("State: "));
+		filters.addComponent(TidyComponents.newLabel("Status: "));
 
 		VerticalLayout reportList = new VerticalLayout();
 		reportList.setWidth(100, Unit.PERCENTAGE);
