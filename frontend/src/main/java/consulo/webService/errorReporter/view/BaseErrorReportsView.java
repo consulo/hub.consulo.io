@@ -3,8 +3,12 @@ package consulo.webService.errorReporter.view;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -17,6 +21,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -27,6 +32,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
+import consulo.webService.ui.util.TidyComponents;
 
 /**
  * @author VISTALL
@@ -36,6 +42,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 {
 	@Autowired
 	protected ErrorReportRepository myErrorReportRepository;
+
+	private Set<ErrorReporterStatus> myFilters = new HashSet<>();
 
 	public BaseErrorReportsView()
 	{
@@ -53,17 +61,64 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			return;
 		}
 
-		List<ErrorReport> errorReports = getReports(authentication);
-
 		HorizontalLayout header = new HorizontalLayout();
 		header.setWidth(100, Unit.PERCENTAGE);
-		header.addComponent(new Label(String.format("Error Reports (%d)", errorReports.size())));
+		Label label = new Label();
+
+		header.addComponent(label);
+
+		HorizontalLayout filters = new HorizontalLayout();
+		filters.setSpacing(true);
+		filters.addComponent(TidyComponents.newLabel("State: "));
+
+		VerticalLayout reportList = new VerticalLayout();
+		reportList.setWidth(100, Unit.PERCENTAGE);
+
+		for(ErrorReporterStatus status : ErrorReporterStatus.values())
+		{
+			CheckBox filterBox = TidyComponents.newCheckBox(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+			if(status == ErrorReporterStatus.UNKNOWN)
+			{
+				filterBox.setValue(true);
+			}
+
+			filterBox.addValueChangeListener(e ->
+			{
+				if((Boolean) e.getProperty().getValue())
+				{
+					myFilters.add(status);
+				}
+				else
+				{
+					myFilters.remove(status);
+				}
+
+				reportList.removeAllComponents();
+
+				build(authentication, label, reportList);
+			});
+
+			filters.addComponent(filterBox);
+		}
+
+		header.addComponent(filters);
+
 		addComponent(header);
 
-		VerticalLayout list = new VerticalLayout();
-		list.setSpacing(true);
-		list.setWidth(100, Unit.PERCENTAGE);
-		addComponent(list);
+		addComponent(reportList);
+
+		myFilters.add(ErrorReporterStatus.UNKNOWN);
+
+		build(authentication, label, reportList);
+	}
+
+	private void build(Authentication authentication, Label label, VerticalLayout list)
+	{
+		List<ErrorReport> errorReports = getReports(authentication);
+
+		errorReports = errorReports.stream().filter(report -> myFilters.contains(report.getStatus())).collect(Collectors.toList());
+
+		updateHeader(label, errorReports.size());
 
 		for(ErrorReport errorReport : errorReports)
 		{
@@ -77,8 +132,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			shortLine.setWidth(100, Unit.PERCENTAGE);
 
-			shortLine.addComponent(new Label("Message: " + errorReport.getMessage()));
-			shortLine.addComponent(new Label("At: " + new Date(errorReport.getCreateDate())));
+			shortLine.addComponent(TidyComponents.newLabel("Message: " + errorReport.getMessage()));
+			shortLine.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
 
 			HorizontalLayout rightLayout = new HorizontalLayout();
 			rightLayout.setSpacing(true);
@@ -96,6 +151,11 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		}
 	}
 
+	private void updateHeader(Label label, int size)
+	{
+		label.setValue(String.format("Error Reports (%d)", size));
+	}
+
 	protected static void fireChanged(List<Consumer<ErrorReport>> consumers, ErrorReport report)
 	{
 		for(Consumer<ErrorReport> consumer : consumers)
@@ -106,17 +166,18 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 	protected void addRightButtons(Authentication authentication, ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
-		Button detailsButton = new Button("Details");
-		detailsButton.addStyleName(ValoTheme.BUTTON_TINY);
+		Button detailsButton = TidyComponents.newButton("Details");
 
-		onUpdate.add(e -> {
+		onUpdate.add(e ->
+		{
 			if(e.getStatus() == ErrorReporterStatus.FIXED)
 			{
 				detailsButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 			}
 		});
 
-		detailsButton.addClickListener(e -> {
+		detailsButton.addClickListener(e ->
+		{
 			int componentCount = lineLayout.getComponentCount();
 			if(componentCount == 2)
 			{
@@ -156,7 +217,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		for(Couple<String> couple : list)
 		{
-			gridLayout.addComponent(new Label(couple.getFirst() + ":"), 0, row);
+			gridLayout.addComponent(TidyComponents.newLabel(couple.getFirst() + ":"), 0, row);
 
 			Object rawValue = ReflectionUtil.getField(ErrorReport.class, errorReport, null, couple.getSecond());
 
@@ -167,10 +228,12 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			{
 				textField = new TextArea();
 				((Component) textField).setHeight(15, Unit.EM);
+				((Component) textField).addStyleName(ValoTheme.TEXTAREA_SMALL);
 			}
 			else
 			{
 				textField = new Label();
+				((Component) textField).addStyleName(ValoTheme.LABEL_SMALL);
 			}
 
 			((Component) textField).setWidth(100, Unit.PERCENTAGE);
@@ -179,7 +242,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 			gridLayout.addComponent((Component) textField, 1, row);
 
-			onUpdate.add(report -> {
+			onUpdate.add(report ->
+			{
 				Object rawValue2 = ReflectionUtil.getField(ErrorReport.class, report, null, couple.getSecond());
 
 				String value2 = rawValue2 == null ? null : String.valueOf(rawValue2);

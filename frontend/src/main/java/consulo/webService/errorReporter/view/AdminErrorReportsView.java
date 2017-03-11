@@ -3,6 +3,7 @@ package consulo.webService.errorReporter.view;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
@@ -11,6 +12,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
+import consulo.webService.errorReporter.mongo.ErrorReportRepository;
+import consulo.webService.ui.util.TidyComponents;
 
 /**
  * @author VISTALL
@@ -27,8 +30,7 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 		switch(errorReport.getStatus())
 		{
 			case UNKNOWN:
-				Button fixedButton = new Button("Fix");
-				fixedButton.addStyleName(ValoTheme.BUTTON_TINY);
+				Button fixedButton = TidyComponents.newButton("Fix");
 				fixedButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 				fixedButton.addClickListener(e -> {
 					if(errorReport.getStatus() != ErrorReporterStatus.FIXED)
@@ -54,6 +56,6 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 	@Override
 	protected List<ErrorReport> getReports(Authentication authentication)
 	{
-		return myErrorReportRepository.findAll();
+		return myErrorReportRepository.findAll(new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE));
 	}
 }
