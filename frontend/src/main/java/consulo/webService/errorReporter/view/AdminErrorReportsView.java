@@ -1,5 +1,6 @@
 package consulo.webService.errorReporter.view;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -7,9 +8,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
@@ -30,8 +33,15 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 	public static final String ID = "adminErrorReports";
 
 	@Override
-	protected void addRightButtons(Authentication authentication, ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
+	protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication == null)
+		{
+			super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
+			return;
+		}
+
 		HorizontalLayout panel = new HorizontalLayout();
 		panel.setSpacing(true);
 		rightLayout.addComponent(panel);
@@ -73,12 +83,18 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 				panel.addComponent(button);
 			}
 		});
-		super.addRightButtons(authentication, errorReport, lineLayout, rightLayout, onUpdate);
+		super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
 	}
 
 	@Override
-	protected Page<ErrorReport> getReports(Authentication authentication, int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize)
+	protected Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize)
 	{
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication == null)
+		{
+			return new PageImpl<>(Collections.emptyList());
+		}
+
 		return myErrorReportRepository.findByStatusIn(errorReporterStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
 	}
 }
