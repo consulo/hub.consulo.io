@@ -142,8 +142,9 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			shortLine.setWidth(100, Unit.PERCENTAGE);
 
 			HorizontalLayout leftLayout = new HorizontalLayout();
+			leftLayout.setWidth(100, Unit.PERCENTAGE);
 			leftLayout.setSpacing(true);
-			leftLayout.addComponent(TidyComponents.newLabel("Message: " + errorReport.getMessage()));
+			leftLayout.addComponent(TidyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
 			leftLayout.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
 
 			HorizontalLayout rightLayout = new HorizontalLayout();
