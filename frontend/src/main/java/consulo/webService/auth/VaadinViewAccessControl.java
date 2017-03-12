@@ -4,9 +4,10 @@ import org.springframework.stereotype.Component;
 import com.intellij.util.ArrayUtil;
 import com.vaadin.spring.access.ViewAccessControl;
 import com.vaadin.ui.UI;
+import consulo.webService.auth.view.AdminUserView;
 import consulo.webService.errorReporter.view.AdminErrorReportsView;
 import consulo.webService.plugins.view.AdminRepositoryView;
-import consulo.webService.auth.view.AdminUserView;
+import consulo.webService.plugins.view.RepositoryView;
 
 /**
  * This demonstrates how you can control access to views.
@@ -28,6 +29,10 @@ public class VaadinViewAccessControl implements ViewAccessControl
 			return SecurityUtil.hasRole(Roles.ROLE_ADMIN);
 		}
 
+		if(beanName.startsWith(RepositoryView.ID))
+		{
+			return true;
+		}
 		return SecurityUtil.hasRole(Roles.ROLE_USER);
 	}
 

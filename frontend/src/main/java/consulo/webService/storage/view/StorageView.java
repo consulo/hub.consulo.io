@@ -36,12 +36,13 @@ public class StorageView extends VerticalLayout implements View
 
 	public StorageView()
 	{
-		setMargin(true);
 	}
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{
+		removeAllComponents();
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication == null)
 		{
@@ -52,7 +53,9 @@ public class StorageView extends VerticalLayout implements View
 
 		setSizeFull();
 
-		addComponent(new Label("Storage: "));
+		Label label = new Label("Storage: ");
+		label.addStyleName("headerMargin");
+		addComponent(label);
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel();
 

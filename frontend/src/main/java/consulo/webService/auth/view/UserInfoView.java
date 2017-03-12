@@ -18,12 +18,14 @@ public class UserInfoView extends VerticalLayout implements View
 	public UserInfoView()
 	{
 		setMargin(true);
-		addComponent(new Label("User Info"));
+
 	}
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{
-		// NOP
+		removeAllComponents();
+
+		addComponent(new Label("User Info"));
 	}
 }

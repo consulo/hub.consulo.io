@@ -2,11 +2,8 @@ package consulo.webService.ui;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.vaadin.annotations.StyleSheet;
-import com.vaadin.annotations.Theme;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -21,10 +18,10 @@ import consulo.webService.ui.util.TidyComponents;
  * @author VISTALL
  * @since 09-Nov-16
  */
-@SpringUI
+//@SpringUI
 // No @Push annotation, we are going to enable it programmatically when the user logs on
-@Theme("tests-valo-metro")
-@StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
+//@Theme("tests-valo-metro")
+//@StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class RootUI extends UI
 {
 	@Autowired

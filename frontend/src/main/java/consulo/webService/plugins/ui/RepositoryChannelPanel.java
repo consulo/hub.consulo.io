@@ -5,14 +5,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.text.DateFormatUtilRt;
 import com.intellij.util.text.VersionComparatorUtil;
-import com.vaadin.server.Page;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -28,7 +26,7 @@ import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginNode;
 import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.mongo.MongoDownloadStat;
-import consulo.webService.ui.RepositoryUI;
+import consulo.webService.plugins.view.RepositoryView;
 import consulo.webService.ui.util.TidyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
 
@@ -36,51 +34,47 @@ import consulo.webService.ui.util.VaadinUIUtil;
  * @author VISTALL
  * @since 04-Jan-17
  */
-public class RepositoryChannelUI extends HorizontalLayout
+public class RepositoryChannelPanel extends HorizontalLayout
 {
-	private final UserConfigurationService myUserConfigurationService;
 	private final PluginStatisticsService myPluginStatisticsService;
 	private final PluginChannel myPluginChannel;
 
-	private final HorizontalLayout myRightLayout;
+	private HorizontalSplitPanel myPanel = new HorizontalSplitPanel();
 
-	public RepositoryChannelUI(Page page,
-			@NotNull PluginChannel pluginChannel,
-			@NotNull UserConfigurationService userConfigurationService,
-			@NotNull PluginStatisticsService pluginStatisticsService,
-			@Nullable String selectedPluginId)
+	private static final Comparator<PluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
+	private final Multimap<String, PluginNode> myPluginBuilds;
+	private final ListSelect myListSelect;
+
+	public RepositoryChannelPanel(@NotNull PluginChannel pluginChannel, @NotNull UserConfigurationService userConfigurationService, @NotNull PluginStatisticsService pluginStatisticsService)
 	{
 		myPluginChannel = pluginChannel;
-		myUserConfigurationService = userConfigurationService;
 		myPluginStatisticsService = pluginStatisticsService;
 
 		setSizeFull();
 
-		ListSelect listSelect = new ListSelect();
-		listSelect.setNullSelectionAllowed(false);
-		listSelect.setSizeFull();
-		addComponent(listSelect);
+		myListSelect = new ListSelect();
+		myListSelect.setNullSelectionAllowed(false);
+		myListSelect.setSizeFull();
+		addComponent(myListSelect);
 
-		myRightLayout = new HorizontalLayout();
-		myRightLayout.setSizeFull();
+		HorizontalLayout rightLayout = new HorizontalLayout();
+		rightLayout.setSizeFull();
 
-		addComponent(myRightLayout);
-		setExpandRatio(listSelect, .3f);
-		setExpandRatio(myRightLayout, 1f);
+		addComponent(rightLayout);
+		setExpandRatio(myListSelect, .3f);
+		setExpandRatio(rightLayout, 1f);
 
-		HorizontalSplitPanel panel = new HorizontalSplitPanel();
-		panel.setSplitPosition(70, Unit.PERCENTAGE);
-		panel.setSizeFull();
-		myRightLayout.addComponent(panel);
+		myPanel.setSplitPosition(80, Unit.PERCENTAGE);
+		rightLayout.addComponent(myPanel);
 
-		PluginChannelService repositoryByChannel = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+		PluginChannelService repositoryByChannel = userConfigurationService.getRepositoryByChannel(pluginChannel);
 
-		Comparator<PluginNode> pluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
-		Multimap<String, PluginNode> multimap =TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), pluginNodeComparator);
-		repositoryByChannel.iteratePluginNodes(pluginNode -> multimap.put(pluginNode.id, pluginNode));
+		myPluginBuilds = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
+		repositoryByChannel.iteratePluginNodes(pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
 
 		// name -> id
-		Map<PluginNode, String> map = new TreeMap<>((o1, o2) -> {
+		Map<PluginNode, String> map = new TreeMap<>((o1, o2) ->
+		{
 			if(PluginChannelService.isPlatformNode(o1.id))
 			{
 				return -1;
@@ -96,102 +90,118 @@ public class RepositoryChannelUI extends HorizontalLayout
 			return o1.name.compareToIgnoreCase(o2.name);
 		});
 
-		for(Map.Entry<String, Collection<PluginNode>> entry : multimap.asMap().entrySet())
+		for(Map.Entry<String, Collection<PluginNode>> entry : myPluginBuilds.asMap().entrySet())
 		{
 			map.put(entry.getValue().iterator().next(), entry.getKey());
 		}
 
 		for(Map.Entry<PluginNode, String> entry : map.entrySet())
 		{
-			listSelect.addItem(entry.getValue());
-			listSelect.setItemCaption(entry.getValue(), getPluginNodeName(entry.getKey()));
+			myListSelect.addItem(entry.getValue());
+			myListSelect.setItemCaption(entry.getValue(), getPluginNodeName(entry.getKey()));
 		}
 
-		listSelect.addValueChangeListener(event -> {
+		myListSelect.addValueChangeListener(event ->
+		{
 			String pluginId = (String) event.getProperty().getValue();
 
-			page.setUriFragment(RepositoryUI.getUrlFragment(pluginChannel, pluginId));
+			getUI().getNavigator().navigateTo(RepositoryView.ID + "/" + RepositoryView.getViewParameters(pluginChannel, pluginId));
+		});
+	}
 
-			// all plugin nodes
-			Collection<PluginNode> pluginNodes = multimap.get(pluginId);
+	public void selectPlugin(String pluginId)
+	{
+		myListSelect.focus();
+		myListSelect.setValue(StringUtil.nullize(pluginId));
 
-			// version -> nodes
-			SortedSetMultimap<String, PluginNode> sortByVersion = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), pluginNodeComparator);
+		if(StringUtil.isEmpty(pluginId))
+		{
+			myPanel.setFirstComponent(null);
+			myPanel.setSecondComponent(null);
+		}
+		else
+		{
+			buildPluginInfo(pluginId);
+		}
+	}
 
-			for(PluginNode pluginNode : pluginNodes)
+	private void buildPluginInfo(String pluginId)
+	{
+		// all plugin nodes
+		Collection<PluginNode> pluginNodes = myPluginBuilds.get(pluginId);
+
+		// version -> nodes
+		SortedSetMultimap<String, PluginNode> sortByVersion = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
+
+		for(PluginNode pluginNode : pluginNodes)
+		{
+			sortByVersion.put(pluginNode.platformVersion, pluginNode);
+		}
+
+		PluginNode lastPluginNodeByVersion = null;
+
+		Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
+
+		Map<Object, PluginNode> downloadInfo = new HashMap<>();
+
+		Tree tree = new Tree("Versions");
+
+		tree.addItemClickListener(e ->
+		{
+			Object id = e.getItemId();
+
+			PluginNode pluginNode = downloadInfo.get(id);
+			if(pluginNode != null)
 			{
-				sortByVersion.put(pluginNode.platformVersion, pluginNode);
+				StringBuilder builder = new StringBuilder("/api/repository/download?");
+				builder.append("channel=").append(myPluginChannel.name()).append("&");
+				builder.append("platformVersion=").append(pluginNode.platformVersion).append("&");
+				builder.append("pluginId=").append(pluginNode.id).append("&");
+				builder.append("version=").append(pluginNode.version).append("&");
+				builder.append("platformBuildSelect=").append("true");
+
+				getUI().getPage().open(builder.toString(), "");
 			}
-
-			PluginNode lastPluginNodeByVersion = null;
-
-			Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
-
-			Map<Object, PluginNode> downloadInfo = new HashMap<>();
-
-			Tree tree = new Tree("Versions");
-
-			tree.addItemClickListener(e -> {
-				Object id = e.getItemId();
-
-				PluginNode pluginNode = downloadInfo.get(id);
-				if(pluginNode != null)
-				{
-					StringBuilder builder = new StringBuilder("/api/repository/download?");
-					builder.append("channel=").append(myPluginChannel.name()).append("&");
-					builder.append("platformVersion=").append(pluginNode.platformVersion).append("&");
-					builder.append("pluginId=").append(pluginNode.id).append("&");
-					builder.append("version=").append(pluginNode.version).append("&");
-					builder.append("platformBuildSelect=").append("true");
-
-					getUI().getPage().open(builder.toString(), "");
-				}
-			});
-
-			for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
-			{
-				tree.addItem(entry.getKey());
-				tree.setItemCaption(entry.getKey(), "Consulo #" + entry.getKey());
-
-				if(lastPluginNodeByVersion == null)
-				{
-					lastPluginNodeByVersion = entry.getValue().iterator().next();
-				}
-
-				if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
-				{
-					for(PluginNode node : entry.getValue())
-					{
-						UUID uuid = UUID.randomUUID();
-
-						tree.addItem(uuid);
-
-						Calendar calendar = Calendar.getInstance();
-						calendar.setTimeInMillis(node.date);
-						tree.setItemCaption(uuid, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
-
-						tree.setParent(uuid, entry.getKey());
-						tree.setChildrenAllowed(uuid, false);
-
-						downloadInfo.put(uuid, node);
-					}
-				}
-				else
-				{
-					downloadInfo.put(entry.getKey(), entry.getValue().iterator().next());
-					tree.setChildrenAllowed(entry.getKey(), false);
-				}
-			}
-
-			assert lastPluginNodeByVersion != null;
-			panel.setFirstComponent(buildInfo(lastPluginNodeByVersion));
-			panel.setSecondComponent(tree);
 		});
 
-		if(selectedPluginId != null)
+		for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
 		{
-			listSelect.setValue(selectedPluginId);
+			tree.addItem(entry.getKey());
+			tree.setItemCaption(entry.getKey(), "Consulo #" + entry.getKey());
+
+			if(lastPluginNodeByVersion == null)
+			{
+				lastPluginNodeByVersion = entry.getValue().iterator().next();
+			}
+
+			if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
+			{
+				for(PluginNode node : entry.getValue())
+				{
+					UUID uuid = UUID.randomUUID();
+
+					tree.addItem(uuid);
+
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTimeInMillis(node.date);
+					tree.setItemCaption(uuid, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
+
+					tree.setParent(uuid, entry.getKey());
+					tree.setChildrenAllowed(uuid, false);
+
+					downloadInfo.put(uuid, node);
+				}
+			}
+			else
+			{
+				downloadInfo.put(entry.getKey(), entry.getValue().iterator().next());
+				tree.setChildrenAllowed(entry.getKey(), false);
+			}
 		}
+
+		assert lastPluginNodeByVersion != null;
+		myPanel.setFirstComponent(buildInfo(lastPluginNodeByVersion));
+		myPanel.setSecondComponent(tree);
 	}
 
 	@NotNull

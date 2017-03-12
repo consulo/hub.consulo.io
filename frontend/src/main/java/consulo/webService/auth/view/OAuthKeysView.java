@@ -30,6 +30,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.auth.oauth2.OAuth2ServerConfiguration;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
+import consulo.webService.ui.util.TidyComponents;
 
 /**
  * @author VISTALL
@@ -52,8 +53,51 @@ public class OAuthKeysView extends VerticalLayout implements View
 		myTokenServices = defaultTokenServices;
 		myOAuth2RequestFactory = defaultOAuth2RequestFactory;
 		myOAuth2AccessTokenRepository = accessTokenRepository;
+	}
 
-		setMargin(true);
+	private void addToken(OAuth2AuthenticationAccessToken token)
+	{
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+		layout.addStyleName(ValoTheme.LAYOUT_CARD);
+		layout.setWidth(100, Unit.PERCENTAGE);
+
+		layout.addComponent(new Label("Name: " + token.getName()));
+		layout.addComponent(new Label("Token: " + hideKey(token.getTokenId())));
+
+		Button revokeButton = new Button("Revoke", e ->
+		{
+			myTokenServices.revokeToken(token.getTokenId());
+
+			myTokenListPanel.removeComponent(layout);
+		});
+
+		revokeButton.addStyleName(ValoTheme.BUTTON_DANGER);
+		revokeButton.addStyleName(ValoTheme.BUTTON_TINY);
+		layout.addComponent(revokeButton);
+		layout.setComponentAlignment(revokeButton, Alignment.MIDDLE_RIGHT);
+
+		myTokenListPanel.addComponent(layout);
+	}
+
+	private static String hideKey(String ori)
+	{
+		char[] chars = ori.toCharArray();
+		for(int i = 0; i < chars.length; i++)
+		{
+			if(i > 6)
+			{
+				chars[i] = '*';
+			}
+		}
+		return new String(chars);
+	}
+
+	@Override
+	public void enter(ViewChangeListener.ViewChangeEvent vce)
+	{
+		removeAllComponents();
+
 		setSpacing(true);
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -65,8 +109,10 @@ public class OAuthKeysView extends VerticalLayout implements View
 		HorizontalLayout header = new HorizontalLayout();
 		header.setWidth(100, Unit.PERCENTAGE);
 		header.addComponent(new Label("OAuth Keys"));
+		header.addStyleName("headerMargin");
 
-		Button createKeyButton = new Button("Add Key", event -> {
+		Button createKeyButton = TidyComponents.newButton("Add Key", event ->
+		{
 			Window window = new Window("Enter Name");
 
 			TextField textField = new TextField();
@@ -81,7 +127,8 @@ public class OAuthKeysView extends VerticalLayout implements View
 			});
 			textField.addStyleName(ValoTheme.TEXTFIELD_TINY);
 
-			Button okButton = new Button("OK", e -> {
+			Button okButton = new Button("OK", e ->
+			{
 				if(!textField.isValid())
 				{
 					return;
@@ -124,6 +171,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 		myTokenListPanel = new VerticalLayout();
 		myTokenListPanel.setSpacing(true);
+		myTokenListPanel.addStyleName("bodyMargin");
 
 		addComponent(myTokenListPanel);
 
@@ -132,47 +180,5 @@ public class OAuthKeysView extends VerticalLayout implements View
 		{
 			addToken(token);
 		}
-	}
-
-	private void addToken(OAuth2AuthenticationAccessToken token)
-	{
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-		layout.addStyleName(ValoTheme.LAYOUT_CARD);
-		layout.setWidth(100, Unit.PERCENTAGE);
-
-		layout.addComponent(new Label("Name: " + token.getName()));
-		layout.addComponent(new Label("Token: " + hideKey(token.getTokenId())));
-
-		Button revokeButton = new Button("Revoke", e -> {
-			myTokenServices.revokeToken(token.getTokenId());
-
-			myTokenListPanel.removeComponent(layout);
-		});
-
-		revokeButton.addStyleName(ValoTheme.BUTTON_DANGER);
-		revokeButton.addStyleName(ValoTheme.BUTTON_TINY);
-		layout.addComponent(revokeButton);
-		layout.setComponentAlignment(revokeButton, Alignment.MIDDLE_RIGHT);
-
-		myTokenListPanel.addComponent(layout);
-	}
-
-	private static String hideKey(String ori)
-	{
-		char[] chars = ori.toCharArray();
-		for(int i = 0; i < chars.length; i++)
-		{
-			if(i > 6)
-			{
-				chars[i] = '*';
-			}
-		}
-		return new String(chars);
-	}
-
-	@Override
-	public void enter(ViewChangeListener.ViewChangeEvent event)
-	{
 	}
 }

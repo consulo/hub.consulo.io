@@ -30,8 +30,8 @@ import com.vaadin.ui.themes.ValoTheme;
  * {@code new Navigator(myUI, sideMenu)}.
  *
  * @author Teemu Suo-Anttila
- *
- * https://github.com/tsuoanttila/sidemenu-addon AL2
+ *         <p>
+ *         https://github.com/tsuoanttila/sidemenu-addon AL2
  */
 @SuppressWarnings("serial")
 public class SideMenu extends HorizontalLayout
@@ -150,15 +150,17 @@ public class SideMenu extends HorizontalLayout
 	 * @param icon    menu icon
 	 * @param handler menu click handler
 	 */
-	public void addMenuItem(String text, Resource icon, final MenuClickHandler handler)
+	public Button addMenuItem(String text, Resource icon, final MenuClickHandler handler)
 	{
-		Button button = new Button(text, event -> {
+		Button button = new Button(text, event ->
+		{
 			handler.click();
 			menuArea.removeStyleName(STYLE_VISIBLE);
 		});
 		button.setIcon(icon);
 		button.setPrimaryStyleName("valo-menu-item");
 		menuItemsLayout.addComponent(button);
+		return button;
 	}
 
 	/**
@@ -268,9 +270,14 @@ public class SideMenu extends HorizontalLayout
 	 * @param icon            icon to display in menu
 	 * @param navigationState state to navigate to
 	 */
-	public void addNavigation(String text, Resource icon, final String navigationState)
+	public Button addNavigation(String text, Resource icon, final String navigationState)
 	{
-		addMenuItem(text, icon, () -> getUI().getNavigator().navigateTo(navigationState));
+		return addMenuItem(text, icon, () -> getUI().getNavigator().navigateTo(navigationState));
+	}
+
+	public void removeMenuItem(Button button)
+	{
+		menuItemsLayout.removeComponent(button);
 	}
 
 	/**

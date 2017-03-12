@@ -26,45 +26,12 @@ public class DashboardView extends VerticalLayout implements View
 {
 	public static final String ID = "";
 
+	@Autowired
 	protected ErrorReportRepository myErrorReportRepository;
 
-	@Autowired
-	public DashboardView(ErrorReportRepository errorReportRepository)
+	public DashboardView()
 	{
-		myErrorReportRepository = errorReportRepository;
-
-		setMargin(true);
 		setSizeFull();
-		addComponent(new Label("Dashboard"));
-
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
-		{
-			return;
-		}
-
-		VerticalSplitPanel panel = new VerticalSplitPanel();
-		panel.setSizeFull();
-		panel.setSplitPosition(50, Unit.PERCENTAGE);
-
-		addComponent(panel);
-		setExpandRatio(panel, 0.9f);
-
-		HorizontalLayout topLayout = new HorizontalLayout();
-		topLayout.setSizeFull();
-		panel.setFirstComponent(topLayout);
-
-		HorizontalLayout bottomLayout = new HorizontalLayout();
-		bottomLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		bottomLayout.setSizeFull();
-
-		bottomLayout.addComponent(buildLastPluginComments());
-		bottomLayout.addComponent(buildLastSettingsUpdate());
-		Component buildLastErrorReports = buildLastErrorReports(authentication);
-		bottomLayout.addComponent(buildLastErrorReports);
-		bottomLayout.setExpandRatio(buildLastErrorReports, 0.5f);
-
-		panel.setSecondComponent(bottomLayout);
 	}
 
 	private Component buildLastPluginComments()
@@ -102,7 +69,8 @@ public class DashboardView extends VerticalLayout implements View
 		table.setSizeFull();
 		table.addContainerProperty("Message", String.class, null);
 		table.addContainerProperty("Trace", String.class, null);
-		table.addItemClickListener(event -> {
+		table.addItemClickListener(event ->
+		{
 			Object itemId = event.getItemId();
 			System.out.println("test " + itemId);
 		});
@@ -122,6 +90,40 @@ public class DashboardView extends VerticalLayout implements View
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{
-		// NOP
+		removeAllComponents();
+
+		Label label = new Label("Dashboard");
+		label.addStyleName("headerMargin");
+		addComponent(label);
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication == null)
+		{
+			return;
+		}
+
+		VerticalSplitPanel panel = new VerticalSplitPanel();
+		panel.addStyleName("bodyMargin");
+		panel.setSizeFull();
+		panel.setSplitPosition(50, Unit.PERCENTAGE);
+
+		addComponent(panel);
+		setExpandRatio(panel, 0.9f);
+
+		HorizontalLayout topLayout = new HorizontalLayout();
+		topLayout.setSizeFull();
+		panel.setFirstComponent(topLayout);
+
+		HorizontalLayout bottomLayout = new HorizontalLayout();
+		bottomLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+		bottomLayout.setSizeFull();
+
+		bottomLayout.addComponent(buildLastPluginComments());
+		bottomLayout.addComponent(buildLastSettingsUpdate());
+		Component buildLastErrorReports = buildLastErrorReports(authentication);
+		bottomLayout.addComponent(buildLastErrorReports);
+		bottomLayout.setExpandRatio(buildLastErrorReports, 0.5f);
+
+		panel.setSecondComponent(bottomLayout);
 	}
 }

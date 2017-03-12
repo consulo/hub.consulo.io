@@ -50,7 +50,6 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 	public BaseErrorReportsView()
 	{
-		setMargin(true);
 	}
 
 	protected abstract Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int ourPageSize);
@@ -58,13 +57,17 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{
+		removeAllComponents();
+
 		HorizontalLayout header = new HorizontalLayout();
+		header.addStyleName("headerMargin");
 		header.setWidth(100, Unit.PERCENTAGE);
 		Label label = new Label();
 
 		header.addComponent(label);
 
 		VerticalLayout reportList = new VerticalLayout();
+		reportList.addStyleName("bodyMargin");
 		reportList.setWidth(100, Unit.PERCENTAGE);
 
 		if(allowFilters())

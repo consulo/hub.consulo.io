@@ -29,16 +29,18 @@ public class AdminUserView extends VerticalLayout implements View
 	public AdminUserView(UserAccountRepository userAccountRepository)
 	{
 		myUserAccountRepository = userAccountRepository;
-
-		setMargin(true);
 		setSizeFull();
 	}
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{
+		removeAllComponents();
+
 		List<UserAccount> list = myUserAccountRepository.findAll();
-		addComponent(new Label("Users: " + list.size()));
+		Label label = new Label("Users: " + list.size());
+		label.addStyleName("headerMargin");
+		addComponent(label);
 
 		Table table = new Table();
 		table.setSizeFull();

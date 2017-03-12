@@ -16,13 +16,13 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.ui.components.Captcha;
 import consulo.webService.ui.components.CaptchaFactory;
 
-public class LoginOrRegisterForm extends VerticalLayout
+public class LoginOrRegisterPanel extends VerticalLayout
 {
 	private Captcha myCaptcha;
 	private TextField myEmailTextField;
 	private PasswordField myPasswordField;
 
-	public LoginOrRegisterForm(CaptchaFactory captchaFactory, LoginOrRegisterCallback loginCallback, LoginOrRegisterCallback registerCallback)
+	public LoginOrRegisterPanel(CaptchaFactory captchaFactory, LoginOrRegisterCallback loginCallback, LoginOrRegisterCallback registerCallback)
 	{
 		VerticalLayout mainPanel = new VerticalLayout();
 		mainPanel.setSizeUndefined();
