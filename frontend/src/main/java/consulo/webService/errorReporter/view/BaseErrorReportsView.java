@@ -45,8 +45,11 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	@Autowired
 	protected ErrorReportRepository myErrorReportRepository;
 
-	private final Set<ErrorReporterStatus> myFilters = new HashSet<>();
+	protected final Set<ErrorReporterStatus> myFilters = new HashSet<>();
 	private int myPage = 0;
+	protected VerticalLayout myReportList;
+	protected Label myLabel;
+	protected int myLastPageSize;
 
 	public BaseErrorReportsView()
 	{
@@ -62,13 +65,13 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		HorizontalLayout header = new HorizontalLayout();
 		header.addStyleName("headerMargin");
 		header.setWidth(100, Unit.PERCENTAGE);
-		Label label = new Label();
+		myLabel = new Label();
 
-		header.addComponent(label);
+		header.addComponent(myLabel);
 
-		VerticalLayout reportList = new VerticalLayout();
-		reportList.addStyleName("bodyMargin");
-		reportList.setWidth(100, Unit.PERCENTAGE);
+		myReportList = new VerticalLayout();
+		myReportList.addStyleName("bodyMargin");
+		myReportList.setWidth(100, Unit.PERCENTAGE);
 
 		if(allowFilters())
 		{
@@ -95,7 +98,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 					{
 						myFilters.remove(status);
 					}
-					build(label, reportList);
+
+					rebuildList();
 				});
 
 				filters.addComponent(filterBox);
@@ -105,7 +109,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		addComponent(header);
 
-		addComponent(reportList);
+		addComponent(myReportList);
 
 		if(allowFilters())
 		{
@@ -116,7 +120,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			Collections.addAll(myFilters, ErrorReporterStatus.values());
 		}
 
-		build(label, reportList);
+		rebuildList();
 	}
 
 	protected boolean allowFilters()
@@ -124,13 +128,15 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		return true;
 	}
 
-	private void build(Label label, VerticalLayout reportList)
+	private void rebuildList()
 	{
-		reportList.removeAllComponents();
+		myReportList.removeAllComponents();
 
 		Page<ErrorReport> page = getReports(myPage, myFilters.toArray(new ErrorReporterStatus[myFilters.size()]), ourPageSize);
 
-		buildHeader(label, page);
+		myLastPageSize = page.getNumberOfElements();
+
+		updateHeader();
 
 		for(ErrorReport errorReport : page)
 		{
@@ -174,7 +180,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			shortLine.addComponent(rightLayout);
 			shortLine.setComponentAlignment(rightLayout, Alignment.MIDDLE_RIGHT);
 
-			reportList.addComponent(lineLayout);
+			myReportList.addComponent(lineLayout);
 		}
 
 		if(page.hasPrevious() || page.hasNext())
@@ -187,7 +193,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 				pageLayout.addComponent(TidyComponents.newButton("Prev", event ->
 				{
 					myPage--;
-					build(label, reportList);
+					rebuildList();
 				}));
 			}
 			if(page.hasNext())
@@ -195,17 +201,17 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 				pageLayout.addComponent(TidyComponents.newButton("Next", event ->
 				{
 					myPage++;
-					build(label, reportList);
+					rebuildList();
 				}));
 			}
-			reportList.addComponent(pageLayout);
-			reportList.setComponentAlignment(pageLayout, Alignment.MIDDLE_CENTER);
+			myReportList.addComponent(pageLayout);
+			myReportList.setComponentAlignment(pageLayout, Alignment.MIDDLE_CENTER);
 		}
 	}
 
-	protected void buildHeader(Label label, Page<ErrorReport> page)
+	protected void updateHeader()
 	{
-		label.setValue(String.format("Error Reports (%d, page: %d)", page.getNumberOfElements(), myPage));
+		myLabel.setValue(String.format("Error Reports (%d, page: %d)", myLastPageSize, myPage));
 	}
 
 	protected static void fireChanged(List<Consumer<ErrorReport>> consumers, ErrorReport report)

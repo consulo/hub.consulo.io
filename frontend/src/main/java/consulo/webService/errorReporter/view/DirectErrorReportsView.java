@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
@@ -34,9 +33,9 @@ public class DirectErrorReportsView extends BaseErrorReportsView
 	}
 
 	@Override
-	protected void buildHeader(Label label, Page<ErrorReport> page)
+	protected void updateHeader()
 	{
-		label.setValue("Error Report");
+		myLabel.setValue("Error Report");
 	}
 
 	@Override

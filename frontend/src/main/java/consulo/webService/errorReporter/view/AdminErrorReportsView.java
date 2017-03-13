@@ -82,6 +82,14 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 				Button button = adminButtons.get(errorReporterStatus);
 				panel.addComponent(button);
 			}
+
+			// hide from view
+			if(!myFilters.contains(report.getStatus()))
+			{
+				myReportList.removeComponent(lineLayout);
+				myLastPageSize--;
+				updateHeader();
+			}
 		});
 		super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
 	}
