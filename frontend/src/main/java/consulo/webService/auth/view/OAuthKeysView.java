@@ -1,8 +1,10 @@
 package consulo.webService.auth.view;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -24,6 +27,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
@@ -44,61 +48,26 @@ public class OAuthKeysView extends VerticalLayout implements View
 	private final DefaultTokenServices myTokenServices;
 	private final DefaultOAuth2RequestFactory myOAuth2RequestFactory;
 	private final OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
+	private final TaskScheduler myTaskScheduler;
 
 	private VerticalLayout myTokenListPanel;
 
 	@Autowired
-	public OAuthKeysView(DefaultTokenServices defaultTokenServices, DefaultOAuth2RequestFactory defaultOAuth2RequestFactory, OAuth2AccessTokenRepository accessTokenRepository)
+	public OAuthKeysView(DefaultTokenServices defaultTokenServices,
+			DefaultOAuth2RequestFactory defaultOAuth2RequestFactory,
+			OAuth2AccessTokenRepository accessTokenRepository,
+			TaskScheduler taskScheduler)
 	{
 		myTokenServices = defaultTokenServices;
 		myOAuth2RequestFactory = defaultOAuth2RequestFactory;
 		myOAuth2AccessTokenRepository = accessTokenRepository;
-	}
-
-	private void addToken(OAuth2AuthenticationAccessToken token)
-	{
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-		layout.addStyleName(ValoTheme.LAYOUT_CARD);
-		layout.setWidth(100, Unit.PERCENTAGE);
-
-		layout.addComponent(new Label("Name: " + token.getName()));
-		layout.addComponent(new Label("Token: " + hideKey(token.getTokenId())));
-
-		Button revokeButton = new Button("Revoke", e ->
-		{
-			myTokenServices.revokeToken(token.getTokenId());
-
-			myTokenListPanel.removeComponent(layout);
-		});
-
-		revokeButton.addStyleName(ValoTheme.BUTTON_DANGER);
-		revokeButton.addStyleName(ValoTheme.BUTTON_TINY);
-		layout.addComponent(revokeButton);
-		layout.setComponentAlignment(revokeButton, Alignment.MIDDLE_RIGHT);
-
-		myTokenListPanel.addComponent(layout);
-	}
-
-	private static String hideKey(String ori)
-	{
-		char[] chars = ori.toCharArray();
-		for(int i = 0; i < chars.length; i++)
-		{
-			if(i > 6)
-			{
-				chars[i] = '*';
-			}
-		}
-		return new String(chars);
+		myTaskScheduler = taskScheduler;
 	}
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent vce)
 	{
 		removeAllComponents();
-
-		setSpacing(true);
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication == null)
@@ -115,7 +84,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 		{
 			Window window = new Window("Enter Name");
 
-			TextField textField = new TextField();
+			TextField textField = TidyComponents.newTextField();
 			textField.addValidator(new StringLengthValidator("Bad name", 1, 255, false));
 			textField.addValidator(new AbstractStringValidator("Duplicate key")
 			{
@@ -143,7 +112,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 				OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
 				OAuth2AccessToken accessToken = myTokenServices.createAccessToken(oAuth2Authentication);
 
-				addToken(new OAuth2AuthenticationAccessToken(accessToken, oAuth2Authentication, accessToken.getValue()));
+				addToken(new OAuth2AuthenticationAccessToken(accessToken, oAuth2Authentication, accessToken.getValue()), false);
 
 				window.close();
 			});
@@ -151,7 +120,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 			okButton.addStyleName(ValoTheme.BUTTON_TINY);
 			okButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
-			HorizontalLayout content = new HorizontalLayout(new Label("Name: "), textField, okButton);
+			HorizontalLayout content = new HorizontalLayout(TidyComponents.newLabel("Name: "), textField, okButton);
 			content.setMargin(true);
 			content.setSpacing(true);
 
@@ -164,6 +133,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 			textField.focus();
 		});
+		createKeyButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 		header.addComponent(createKeyButton);
 		header.setComponentAlignment(createKeyButton, Alignment.MIDDLE_RIGHT);
 
@@ -178,7 +148,50 @@ public class OAuthKeysView extends VerticalLayout implements View
 		List<OAuth2AuthenticationAccessToken> tokens = myOAuth2AccessTokenRepository.findByClientIdAndUserName(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID, authentication.getName());
 		for(OAuth2AuthenticationAccessToken token : tokens)
 		{
-			addToken(token);
+			addToken(token, true);
 		}
+	}
+
+	private void addToken(OAuth2AuthenticationAccessToken token, boolean hide)
+	{
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.addStyleName("errorViewLineLayout");
+		layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+		layout.addStyleName(ValoTheme.LAYOUT_CARD);
+		layout.setWidth(100, Unit.PERCENTAGE);
+
+		layout.addComponent(TidyComponents.newLabel("Name: " + token.getName()));
+		Label label = TidyComponents.newLabel("Token: " + (hide ? StringUtil.shortenTextWithEllipsis(token.getTokenId(), 18, 7) : token.getTokenId()));
+		layout.addComponent(label);
+		if(!hide)
+		{
+			UI current = UI.getCurrent();
+
+			myTaskScheduler.schedule(() ->
+			{
+				try
+				{
+					current.access(() -> label.setValue("Token: " + StringUtil.shortenTextWithEllipsis(token.getTokenId(), 18, 7)));
+				}
+				catch(Exception e)
+				{
+					// ignored
+				}
+			}, new Date(System.currentTimeMillis() + 30000L));
+		}
+
+		Button revokeButton = new Button("Revoke", e ->
+		{
+			myTokenServices.revokeToken(token.getTokenId());
+
+			myTokenListPanel.removeComponent(layout);
+		});
+
+		revokeButton.addStyleName(ValoTheme.BUTTON_DANGER);
+		revokeButton.addStyleName(ValoTheme.BUTTON_TINY);
+		layout.addComponent(revokeButton);
+		layout.setComponentAlignment(revokeButton, Alignment.MIDDLE_RIGHT);
+
+		myTokenListPanel.addComponent(layout);
 	}
 }

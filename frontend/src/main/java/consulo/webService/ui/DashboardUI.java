@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.containers.FactoryMap;
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
@@ -19,6 +20,8 @@ import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.communication.PushMode;
+import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Button;
@@ -44,7 +47,7 @@ import consulo.webService.storage.view.StorageView;
 
 @SpringUI
 @SideMenuUI
-// No @Push annotation, we are going to enable it programmatically when the user logs on
+@Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class DashboardUI extends BaseUI
