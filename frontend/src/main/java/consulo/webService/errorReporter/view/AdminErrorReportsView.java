@@ -49,8 +49,9 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 		Map<ErrorReporterStatus, Button> adminButtons = new LinkedHashMap<>();
 		for(ErrorReporterStatus status : ErrorReporterStatus.values())
 		{
-			Button button = TidyComponents.newButton(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
-			button.addStyleName("errorViewButton" + StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+			String captalizedStatus = StringUtil.capitalize(status.name().toLowerCase(Locale.US));
+			Button button = TidyComponents.newButton(captalizedStatus);
+			button.addStyleName("errorViewButton" + captalizedStatus);
 
 			adminButtons.put(status, button);
 
