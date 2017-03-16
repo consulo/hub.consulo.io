@@ -72,7 +72,7 @@ public class DashboardUI extends BaseUI
 	{
 		public View create(PluginChannel c)
 		{
-			return new RepositoryView(myUserConfigurationService, myPluginStatisticsService, c, null);
+			return new RepositoryView(myUserConfigurationService, myPluginStatisticsService, c);
 		}
 	};
 

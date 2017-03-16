@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
@@ -36,14 +37,14 @@ import consulo.webService.ui.util.VaadinUIUtil;
  */
 public class RepositoryChannelPanel extends HorizontalLayout
 {
+	private static final Comparator<PluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
+
+	private final HorizontalSplitPanel myPanel = new HorizontalSplitPanel();
 	private final PluginStatisticsService myPluginStatisticsService;
 	private final PluginChannel myPluginChannel;
-
-	private HorizontalSplitPanel myPanel = new HorizontalSplitPanel();
-
-	private static final Comparator<PluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
 	private final Multimap<String, PluginNode> myPluginBuilds;
 	private final ListSelect myListSelect;
+	private String mySelectedPluginId;
 
 	public RepositoryChannelPanel(@NotNull PluginChannel pluginChannel, @NotNull UserConfigurationService userConfigurationService, @NotNull PluginStatisticsService pluginStatisticsService)
 	{
@@ -105,12 +106,16 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		{
 			String pluginId = (String) event.getProperty().getValue();
 
+			mySelectedPluginId = pluginId;
+
 			getUI().getNavigator().navigateTo(RepositoryView.ID + "/" + RepositoryView.getViewParameters(pluginChannel, pluginId));
 		});
 	}
 
-	public void selectPlugin(String pluginId)
+	public void selectPlugin(@Nullable String pluginId)
 	{
+		mySelectedPluginId = pluginId;
+
 		myListSelect.focus();
 		myListSelect.setValue(StringUtil.nullize(pluginId));
 
@@ -123,6 +128,12 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		{
 			buildPluginInfo(pluginId);
 		}
+	}
+
+	@Nullable
+	public String getSelectedPluginId()
+	{
+		return mySelectedPluginId;
 	}
 
 	private void buildPluginInfo(String pluginId)
@@ -204,9 +215,14 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		myPanel.setSecondComponent(tree);
 	}
 
-	@NotNull
-	private Component buildInfo(@NotNull PluginNode pluginNode)
+	@Nullable
+	private Component buildInfo(@Nullable PluginNode pluginNode)
 	{
+		if(pluginNode == null)
+		{
+			return null;
+		}
+
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);

@@ -3,9 +3,9 @@ package consulo.webService.plugins.view;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -27,20 +27,10 @@ public class RepositoryView extends VerticalLayout implements View
 {
 	public static final String ID = "repo";
 
-	private UserConfigurationService myUserConfigurationService;
-
-	private PluginStatisticsService myPluginStatisticsService;
-
-	private final PluginChannel myPluginChannel;
 	private final RepositoryChannelPanel myRepositoryChannelPanel;
 
-	public RepositoryView(UserConfigurationService userConfigurationService, PluginStatisticsService pluginStatisticsService, PluginChannel channel, String pluginId)
+	public RepositoryView(UserConfigurationService userConfigurationService, PluginStatisticsService pluginStatisticsService, PluginChannel channel)
 	{
-		myUserConfigurationService = userConfigurationService;
-		myPluginStatisticsService = pluginStatisticsService;
-		myPluginChannel = channel;
-		setMargin(new MarginInfo(false, false, false, false));
-
 		setSizeFull();
 
 		HorizontalLayout headerLayout = new HorizontalLayout();
@@ -61,9 +51,9 @@ public class RepositoryView extends VerticalLayout implements View
 		headerLayout.addComponent(labeled);
 		headerLayout.setComponentAlignment(labeled, Alignment.MIDDLE_RIGHT);
 
-		channelBox.setValue(myPluginChannel);
+		channelBox.setValue(channel);
 
-		addComponent(myRepositoryChannelPanel = new RepositoryChannelPanel(myPluginChannel, myUserConfigurationService, myPluginStatisticsService));
+		addComponent(myRepositoryChannelPanel = new RepositoryChannelPanel(channel, userConfigurationService, pluginStatisticsService));
 
 		setExpandRatio(myRepositoryChannelPanel, 1);
 
@@ -71,7 +61,15 @@ public class RepositoryView extends VerticalLayout implements View
 		{
 			PluginChannel value = (PluginChannel) event.getProperty().getValue();
 
-			getUI().getNavigator().navigateTo(ID + "/" + value);
+			String selectedPluginId = myRepositoryChannelPanel.getSelectedPluginId();
+			if(StringUtil.isEmpty(selectedPluginId))
+			{
+				getUI().getNavigator().navigateTo(ID + "/" + value);
+			}
+			else
+			{
+				getUI().getNavigator().navigateTo(ID + "/" + value + "/" + selectedPluginId);
+			}
 		});
 	}
 
