@@ -39,7 +39,7 @@ public class MongoDatasourceFactory implements ObjectFactory
 		{
 			// Fetch datasource and return a connection
 			final MongoDatasource datasource = getDatasource(referenceObject, name.toString());
-			return datasource.getClass();
+			return datasource.getClient();
 		}
 		catch(Exception e)
 		{
