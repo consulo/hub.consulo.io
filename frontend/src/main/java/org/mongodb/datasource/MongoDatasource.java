@@ -12,12 +12,10 @@ import com.mongodb.MongoClient;
 public class MongoDatasource
 {
 	private final MongoClient client;
-	private final MongoDatasourceConfiguration config;
 
-	protected MongoDatasource(final MongoClient client, final MongoDatasourceConfiguration config)
+	protected MongoDatasource(final MongoClient client)
 	{
 		this.client = client;
-		this.config = config;
 	}
 
 	/**

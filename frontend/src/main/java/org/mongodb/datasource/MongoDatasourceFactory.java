@@ -140,7 +140,7 @@ public class MongoDatasourceFactory implements ObjectFactory
 			mongoClient = new MongoClient(serverAddress, options);
 		}
 
-		return new MongoDatasource(mongoClient, config);
+		return new MongoDatasource(mongoClient);
 	}
 
 	private static MongoCredential createMongoCredentials(MongoDatasourceConfiguration config) throws Exception
