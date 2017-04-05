@@ -79,7 +79,7 @@ public class MongoDatasourceConfiguration
 			config.authMechanism = MongoAuthenticationMechanism.getFromValue(authMechanismString);
 		}
 		// Username and password are mandatory when authentication mechanism is set
-		if(config.authMechanism != null && (isEmptyValue(config.username) || isEmptyValue(config.password)))
+		if(config.authMechanism != null && config.authMechanism != MongoAuthenticationMechanism.UNKNOWN && (isEmptyValue(config.username) || isEmptyValue(config.password)))
 		{
 			throw new Exception("Missing value for mandatory property " + PROP_USERNAME + " or " + PROP_PASSWORD);
 		}
