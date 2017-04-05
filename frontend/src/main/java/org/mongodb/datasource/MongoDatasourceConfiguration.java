@@ -16,7 +16,6 @@ public class MongoDatasourceConfiguration
 	private static final String PROP_PORT = "port";
 
 	// Authentication constants
-	private static final String PROP_DB_NAME = "databaseName";
 	private static final String PROP_USERNAME = "username";
 	private static final String PROP_PASSWORD = "password";
 	private static final String PROP_AUTH_MECHANISM = "authMechanism";
