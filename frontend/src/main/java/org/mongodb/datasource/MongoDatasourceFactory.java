@@ -148,6 +148,9 @@ public class MongoDatasourceFactory implements ObjectFactory
 		MongoCredential mongoCredential = null;
 		switch(config.getAuthMechanism())
 		{
+			case UNKNOWN:
+				mongoCredential = MongoCredential.createCredential(config.getUsername(), null, config.getPassword().toCharArray());
+				break;
 			case MONGODB_CR:
 				mongoCredential = MongoCredential.createMongoCRCredential(config.getUsername(), null, config.getPassword().toCharArray());
 				break;
