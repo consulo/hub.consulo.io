@@ -26,6 +26,7 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.auth.Roles;
 import consulo.webService.auth.SecurityUtil;
@@ -44,13 +45,14 @@ import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
 import consulo.webService.storage.view.StorageView;
+import consulo.webService.ui.install.Installer;
 
 @SpringUI
 @SideMenuUI
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
-public class DashboardUI extends BaseUI
+public class DashboardUI extends UI
 {
 	@Autowired
 	private SpringViewProvider viewProvider;
@@ -77,8 +79,18 @@ public class DashboardUI extends BaseUI
 	};
 
 	@Override
-	protected void initImpl(VaadinRequest request, Page page)
+	protected void init(VaadinRequest request)
 	{
+		Page page = getPage();
+
+		if(myUserConfigurationService.getPropertySet() == null)
+		{
+			page.setTitle("Installer");
+			Installer installer = new Installer(myUserConfigurationService, getUI());
+			setContent(installer.build());
+			return;
+		}
+
 		page.setTitle("Hub");
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -94,7 +106,6 @@ public class DashboardUI extends BaseUI
 		mySideMenu.addNavigation("Repository", FontAwesome.PLUG, RepositoryView.ID);
 
 		updateSideMenu(authentication);
-
 
 		setContent(mySideMenu);
 
