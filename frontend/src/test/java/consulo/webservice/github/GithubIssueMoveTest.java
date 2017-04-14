@@ -14,7 +14,7 @@ public class GithubIssueMoveTest extends Assert
 	public void testName()
 	{
 		assertEquals(GithubRestController.getRepoName("$moveto consulo"), "consulo");
-		assertEquals(GithubRestController.getRepoName("$moveto consulo"), "consulo");
+		assertEquals(GithubRestController.getRepoName("$moveto consulo-bot-webhook"), "consulo-bot-webhook");
 		assertEquals(GithubRestController.getRepoName("$moveto consulo.bot.webhook"), "consulo.bot.webhook");
 		assertEquals(GithubRestController.getRepoName("thanks\n$moveto consulo"), "consulo");
 	}
