@@ -55,7 +55,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	{
 	}
 
-	protected abstract Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int ourPageSize);
+	protected abstract Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize);
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
