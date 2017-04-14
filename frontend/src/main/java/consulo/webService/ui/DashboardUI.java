@@ -3,6 +3,7 @@ package consulo.webService.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -81,9 +82,20 @@ public class DashboardUI extends UI
 		}
 	};
 
+	private boolean myNotificationShow;
+
 	@Override
 	protected void init(VaadinRequest request)
 	{
+		if(!myNotificationShow)
+		{
+			myNotificationShow = true;
+			Notification notification = new Notification("Welcome", "<b>hub.consulo.io</b> in alpha stage, many features not implemented yet", Notification.Type.TRAY_NOTIFICATION);
+			notification.setHtmlContentAllowed(true);
+			notification.setDelayMsec((int) TimeUnit.SECONDS.toMillis(30));
+			notification.show(getPage());
+		}
+
 		getPage().setTitle("Hub");
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
