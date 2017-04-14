@@ -32,8 +32,8 @@ public class CaptchaFactory
 	{
 		PropertySet propertySet = myConfigurationService.getPropertySet();
 
-		boolean e = propertySet.getBoolProperty(PropertyKeys.CAPTCHA_ENABLED);
-		if(e)
+		boolean enabled = propertySet.getBoolProperty(PropertyKeys.CAPTCHA_ENABLED);
+		if(enabled)
 		{
 			ReCaptchaOptions reCaptchaOptions = new ReCaptchaOptions();
 			reCaptchaOptions.type = "image";

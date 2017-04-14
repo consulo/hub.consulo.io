@@ -17,6 +17,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.github.GithubPropertyKeys;
 import consulo.webService.ui.util.TidyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
 import consulo.webService.util.PropertyKeys;
@@ -38,6 +39,7 @@ public class ConfigPanel extends VerticalLayout
 
 		layout.addComponent(buildRepositoryGroup(consumers));
 		layout.addComponent(buildCaptchaGroup(consumers));
+		layout.addComponent(buildGithubGroup(consumers));
 
 		Button installButton = TidyComponents.newButton(buttonName);
 		installButton.addClickListener(event ->
@@ -65,7 +67,8 @@ public class ConfigPanel extends VerticalLayout
 	@NotNull
 	private Component buildRepositoryGroup(List<Consumer<Properties>> consumers)
 	{
-		return createGroup("Repository", layout -> {
+		return createGroup("Repository", layout ->
+		{
 			TextField workingDirectoryField = TidyComponents.newTextField();
 			workingDirectoryField.setValue(SystemProperties.getUserHome() + File.separatorChar + ".consuloWebservice");
 			layout.addComponent(VaadinUIUtil.labeledFill("Working directory: ", workingDirectoryField));
@@ -84,17 +87,17 @@ public class ConfigPanel extends VerticalLayout
 	@NotNull
 	private Component buildCaptchaGroup(List<Consumer<Properties>> consumers)
 	{
-		return createGroup("Captcha", captchaLayout ->
+		return createGroup("Captcha", layout ->
 		{
 			CheckBox enabledCaptcha = TidyComponents.newCheckBox("Enable captcha?");
 			enabledCaptcha.setValue(true);
-			captchaLayout.addComponent(enabledCaptcha);
+			layout.addComponent(enabledCaptcha);
 
 			TextField privateApiKey = TidyComponents.newTextField();
-			captchaLayout.addComponent(VaadinUIUtil.labeledFill("Private captcha key: ", privateApiKey));
+			layout.addComponent(VaadinUIUtil.labeledFill("Private captcha key: ", privateApiKey));
 
 			TextField siteApiKey = TidyComponents.newTextField();
-			captchaLayout.addComponent(VaadinUIUtil.labeledFill("Site captcha key: ", siteApiKey));
+			layout.addComponent(VaadinUIUtil.labeledFill("Site captcha key: ", siteApiKey));
 
 			enabledCaptcha.addValueChangeListener(event ->
 			{
@@ -111,6 +114,25 @@ public class ConfigPanel extends VerticalLayout
 					properties.setProperty(PropertyKeys.CAPTCHA_SITE_KEY, siteApiKey.getValue());
 					properties.setProperty(PropertyKeys.CAPTCHA_PRIVATE_KEY, privateApiKey.getValue());
 				}
+			});
+		});
+	}
+
+	@NotNull
+	private Component buildGithubGroup(List<Consumer<Properties>> consumers)
+	{
+		return createGroup("Github", layout ->
+		{
+			TextField oauthKeyField = TidyComponents.newTextField();
+			layout.addComponent(VaadinUIUtil.labeledFill("OAuth Key: ", oauthKeyField));
+
+			TextField secretHookKeyField = TidyComponents.newTextField();
+			layout.addComponent(VaadinUIUtil.labeledFill("Secret Hook Key: ", secretHookKeyField));
+
+			consumers.add(properties ->
+			{
+				properties.setProperty(GithubPropertyKeys.OAUTH_KEY, oauthKeyField.getValue());
+				properties.setProperty(GithubPropertyKeys.SECRET_HOOK_KEY, secretHookKeyField.getValue());
 			});
 		});
 	}
