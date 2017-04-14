@@ -227,18 +227,12 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		Button copyLink = TidyComponents.newButton("External Link");
 		copyLink.setIcon(FontAwesome.CHAIN);
 
-		copyLink.addClickListener(e ->
-		{
-			getUI().getPage().open("/errorReport#" + errorReport.getId(), "Error Report");
-		});
+		copyLink.addClickListener(e -> getUI().getPage().open("/errorReport#" + errorReport.getId(), "Error Report"));
 
 		Button detailsButton = TidyComponents.newButton("Details");
 		detailsButton.setIcon(FontAwesome.LIST);
 
-		detailsButton.addClickListener(e ->
-		{
-			openOrCloseDetails(errorReport, lineLayout, onUpdate);
-		});
+		detailsButton.addClickListener(e -> openOrCloseDetails(errorReport, lineLayout, onUpdate));
 
 		rightLayout.addComponent(copyLink);
 		rightLayout.addComponent(detailsButton);
