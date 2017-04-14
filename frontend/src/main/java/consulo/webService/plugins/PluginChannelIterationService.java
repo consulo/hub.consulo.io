@@ -101,21 +101,21 @@ public class PluginChannelIterationService
 	}
 
 	/**
-	 * every week
+	 * every day
 	 */
-	@Scheduled(cron = "0 0 0 * * MON")
+	@Scheduled(cron = "0 0 0 * * *")
 	public void iterBeta()
 	{
 		iterate(PluginChannel.alpha, PluginChannel.beta);
 	}
 
 	/**
-	 * every month
+	 * every week
 	 */
-	@Scheduled(cron = "0 0 0 1 * *")
+	@Scheduled(cron = "0 0 0 * * MON")
 	public void iterRelease()
 	{
-		//iterate(PluginChannel.beta, PluginChannel.release);
+		iterate(PluginChannel.beta, PluginChannel.release);
 	}
 
 	public void iterate(@NotNull PluginChannel from, @NotNull PluginChannel to)
