@@ -32,7 +32,7 @@ public class CaptchaFactory
 	{
 		PropertySet propertySet = myConfigurationService.getPropertySet();
 
-		boolean enabled = propertySet.getBoolProperty(PropertyKeys.CAPTCHA_ENABLED);
+		boolean enabled = propertySet.getBoolProperty(PropertyKeys.CAPTCHA_ENABLED_KEY);
 		if(enabled)
 		{
 			ReCaptchaOptions reCaptchaOptions = new ReCaptchaOptions();
