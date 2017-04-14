@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.util.text.StringUtil;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.util.PropertySet;
@@ -39,7 +42,7 @@ import consulo.webService.util.PropertySet;
 @RestController
 public class GithubRestController
 {
-	private static final Pattern ourPattern = Pattern.compile("\\$moveto (\\w+)");
+	private static final Pattern ourPattern = Pattern.compile("\\$moveto ([\\w_\\-\\.]+)");
 	private static final String ourMarkdownLine = "\n___\n";
 
 	// @consulo-bot 21259940
@@ -49,6 +52,18 @@ public class GithubRestController
 
 	@Autowired
 	private UserConfigurationService myUserConfigurationService;
+
+	@Nullable
+	@VisibleForTesting
+	public static String getRepoName(@NotNull String comment)
+	{
+		Matcher matcher = ourPattern.matcher(comment);
+		if(matcher.find())
+		{
+			return matcher.group(1);
+		}
+		return null;
+	}
 
 	@RequestMapping(value = "/github/webhook", method = RequestMethod.POST)
 	public ResponseEntity<?> hook(@RequestHeader("X-GitHub-Event") String event, @RequestHeader("X-Hub-Signature") String signature, @RequestBody byte[] array) throws IOException
@@ -98,11 +113,9 @@ public class GithubRestController
 		}
 
 		String body = event.getComment().getBody();
-		Matcher matcher = ourPattern.matcher(body);
-		if(matcher.find())
+		String repositoryName = getRepoName(body);
+		if(repositoryName != null)
 		{
-			String repositoryName = matcher.group(1);
-
 			GHOrganization consuloOrg = gitHub.getOrganization("consulo");
 			GHRepository targetRepository = consuloOrg.getRepository(repositoryName);
 
@@ -125,7 +138,7 @@ public class GithubRestController
 			{
 				String commentBody = comment.getBody();
 
-				if(ourPattern.matcher(commentBody).find())
+				if(getRepoName(commentBody) != null)
 				{
 					continue;
 				}
