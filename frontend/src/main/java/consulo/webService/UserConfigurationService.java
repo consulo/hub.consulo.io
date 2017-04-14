@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.SystemProperties;
@@ -95,9 +97,15 @@ public class UserConfigurationService
 		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConfigDirectory.getPath());
 	}
 
+	@NotNull
 	public PropertySet getPropertySet()
 	{
-		return myPropertySet;
+		return Objects.requireNonNull(myPropertySet);
+	}
+
+	public boolean isNotInstalled()
+	{
+		return myPropertySet == null;
 	}
 
 	public void setProperties(Properties properties)
@@ -125,10 +133,12 @@ public class UserConfigurationService
 			Properties properties = new Properties();
 			try
 			{
+				PropertySet oldPropertySet = myPropertySet;
+
 				properties.loadFromXML(new FileInputStream(file));
 				myPropertySet = new PropertySet(properties);
 
-				onPropertySetChanged(myPropertySet);
+				onPropertySetChanged(oldPropertySet, myPropertySet);
 			}
 			catch(Exception e)
 			{
@@ -163,7 +173,8 @@ public class UserConfigurationService
 		{
 			return;
 		}
-		myExecutor.execute(() -> {
+		myExecutor.execute(() ->
+		{
 			for(File file : files)
 			{
 				FileSystemUtils.deleteRecursively(file);
@@ -177,10 +188,21 @@ public class UserConfigurationService
 		reloadProperties();
 	}
 
-	private void onPropertySetChanged(@NotNull PropertySet propertySet)
+	private void onPropertySetChanged(@Nullable PropertySet oldPropertySet, @NotNull PropertySet propertySet)
 	{
-		myTaskExecutor.execute(() -> {
+		myTaskExecutor.execute(() ->
+		{
 			String workDirValue = propertySet.getStringProperty(PropertyKeys.WORKING_DIRECTORY);
+
+			if(oldPropertySet != null)
+			{
+				String oldWorkDirectory = oldPropertySet.getStringProperty(PropertyKeys.WORKING_DIRECTORY);
+				if(Comparing.equal(workDirValue, oldWorkDirectory))
+				{
+					return;
+				}
+			}
+
 			if(StringUtil.isEmpty(workDirValue))
 			{
 				workDirValue = myConfigDirectory.getPath();

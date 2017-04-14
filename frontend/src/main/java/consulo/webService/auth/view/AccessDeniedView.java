@@ -13,9 +13,11 @@ import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.webService.ui.DashboardUI;
+import consulo.webService.UserConfigurationService;
 import consulo.webService.auth.mongo.service.UserService;
 import consulo.webService.auth.ui.LoginOrRegisterPanel;
+import consulo.webService.config.view.ConfigPanel;
+import consulo.webService.ui.DashboardUI;
 import consulo.webService.ui.components.CaptchaFactory;
 
 @Component // No SpringView annotation because this view can not be navigated to
@@ -31,9 +33,11 @@ public class AccessDeniedView extends VerticalLayout implements View
 	@Autowired
 	private UserService myUserService;
 
+	@Autowired
+	private UserConfigurationService myUserConfigurationService;
+
 	public AccessDeniedView()
 	{
-		setMargin(true);
 	}
 
 	@Override
@@ -41,17 +45,34 @@ public class AccessDeniedView extends VerticalLayout implements View
 	{
 		removeAllComponents();
 
+		if(myUserConfigurationService.isNotInstalled())
+		{
+			getUI().getPage().setTitle("Hub / Install");
+
+			Label label = new Label("Install");
+			label.addStyleName("headerMargin");
+			addComponent(label);
+
+			ConfigPanel configPanel = new ConfigPanel(myUserConfigurationService, "Install", () -> getUI().getPage().reload());
+			configPanel.addStyleName("bodyMargin");
+			addComponent(configPanel);
+			setExpandRatio(configPanel, .9f);
+			return;
+		}
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication != null)
 		{
 			Label lbl = new Label("You don't have access to this view.");
 			lbl.addStyleName(ValoTheme.LABEL_FAILURE);
 			lbl.setSizeUndefined();
+			lbl.addStyleName("bodyMargin");
 			addComponent(lbl);
 		}
 		else
 		{
 			LoginOrRegisterPanel panel = new LoginOrRegisterPanel(myCaptchaFactory, this::login, this::register);
+			panel.addStyleName("bodyMargin");
 			addComponent(panel);
 			setExpandRatio(panel, .9f);
 		}

@@ -31,10 +31,6 @@ public class CaptchaFactory
 	public Captcha create()
 	{
 		PropertySet propertySet = myConfigurationService.getPropertySet();
-		if(propertySet == null)
-		{
-			throw new IllegalArgumentException();
-		}
 
 		boolean e = propertySet.getBoolProperty(PropertyKeys.CAPTCHA_ENABLED);
 		if(e)

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +19,6 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.DefaultErrorHandler;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
@@ -38,6 +38,7 @@ import consulo.webService.auth.view.DashboardView;
 import consulo.webService.auth.view.ErrorView;
 import consulo.webService.auth.view.OAuthKeysView;
 import consulo.webService.auth.view.UserInfoView;
+import consulo.webService.config.view.AdminConfigView;
 import consulo.webService.errorReporter.view.AdminErrorReportsView;
 import consulo.webService.errorReporter.view.ErrorReportsView;
 import consulo.webService.plugins.PluginChannel;
@@ -45,7 +46,6 @@ import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
 import consulo.webService.storage.view.StorageView;
-import consulo.webService.ui.install.Installer;
 
 @SpringUI
 @SideMenuUI
@@ -66,6 +66,9 @@ public class DashboardUI extends UI
 	@Autowired
 	private PluginStatisticsService myPluginStatisticsService;
 
+	@Autowired
+	private ApplicationContext myApplicationContext;
+
 	private SideMenu mySideMenu = new SideMenu();
 
 	private final List<Button> myUnstableButtons = new ArrayList<>();
@@ -81,17 +84,7 @@ public class DashboardUI extends UI
 	@Override
 	protected void init(VaadinRequest request)
 	{
-		Page page = getPage();
-
-		if(myUserConfigurationService.getPropertySet() == null)
-		{
-			page.setTitle("Installer");
-			Installer installer = new Installer(myUserConfigurationService, getUI());
-			setContent(installer.build());
-			return;
-		}
-
-		page.setTitle("Hub");
+		getPage().setTitle("Hub");
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -101,7 +94,7 @@ public class DashboardUI extends UI
 
 		mySideMenu.addNavigation("Dashboard", FontAwesome.HOME, DashboardView.ID);
 		mySideMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.ID);
-		mySideMenu.addNavigation("Storage", FontAwesome.COGS, StorageView.ID);
+		mySideMenu.addNavigation("Storage", FontAwesome.FOLDER_OPEN, StorageView.ID);
 		mySideMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.ID);
 		mySideMenu.addNavigation("Repository", FontAwesome.PLUG, RepositoryView.ID);
 
@@ -129,6 +122,11 @@ public class DashboardUI extends UI
 			@Override
 			public View getView(String viewName)
 			{
+				if(myUserConfigurationService.isNotInstalled())
+				{
+					return myApplicationContext.getBean(AccessDeniedView.class);
+				}
+
 				if(viewName.startsWith(RepositoryView.ID))
 				{
 					Pair<PluginChannel, String> pair = RepositoryView.parseViewParameters(viewName);
@@ -156,6 +154,7 @@ public class DashboardUI extends UI
 			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Users", FontAwesome.USERS, AdminUserView.ID));
 			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Error Reports", FontAwesome.BOLT, AdminErrorReportsView.ID));
 			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Repository", FontAwesome.PLUG, AdminRepositoryView.ID));
+			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Config", FontAwesome.WRENCH, AdminConfigView.ID));
 		}
 
 		if(authentication != null)

@@ -27,11 +27,28 @@ public class RepositoryView extends VerticalLayout implements View
 {
 	public static final String ID = "repo";
 
-	private final RepositoryChannelPanel myRepositoryChannelPanel;
+	private final UserConfigurationService myUserConfigurationService;
+	private final PluginStatisticsService myPluginStatisticsService;
+	private final PluginChannel myChannel;
 
 	public RepositoryView(UserConfigurationService userConfigurationService, PluginStatisticsService pluginStatisticsService, PluginChannel channel)
 	{
+		myUserConfigurationService = userConfigurationService;
+		myPluginStatisticsService = pluginStatisticsService;
+		myChannel = channel;
+
 		setSizeFull();
+	}
+
+	@Override
+	public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent)
+	{
+		if(myUserConfigurationService.isNotInstalled())
+		{
+			return;
+		}
+
+		removeAllComponents();
 
 		HorizontalLayout headerLayout = new HorizontalLayout();
 		headerLayout.setWidth(100, Unit.PERCENTAGE);
@@ -51,17 +68,18 @@ public class RepositoryView extends VerticalLayout implements View
 		headerLayout.addComponent(labeled);
 		headerLayout.setComponentAlignment(labeled, Alignment.MIDDLE_RIGHT);
 
-		channelBox.setValue(channel);
+		channelBox.setValue(myChannel);
 
-		addComponent(myRepositoryChannelPanel = new RepositoryChannelPanel(channel, userConfigurationService, pluginStatisticsService));
+		RepositoryChannelPanel repositoryChannelPanel;
+		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myUserConfigurationService, myPluginStatisticsService));
 
-		setExpandRatio(myRepositoryChannelPanel, 1);
+		setExpandRatio(repositoryChannelPanel, 1);
 
 		channelBox.addValueChangeListener(event ->
 		{
 			PluginChannel value = (PluginChannel) event.getProperty().getValue();
 
-			String selectedPluginId = myRepositoryChannelPanel.getSelectedPluginId();
+			String selectedPluginId = repositoryChannelPanel.getSelectedPluginId();
 			if(StringUtil.isEmpty(selectedPluginId))
 			{
 				getUI().getNavigator().navigateTo(ID + "/" + value);
@@ -71,12 +89,8 @@ public class RepositoryView extends VerticalLayout implements View
 				getUI().getNavigator().navigateTo(ID + "/" + value + "/" + selectedPluginId);
 			}
 		});
-	}
 
-	@Override
-	public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent)
-	{
-		myRepositoryChannelPanel.selectPlugin(viewChangeEvent.getParameters());
+		repositoryChannelPanel.selectPlugin(viewChangeEvent.getParameters());
 	}
 
 	@NotNull

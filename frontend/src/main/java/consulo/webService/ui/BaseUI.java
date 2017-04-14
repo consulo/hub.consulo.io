@@ -19,7 +19,7 @@ public abstract class BaseUI extends UI
 	protected final void init(VaadinRequest request)
 	{
 		Page page = getPage();
-		if(myConfigurationService.getPropertySet() == null)
+		if(myConfigurationService.isNotInstalled())
 		{
 			page.setLocation("/");
 			return;
