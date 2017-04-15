@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.lang.Language;
 import com.intellij.openapi.extensions.PluginId;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
@@ -70,6 +71,10 @@ public class PluginAnalyzerService
 		addUrlByClass(Component.class);
 		// platform-api
 		addUrlByClass("com.intellij.execution.configurations.ConfigurationType");
+		// compiler-api
+		addUrlByClass("com.intellij.packaging.artifacts.ArtifactType");
+		// compiler-impl
+		addUrlByClass("com.intellij.packaging.impl.elements.ArchivePackagingElement");
 		// platform-impl
 		addUrlByClass("consulo.extension.impl.ModuleExtensionImpl");
 		// external-system-api
@@ -246,6 +251,28 @@ public class PluginAnalyzerService
 								if(!ext.isEmpty())
 								{
 									data.putValues(key, ext);
+								}
+							}
+						});
+						break;
+					case "com.intellij.packaging.artifactType":
+						forEachQuiet(entry, element ->
+						{
+							String implementation = element.getAttributeValue("implementation");
+							if(implementation != null)
+							{
+								Class<?> aClass = urlClassLoader.loadClass(implementation);
+
+								Object artifactInstance = aClass.newInstance();
+
+								Class<?> artifactType = urlClassLoader.loadClass("com.intellij.packaging.artifacts.ArtifactType");
+
+								Method idMethod = artifactType.getMethod("getId");
+
+								String artifactId = (String) idMethod.invoke(artifactInstance);
+								if(!StringUtil.isEmpty(artifactId))
+								{
+									data.putValue(key, artifactId);
 								}
 							}
 						});

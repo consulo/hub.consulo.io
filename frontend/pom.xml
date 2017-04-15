@@ -168,6 +168,20 @@
 
 		<dependency>
 			<groupId>consulo</groupId>
+			<artifactId>compiler-api</artifactId>
+			<scope>runtime</scope>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>compiler-impl</artifactId>
+			<scope>runtime</scope>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
 			<artifactId>external-system-impl</artifactId>
 			<scope>runtime</scope>
 			<version>2.0</version>

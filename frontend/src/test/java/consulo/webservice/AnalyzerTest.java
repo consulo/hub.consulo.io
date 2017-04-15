@@ -27,7 +27,7 @@ public class AnalyzerTest extends Assert
 	{
 		PluginNode pluginNode = loadPlugin("/consulo.java_178.zip");
 
-		assertEquals(pluginNode.extensions.length, 3);
+		assertEquals(pluginNode.extensions.length, 4);
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.configurationType");
 
 		assertEquals(pluginNode.extensions[2].values[0], "java");
