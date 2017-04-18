@@ -1,5 +1,8 @@
 package consulo.webService.auth.view;
 
+import java.util.Date;
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +17,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import consulo.webService.errorReporter.domain.ErrorReport;
@@ -61,29 +63,34 @@ public class DashboardView extends VerticalLayout implements View
 		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 15, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = new VerticalLayout();
-		verticalLayout.setHeight(100, Unit.PERCENTAGE);
 
 		verticalLayout.addComponent(new Label("Last Error Reports:"));
 
-		Table table = new Table();
-		table.setSizeFull();
-		table.addContainerProperty("Message", String.class, null);
-		table.addContainerProperty("Trace", String.class, null);
-		table.addItemClickListener(event ->
-		{
-			Object itemId = event.getItemId();
-			System.out.println("test " + itemId);
-		});
-
 		for(ErrorReport errorReport : reportList)
 		{
-			table.addItem(new Object[]{
-					errorReport.getMessage(),
-					StringUtil.replaceChar(errorReport.getStackTrace(), '\n', ' ')
-			}, errorReport.getId());
+			HorizontalLayout shortLine = new HorizontalLayout();
+			shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+			shortLine.setWidth(100, Unit.PERCENTAGE);
+
+			VerticalLayout lineLayout = new VerticalLayout();
+			lineLayout.setWidth(100, Unit.PERCENTAGE);
+			lineLayout.addComponent(shortLine);
+			lineLayout.addStyleName("errorViewLineLayout");
+
+			lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
+
+			HorizontalLayout leftLayout = new HorizontalLayout();
+			leftLayout.setWidth(100, Unit.PERCENTAGE);
+			leftLayout.setSpacing(true);
+			leftLayout.addComponent(TidyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+			leftLayout.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+
+			shortLine.addComponent(leftLayout);
+			shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
+
+			verticalLayout.addComponent(lineLayout);
 		}
-		verticalLayout.addComponent(table);
-		verticalLayout.setExpandRatio(table, 1);
+
 		return verticalLayout;
 	}
 
@@ -115,14 +122,20 @@ public class DashboardView extends VerticalLayout implements View
 		panel.setFirstComponent(topLayout);
 
 		HorizontalLayout bottomLayout = new HorizontalLayout();
-		bottomLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+		bottomLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
 		bottomLayout.setSizeFull();
 
-		bottomLayout.addComponent(buildLastPluginComments());
-		bottomLayout.addComponent(buildLastSettingsUpdate());
-		Component buildLastErrorReports = buildLastErrorReports(authentication);
-		bottomLayout.addComponent(buildLastErrorReports);
-		bottomLayout.setExpandRatio(buildLastErrorReports, 0.5f);
+		Component lastPluginComments = buildLastPluginComments();
+		bottomLayout.addComponent(lastPluginComments);
+		bottomLayout.setExpandRatio(lastPluginComments, 0.33f);
+
+		Component lastSettingsUpdate = buildLastSettingsUpdate();
+		bottomLayout.addComponent(lastSettingsUpdate);
+		bottomLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
+
+		Component lastErrorReports = buildLastErrorReports(authentication);
+		bottomLayout.addComponent(lastErrorReports);
+		bottomLayout.setExpandRatio(lastErrorReports, 0.33f);
 
 		panel.setSecondComponent(bottomLayout);
 	}
