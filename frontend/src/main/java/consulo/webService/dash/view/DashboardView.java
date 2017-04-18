@@ -20,6 +20,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
@@ -72,7 +73,9 @@ public class DashboardView extends VerticalLayout implements View
 		for(ErrorReporterStatus reporterStatus : ErrorReporterStatus.values())
 		{
 			VerticalLayout lineLayout = new VerticalLayout();
-			lineLayout.addComponent(TinyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US))));
+			Label label = TinyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+			label.addStyleName(ValoTheme.LABEL_BOLD);
+			lineLayout.addComponent(label);
 			lineLayout.addStyleName("errorViewLineLayout");
 			lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
 			legendLayout.addComponent(lineLayout);
