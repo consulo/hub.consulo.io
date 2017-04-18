@@ -76,6 +76,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		if(allowFilters())
 		{
 			HorizontalLayout filters = new HorizontalLayout();
+			filters.setHeight(100, Unit.PERCENTAGE);
 			filters.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			filters.setSpacing(true);
 			filters.addComponent(TidyComponents.newLabel("Status: "));
@@ -102,7 +103,15 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 					rebuildList();
 				});
 
-				filters.addComponent(filterBox);
+				HorizontalLayout layout = new HorizontalLayout();
+				layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+				layout.setHeight(2, Unit.EM);
+				layout.addStyleName("errorViewLineLayoutBox");
+				layout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+
+				layout.addComponent(filterBox);
+
+				filters.addComponent(layout);
 			}
 			header.addComponent(filters);
 		}

@@ -33,6 +33,17 @@ div.sidemenu-ui {
 	margin-bottom: 2px;
 }
 
+.errorViewLineLayoutBox
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	border-top: lightgray solid 1px;
+	border-bottom: lightgray solid 1px;
+	border-right: lightgray solid 1px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+}
+
 .errorViewLineLayoutFixed
 {
 	border-left: limegreen solid 4px;
@@ -80,8 +91,7 @@ div.sidemenu-ui {
 	padding: 0 !important;
 }
 
-.line-separator{
-
- background: $v-focus-color;
-
+.line-separator
+{
+	background: $v-focus-color;
 }

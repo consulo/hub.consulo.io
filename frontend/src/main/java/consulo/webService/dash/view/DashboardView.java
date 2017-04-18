@@ -3,6 +3,7 @@ package consulo.webService.dash.view;
 import java.util.Date;
 import java.util.Locale;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,9 +18,10 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.VerticalSplitPanel;
 import consulo.webService.errorReporter.domain.ErrorReport;
+import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
 import consulo.webService.ui.util.TidyComponents;
 
@@ -39,32 +41,43 @@ public class DashboardView extends VerticalLayout implements View
 	private Component buildLastPluginComments()
 	{
 		VerticalLayout verticalLayout = new VerticalLayout();
-		verticalLayout.setHeight(100, Unit.PERCENTAGE);
-		verticalLayout.setWidth(20, Unit.EM);
+		verticalLayout.setSizeFull();
+		verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+		verticalLayout.addComponent(TidyComponents.newLabel("Not Implemented Yet"));
 
-		verticalLayout.addComponent(new Label("Last Plugin Comments:"));
-		verticalLayout.addComponent(TidyComponents.newLabel("TODO"));
-		return verticalLayout;
+		return panel("Last Plugin Comments", verticalLayout);
 	}
 
 	private Component buildLastSettingsUpdate()
 	{
 		VerticalLayout verticalLayout = new VerticalLayout();
-		verticalLayout.setHeight(100, Unit.PERCENTAGE);
-		verticalLayout.setWidth(20, Unit.EM);
+		verticalLayout.setSizeFull();
+		verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+		verticalLayout.addComponent(TidyComponents.newLabel("Not Implemented Yet"));
 
-		verticalLayout.addComponent(new Label("Last Settings Update:"));
-		verticalLayout.addComponent(TidyComponents.newLabel("TODO"));
-		return verticalLayout;
+		return panel("Last Settings Update", verticalLayout);
 	}
 
 	private Component buildLastErrorReports(Authentication authentication)
 	{
-		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 15, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
+		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = new VerticalLayout();
+		verticalLayout.addStyleName("bodyMargin");
 
-		verticalLayout.addComponent(new Label("Last Error Reports:"));
+		HorizontalLayout legendLayout = new HorizontalLayout();
+		legendLayout.setWidth(100, Unit.PERCENTAGE);
+		legendLayout.setSpacing(true);
+
+		for(ErrorReporterStatus reporterStatus : ErrorReporterStatus.values())
+		{
+			VerticalLayout lineLayout = new VerticalLayout();
+			lineLayout.addComponent(TidyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US))));
+			lineLayout.addStyleName("errorViewLineLayout");
+			lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+			legendLayout.addComponent(lineLayout);
+		}
+		verticalLayout.addComponent(legendLayout);
 
 		for(ErrorReport errorReport : reportList)
 		{
@@ -91,7 +104,15 @@ public class DashboardView extends VerticalLayout implements View
 			verticalLayout.addComponent(lineLayout);
 		}
 
-		return verticalLayout;
+		return panel("Last Error Reports", verticalLayout);
+	}
+
+	@NotNull
+	private static Panel panel(String cap, Component component)
+	{
+		Panel panel = new Panel(cap, component);
+		panel.setSizeFull();
+		return panel;
 	}
 
 	@Override
@@ -109,34 +130,25 @@ public class DashboardView extends VerticalLayout implements View
 			return;
 		}
 
-		VerticalSplitPanel panel = new VerticalSplitPanel();
-		panel.addStyleName("bodyMargin");
-		panel.setSizeFull();
-		panel.setSplitPosition(50, Unit.PERCENTAGE);
-
-		addComponent(panel);
-		setExpandRatio(panel, 0.9f);
-
-		HorizontalLayout topLayout = new HorizontalLayout();
-		topLayout.setSizeFull();
-		panel.setFirstComponent(topLayout);
-
-		HorizontalLayout bottomLayout = new HorizontalLayout();
-		bottomLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
-		bottomLayout.setSizeFull();
+		HorizontalLayout fillLayout = new HorizontalLayout();
+		fillLayout.addStyleName("bodyMargin");
+		fillLayout.setSizeFull();
+		fillLayout.setSpacing(true);
+		fillLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
 
 		Component lastPluginComments = buildLastPluginComments();
-		bottomLayout.addComponent(lastPluginComments);
-		bottomLayout.setExpandRatio(lastPluginComments, 0.33f);
+		fillLayout.addComponent(lastPluginComments);
+		fillLayout.setExpandRatio(lastPluginComments, 0.33f);
 
 		Component lastSettingsUpdate = buildLastSettingsUpdate();
-		bottomLayout.addComponent(lastSettingsUpdate);
-		bottomLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
+		fillLayout.addComponent(lastSettingsUpdate);
+		fillLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
 
 		Component lastErrorReports = buildLastErrorReports(authentication);
-		bottomLayout.addComponent(lastErrorReports);
-		bottomLayout.setExpandRatio(lastErrorReports, 0.33f);
+		fillLayout.addComponent(lastErrorReports);
+		fillLayout.setExpandRatio(lastErrorReports, 0.33f);
 
-		panel.setSecondComponent(bottomLayout);
+		addComponent(fillLayout);
+		setExpandRatio(fillLayout, 1f);
 	}
 }
