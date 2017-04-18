@@ -12,11 +12,13 @@ import com.google.common.collect.TreeMultimap;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.text.DateFormatUtilRt;
 import com.intellij.util.text.VersionComparatorUtil;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.components.calendar.event.BasicEvent;
@@ -237,13 +239,17 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		if(!StringUtil.isEmpty(pluginNode.description))
 		{
-			TextArea area = new TextArea();
-			area.setValue(pluginNode.description);
-			area.setReadOnly(true);
-			area.setWidth(100, Unit.PERCENTAGE);
-			area.addStyleName(ValoTheme.TEXTAREA_SMALL);
-			area.addStyleName(ValoTheme.TEXTAREA_BORDERLESS);
-			verticalLayout.addComponent(area);
+			Label descriptiopnLabel = new Label();
+			descriptiopnLabel.setContentMode(ContentMode.HTML);
+			descriptiopnLabel.setValue(pluginNode.description);
+			descriptiopnLabel.setReadOnly(true);
+			descriptiopnLabel.setWidth(100, Unit.PERCENTAGE);
+			descriptiopnLabel.addStyleName(ValoTheme.LABEL_SMALL);
+
+			CssLayout customComponent = new CssLayout(descriptiopnLabel);
+			customComponent.setWidth(100, Unit.PERCENTAGE);
+			customComponent.addStyleName(ValoTheme.LAYOUT_WELL);
+			verticalLayout.addComponent(customComponent);
 		}
 
 		List<MongoDownloadStat> allDownloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
