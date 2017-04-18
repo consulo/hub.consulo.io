@@ -32,7 +32,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 /**
  * @author VISTALL
@@ -79,11 +79,11 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			filters.setHeight(100, Unit.PERCENTAGE);
 			filters.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			filters.setSpacing(true);
-			filters.addComponent(TidyComponents.newLabel("Status: "));
+			filters.addComponent(TinyComponents.newLabel("Status: "));
 
 			for(ErrorReporterStatus status : ErrorReporterStatus.values())
 			{
-				CheckBox filterBox = TidyComponents.newCheckBox(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
+				CheckBox filterBox = TinyComponents.newCheckBox(StringUtil.capitalize(status.name().toLowerCase(Locale.US)));
 				if(status == ErrorReporterStatus.UNKNOWN)
 				{
 					filterBox.setValue(true);
@@ -162,8 +162,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			HorizontalLayout leftLayout = new HorizontalLayout();
 			leftLayout.setWidth(100, Unit.PERCENTAGE);
 			leftLayout.setSpacing(true);
-			leftLayout.addComponent(TidyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
-			leftLayout.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+			leftLayout.addComponent(TinyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+			leftLayout.addComponent(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
 
 			HorizontalLayout rightLayout = new HorizontalLayout();
 			rightLayout.setSpacing(true);
@@ -199,7 +199,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			pageLayout.setSpacing(true);
 			if(page.hasPrevious())
 			{
-				pageLayout.addComponent(TidyComponents.newButton("Prev", event ->
+				pageLayout.addComponent(TinyComponents.newButton("Prev", event ->
 				{
 					myPage--;
 					rebuildList();
@@ -207,7 +207,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			}
 			if(page.hasNext())
 			{
-				pageLayout.addComponent(TidyComponents.newButton("Next", event ->
+				pageLayout.addComponent(TinyComponents.newButton("Next", event ->
 				{
 					myPage++;
 					rebuildList();
@@ -233,12 +233,12 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 	protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
-		Button copyLink = TidyComponents.newButton("External Link");
+		Button copyLink = TinyComponents.newButton("External Link");
 		copyLink.setIcon(FontAwesome.CHAIN);
 
 		copyLink.addClickListener(e -> getUI().getPage().open("/errorReport#" + errorReport.getId(), "Error Report"));
 
-		Button detailsButton = TidyComponents.newButton("Details");
+		Button detailsButton = TinyComponents.newButton("Details");
 		detailsButton.setIcon(FontAwesome.LIST);
 
 		detailsButton.addClickListener(e -> openOrCloseDetails(errorReport, lineLayout, onUpdate));
@@ -295,7 +295,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		for(Couple<String> couple : list)
 		{
-			gridLayout.addComponent(TidyComponents.newLabel(couple.getFirst() + ":"), 0, row);
+			gridLayout.addComponent(TinyComponents.newLabel(couple.getFirst() + ":"), 0, row);
 
 			Object rawValue = ReflectionUtil.getField(ErrorReport.class, errorReport, null, couple.getSecond());
 

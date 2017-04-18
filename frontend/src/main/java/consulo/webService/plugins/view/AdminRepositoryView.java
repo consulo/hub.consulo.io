@@ -12,7 +12,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelIterationService;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 /**
  * @author VISTALL
@@ -39,9 +39,9 @@ public class AdminRepositoryView extends VerticalLayout implements View
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.addStyleName("bodyMargin");
 		layout.setSpacing(true);
-		layout.addComponent(TidyComponents.newButton("nightly " + UIUtil.rightArrow() + " alpha", event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha)));
-		layout.addComponent(TidyComponents.newButton("alpha " + UIUtil.rightArrow() + " beta", event -> forceIterate(PluginChannel.alpha, PluginChannel.beta)));
-		layout.addComponent(TidyComponents.newButton("beta " + UIUtil.rightArrow() + " release", event -> forceIterate(PluginChannel.beta, PluginChannel.release)));
+		layout.addComponent(TinyComponents.newButton("nightly " + UIUtil.rightArrow() + " alpha", event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha)));
+		layout.addComponent(TinyComponents.newButton("alpha " + UIUtil.rightArrow() + " beta", event -> forceIterate(PluginChannel.alpha, PluginChannel.beta)));
+		layout.addComponent(TinyComponents.newButton("beta " + UIUtil.rightArrow() + " release", event -> forceIterate(PluginChannel.beta, PluginChannel.release)));
 
 		addComponent(layout);
 	}

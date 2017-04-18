@@ -22,7 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.github.GithubPropertyKeys;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
 import consulo.webService.util.PropertyKeys;
 import consulo.webService.util.PropertySet;
@@ -48,7 +48,7 @@ public class ConfigPanel extends VerticalLayout
 		layout.addComponent(buildCaptchaGroup());
 		layout.addComponent(buildGithubGroup());
 
-		Button installButton = TidyComponents.newButton(buttonName);
+		Button installButton = TinyComponents.newButton(buttonName);
 		installButton.addClickListener(event ->
 		{
 			Properties properties = new Properties();
@@ -120,12 +120,12 @@ public class ConfigPanel extends VerticalLayout
 	{
 		return buildGroup("Repository", layout ->
 		{
-			TextField workingDirectoryField = TidyComponents.newTextField();
+			TextField workingDirectoryField = TinyComponents.newTextField();
 			map(String.class, workingDirectoryField, PropertyKeys.WORKING_DIRECTORY, () -> SystemProperties.getUserHome() + File.separatorChar + ".consuloWebservice");
 
 			layout.addComponent(VaadinUIUtil.labeledFill("Working directory: ", workingDirectoryField));
 
-			TextField deployKeyField = TidyComponents.newTextField();
+			TextField deployKeyField = TinyComponents.newTextField();
 			map(String.class, deployKeyField, PropertyKeys.DEPLOY_KEY, null);
 
 			layout.addComponent(VaadinUIUtil.labeledFill("Deploy key: ", deployKeyField));
@@ -137,15 +137,15 @@ public class ConfigPanel extends VerticalLayout
 	{
 		return buildGroup("Captcha", layout ->
 		{
-			CheckBox enabledCaptcha = TidyComponents.newCheckBox("Enable captcha?");
+			CheckBox enabledCaptcha = TinyComponents.newCheckBox("Enable captcha?");
 			map(Boolean.class, enabledCaptcha, PropertyKeys.CAPTCHA_ENABLED_KEY, () -> false);
 			layout.addComponent(enabledCaptcha);
 
-			TextField privateApiKey = TidyComponents.newTextField();
+			TextField privateApiKey = TinyComponents.newTextField();
 			map(String.class, privateApiKey, PropertyKeys.CAPTCHA_PRIVATE_KEY, null);
 			layout.addComponent(VaadinUIUtil.labeledFill("Private captcha key: ", privateApiKey));
 
-			TextField siteApiKey = TidyComponents.newTextField();
+			TextField siteApiKey = TinyComponents.newTextField();
 			map(String.class, siteApiKey, PropertyKeys.CAPTCHA_SITE_KEY, null);
 			layout.addComponent(VaadinUIUtil.labeledFill("Site captcha key: ", siteApiKey));
 
@@ -165,11 +165,11 @@ public class ConfigPanel extends VerticalLayout
 	{
 		return buildGroup("Github", layout ->
 		{
-			TextField oauthKeyField = TidyComponents.newTextField();
+			TextField oauthKeyField = TinyComponents.newTextField();
 			map(String.class, oauthKeyField, GithubPropertyKeys.OAUTH_KEY, null);
 			layout.addComponent(VaadinUIUtil.labeledFill("OAuth Key: ", oauthKeyField));
 
-			TextField secretHookKeyField = TidyComponents.newTextField();
+			TextField secretHookKeyField = TinyComponents.newTextField();
 			map(String.class, secretHookKeyField, GithubPropertyKeys.SECRET_HOOK_KEY, null);
 			layout.addComponent(VaadinUIUtil.labeledFill("Secret Hook Key: ", secretHookKeyField));
 		});

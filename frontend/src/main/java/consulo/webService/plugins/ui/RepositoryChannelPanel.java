@@ -30,7 +30,7 @@ import consulo.webService.plugins.PluginNode;
 import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.mongo.MongoDownloadStat;
 import consulo.webService.plugins.view.RepositoryView;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
@@ -229,12 +229,12 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);
 
-		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TidyComponents.newLabel(pluginNode.id)));
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TidyComponents.newLabel(getPluginNodeName(pluginNode))));
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TidyComponents.newLabel(pluginNode.category)));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TinyComponents.newLabel(pluginNode.id)));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TinyComponents.newLabel(getPluginNodeName(pluginNode))));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TinyComponents.newLabel(pluginNode.category)));
 		if(!StringUtil.isEmpty(pluginNode.vendor))
 		{
-			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TidyComponents.newLabel(pluginNode.vendor)));
+			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TinyComponents.newLabel(pluginNode.vendor)));
 		}
 
 		if(!StringUtil.isEmpty(pluginNode.description))
@@ -255,7 +255,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		List<MongoDownloadStat> allDownloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
 		List<MongoDownloadStat> channelDownloadStat = allDownloadStat.stream().filter(it -> it.getChannel().equals(myPluginChannel.name())).collect(Collectors.toList());
 
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TidyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.size() + ")")));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.size() + ")")));
 
 		com.vaadin.ui.Calendar calendar = new com.vaadin.ui.Calendar()
 		{
@@ -276,8 +276,8 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		HorizontalLayout calendarControl = new HorizontalLayout();
 		calendarControl.setSpacing(true);
 
-		calendarControl.addComponent(TidyComponents.newLabel("Download statistics"));
-		calendarControl.addComponent(TidyComponents.newButton("Month view", event -> switchToMonthView(calendar)));
+		calendarControl.addComponent(TinyComponents.newLabel("Download statistics"));
+		calendarControl.addComponent(TinyComponents.newButton("Month view", event -> switchToMonthView(calendar)));
 
 		verticalLayout.addComponent(calendarControl);
 

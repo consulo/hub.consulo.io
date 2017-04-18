@@ -20,7 +20,7 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.storage.mongo.MongoStorageFile;
 import consulo.webService.storage.mongo.MongoStorageFileRepository;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 /**
  * @author VISTALL
@@ -59,7 +59,7 @@ public class StorageView extends VerticalLayout implements View
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel();
 
-		ListSelect listSelect = TidyComponents.newListSelect();
+		ListSelect listSelect = TinyComponents.newListSelect();
 		TextArea textArea = new TextArea("Text: ");
 		listSelect.addValueChangeListener(event1 ->
 		{

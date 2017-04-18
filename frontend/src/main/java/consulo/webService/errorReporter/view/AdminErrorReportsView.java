@@ -21,7 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 /**
  * @author VISTALL
@@ -50,7 +50,7 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 		for(ErrorReporterStatus status : ErrorReporterStatus.values())
 		{
 			String captalizedStatus = StringUtil.capitalize(status.name().toLowerCase(Locale.US));
-			Button button = TidyComponents.newButton(captalizedStatus);
+			Button button = TinyComponents.newButton(captalizedStatus);
 			button.addStyleName("errorViewButton" + captalizedStatus);
 
 			adminButtons.put(status, button);

@@ -17,7 +17,7 @@ public class VaadinUIUtil
 		GridLayout gridLayout = new GridLayout(2, 1);
 		gridLayout.setWidth(100, Sizeable.Unit.PERCENTAGE);
 		component.setWidth(100, Sizeable.Unit.PERCENTAGE);
-		gridLayout.addComponent(TidyComponents.newLabel(name), 0, 0);
+		gridLayout.addComponent(TinyComponents.newLabel(name), 0, 0);
 		gridLayout.addComponent(component, 1, 0);
 		return gridLayout;
 	}
@@ -27,7 +27,7 @@ public class VaadinUIUtil
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.setSpacing(true);
 		horizontalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-		horizontalLayout.addComponent(TidyComponents.newLabel(name));
+		horizontalLayout.addComponent(TinyComponents.newLabel(name));
 		horizontalLayout.addComponent(component);
 		return horizontalLayout;
 	}

@@ -23,7 +23,7 @@ import com.vaadin.ui.VerticalLayout;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 @SpringView(name = DashboardView.ID)
 public class DashboardView extends VerticalLayout implements View
@@ -43,7 +43,7 @@ public class DashboardView extends VerticalLayout implements View
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setSizeFull();
 		verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.addComponent(TidyComponents.newLabel("Not Implemented Yet"));
+		verticalLayout.addComponent(TinyComponents.newLabel("Not Implemented Yet"));
 
 		return panel("Last Plugin Comments", verticalLayout);
 	}
@@ -53,7 +53,7 @@ public class DashboardView extends VerticalLayout implements View
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setSizeFull();
 		verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.addComponent(TidyComponents.newLabel("Not Implemented Yet"));
+		verticalLayout.addComponent(TinyComponents.newLabel("Not Implemented Yet"));
 
 		return panel("Last Settings Update", verticalLayout);
 	}
@@ -72,7 +72,7 @@ public class DashboardView extends VerticalLayout implements View
 		for(ErrorReporterStatus reporterStatus : ErrorReporterStatus.values())
 		{
 			VerticalLayout lineLayout = new VerticalLayout();
-			lineLayout.addComponent(TidyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US))));
+			lineLayout.addComponent(TinyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US))));
 			lineLayout.addStyleName("errorViewLineLayout");
 			lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
 			legendLayout.addComponent(lineLayout);
@@ -95,8 +95,8 @@ public class DashboardView extends VerticalLayout implements View
 			HorizontalLayout leftLayout = new HorizontalLayout();
 			leftLayout.setWidth(100, Unit.PERCENTAGE);
 			leftLayout.setSpacing(true);
-			leftLayout.addComponent(TidyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
-			leftLayout.addComponent(TidyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+			leftLayout.addComponent(TinyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+			leftLayout.addComponent(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
 
 			shortLine.addComponent(leftLayout);
 			shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);

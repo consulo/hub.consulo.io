@@ -16,7 +16,7 @@ import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.ui.RepositoryChannelPanel;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
@@ -58,7 +58,7 @@ public class RepositoryView extends VerticalLayout implements View
 		Label header = new Label("Repository");
 		headerLayout.addComponent(header);
 
-		ComboBox channelBox = TidyComponents.newComboBox();
+		ComboBox channelBox = TinyComponents.newComboBox();
 		for(PluginChannel t : PluginChannel.values())
 		{
 			channelBox.addItem(t);

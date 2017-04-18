@@ -7,7 +7,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 /**
  * @author VISTALL
@@ -42,7 +42,7 @@ public class UserInfoView extends VerticalLayout implements View
 		verticalLayout.setSizeFull();
 		verticalLayout.addStyleName("bodyMargin");
 
-		verticalLayout.addComponent(TidyComponents.newLabel("Not Implemented Yet"));
+		verticalLayout.addComponent(TinyComponents.newLabel("Not Implemented Yet"));
 
 		addComponent(verticalLayout);
 		setExpandRatio(verticalLayout, 1f);

@@ -34,7 +34,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.auth.oauth2.OAuth2ServerConfiguration;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
-import consulo.webService.ui.util.TidyComponents;
+import consulo.webService.ui.util.TinyComponents;
 
 /**
  * @author VISTALL
@@ -80,11 +80,11 @@ public class OAuthKeysView extends VerticalLayout implements View
 		header.addComponent(new Label("OAuth Keys"));
 		header.addStyleName("headerMargin");
 
-		Button createKeyButton = TidyComponents.newButton("Add Key", event ->
+		Button createKeyButton = TinyComponents.newButton("Add Key", event ->
 		{
 			Window window = new Window("Enter Name");
 
-			TextField textField = TidyComponents.newTextField();
+			TextField textField = TinyComponents.newTextField();
 			textField.addValidator(new StringLengthValidator("Bad name", 1, 255, false));
 			textField.addValidator(new AbstractStringValidator("Duplicate key")
 			{
@@ -120,7 +120,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 			okButton.addStyleName(ValoTheme.BUTTON_TINY);
 			okButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
-			HorizontalLayout content = new HorizontalLayout(TidyComponents.newLabel("Name: "), textField, okButton);
+			HorizontalLayout content = new HorizontalLayout(TinyComponents.newLabel("Name: "), textField, okButton);
 			content.setMargin(true);
 			content.setSpacing(true);
 
@@ -160,8 +160,8 @@ public class OAuthKeysView extends VerticalLayout implements View
 		layout.addStyleName(ValoTheme.LAYOUT_CARD);
 		layout.setWidth(100, Unit.PERCENTAGE);
 
-		layout.addComponent(TidyComponents.newLabel("Name: " + token.getName()));
-		Label label = TidyComponents.newLabel("Token: " + (hide ? StringUtil.shortenTextWithEllipsis(token.getTokenId(), 18, 7) : token.getTokenId()));
+		layout.addComponent(TinyComponents.newLabel("Name: " + token.getName()));
+		Label label = TinyComponents.newLabel("Token: " + (hide ? StringUtil.shortenTextWithEllipsis(token.getTokenId(), 18, 7) : token.getTokenId()));
 		layout.addComponent(label);
 		if(!hide)
 		{
