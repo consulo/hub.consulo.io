@@ -41,7 +41,7 @@ import consulo.webService.auth.Roles;
 import consulo.webService.auth.SecurityUtil;
 import consulo.webService.auth.view.AccessDeniedView;
 import consulo.webService.auth.view.AdminUserView;
-import consulo.webService.auth.view.DashboardView;
+import consulo.webService.dash.view.DashboardView;
 import consulo.webService.auth.view.ErrorView;
 import consulo.webService.auth.view.OAuthKeysView;
 import consulo.webService.auth.view.UserInfoView;

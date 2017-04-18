@@ -1,4 +1,4 @@
-package consulo.webService.auth.view;
+package consulo.webService.dash.view;
 
 import java.util.Date;
 import java.util.Locale;
