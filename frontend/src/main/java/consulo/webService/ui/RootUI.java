@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import com.google.common.eventbus.EventBus;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.containers.FactoryMap;
 import com.vaadin.annotations.Push;
@@ -17,22 +20,25 @@ import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.DefaultErrorHandler;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.auth.Roles;
 import consulo.webService.auth.SecurityUtil;
-import consulo.webService.auth.ui.SideMenu;
-import consulo.webService.auth.ui.SideMenuUI;
 import consulo.webService.auth.view.AccessDeniedView;
 import consulo.webService.auth.view.AdminUserView;
 import consulo.webService.auth.view.DashboardView;
@@ -47,14 +53,26 @@ import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
 import consulo.webService.storage.view.StorageView;
+import consulo.webService.ui.event.AfterViewChangeEvent;
 
 @SpringUI
-@SideMenuUI
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class RootUI extends UI
 {
+	public static void register(Object o)
+	{
+		UI ui = getCurrent();
+		((RootUI) ui).eventBus.register(o);
+	}
+
+	public static void unregister(Object o)
+	{
+		UI ui = getCurrent();
+		((RootUI) ui).eventBus.unregister(o);
+	}
+
 	@Autowired
 	private SpringViewProvider viewProvider;
 
@@ -70,9 +88,9 @@ public class RootUI extends UI
 	@Autowired
 	private ApplicationContext myApplicationContext;
 
-	private SideMenu mySideMenu = new SideMenu();
+	private final NavigationMenu myNavigationMenu = new NavigationMenu();
 
-	private final List<Button> myUnstableButtons = new ArrayList<>();
+	private final List<Component> myUnstableButtons = new ArrayList<>();
 
 	private final Map<PluginChannel, View> myRepositoryViewCache = new FactoryMap<PluginChannel, View>()
 	{
@@ -83,6 +101,8 @@ public class RootUI extends UI
 	};
 
 	private boolean myNotificationShow;
+
+	private EventBus eventBus = new EventBus();
 
 	@Override
 	protected void init(VaadinRequest request)
@@ -100,23 +120,38 @@ public class RootUI extends UI
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		mySideMenu.setMenuCaption("Hub");
-		mySideMenu.setUserIcon(FontAwesome.USER);
-		mySideMenu.setUserNavigation(UserInfoView.ID);
+		// todo [vistall] notifications
+		Pair<Component, Consumer<Integer>> dashboardItem = myNavigationMenu.addNavigationWithBadge("Dashboard", FontAwesome.HOME, DashboardView.class);
 
-		mySideMenu.addNavigation("Dashboard", FontAwesome.HOME, DashboardView.ID);
-		mySideMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.ID);
-		mySideMenu.addNavigation("Storage", FontAwesome.FOLDER_OPEN, StorageView.ID);
-		mySideMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.ID);
-		mySideMenu.addNavigation("Repository", FontAwesome.PLUG, RepositoryView.ID);
+		myNavigationMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.class);
+		myNavigationMenu.addNavigation("Storage", FontAwesome.FOLDER_OPEN, StorageView.class);
+		myNavigationMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.class);
+		myNavigationMenu.addNavigation("Repository", FontAwesome.PLUG, RepositoryView.class);
 
 		updateSideMenu(authentication);
 
-		setContent(mySideMenu);
+		RootContentView rootContentView = new RootContentView(myNavigationMenu);
+
+		setContent(rootContentView);
 
 		setErrorHandler(this::handleError);
 
-		Navigator navigator = new Navigator(this, mySideMenu);
+		Navigator navigator = new Navigator(getUI(), rootContentView.getComponentContainer());
+		navigator.addViewChangeListener(new ViewChangeListener()
+		{
+			@Override
+			public boolean beforeViewChange(ViewChangeEvent event)
+			{
+				return true;
+			}
+
+			@Override
+			public void afterViewChange(ViewChangeEvent event)
+			{
+				eventBus.post(new AfterViewChangeEvent(event.getNewView()));
+			}
+		});
+
 		navigator.addProvider(viewProvider);
 		navigator.addProvider(new ViewProvider()
 		{
@@ -153,25 +188,33 @@ public class RootUI extends UI
 
 	private void updateSideMenu(Authentication authentication)
 	{
-		mySideMenu.setUserName(authentication == null ? "anonymous" : authentication.getName());
-		for(Button button : myUnstableButtons)
+		String email = authentication == null ? "anonymous@anonymous" : authentication.getName();
+
+		String emailHash = DigestUtils.md5Hex(email.toLowerCase().trim());
+
+		String url = "https://www.gravatar.com/avatar/" + emailHash + ".png?s=" + 128 + "&d=identicon";
+		MenuBar.MenuItem menuItem = myNavigationMenu.setUser(email, new ExternalResource(url));
+		if(authentication != null)
 		{
-			mySideMenu.removeMenuItem(button);
+			menuItem.addItem("Edit Profile", (MenuBar.Command) selectedItem -> getNavigator().navigateTo(UserInfoView.ID));
+			menuItem.addSeparator();
+			menuItem.addItem("Sign Out", (MenuBar.Command) selectedItem -> logout());
+		}
+
+		for(Component button : myUnstableButtons)
+		{
+			myNavigationMenu.removeMenuItem(button);
 		}
 
 		myUnstableButtons.clear();
 
 		if(SecurityUtil.hasRole(Roles.ROLE_ADMIN))
 		{
-			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Users", FontAwesome.USERS, AdminUserView.ID));
-			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Error Reports", FontAwesome.BOLT, AdminErrorReportsView.ID));
-			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Repository", FontAwesome.PLUG, AdminRepositoryView.ID));
-			myUnstableButtons.add(mySideMenu.addNavigation("Admin | Config", FontAwesome.WRENCH, AdminConfigView.ID));
-		}
-
-		if(authentication != null)
-		{
-			myUnstableButtons.add(mySideMenu.addMenuItem("Logout", FontAwesome.SIGN_OUT, this::logout));
+			myUnstableButtons.add(myNavigationMenu.addSeparator());
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Users", FontAwesome.USERS, AdminUserView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Error Reports", FontAwesome.BOLT, AdminErrorReportsView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Repository", FontAwesome.PLUG, AdminRepositoryView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Config", FontAwesome.WRENCH, AdminConfigView.class));
 		}
 	}
 
@@ -186,9 +229,9 @@ public class RootUI extends UI
 	{
 		SecurityContextHolder.getContext().setAuthentication(null);
 
-		getNavigator().navigateTo(getNavigator().getState());
+		VaadinSession.getCurrent().close();
 
-		logged();
+		Page.getCurrent().reload();
 	}
 
 	private void handleError(com.vaadin.server.ErrorEvent event)

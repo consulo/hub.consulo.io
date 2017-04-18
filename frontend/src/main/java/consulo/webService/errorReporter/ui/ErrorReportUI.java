@@ -17,7 +17,6 @@ import consulo.webService.ui.BaseUI;
  * @since 11-Mar-17
  */
 @SpringUI(path = "errorReport")
-// No @Push annotation, we are going to enable it programmatically when the user logs on
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class ErrorReportUI extends BaseUI
