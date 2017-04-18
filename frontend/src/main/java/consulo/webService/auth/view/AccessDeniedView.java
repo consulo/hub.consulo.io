@@ -17,7 +17,7 @@ import consulo.webService.UserConfigurationService;
 import consulo.webService.auth.mongo.service.UserService;
 import consulo.webService.auth.ui.LoginOrRegisterPanel;
 import consulo.webService.config.view.ConfigPanel;
-import consulo.webService.ui.DashboardUI;
+import consulo.webService.ui.RootUI;
 import consulo.webService.ui.components.CaptchaFactory;
 
 @Component // No SpringView annotation because this view can not be navigated to
@@ -82,7 +82,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 	{
 		try
 		{
-			DashboardUI ui = (DashboardUI) getUI();
+			RootUI ui = (RootUI) getUI();
 
 			Authentication token = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 

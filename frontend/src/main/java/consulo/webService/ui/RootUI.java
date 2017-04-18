@@ -53,7 +53,7 @@ import consulo.webService.storage.view.StorageView;
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
-public class DashboardUI extends UI
+public class RootUI extends UI
 {
 	@Autowired
 	private SpringViewProvider viewProvider;
