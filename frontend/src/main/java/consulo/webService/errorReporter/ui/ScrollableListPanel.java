@@ -16,7 +16,6 @@ public class ScrollableListPanel extends CustomComponent
 	public ScrollableListPanel()
 	{
 		addStyleName("v-scrollable");
-		//setHeight("100%");
 		setSizeFull();
 		myListLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
 		setCompositionRoot(myListLayout);
