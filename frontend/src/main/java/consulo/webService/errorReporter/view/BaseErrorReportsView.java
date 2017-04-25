@@ -32,6 +32,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
+import consulo.webService.errorReporter.ui.ScrollableListPanel;
 import consulo.webService.ui.util.TinyComponents;
 
 /**
@@ -47,12 +48,13 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 	protected final Set<ErrorReporterStatus> myFilters = new HashSet<>();
 	private int myPage = 0;
-	protected VerticalLayout myReportList;
+	protected ScrollableListPanel myReportList;
 	protected Label myLabel;
 	protected int myLastPageSize;
 
 	public BaseErrorReportsView()
 	{
+		setSizeFull();
 	}
 
 	protected abstract Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize);
@@ -69,9 +71,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		header.addComponent(myLabel);
 
-		myReportList = new VerticalLayout();
+		myReportList = new ScrollableListPanel();
 		myReportList.addStyleName("bodyMargin");
-		myReportList.setWidth(100, Unit.PERCENTAGE);
 
 		if(allowFilters())
 		{
@@ -120,6 +121,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		addComponent(myReportList);
 
+		setExpandRatio(myReportList, 1f);
+
 		if(allowFilters())
 		{
 			myFilters.add(ErrorReporterStatus.UNKNOWN);
@@ -139,7 +142,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 	private void rebuildList()
 	{
-		myReportList.removeAllComponents();
+		myReportList.removeAll();
 
 		Page<ErrorReport> page = getReports(myPage, myFilters.toArray(new ErrorReporterStatus[myFilters.size()]), ourPageSize);
 
@@ -189,7 +192,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			shortLine.addComponent(rightLayout);
 			shortLine.setComponentAlignment(rightLayout, Alignment.MIDDLE_RIGHT);
 
-			myReportList.addComponent(lineLayout);
+			myReportList.add(lineLayout);
 		}
 
 		if(page.hasPrevious() || page.hasNext())
@@ -213,8 +216,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 					rebuildList();
 				}));
 			}
-			myReportList.addComponent(pageLayout);
-			myReportList.setComponentAlignment(pageLayout, Alignment.MIDDLE_CENTER);
+			myReportList.add(pageLayout, Alignment.MIDDLE_CENTER);
 		}
 	}
 

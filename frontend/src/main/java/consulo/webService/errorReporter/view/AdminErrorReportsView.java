@@ -87,7 +87,7 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			// hide from view
 			if(!myFilters.contains(report.getStatus()))
 			{
-				myReportList.removeComponent(lineLayout);
+				myReportList.remove(lineLayout);
 				myLastPageSize--;
 				updateHeader();
 			}
