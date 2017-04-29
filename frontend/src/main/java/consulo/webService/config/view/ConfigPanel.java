@@ -24,6 +24,7 @@ import consulo.webService.UserConfigurationService;
 import consulo.webService.github.GithubPropertyKeys;
 import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
+import consulo.webService.util.GAPropertyKeys;
 import consulo.webService.util.PropertyKeys;
 import consulo.webService.util.PropertySet;
 
@@ -47,6 +48,7 @@ public class ConfigPanel extends VerticalLayout
 		layout.addComponent(buildRepositoryGroup());
 		layout.addComponent(buildCaptchaGroup());
 		layout.addComponent(buildGithubGroup());
+		layout.addComponent(buildGAGroup());
 
 		Button installButton = TinyComponents.newButton(buttonName);
 		installButton.addClickListener(event ->
@@ -172,6 +174,21 @@ public class ConfigPanel extends VerticalLayout
 			TextField secretHookKeyField = TinyComponents.newTextField();
 			map(String.class, secretHookKeyField, GithubPropertyKeys.SECRET_HOOK_KEY, null);
 			layout.addComponent(VaadinUIUtil.labeledFill("Secret Hook Key: ", secretHookKeyField));
+		});
+	}
+
+	@NotNull
+	private Component buildGAGroup()
+	{
+		return buildGroup("Google Analytics", layout ->
+		{
+			TextField trackerIdField = TinyComponents.newTextField();
+			map(String.class, trackerIdField, GAPropertyKeys.TRACKER_ID, null);
+			layout.addComponent(VaadinUIUtil.labeledFill("Tracker Id: ", trackerIdField));
+
+			TextField domainNameField = TinyComponents.newTextField();
+			map(String.class, domainNameField, GAPropertyKeys.DOMAIN_NAME, null);
+			layout.addComponent(VaadinUIUtil.labeledFill("Domain Name: ", domainNameField));
 		});
 	}
 

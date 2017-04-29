@@ -12,8 +12,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 import com.google.common.eventbus.EventBus;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.FactoryMap;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.StyleSheet;
@@ -41,11 +43,11 @@ import consulo.webService.auth.Roles;
 import consulo.webService.auth.SecurityUtil;
 import consulo.webService.auth.view.AccessDeniedView;
 import consulo.webService.auth.view.AdminUserView;
-import consulo.webService.dash.view.DashboardView;
 import consulo.webService.auth.view.ErrorView;
 import consulo.webService.auth.view.OAuthKeysView;
 import consulo.webService.auth.view.UserInfoView;
 import consulo.webService.config.view.AdminConfigView;
+import consulo.webService.dash.view.DashboardView;
 import consulo.webService.errorReporter.view.AdminErrorReportsView;
 import consulo.webService.errorReporter.view.ErrorReportsView;
 import consulo.webService.plugins.PluginChannel;
@@ -54,6 +56,8 @@ import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
 import consulo.webService.storage.view.StorageView;
 import consulo.webService.ui.event.AfterViewChangeEvent;
+import consulo.webService.util.GAPropertyKeys;
+import consulo.webService.util.PropertySet;
 
 @SpringUI
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
@@ -91,6 +95,8 @@ public class RootUI extends UI
 	private final NavigationMenu myNavigationMenu = new NavigationMenu();
 
 	private final List<Component> myUnstableButtons = new ArrayList<>();
+
+	private GoogleAnalyticsTracker myAnalyticsTracker;
 
 	private final Map<PluginChannel, View> myRepositoryViewCache = new FactoryMap<PluginChannel, View>()
 	{
@@ -130,6 +136,19 @@ public class RootUI extends UI
 
 		updateSideMenu(authentication);
 
+		if(!myUserConfigurationService.isNotInstalled())
+		{
+			PropertySet propertySet = myUserConfigurationService.getPropertySet();
+
+			String trackerId = propertySet.getStringProperty(GAPropertyKeys.TRACKER_ID);
+			if(!StringUtil.isEmptyOrSpaces(trackerId))
+			{
+				myAnalyticsTracker = new GoogleAnalyticsTracker(trackerId, propertySet.getStringProperty(GAPropertyKeys.DOMAIN_NAME));
+
+				addExtension(myAnalyticsTracker);
+			}
+		}
+
 		RootContentView rootContentView = new RootContentView(myNavigationMenu);
 
 		setContent(rootContentView);
@@ -148,6 +167,11 @@ public class RootUI extends UI
 			@Override
 			public void afterViewChange(ViewChangeEvent event)
 			{
+				if(myAnalyticsTracker != null)
+				{
+					myAnalyticsTracker.trackPageview("/#!" + event.getViewName());
+				}
+
 				eventBus.post(new AfterViewChangeEvent(event.getNewView()));
 			}
 		});
