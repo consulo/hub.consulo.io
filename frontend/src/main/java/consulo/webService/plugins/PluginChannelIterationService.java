@@ -138,8 +138,6 @@ public class PluginChannelIterationService
 			}
 		}
 
-		System.out.println("test");
-
 		for(PluginNode node : toRemove)
 		{
 			logger.info("removing pluginId=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", channel=" + pluginChannel);
