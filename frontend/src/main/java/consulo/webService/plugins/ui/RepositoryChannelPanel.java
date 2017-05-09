@@ -270,11 +270,6 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.size() + ")")));
 
-		/*for(MongoDownloadStat mongoDownloadStat : channelDownloadStat)
-		{
-			calendar.addEvent(new BasicEvent("download", "", new Date(mongoDownloadStat.getTime())));
-		}  */
-
 		verticalLayout.addComponent(TinyComponents.newLabel("Download statistics"));
 
 		LocalDate now = LocalDate.now();
