@@ -64,6 +64,8 @@ public class PluginChannelService
 
 	private final Map<String, PluginsState> myPlugins = new ConcurrentSkipListMap<>();
 
+	private boolean myLoading;
+
 	public PluginChannelService(PluginChannel channel)
 	{
 		myChannel = channel;
@@ -146,6 +148,7 @@ public class PluginChannelService
 
 	public void initImpl(File pluginChannelDir)
 	{
+		myLoading = true;
 		File channelDir = new File(pluginChannelDir, myChannel.name());
 
 		FileUtil.createDirectory(channelDir);
@@ -173,7 +176,13 @@ public class PluginChannelService
 
 		map.entrySet().parallelStream().forEach(this::processEntry);
 
+		myLoading = false;
 		logger.info("Loading done by " + (System.currentTimeMillis() - time) + " ms. Channel: " + myChannel);
+	}
+
+	public boolean isLoading()
+	{
+		return myLoading;
 	}
 
 	private void processJsonFile(File jsonFile, Map<String, List<Pair<PluginNode, File>>> map)

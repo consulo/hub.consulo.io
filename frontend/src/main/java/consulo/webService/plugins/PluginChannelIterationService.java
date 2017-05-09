@@ -56,10 +56,14 @@ public class PluginChannelIterationService
 	@VisibleForTesting
 	public void cleanup(PluginChannel pluginChannel)
 	{
+		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+		if(pluginChannelService.isLoading())
+		{
+			return;
+		}
+
 		Set<String> outdatedPlatformVersions = new THashSet<>();
 		List<PluginNode> toRemove = new ArrayList<>();
-
-		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
 
 		Map<String, PluginsState> pluginStates = pluginChannelService.copyPluginsState();
 		// first of all we need check platform nodes
