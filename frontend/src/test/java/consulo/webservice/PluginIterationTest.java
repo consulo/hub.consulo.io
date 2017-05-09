@@ -109,9 +109,9 @@ public class PluginIterationTest extends Assert
 		String[] dummyPluginIds = new String[]{
 				"private",
 				"protected",
-				/*"public",
+				"public",
 				"internal",
-				"local"   */
+				"local"
 		};
 
 		Set<Couple<Integer>> toCheckPluginVersions = new LinkedHashSet<>();
