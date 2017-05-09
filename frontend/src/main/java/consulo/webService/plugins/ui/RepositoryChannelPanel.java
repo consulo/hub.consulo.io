@@ -330,7 +330,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		verticalLayout.addComponent(customComponent);
 		verticalLayout.setExpandRatio(customComponent, 1.f);
 
-		return verticalLayout;
+		return new Panel(verticalLayout);
 	}
 
 	private static Object[] reverse(Collection<?> collection)
