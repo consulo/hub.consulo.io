@@ -1,10 +1,15 @@
 package consulo.webService.plugins;
 
+import gnu.trove.THashSet;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -12,9 +17,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.util.ArrayUtil;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.plugins.pluginsState.PluginsState;
 
 /**
  * @author VISTALL
@@ -23,7 +31,8 @@ import consulo.webService.UserConfigurationService;
 @Service
 public class PluginChannelIterationService
 {
-	private static final String ourConsuloBootBuild = "1555";
+	public static final String ourConsuloBootBuild = "1555";
+	public static final int ourMaxBuildCount = 5;
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
@@ -44,31 +53,88 @@ public class PluginChannelIterationService
 		Arrays.stream(PluginChannel.values()).parallel().forEach(this::cleanup);
 	}
 
-	private void cleanup(PluginChannel pluginChannel)
+	@VisibleForTesting
+	public void cleanup(PluginChannel pluginChannel)
 	{
+		Set<String> outdatedPlatformVersions = new THashSet<>();
 		List<PluginNode> toRemove = new ArrayList<>();
-		long _15days = TimeUnit.DAYS.toMillis(15);
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
-		pluginChannelService.iteratePluginNodes(originalNode ->
+
+		Map<String, PluginsState> pluginStates = pluginChannelService.copyPluginsState();
+		// first of all we need check platform nodes
+		for(String platformPluginId : PluginChannelService.ourPlatformPluginIds)
 		{
-			// special case dont remove cold boot build
-			if((pluginChannel == PluginChannel.nightly || pluginChannel == PluginChannel.internal) && weNeedSkip(originalNode))
+			PluginsState pluginsState = pluginStates.get(platformPluginId);
+			if(pluginsState == null)
 			{
-				return;
+				continue;
 			}
 
-			if(pluginChannelService.isLatest(originalNode))
+			NavigableMap<String, NavigableSet<PluginNode>> map = pluginsState.getPluginsByPlatformVersion();
+
+			int i = map.size();
+			for(Map.Entry<String, NavigableSet<PluginNode>> entry : map.entrySet())
 			{
-				return;
+				String platformVersion = entry.getKey();
+				if(ourConsuloBootBuild.equals(platformVersion))
+				{
+					i--;
+					continue;
+				}
+
+				if(i > ourMaxBuildCount)
+				{
+					outdatedPlatformVersions.add(platformVersion);
+					NavigableSet<PluginNode> value = entry.getValue();
+					if(!value.isEmpty())
+					{
+						toRemove.add(value.iterator().next());
+					}
+
+					i--;
+				}
+			}
+		}
+
+		// process other plugins
+		for(Map.Entry<String, PluginsState> entry : pluginStates.entrySet())
+		{
+			if(ArrayUtil.contains(PluginChannelService.ourPlatformPluginIds, entry.getKey()))
+			{
+				continue;
 			}
 
-			long diff = System.currentTimeMillis() - originalNode.date;
-			if(diff > _15days)
+			PluginsState pluginsState = entry.getValue();
+
+			NavigableMap<String, NavigableSet<PluginNode>> map = pluginsState.getPluginsByPlatformVersion();
+
+			for(Map.Entry<String, NavigableSet<PluginNode>> platformVersionEntry : map.entrySet())
 			{
-				toRemove.add(originalNode);
+				String platformVersion = platformVersionEntry.getKey();
+				NavigableSet<PluginNode> pluginNodes = platformVersionEntry.getValue();
+
+				// drop all plugins for outdated platfomrs
+				if(outdatedPlatformVersions.contains(platformVersion))
+				{
+					toRemove.addAll(pluginNodes);
+					continue;
+				}
+
+				int i = pluginNodes.size();
+				for(PluginNode node : pluginNodes)
+				{
+					if(i > ourMaxBuildCount)
+					{
+						toRemove.add(node);
+					}
+
+					i--;
+				}
 			}
-		});
+		}
+
+		System.out.println("test");
 
 		for(PluginNode node : toRemove)
 		{

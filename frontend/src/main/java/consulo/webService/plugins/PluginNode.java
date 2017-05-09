@@ -58,7 +58,7 @@ public class PluginNode implements Cloneable
 	}
 
 	@Override
-	protected PluginNode clone()
+	public PluginNode clone()
 	{
 		try
 		{

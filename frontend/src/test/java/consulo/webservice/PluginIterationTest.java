@@ -3,7 +3,7 @@ package consulo.webservice;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.Properties;
+import java.util.*;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
+import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.io.FileUtil;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginAnalyzerService;
@@ -20,6 +21,7 @@ import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
 import consulo.webService.plugins.archive.TarGzArchive;
+import consulo.webService.plugins.pluginsState.PluginsState;
 import consulo.webService.util.PropertyKeys;
 
 /**
@@ -62,6 +64,139 @@ public class PluginIterationTest extends Assert
 	public void after() throws Exception
 	{
 		FileSystemUtils.deleteRecursively(myTempDir);
+	}
+
+	@Test
+	public void testCleanupTask() throws Exception
+	{
+		PluginChannel pluginChannel = PluginChannel.release;
+		String platformId = PluginChannelService.ourStandardWinId;
+
+		PluginChannelService channel = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+
+		int bootBuild = Integer.parseInt(PluginChannelIterationService.ourConsuloBootBuild);
+		final int count = 100;
+		int start = bootBuild - count;
+		int end = bootBuild + count;
+		if(start <= 0)
+		{
+			throw new IllegalArgumentException("bad boot build");
+		}
+
+		Set<Integer> platformVersions = new TreeSet<>();
+		for(int i = start; i <= end; i++)
+		{
+			platformVersions.add(i);
+
+			PluginNode pluginNode = new PluginNode();
+			pluginNode.version = String.valueOf(i);
+			pluginNode.platformVersion = String.valueOf(i);
+			pluginNode.id = platformId;
+
+			channel._add(pluginNode);
+		}
+
+		Set<Couple<Integer>> toCheckPlatformVersions = new LinkedHashSet<>();
+		toCheckPlatformVersions.add(Couple.of(bootBuild, bootBuild));
+
+		for(int i = 0; i < PluginChannelIterationService.ourMaxBuildCount; i++)
+		{
+			int version = end - i;
+
+			toCheckPlatformVersions.add(Couple.of(version, version));
+		}
+
+		String[] dummyPluginIds = new String[]{
+				"private",
+				"protected",
+				/*"public",
+				"internal",
+				"local"   */
+		};
+
+		Set<Couple<Integer>> toCheckPluginVersions = new LinkedHashSet<>();
+
+		for(String dummyPluginId : dummyPluginIds)
+		{
+			for(int i = 0; i <= count; i++)
+			{
+				for(Integer platformVersion : platformVersions)
+				{
+					PluginNode pluginNode = new PluginNode();
+					pluginNode.version = String.valueOf(i);
+					pluginNode.platformVersion = String.valueOf(platformVersion);
+					pluginNode.id = dummyPluginId;
+
+					channel._add(pluginNode);
+				}
+			}
+		}
+
+		// generate valid plugin version for each valid platform
+		for(Couple<Integer> toCheckPlatformVersion : toCheckPlatformVersions)
+		{
+			for(int i = 0; i < PluginChannelIterationService.ourMaxBuildCount; i++)
+			{
+				int version = count - i;
+
+				toCheckPluginVersions.add(Couple.of(toCheckPlatformVersion.getFirst(), version));
+			}
+		}
+
+		// do it!
+		myPluginChannelIterationService.cleanup(pluginChannel);
+
+		Set<String> toCheckIds = new LinkedHashSet<>();
+		toCheckIds.add(platformId);
+		Collections.addAll(toCheckIds, dummyPluginIds);
+
+		Map<String, PluginsState> states = channel.copyPluginsState();
+
+		// test data after
+		for(String toCheckId : toCheckIds)
+		{
+			// couple with platformVersion + pluginVersion
+			boolean platform = false;
+			Set<Couple<Integer>> targetVerCheck;
+			if(platformId.equals(toCheckId))
+			{
+				targetVerCheck = toCheckPlatformVersions;
+				platform = true;
+			}
+			else
+			{
+				targetVerCheck = toCheckPluginVersions;
+			}
+
+			PluginsState platforPluginsState = states.get(toCheckId);
+
+			assertNotNull(platforPluginsState);
+
+			NavigableMap<String, NavigableSet<PluginNode>> map = platforPluginsState.getPluginsByPlatformVersion();
+
+			if(platform)
+			{
+				// max + boot
+				assertEquals(PluginChannelIterationService.ourMaxBuildCount + 1, map.size());
+			}
+
+			for(Couple<Integer> couple : targetVerCheck)
+			{
+				NavigableSet<PluginNode> nodes = map.get(String.valueOf(couple.getFirst()));
+
+				// platform contains only one selft build
+				assertEquals(platform ? 1 : PluginChannelIterationService.ourMaxBuildCount, nodes.size());
+
+				assertInPluginChannel(nodes, toCheckId, String.valueOf(couple.getFirst()), couple.getSecond());
+			}
+		}
+	}
+
+	private void assertInPluginChannel(Collection<PluginNode> all, String pluginId, String platformVersion, int version)
+	{
+		Optional<PluginNode> node = all.stream().filter(it -> it.platformVersion.equals(platformVersion) && it.id.equals(pluginId) && it.version.equals(String.valueOf(version))).findFirst();
+
+		assertTrue("Version " + pluginId + ":" + platformVersion + ":" + version + " is not found", node.isPresent());
 	}
 
 	@Test
