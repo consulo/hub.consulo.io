@@ -313,14 +313,18 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		Options options = new Options().setHighlighter(highlighter).setSeriesDefaults(seriesDefaults).setSeries(series).setAxes(axes);
 		DCharts chart = new DCharts().setDataSeries(dataSeries).setOptions(options).show();
+		// show component on first resize
+		chart.setVisible(false);
+		chart.setHeight(20, Unit.EM);
 
 		CustomComponent customComponent = new CustomComponent(chart);
+		customComponent.setSizeFull();
 
 		SizeReporter sizeReporter = new SizeReporter(customComponent);
 		sizeReporter.addResizeListener(componentResizeEvent ->
 		{
+			chart.setVisible(true);
 			chart.setWidth(componentResizeEvent.getWidth(), Unit.PIXELS);
-			chart.setHeight(componentResizeEvent.getHeight(), Unit.PIXELS);
 		});
 
 		verticalLayout.addComponent(customComponent);
