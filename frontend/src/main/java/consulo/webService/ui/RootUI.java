@@ -20,6 +20,7 @@ import com.intellij.util.containers.FactoryMap;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -60,6 +61,7 @@ import consulo.webService.util.GAPropertyKeys;
 import consulo.webService.util.PropertySet;
 
 @SpringUI
+@Widgetset("WidgetSet")
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")

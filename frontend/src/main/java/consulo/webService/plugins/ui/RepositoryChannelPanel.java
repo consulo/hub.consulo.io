@@ -1,27 +1,38 @@
 package consulo.webService.plugins.ui;
 
-import java.text.DateFormatSymbols;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Calendar;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.dussan.vaadin.dcharts.DCharts;
+import org.dussan.vaadin.dcharts.base.elements.XYaxis;
+import org.dussan.vaadin.dcharts.base.elements.XYseries;
+import org.dussan.vaadin.dcharts.data.DataSeries;
+import org.dussan.vaadin.dcharts.data.Ticks;
+import org.dussan.vaadin.dcharts.metadata.XYaxes;
+import org.dussan.vaadin.dcharts.metadata.renderers.AxisRenderers;
+import org.dussan.vaadin.dcharts.metadata.renderers.SeriesRenderers;
+import org.dussan.vaadin.dcharts.options.Axes;
+import org.dussan.vaadin.dcharts.options.Options;
+import org.dussan.vaadin.dcharts.options.Series;
+import org.dussan.vaadin.dcharts.options.SeriesDefaults;
+import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.ejt.vaadin.sizereporter.SizeReporter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.text.DateFormatUtilRt;
 import com.intellij.util.text.VersionComparatorUtil;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Tree;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.components.calendar.event.BasicEvent;
+import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.PluginChannel;
@@ -228,6 +239,8 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		VerticalLayout verticalLayout = new VerticalLayout();
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);
+		verticalLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);
+		verticalLayout.setSizeFull();
 
 		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TinyComponents.newLabel(pluginNode.id)));
 		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TinyComponents.newLabel(getPluginNodeName(pluginNode))));
@@ -257,49 +270,68 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.size() + ")")));
 
-		com.vaadin.ui.Calendar calendar = new com.vaadin.ui.Calendar()
-		{
-			protected String[] getDayNamesShort()
-			{
-				DateFormatSymbols s = new DateFormatSymbols(getLocale());
-				return Arrays.copyOfRange(s.getShortWeekdays(), 1, 8);
-			}
-		};
-		calendar.setWidth(25, Unit.EM);
-		calendar.setHeight(18, Unit.EM);
-
-		for(MongoDownloadStat mongoDownloadStat : channelDownloadStat)
+		/*for(MongoDownloadStat mongoDownloadStat : channelDownloadStat)
 		{
 			calendar.addEvent(new BasicEvent("download", "", new Date(mongoDownloadStat.getTime())));
+		}  */
+
+		verticalLayout.addComponent(TinyComponents.newLabel("Download statistics"));
+
+		LocalDate now = LocalDate.now();
+
+		Map<String, Long> data = new LinkedHashMap<>();
+		for(int i = 0; i < 12; i++)
+		{
+			LocalDate month = now.minusMonths(i);
+			month = month.with(TemporalAdjusters.firstDayOfMonth());
+
+			long downloads = 0;
+			long start = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+			month = month.with(TemporalAdjusters.lastDayOfMonth());
+			long end = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+			for(MongoDownloadStat mongoDownloadStat : channelDownloadStat)
+			{
+				if(mongoDownloadStat.getTime() >= start && mongoDownloadStat.getTime() <= end)
+				{
+					downloads++;
+				}
+			}
+
+			String format = month.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+			data.put(format, downloads);
 		}
 
-		HorizontalLayout calendarControl = new HorizontalLayout();
-		calendarControl.setSpacing(true);
+		DataSeries dataSeries = new DataSeries().add(reverse(data.values()));
 
-		calendarControl.addComponent(TinyComponents.newLabel("Download statistics"));
-		calendarControl.addComponent(TinyComponents.newButton("Month view", event -> switchToMonthView(calendar)));
+		SeriesDefaults seriesDefaults = new SeriesDefaults().setFillToZero(true).setRenderer(SeriesRenderers.BAR);
+		Series series = new Series().addSeries(new XYseries().setLabel("Downloads"));
+		Axes axes = new Axes().addAxis(new XYaxis().setRenderer(AxisRenderers.CATEGORY).setTicks(new Ticks().add(reverse(data.keySet())))).addAxis(new XYaxis(XYaxes.Y).setTickOptions(new
+				AxisTickRenderer().setFormatString("%d")));
 
-		verticalLayout.addComponent(calendarControl);
+		Options options = new Options().setSeriesDefaults(seriesDefaults).setSeries(series).setAxes(axes);
+		DCharts chart = new DCharts().setDataSeries(dataSeries).setOptions(options).show();
 
-		switchToMonthView(calendar);
+		CustomComponent customComponent = new CustomComponent(chart);
 
-		verticalLayout.addComponent(calendar);
+		SizeReporter sizeReporter = new SizeReporter(customComponent);
+		sizeReporter.addResizeListener(componentResizeEvent ->
+		{
+			chart.setWidth(componentResizeEvent.getWidth(), Unit.PIXELS);
+			chart.setHeight(componentResizeEvent.getHeight(), Unit.PIXELS);
+		});
+
+		verticalLayout.addComponent(customComponent);
+		verticalLayout.setExpandRatio(customComponent, 1.f);
 
 		return verticalLayout;
 	}
 
-	private void switchToMonthView(com.vaadin.ui.Calendar calendarComponent)
+	private static Object[] reverse(Collection<?> collection)
 	{
-		Calendar calendar = Calendar.getInstance();
-		int rollAmount = calendar.get(GregorianCalendar.DAY_OF_MONTH) - 1;
-		calendar.add(GregorianCalendar.DAY_OF_MONTH, -rollAmount);
-
-		calendarComponent.setStartDate(calendar.getTime());
-
-		calendar.add(GregorianCalendar.MONTH, 1);
-		calendar.add(GregorianCalendar.DATE, -1);
-
-		calendarComponent.setEndDate(calendar.getTime());
+		Object[] objects = collection.toArray();
+		return ArrayUtil.reverseArray(objects);
 	}
 
 	private static String getPluginNodeName(PluginNode pluginNode)

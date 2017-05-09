@@ -34,3 +34,9 @@ Methods
     * Deploying platform artifact(as tar.gz file) to repository.
     * Return json with **PluginNode**
     * On error will send status code 403
+
+# Running
+
+Need call
+
+>> mvn vaadin:update-widgetset install
