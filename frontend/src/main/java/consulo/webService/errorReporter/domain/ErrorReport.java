@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * @author VISTALL
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @SuppressWarnings("unused")
 @Document(collection = "errorReport")
+@JsonIgnoreProperties
 public class ErrorReport implements Serializable
 {
 	public static class AffectedPlugin
@@ -46,10 +48,11 @@ public class ErrorReport implements Serializable
 	private final String id = UUID.randomUUID().toString();
 
 	private String osName;
+	private String osVersion;
 	private String javaVersion;
 	private String javaVmVendor;
+	private String locale;
 
-	private String appName;
 	// do not use PluginChannel
 	private String appUpdateChannel;
 	private String appBuild;
@@ -84,6 +87,26 @@ public class ErrorReport implements Serializable
 
 	public ErrorReport()
 	{
+	}
+
+	public String getOsVersion()
+	{
+		return osVersion;
+	}
+
+	public void setOsVersion(String osVersion)
+	{
+		this.osVersion = osVersion;
+	}
+
+	public String getLocale()
+	{
+		return locale;
+	}
+
+	public void setLocale(String locale)
+	{
+		this.locale = locale;
 	}
 
 	public long getCreateDate()
@@ -169,16 +192,6 @@ public class ErrorReport implements Serializable
 	public void setJavaVmVendor(String javaVmVendor)
 	{
 		this.javaVmVendor = javaVmVendor;
-	}
-
-	public String getAppName()
-	{
-		return appName;
-	}
-
-	public void setAppName(String appName)
-	{
-		this.appName = appName;
 	}
 
 	public String getAppUpdateChannel()
