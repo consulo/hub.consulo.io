@@ -47,16 +47,28 @@ public class PluginChannelRestController
 	@RequestMapping("/api/repository/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
 			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam("pluginId") final String id,
+			@Deprecated @RequestParam(value = "pluginId", required = false) final String pluginId,
+			@RequestParam(value = "id", required = false /* TODO [VISTALL] remove it after dropping 'pluginId' parameter*/) final String id,
 			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
 			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
 			@RequestParam(value = "viaUpdate", defaultValue = "false", required = false) boolean viaUpdate,
 			@RequestParam(value = "version", required = false) String version)
 	{
+		if(id == null && pluginId == null)
+		{
+			throw new IllegalArgumentException("'id' is null");
+		}
+
+		String idValue = id;
+		if(pluginId != null)
+		{
+			idValue = pluginId;
+		}
+
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
-		String idNew = id;
+		String idNew = idValue;
 		if(zip)
 		{
 			idNew = id + "-zip";
