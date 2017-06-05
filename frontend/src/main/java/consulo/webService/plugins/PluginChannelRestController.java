@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -32,7 +33,9 @@ public class PluginChannelRestController
 	private final PluginStatisticsService myPluginStatisticsService;
 
 	@Autowired
-	public PluginChannelRestController(@NotNull UserConfigurationService userConfigurationService, @NotNull PluginDeployService pluginDeployService, @NotNull PluginStatisticsService pluginStatisticsService)
+	public PluginChannelRestController(@NotNull UserConfigurationService userConfigurationService,
+			@NotNull PluginDeployService pluginDeployService,
+			@NotNull PluginStatisticsService pluginStatisticsService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;
@@ -44,7 +47,7 @@ public class PluginChannelRestController
 	@RequestMapping("/api/repository/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
 			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam("pluginId") final String pluginId,
+			@RequestParam("pluginId") final String id,
 			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
 			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
 			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
@@ -53,17 +56,17 @@ public class PluginChannelRestController
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
-		String pluginIdNew = pluginId;
+		String idNew = id;
 		if(zip)
 		{
-			pluginIdNew = pluginId + "-zip";
+			idNew = id + "-zip";
 		}
 
-		PluginNode select = channelService.select(platformVersion, pluginIdNew, version, platformBuildSelect);
+		PluginNode select = channelService.select(platformVersion, idNew, version, platformBuildSelect);
 		if(select == null)
 		{
-			pluginIdNew = pluginId;
-			select = channelService.select(platformVersion, pluginIdNew, version, platformBuildSelect);
+			idNew = id;
+			select = channelService.select(platformVersion, idNew, version, platformBuildSelect);
 		}
 
 		if(select == null)
@@ -73,7 +76,7 @@ public class PluginChannelRestController
 
 		if(!noTracking)
 		{
-			myPluginStatisticsService.increaseDownload(pluginIdNew, channel, select.version, platformVersion, viaUpdate);
+			myPluginStatisticsService.increaseDownload(idNew, channel, select.version, platformVersion, viaUpdate);
 		}
 
 		File targetFile = select.targetFile;
@@ -122,6 +125,36 @@ public class PluginChannelRestController
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
 		return channelService.select(myPluginStatisticsService, platformVersion, platformBuildSelect);
+	}
+
+	@RequestMapping("/api/repository/info")
+	public ResponseEntity<PluginNode> info(@RequestParam("channel") PluginChannel channel,
+			@RequestParam("platformVersion") String platformVersion,
+			@RequestParam("id") final String id,
+			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
+			@RequestParam(value = "version", required = false) String version)
+	{
+		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
+
+		String idNew = id;
+		if(zip)
+		{
+			idNew = id + "-zip";
+		}
+
+		PluginNode select = channelService.select(platformVersion, idNew, version, true);
+		if(select == null)
+		{
+			idNew = id;
+			select = channelService.select(platformVersion, idNew, version, true);
+		}
+
+		if(select == null)
+		{
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+
+		return ResponseEntity.ok(select.clone());
 	}
 
 	@Nullable
