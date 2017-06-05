@@ -140,7 +140,7 @@ public class PluginChannelIterationService
 
 		for(PluginNode node : toRemove)
 		{
-			logger.info("removing pluginId=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", channel=" + pluginChannel);
+			logger.info("removing id=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", channel=" + pluginChannel);
 
 			pluginChannelService.remove(node.id, node.version, node.platformVersion);
 		}
@@ -205,7 +205,7 @@ public class PluginChannelIterationService
 
 				assert targetFile != null;
 
-				logger.info("iterate pluginId=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", from=" + from + ", to=" + to);
+				logger.info("iterate id=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", from=" + from + ", to=" + to);
 
 				// platform nodes have special logic
 				if(PluginChannelService.isPlatformNode(node.id))
