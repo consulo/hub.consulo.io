@@ -134,6 +134,7 @@ public class RootUI extends UI
 		myNavigationMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.class);
 		myNavigationMenu.addNavigation("Storage", FontAwesome.FOLDER_OPEN, StorageView.class);
 		myNavigationMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.class);
+		myNavigationMenu.addSeparator();
 		myNavigationMenu.addNavigation("Repository", FontAwesome.PLUG, RepositoryView.class);
 
 		updateSideMenu(authentication);
