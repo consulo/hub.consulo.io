@@ -44,7 +44,7 @@ public class RootContentView extends HorizontalLayout
 		bottomPanel.setSpacing(true);
 
 		HorizontalLayout leftLayout = new HorizontalLayout();
-		Label copyright = new Label(String.format("@ %d consulo.io", LocalDate.now().getYear()));
+		Label copyright = new Label(String.format("@ 2013 - %d consulo.io", LocalDate.now().getYear()));
 		copyright.addStyleName(ValoTheme.LABEL_SMALL);
 		copyright.addStyleName(ValoTheme.LABEL_LIGHT);
 		leftLayout.addComponent(copyright);

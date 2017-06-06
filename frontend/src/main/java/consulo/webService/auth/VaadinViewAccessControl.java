@@ -9,6 +9,7 @@ import consulo.webService.UserConfigurationService;
 import consulo.webService.auth.view.AdminUserView;
 import consulo.webService.config.view.AdminConfigView;
 import consulo.webService.errorReporter.view.AdminErrorReportsView;
+import consulo.webService.errorReporter.view.ErrorStatisticsView;
 import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
 
@@ -23,6 +24,10 @@ public class VaadinViewAccessControl implements ViewAccessControl
 			makeBeanName(AdminConfigView.ID),
 			makeBeanName(AdminRepositoryView.ID),
 			makeBeanName(AdminUserView.ID)
+	};
+
+	private static final String[] ourAnonymousView = new String[]{
+			makeBeanName(ErrorStatisticsView.ID)
 	};
 
 	@Autowired
@@ -41,7 +46,7 @@ public class VaadinViewAccessControl implements ViewAccessControl
 			return SecurityUtil.hasRole(Roles.ROLE_ADMIN);
 		}
 
-		if(beanName.startsWith(RepositoryView.ID))
+		if(beanName.startsWith(RepositoryView.ID) || ArrayUtil.contains(beanName, ourAnonymousView))
 		{
 			return true;
 		}

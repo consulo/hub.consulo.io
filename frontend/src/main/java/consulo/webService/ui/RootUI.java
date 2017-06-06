@@ -51,6 +51,7 @@ import consulo.webService.config.view.AdminConfigView;
 import consulo.webService.dash.view.DashboardView;
 import consulo.webService.errorReporter.view.AdminErrorReportsView;
 import consulo.webService.errorReporter.view.ErrorReportsView;
+import consulo.webService.errorReporter.view.ErrorStatisticsView;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.view.AdminRepositoryView;
@@ -136,6 +137,8 @@ public class RootUI extends UI
 		myNavigationMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.class);
 		myNavigationMenu.addSeparator();
 		myNavigationMenu.addNavigation("Repository", FontAwesome.PLUG, RepositoryView.class);
+		myNavigationMenu.addSeparator("statistics");
+		myNavigationMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorStatisticsView.class);
 
 		updateSideMenu(authentication);
 
@@ -219,7 +222,7 @@ public class RootUI extends UI
 
 		String emailHash = DigestUtils.md5Hex(email.toLowerCase().trim());
 
-		String url = "https://www.gravatar.com/avatar/" + emailHash + ".png?s=" + 128 + "&d=identicon";
+		String url = "https://www.gravatar.com/avatar/" + emailHash + ".png?s=" + 128 + "&d=mm";
 		MenuBar.MenuItem menuItem = myNavigationMenu.setUser(email, new ExternalResource(url));
 		if(authentication != null)
 		{
@@ -237,11 +240,11 @@ public class RootUI extends UI
 
 		if(SecurityUtil.hasRole(Roles.ROLE_ADMIN))
 		{
-			myUnstableButtons.add(myNavigationMenu.addSeparator());
-			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Users", FontAwesome.USERS, AdminUserView.class));
-			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Error Reports", FontAwesome.BOLT, AdminErrorReportsView.class));
-			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Repository", FontAwesome.PLUG, AdminRepositoryView.class));
-			myUnstableButtons.add(myNavigationMenu.addNavigation("Admin | Config", FontAwesome.WRENCH, AdminConfigView.class));
+			myUnstableButtons.add(myNavigationMenu.addSeparator("admin"));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Users", FontAwesome.USERS, AdminUserView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Error Reports", FontAwesome.BOLT, AdminErrorReportsView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Repository", FontAwesome.PLUG, AdminRepositoryView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Config", FontAwesome.WRENCH, AdminConfigView.class));
 		}
 	}
 

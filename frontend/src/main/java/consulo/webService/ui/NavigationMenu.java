@@ -100,6 +100,29 @@ public class NavigationMenu extends CustomComponent
 	}
 
 	@NotNull
+	public Component addSeparator(String title)
+	{
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setWidth(100, Unit.PERCENTAGE);
+		layout.setHeight(100, Unit.PERCENTAGE);
+		layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+
+		HorizontalLayout midLayout = new HorizontalLayout();
+		midLayout.setWidth(100, Unit.PERCENTAGE);
+		midLayout.setHeight(1, Unit.PIXELS);
+		midLayout.addStyleName("line-separator");
+
+		layout.addComponent(midLayout);
+		Label label = new Label(title);
+		label.addStyleName("menu-label");
+		label.addStyleName(ValoTheme.LABEL_TINY);
+		layout.addComponent(label);
+
+		myMenuItemsLayout.addComponent(layout);
+		return layout;
+	}
+
+	@NotNull
 	public Component addSeparator()
 	{
 		HorizontalLayout layout = new HorizontalLayout();
@@ -108,13 +131,22 @@ public class NavigationMenu extends CustomComponent
 		layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
 		HorizontalLayout midLayout = new HorizontalLayout();
-		midLayout.setWidth(90, Unit.PERCENTAGE);
+		midLayout.setWidth(100, Unit.PERCENTAGE);
 		midLayout.setHeight(1, Unit.PIXELS);
 		midLayout.addStyleName("line-separator");
 
 		layout.addComponent(midLayout);
+
+		layout.setExpandRatio(midLayout, 1f);
 		myMenuItemsLayout.addComponent(layout);
 		return layout;
+	}
+
+	private Component empty(int size)
+	{
+		HorizontalLayout midLayout = new HorizontalLayout();
+		midLayout.setWidth(size, Unit.PIXELS);
+		return midLayout;
 	}
 
 	@NotNull
