@@ -71,13 +71,13 @@ public class PluginChannelRestController
 		String idNew = idValue;
 		if(zip)
 		{
-			idNew = id + "-zip";
+			idNew = idValue + "-zip";
 		}
 
 		PluginNode select = channelService.select(platformVersion, idNew, version, platformBuildSelect);
 		if(select == null)
 		{
-			idNew = id;
+			idNew = idValue;
 			select = channelService.select(platformVersion, idNew, version, platformBuildSelect);
 		}
 
