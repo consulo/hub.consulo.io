@@ -144,7 +144,7 @@ public class PluginChannelRestController
 			@RequestParam("platformVersion") String platformVersion,
 			@RequestParam("id") final String id,
 			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
-			@RequestParam(value = "version", required = false) String version)
+			@RequestParam(value = "version") String version)
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 

@@ -211,22 +211,20 @@ public class PluginsState
 				return null;
 			}
 
-			if(version != null)
-			{
-				for(PluginNode pluginNode : pluginNodes)
-				{
-					if(Comparing.equal(pluginNode.version, version))
-					{
-						return pluginNode;
-					}
-				}
-
-				return null;
-			}
-			else
+			if(version == null || PluginChannelService.SNAPSHOT.equals(version))
 			{
 				return pluginNodes.last();
 			}
+
+			for(PluginNode pluginNode : pluginNodes)
+			{
+				if(Comparing.equal(pluginNode.version, version))
+				{
+					return pluginNode;
+				}
+			}
+
+			return null;
 		}
 	}
 
