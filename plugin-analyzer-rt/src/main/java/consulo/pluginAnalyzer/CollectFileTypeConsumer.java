@@ -12,6 +12,7 @@ import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
+import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.WildcardFileNameMatcher;
 import com.intellij.openapi.util.text.StringUtil;
 
@@ -52,12 +53,15 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 	@Override
 	public void consume(@NotNull FileType fileType, FileNameMatcher... fileNameMatchers)
 	{
+		if(fileType == PlainTextFileType.INSTANCE)
+		{
+			return;
+		}
+
 		for(FileNameMatcher fileNameMatcher : fileNameMatchers)
 		{
 			// we accept only our file matches
-			if(fileNameMatcher instanceof ExactFileNameMatcher ||
-					fileNameMatcher instanceof ExtensionFileNameMatcher ||
-					fileNameMatcher instanceof WildcardFileNameMatcher)
+			if(fileNameMatcher instanceof ExactFileNameMatcher || fileNameMatcher instanceof ExtensionFileNameMatcher || fileNameMatcher instanceof WildcardFileNameMatcher)
 			{
 				myExtensions.add(fileNameMatcher.getPresentableString());
 			}
