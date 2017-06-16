@@ -214,6 +214,8 @@ public class PluginAnalyzerService
 									return;
 								}
 
+								constructorForNew.setAccessible(true);
+
 								Object configurationType = constructorForNew.newInstance();
 
 								String id = (String) configurationTypeIdMethod.invoke(configurationType);
@@ -268,6 +270,7 @@ public class PluginAnalyzerService
 								Class<?> artifactType = urlClassLoader.loadClass("com.intellij.packaging.artifacts.ArtifactType");
 
 								Method idMethod = artifactType.getMethod("getId");
+								idMethod.setAccessible(true);
 
 								String artifactId = (String) idMethod.invoke(artifactInstance);
 								if(!StringUtil.isEmpty(artifactId))
