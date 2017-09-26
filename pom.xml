@@ -10,7 +10,7 @@
 	<repositories>
 		<repository>
 			<id>consulo</id>
-			<url>https://maven.consulo.io/repository/spanshots/</url>
+			<url>https://maven.consulo.io/repository/snapshots/</url>
 			<snapshots>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
