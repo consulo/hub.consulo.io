@@ -7,6 +7,16 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>hub(Parent)</name>
 
+	<repositories>
+		<repository>
+			<id>consulo</id>
+			<url>https://maven.consulo.io/repository/spanshots/</url>
+			<snapshots>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<modules>
 		<module>plugin-analyzer-rt</module>
 		<module>frontend</module>
