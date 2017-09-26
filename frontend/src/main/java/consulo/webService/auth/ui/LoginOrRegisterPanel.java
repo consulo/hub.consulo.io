@@ -1,5 +1,7 @@
 package consulo.webService.auth.ui;
 
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction;
@@ -18,6 +20,9 @@ import consulo.webService.ui.components.CaptchaFactory;
 
 public class LoginOrRegisterPanel extends VerticalLayout
 {
+	private static final Validator<String> ourEmailValidator = new EmailValidator("Bad email");
+	private static final Validator<String> ourPasswordValidator = new StringLengthValidator("Bad password", 1, Integer.MAX_VALUE);
+
 	private Captcha myCaptcha;
 	private TextField myEmailTextField;
 	private PasswordField myPasswordField;
@@ -35,16 +40,11 @@ public class LoginOrRegisterPanel extends VerticalLayout
 		myEmailTextField = new TextField("Email");
 		myEmailTextField.addStyleName(ValoTheme.TEXTAREA_SMALL);
 		myEmailTextField.setWidth(100, Unit.PERCENTAGE);
-		myEmailTextField.setImmediate(true);
-		myEmailTextField.addValidator(new EmailValidator("Bad email"));
-		//myEmailTextField.setValidationVisible(true);
 		mainPanel.addComponent(myEmailTextField);
 
 		myPasswordField = new PasswordField("Password");
 		myPasswordField.addStyleName(ValoTheme.TEXTAREA_SMALL);
 		myPasswordField.setWidth(100, Unit.PERCENTAGE);
-		//myPasswordField.setValidationVisible(true);
-		myPasswordField.addValidator(new StringLengthValidator("Bad password", 1, Integer.MAX_VALUE, false));
 		mainPanel.addComponent(myPasswordField);
 
 		myCaptcha = captchaFactory.create();
@@ -68,7 +68,8 @@ public class LoginOrRegisterPanel extends VerticalLayout
 
 	private Button.ClickListener createListener(String error, LoginOrRegisterCallback callback)
 	{
-		return event -> {
+		return event ->
+		{
 			if(!myCaptcha.isValid())
 			{
 				Notification notification = new Notification("ReCaptcha is bad", Notification.Type.ERROR_MESSAGE);
@@ -80,7 +81,7 @@ public class LoginOrRegisterPanel extends VerticalLayout
 
 			myCaptcha.refresh();
 
-			if(!myEmailTextField.isValid() || !myPasswordField.isValid())
+			if(ourEmailValidator.apply(myEmailTextField.getValue(), new ValueContext()).isError() || ourPasswordValidator.apply(myPasswordField.getValue(), new ValueContext()).isError())
 			{
 				Notification notification = new Notification("Email or password is bad", Notification.Type.ERROR_MESSAGE);
 				notification.setPosition(Position.TOP_RIGHT);

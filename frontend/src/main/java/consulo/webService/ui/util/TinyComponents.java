@@ -29,20 +29,18 @@ public class TinyComponents
 		return comboBox;
 	}
 
-	public static ComboBox newComboBox()
+	public static <T> ComboBox<T> newComboBox()
 	{
-		ComboBox comboBox = new ComboBox();
+		ComboBox<T> comboBox = new ComboBox<>();
 		comboBox.setStyleName(ValoTheme.COMBOBOX_TINY);
-		comboBox.setNullSelectionAllowed(false);
 		comboBox.setTextInputAllowed(false);
 		return comboBox;
 	}
 
-	public static ListSelect newListSelect()
+	public static <T> ListSelect<T> newListSelect()
 	{
-		ListSelect comboBox = new ListSelect();
-		comboBox.setNullSelectionAllowed(false);
-		return comboBox;
+		ListSelect<T> select = new ListSelect<>();
+		return select;
 	}
 
 	public static TextField newTextField()

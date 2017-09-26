@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.SystemProperties;
-import com.vaadin.data.Property;
+import com.vaadin.data.HasValue;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -74,7 +74,7 @@ public class ConfigPanel extends VerticalLayout
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> void map(@NotNull Class<T> clazz, @NotNull Property<T> property, @NotNull String key, @Nullable Supplier<T> defSupplier)
+	private <T> void map(@NotNull Class<T> clazz, @NotNull HasValue<T> property, @NotNull String key, @Nullable Supplier<T> defSupplier)
 	{
 		myConsumers.add(properties ->
 		{
@@ -156,8 +156,8 @@ public class ConfigPanel extends VerticalLayout
 
 			enabledCaptcha.addValueChangeListener(event ->
 			{
-				privateApiKey.setEnabled((Boolean) event.getProperty().getValue());
-				siteApiKey.setEnabled((Boolean) event.getProperty().getValue());
+				privateApiKey.setEnabled(event.getValue());
+				siteApiKey.setEnabled(event.getValue());
 			});
 		});
 	}

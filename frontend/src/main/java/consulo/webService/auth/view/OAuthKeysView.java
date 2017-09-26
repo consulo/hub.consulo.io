@@ -13,11 +13,10 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import com.google.common.base.Strings;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
-import com.vaadin.data.validator.AbstractStringValidator;
-import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -26,6 +25,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -85,26 +85,25 @@ public class OAuthKeysView extends VerticalLayout implements View
 			Window window = new Window("Enter Name");
 
 			TextField textField = TinyComponents.newTextField();
-			textField.addValidator(new StringLengthValidator("Bad name", 1, 255, false));
-			textField.addValidator(new AbstractStringValidator("Duplicate key")
-			{
-				@Override
-				protected boolean isValidValue(String value)
-				{
-					return myOAuth2AccessTokenRepository.findByUserNameAndName(authentication.getName(), value) == null;
-				}
-			});
+
 			textField.addStyleName(ValoTheme.TEXTFIELD_TINY);
 
 			Button okButton = new Button("OK", e ->
 			{
-				if(!textField.isValid())
+				String value = textField.getValue();
+				if(Strings.isNullOrEmpty(value) || value.length() >= 255)
 				{
+					Notification.show("Bad name", Notification.Type.ERROR_MESSAGE);
+					return;
+				}
+				if(myOAuth2AccessTokenRepository.findByUserNameAndName(authentication.getName(), value) != null)
+				{
+					Notification.show("Duplicate key", Notification.Type.ERROR_MESSAGE);
 					return;
 				}
 
 				AuthorizationRequest request = new AuthorizationRequest();
-				request.setExtensions(ContainerUtil.newHashMap(Pair.create("name", textField.getValue())));
+				request.setExtensions(ContainerUtil.newHashMap(Pair.create("name", value)));
 				request.setScope(ContainerUtil.newArrayList("read"));
 				request.setClientId(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID);
 

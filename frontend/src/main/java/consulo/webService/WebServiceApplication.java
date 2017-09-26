@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.vaadin.server.VaadinServlet;
 import consulo.webService.auth.Roles;
 import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
 import consulo.webService.auth.mongo.domain.Role;
@@ -73,6 +74,12 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		public TaskScheduler taskScheduler()
 		{
 			return new ThreadPoolTaskScheduler();
+		}
+
+		@Bean
+		public VaadinServlet servlet()
+		{
+			return new consulo.webService.ui.VaadinServlet();
 		}
 
 		@PostConstruct

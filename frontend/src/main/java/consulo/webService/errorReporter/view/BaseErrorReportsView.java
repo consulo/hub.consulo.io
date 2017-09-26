@@ -15,19 +15,11 @@ import org.springframework.data.domain.Page;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ReflectionUtil;
-import com.vaadin.data.Property;
+import com.vaadin.data.HasValue;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
@@ -92,7 +84,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 				filterBox.addValueChangeListener(e ->
 				{
-					if((Boolean) e.getProperty().getValue())
+					if(e.getValue())
 					{
 						myFilters.add(status);
 					}
@@ -303,7 +295,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 			String value = rawValue == null ? null : String.valueOf(rawValue);
 
-			final Property<String> textField;
+			final HasValue<String> textField;
 			if(value != null && StringUtil.containsLineBreak(value))
 			{
 				textField = new TextArea();
@@ -312,8 +304,9 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			}
 			else
 			{
-				textField = new Label();
-				((Component) textField).addStyleName(ValoTheme.LABEL_SMALL);
+				textField = new TextField();
+				((Component) textField).addStyleName(ValoTheme.TEXTFIELD_SMALL);
+				((Component) textField).addStyleName(ValoTheme.TEXTFIELD_BORDERLESS);
 			}
 
 			((Component) textField).setWidth(100, Unit.PERCENTAGE);

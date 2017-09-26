@@ -7,7 +7,6 @@ import com.vaadin.server.CustomizedSystemMessages;
 import com.vaadin.server.SystemMessagesProvider;
 import com.vaadin.spring.server.SpringVaadinServlet;
 
-@Component("vaadinServlet")
 public class VaadinServlet extends SpringVaadinServlet
 {
 	@Override

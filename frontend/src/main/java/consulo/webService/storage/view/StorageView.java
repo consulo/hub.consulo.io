@@ -1,7 +1,9 @@
 package consulo.webService.storage.view;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.iq80.snappy.SnappyInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.intellij.openapi.util.io.StreamUtil;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.io.UnsyncByteArrayInputStream;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
@@ -59,11 +62,11 @@ public class StorageView extends VerticalLayout implements View
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel();
 
-		ListSelect listSelect = TinyComponents.newListSelect();
+		ListSelect<String> listSelect = TinyComponents.newListSelect();
 		TextArea textArea = new TextArea("Text: ");
 		listSelect.addValueChangeListener(event1 ->
 		{
-			MongoStorageFile file = myStorageFileRepository.findOne((String) event1.getProperty().getValue());
+			MongoStorageFile file = myStorageFileRepository.findOne(event1.getValue().iterator().next());
 
 			String text = "not found";
 
@@ -87,11 +90,14 @@ public class StorageView extends VerticalLayout implements View
 
 		textArea.setSizeFull();
 		listSelect.setSizeFull();
+
+		Map<String, String> captions = new HashMap<>();
 		for(MongoStorageFile file : files)
 		{
-			listSelect.addItem(file.getId());
-			listSelect.setItemCaption(file.getId(), file.getFilePath());
+			captions.put(file.getId(), file.getFilePath());
 		}
+		listSelect.setDataProvider(new ListDataProvider<>(captions.keySet()));
+		listSelect.setItemCaptionGenerator(captions::get);
 
 		panel.setFirstComponent(listSelect);
 

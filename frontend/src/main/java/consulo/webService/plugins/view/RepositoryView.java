@@ -2,8 +2,10 @@ package consulo.webService.plugins.view;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.google.common.collect.Lists;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.Alignment;
@@ -58,12 +60,8 @@ public class RepositoryView extends VerticalLayout implements View
 		Label header = new Label("Repository");
 		headerLayout.addComponent(header);
 
-		ComboBox channelBox = TinyComponents.newComboBox();
-		for(PluginChannel t : PluginChannel.values())
-		{
-			channelBox.addItem(t);
-			channelBox.setItemCaption(t, t.name());
-		}
+		ComboBox<PluginChannel> channelBox = TinyComponents.newComboBox();
+		channelBox.setDataProvider(new ListDataProvider<PluginChannel>(Lists.newArrayList(PluginChannel.values())));
 		Component labeled = VaadinUIUtil.labeled("Channel: ", channelBox);
 		headerLayout.addComponent(labeled);
 		headerLayout.setComponentAlignment(labeled, Alignment.MIDDLE_RIGHT);
@@ -77,7 +75,7 @@ public class RepositoryView extends VerticalLayout implements View
 
 		channelBox.addValueChangeListener(event ->
 		{
-			PluginChannel value = (PluginChannel) event.getProperty().getValue();
+			PluginChannel value = (PluginChannel) event.getValue();
 
 			String selectedPluginId = repositoryChannelPanel.getSelectedPluginId();
 			if(StringUtil.isEmpty(selectedPluginId))

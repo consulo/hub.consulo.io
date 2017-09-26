@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,13 +27,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.ejt.vaadin.sizereporter.SizeReporter;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.text.DateFormatUtilRt;
 import com.intellij.util.text.VersionComparatorUtil;
-import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.data.TreeData;
+import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
@@ -59,7 +61,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 	private final PluginStatisticsService myPluginStatisticsService;
 	private final PluginChannel myPluginChannel;
 	private final Multimap<String, PluginNode> myPluginBuilds;
-	private final ListSelect myListSelect;
+	private final ListSelect<String> myListSelect;
 	private String mySelectedPluginId;
 
 	public RepositoryChannelPanel(@NotNull PluginChannel pluginChannel, @NotNull UserConfigurationService userConfigurationService, @NotNull PluginStatisticsService pluginStatisticsService)
@@ -69,8 +71,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		setSizeFull();
 
-		myListSelect = new ListSelect();
-		myListSelect.setNullSelectionAllowed(false);
+		myListSelect = new ListSelect<>();
 		myListSelect.setSizeFull();
 		addComponent(myListSelect);
 
@@ -112,15 +113,19 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			map.put(entry.getValue().iterator().next(), entry.getKey());
 		}
 
+		ListDataProvider<String> provider = new ListDataProvider<>(map.values());
+		myListSelect.setDataProvider(provider);
+
+		Map<String, String> captions = new HashMap<>();
 		for(Map.Entry<PluginNode, String> entry : map.entrySet())
 		{
-			myListSelect.addItem(entry.getValue());
-			myListSelect.setItemCaption(entry.getValue(), getPluginNodeName(entry.getKey()));
+			captions.put(entry.getValue(), getPluginNodeName(entry.getKey()));
 		}
+		myListSelect.setItemCaptionGenerator(captions::get);
 
 		myListSelect.addValueChangeListener(event ->
 		{
-			String pluginId = (String) event.getProperty().getValue();
+			String pluginId = event.getValue().iterator().next();
 
 			mySelectedPluginId = pluginId;
 
@@ -133,7 +138,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		mySelectedPluginId = pluginId;
 
 		myListSelect.focus();
-		myListSelect.setValue(StringUtil.nullize(pluginId));
+		myListSelect.setValue(Sets.newHashSet(StringUtil.nullize(pluginId)));
 
 		if(StringUtil.isEmpty(pluginId))
 		{
@@ -169,13 +174,49 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
 
-		Map<Object, PluginNode> downloadInfo = new HashMap<>();
+		Map<String, PluginNode> downloadInfo = new HashMap<>();
 
-		Tree tree = new Tree("Versions");
+		Map<String, String> captions = new HashMap<>();
+
+		TreeData<String> treeData = new TreeData<>();
+		for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
+		{
+			treeData.addRootItems(entry.getKey());
+			captions.put(entry.getKey(), "Consulo #" + entry.getKey());
+
+			if(lastPluginNodeByVersion == null)
+			{
+				lastPluginNodeByVersion = entry.getValue().iterator().next();
+			}
+
+			if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
+			{
+				for(PluginNode node : entry.getValue())
+				{
+					UUID uuid = UUID.randomUUID();
+
+					String key = uuid.toString();
+					treeData.addItem(entry.getKey(), key);
+
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTimeInMillis(node.date);
+					captions.put(key, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
+
+					downloadInfo.put(key, node);
+				}
+			}
+			else
+			{
+				downloadInfo.put(entry.getKey(), entry.getValue().iterator().next());
+			}
+		}
+
+		Tree<String> tree = new Tree<>("Versions", treeData);
+		tree.setItemCaptionGenerator(captions::get);
 
 		tree.addItemClickListener(e ->
 		{
-			Object id = e.getItemId();
+			String id = e.getItem();
 
 			PluginNode pluginNode = downloadInfo.get(id);
 			if(pluginNode != null)
@@ -190,41 +231,6 @@ public class RepositoryChannelPanel extends HorizontalLayout
 				getUI().getPage().open(builder.toString(), "");
 			}
 		});
-
-		for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
-		{
-			tree.addItem(entry.getKey());
-			tree.setItemCaption(entry.getKey(), "Consulo #" + entry.getKey());
-
-			if(lastPluginNodeByVersion == null)
-			{
-				lastPluginNodeByVersion = entry.getValue().iterator().next();
-			}
-
-			if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
-			{
-				for(PluginNode node : entry.getValue())
-				{
-					UUID uuid = UUID.randomUUID();
-
-					tree.addItem(uuid);
-
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTimeInMillis(node.date);
-					tree.setItemCaption(uuid, "build #" + node.version + " at " + DateFormatUtilRt.formatBuildDate(calendar));
-
-					tree.setParent(uuid, entry.getKey());
-					tree.setChildrenAllowed(uuid, false);
-
-					downloadInfo.put(uuid, node);
-				}
-			}
-			else
-			{
-				downloadInfo.put(entry.getKey(), entry.getValue().iterator().next());
-				tree.setChildrenAllowed(entry.getKey(), false);
-			}
-		}
 
 		assert lastPluginNodeByVersion != null;
 		myPanel.setFirstComponent(buildInfo(lastPluginNodeByVersion));
@@ -258,7 +264,6 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			Label descriptiopnLabel = new Label();
 			descriptiopnLabel.setContentMode(ContentMode.HTML);
 			descriptiopnLabel.setValue(pluginNode.description);
-			descriptiopnLabel.setReadOnly(true);
 			descriptiopnLabel.setWidth(100, Unit.PERCENTAGE);
 			descriptiopnLabel.addStyleName(ValoTheme.LABEL_SMALL);
 

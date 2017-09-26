@@ -4,11 +4,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.intellij.openapi.util.text.StringUtil;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.auth.mongo.domain.Role;
 import consulo.webService.auth.mongo.domain.UserAccount;
@@ -42,20 +43,14 @@ public class AdminUserView extends VerticalLayout implements View
 		label.addStyleName("headerMargin");
 		addComponent(label);
 
-		Table table = new Table();
+		Grid<UserAccount> table = new Grid<>();
 		table.setSizeFull();
-		table.addContainerProperty("Email", String.class, null);
-		table.addContainerProperty("Status", String.class, null);
-		table.addContainerProperty("Roles", String.class, null);
+		table.setDataProvider(new ListDataProvider<>(list));
 
-		for(UserAccount userAccount : list)
-		{
-			table.addItem(new Object[]{
-					userAccount.getUsername(),
-					userAccount.getStatus(),
-					StringUtil.join(userAccount.getRoles(), Role::getId, ", ")
-			}, userAccount.getUsername());
-		}
+		table.addColumn(UserAccount::getUsername).setCaption("Email");
+		table.addColumn(UserAccount::getStatus).setCaption("Status");
+		table.addColumn(userAccount -> StringUtil.join(userAccount.getRoles(), Role::getId, ", ")).setCaption("Roles");
+
 		addComponent(table);
 		setExpandRatio(table, 1);
 	}
