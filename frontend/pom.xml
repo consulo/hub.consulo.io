@@ -3,9 +3,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.4.7.RELEASE</version>
+		<version>1.5.7.RELEASE</version>
 		<relativePath/>
-		<!-- lookup parent from repository -->
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -25,14 +24,22 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>consulo</groupId>
+				<artifactId>arch.managment</artifactId>
+				<version>2-SNAPSHOT</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<repositories>
 		<repository>
-			<id>consulo</id>
+			<id>consulo-maven</id>
 			<url>https://maven.consulo.io/repository/snapshots/</url>
 			<snapshots>
+				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
@@ -43,11 +50,13 @@
 	</repositories>
 
 	<properties>
-		<spring.boot.version>1.4.7.RELEASE</spring.boot.version>
+		<spring.boot.version>1.5.7.RELEASE</spring.boot.version>
 		<tomcat.version>8.5.2</tomcat.version>
 		<servlet-api.version>3.1</servlet-api.version>
 		<vaadin.version>8.1.3</vaadin.version>
 		<vaadin.plugin.version>8.1.3</vaadin.plugin.version>
+
+		<start-class>consulo.webService.WebServiceApplication</start-class>
 	</properties>
 
 	<dependencies>
@@ -72,7 +81,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.12</version>
 		</dependency>
 
 		<dependency>
@@ -98,13 +106,11 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>21.0</version>
 		</dependency>
 
 		<dependency>
@@ -116,7 +122,6 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.7</version>
 		</dependency>
 
 		<dependency>
@@ -128,7 +133,6 @@
 		<dependency>
 			<groupId>picocontainer</groupId>
 			<artifactId>picocontainer</artifactId>
-			<version>1.2</version>
 		</dependency>
 
 		<dependency>
@@ -188,13 +192,11 @@
 		<dependency>
 			<groupId>consulo.internal</groupId>
 			<artifactId>jdom</artifactId>
-			<version>2.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo.internal</groupId>
 			<artifactId>trove4j</artifactId>
-			<version>2.0</version>
 		</dependency>
 
 		<dependency>
@@ -212,7 +214,6 @@
 		<dependency>
 			<groupId>org.iq80.snappy</groupId>
 			<artifactId>snappy</artifactId>
-			<version>0.4</version>
 		</dependency>
 
 		<dependency>
