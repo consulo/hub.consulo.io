@@ -39,6 +39,8 @@ public class RepositoryView extends VerticalLayout implements View
 		myPluginStatisticsService = pluginStatisticsService;
 		myChannel = channel;
 
+		setMargin(false);
+		setSpacing(false);
 		setSizeFull();
 	}
 

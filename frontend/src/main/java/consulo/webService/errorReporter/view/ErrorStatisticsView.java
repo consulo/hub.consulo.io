@@ -17,6 +17,13 @@ public class ErrorStatisticsView extends VerticalLayout implements View
 {
 	public static final String ID = "errorReportStatistics";
 
+	public ErrorStatisticsView()
+	{
+		setMargin(false);
+		setSpacing(false);
+		setSizeFull();
+	}
+
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
 	{

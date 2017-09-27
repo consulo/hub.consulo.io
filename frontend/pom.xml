@@ -1,14 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.7.RELEASE</version>
-		<relativePath/>
+		<groupId>consulo</groupId>
+		<artifactId>webservice-api-root</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>consulo</groupId>
 	<artifactId>hub</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
@@ -18,16 +17,16 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-bom</artifactId>
-				<version>${vaadin.version}</version>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-parent</artifactId>
+				<version>1.5.7.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>consulo</groupId>
-				<artifactId>arch.managment</artifactId>
-				<version>2-SNAPSHOT</version>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-bom</artifactId>
+				<version>${vaadin.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -35,14 +34,6 @@
 	</dependencyManagement>
 
 	<repositories>
-		<repository>
-			<id>consulo-maven</id>
-			<url>https://maven.consulo.io/repository/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
 		<repository>
 			<id>vaadin-addons</id>
 			<url>http://maven.vaadin.com/vaadin-addons</url>
@@ -127,7 +118,7 @@
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-annotations</artifactId>
-			<version>2-SNAPSHOT</version>
+			<version>${consulo.version}</version>
 		</dependency>
 
 		<dependency>
@@ -138,55 +129,55 @@
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-core-api</artifactId>
-			<version>2-SNAPSHOT</version>
+			<version>${consulo.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-core-impl</artifactId>
-			<version>2-SNAPSHOT</version>
+			<version>${consulo.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-platform-api</artifactId>
+			<version>${consulo.version}</version>
 			<scope>runtime</scope>
-			<version>2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-platform-impl</artifactId>
+			<version>${consulo.version}</version>
 			<scope>runtime</scope>
-			<version>2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-external-system-api</artifactId>
+			<version>${consulo.version}</version>
 			<scope>runtime</scope>
-			<version>2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-compiler-api</artifactId>
+			<version>${consulo.version}</version>
 			<scope>runtime</scope>
-			<version>2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-compiler-impl</artifactId>
+			<version>${consulo.version}</version>
 			<scope>runtime</scope>
-			<version>2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-external-system-impl</artifactId>
+			<version>${consulo.version}</version>
 			<scope>runtime</scope>
-			<version>2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -202,13 +193,20 @@
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-util</artifactId>
-			<version>2-SNAPSHOT</version>
+			<version>${consulo.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-util-rt</artifactId>
+			<version>${consulo.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-ui-api</artifactId>
-			<version>2-SNAPSHOT</version>
+			<version>${consulo.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -219,7 +217,7 @@
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-extensions</artifactId>
-			<version>2-SNAPSHOT</version>
+			<version>${consulo.version}</version>
 		</dependency>
 
 		<dependency>
@@ -287,11 +285,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${spring.boot.version}</version>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

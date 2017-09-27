@@ -32,6 +32,10 @@ public class AdminRepositoryView extends VerticalLayout implements View
 		myTaskExecutor = taskExecutor;
 		myPluginChannelIterationService = pluginChannelIterationService;
 
+		setMargin(false);
+		setSpacing(false);
+		setSizeFull();
+
 		Label label = new Label("Force iteration");
 		label.addStyleName("headerMargin");
 		addComponent(label);

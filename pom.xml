@@ -7,6 +7,22 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>hub(Parent)</name>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>consulo</groupId>
+				<artifactId>arch.managment</artifactId>
+				<version>${consulo.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<properties>
+		<consulo.version>2-SNAPSHOT</consulo.version>
+	</properties>
+
 	<repositories>
 		<repository>
 			<id>consulo</id>

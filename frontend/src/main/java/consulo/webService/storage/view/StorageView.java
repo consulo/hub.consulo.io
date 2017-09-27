@@ -39,6 +39,9 @@ public class StorageView extends VerticalLayout implements View
 
 	public StorageView()
 	{
+		setMargin(false);
+		setSpacing(false);
+		setSizeFull();
 	}
 
 	@Override
@@ -53,8 +56,6 @@ public class StorageView extends VerticalLayout implements View
 		}
 
 		List<MongoStorageFile> files = myStorageFileRepository.findByEmail(authentication.getName());
-
-		setSizeFull();
 
 		Label label = new Label("Storage: ");
 		label.addStyleName("headerMargin");

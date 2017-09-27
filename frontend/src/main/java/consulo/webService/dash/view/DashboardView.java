@@ -36,6 +36,8 @@ public class DashboardView extends VerticalLayout implements View
 
 	public DashboardView()
 	{
+		setMargin(false);
+		setSpacing(false);
 		setSizeFull();
 	}
 

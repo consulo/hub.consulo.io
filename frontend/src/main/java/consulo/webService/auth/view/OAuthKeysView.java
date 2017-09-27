@@ -62,6 +62,10 @@ public class OAuthKeysView extends VerticalLayout implements View
 		myOAuth2RequestFactory = defaultOAuth2RequestFactory;
 		myOAuth2AccessTokenRepository = accessTokenRepository;
 		myTaskScheduler = taskScheduler;
+
+		setMargin(false);
+		setSpacing(false);
+		setSizeFull();
 	}
 
 	@Override

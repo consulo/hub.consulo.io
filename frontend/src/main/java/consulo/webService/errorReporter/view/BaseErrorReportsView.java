@@ -46,6 +46,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 	public BaseErrorReportsView()
 	{
+		setMargin(false);
+		setSpacing(false);
 		setSizeFull();
 	}
 
