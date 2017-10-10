@@ -64,6 +64,8 @@ public class RepositoryChannelPanel extends HorizontalLayout
 	private final ListSelect<String> myListSelect;
 	private String mySelectedPluginId;
 
+	private Map<PluginNode, String> myNameToIdMap;
+
 	public RepositoryChannelPanel(@NotNull PluginChannel pluginChannel, @NotNull UserConfigurationService userConfigurationService, @NotNull PluginStatisticsService pluginStatisticsService)
 	{
 		myPluginChannel = pluginChannel;
@@ -91,7 +93,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		repositoryByChannel.iteratePluginNodes(pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
 
 		// name -> id
-		Map<PluginNode, String> map = new TreeMap<>((o1, o2) ->
+		myNameToIdMap = new TreeMap<>((o1, o2) ->
 		{
 			if(PluginChannelService.isPlatformNode(o1.id))
 			{
@@ -110,14 +112,14 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		for(Map.Entry<String, Collection<PluginNode>> entry : myPluginBuilds.asMap().entrySet())
 		{
-			map.put(entry.getValue().iterator().next(), entry.getKey());
+			myNameToIdMap.put(entry.getValue().iterator().next(), entry.getKey());
 		}
 
-		ListDataProvider<String> provider = new ListDataProvider<>(map.values());
+		ListDataProvider<String> provider = new ListDataProvider<>(myNameToIdMap.values());
 		myListSelect.setDataProvider(provider);
 
 		Map<String, String> captions = new HashMap<>();
-		for(Map.Entry<PluginNode, String> entry : map.entrySet())
+		for(Map.Entry<PluginNode, String> entry : myNameToIdMap.entrySet())
 		{
 			captions.put(entry.getValue(), getPluginNodeName(entry.getKey()));
 		}
@@ -138,7 +140,14 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		mySelectedPluginId = pluginId;
 
 		myListSelect.focus();
-		myListSelect.setValue(Sets.newHashSet(StringUtil.nullize(pluginId)));
+		if(pluginId == null || !myNameToIdMap.containsValue(pluginId))
+		{
+			myListSelect.setValue(Collections.emptySet());
+		}
+		else
+		{
+			myListSelect.setValue(Sets.newHashSet(pluginId));
+		}
 
 		if(StringUtil.isEmpty(pluginId))
 		{

@@ -62,7 +62,7 @@ import consulo.webService.util.GAPropertyKeys;
 import consulo.webService.util.PropertySet;
 
 @SpringUI
-@Widgetset("WidgetSet")
+@Widgetset("consulo.webService.WidgetSet")
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")

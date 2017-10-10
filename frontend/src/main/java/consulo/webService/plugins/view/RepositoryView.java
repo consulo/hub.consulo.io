@@ -63,6 +63,7 @@ public class RepositoryView extends VerticalLayout implements View
 		headerLayout.addComponent(header);
 
 		ComboBox<PluginChannel> channelBox = TinyComponents.newComboBox();
+		channelBox.setEmptySelectionAllowed(false);
 		channelBox.setDataProvider(new ListDataProvider<PluginChannel>(Lists.newArrayList(PluginChannel.values())));
 		Component labeled = VaadinUIUtil.labeled("Channel: ", channelBox);
 		headerLayout.addComponent(labeled);
@@ -77,7 +78,7 @@ public class RepositoryView extends VerticalLayout implements View
 
 		channelBox.addValueChangeListener(event ->
 		{
-			PluginChannel value = (PluginChannel) event.getValue();
+			PluginChannel value = event.getValue();
 
 			String selectedPluginId = repositoryChannelPanel.getSelectedPluginId();
 			if(StringUtil.isEmpty(selectedPluginId))
