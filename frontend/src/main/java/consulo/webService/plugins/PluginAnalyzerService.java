@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.lang.Language;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.SingleRootFileViewProvider;
@@ -69,12 +70,20 @@ public class PluginAnalyzerService
 		// ui-api
 		addUrlByClass("consulo.ui.Component");
 		// platform-api
+		addUrlByClass("com.intellij.openapi.fileTypes.FileTypeConsumer");
+		// platform-impl
+		addUrlByClass("com.intellij.concurrency.ApplierCompleter");
+		// lang-api
 		addUrlByClass("com.intellij.execution.configurations.ConfigurationType");
+		// lang-impl
+		addUrlByClass("com.intellij.execution.configuration.ConfigurationFactoryEx");
 		// compiler-api
 		addUrlByClass("com.intellij.packaging.artifacts.ArtifactType");
 		// compiler-impl
 		addUrlByClass("com.intellij.packaging.impl.elements.ArchivePackagingElement");
-		// platform-impl
+		// project-model-api
+		addUrlByClass("com.intellij.openapi.roots.ui.configuration.ModulesProvider");
+		// project-model-impl
 		addUrlByClass("consulo.extension.impl.ModuleExtensionImpl");
 		// external-system-api
 		addUrlByClass("com.intellij.openapi.externalSystem.model.ExternalProject");
@@ -86,6 +95,8 @@ public class PluginAnalyzerService
 		addUrlByClass(PicoContainer.class);
 		// util
 		addUrlByClass(ContainerUtil.class);
+		// util-rt
+		addUrlByClass(Disposable.class);
 		// jdom
 		addUrlByClass(Document.class);
 		// trove4j
