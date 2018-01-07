@@ -19,6 +19,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.ui.event.AfterViewChangeEvent;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -102,12 +103,12 @@ public class NavigationMenu extends CustomComponent
 	@NotNull
 	public Component addSeparator(String title)
 	{
-		HorizontalLayout layout = new HorizontalLayout();
+		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.setWidth(100, Unit.PERCENTAGE);
 		layout.setHeight(100, Unit.PERCENTAGE);
 		layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
-		HorizontalLayout midLayout = new HorizontalLayout();
+		HorizontalLayout midLayout = VaadinUIUtil.newHorizontalLayout();
 		midLayout.setWidth(100, Unit.PERCENTAGE);
 		midLayout.setHeight(1, Unit.PIXELS);
 		midLayout.addStyleName("line-separator");
@@ -125,12 +126,12 @@ public class NavigationMenu extends CustomComponent
 	@NotNull
 	public Component addSeparator()
 	{
-		HorizontalLayout layout = new HorizontalLayout();
+		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.setWidth(100, Unit.PERCENTAGE);
 		layout.setHeight(100, Unit.PERCENTAGE);
 		layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 
-		HorizontalLayout midLayout = new HorizontalLayout();
+		HorizontalLayout midLayout = VaadinUIUtil.newHorizontalLayout();
 		midLayout.setWidth(100, Unit.PERCENTAGE);
 		midLayout.setHeight(1, Unit.PIXELS);
 		midLayout.addStyleName("line-separator");
@@ -144,7 +145,7 @@ public class NavigationMenu extends CustomComponent
 
 	private Component empty(int size)
 	{
-		HorizontalLayout midLayout = new HorizontalLayout();
+		HorizontalLayout midLayout = VaadinUIUtil.newHorizontalLayout();
 		midLayout.setWidth(size, Unit.PIXELS);
 		return midLayout;
 	}

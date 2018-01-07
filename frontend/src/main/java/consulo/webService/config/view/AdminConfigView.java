@@ -23,6 +23,8 @@ public class AdminConfigView extends VerticalLayout implements View
 
 	public AdminConfigView()
 	{
+		setSpacing(false);
+		setMargin(false);
 		setSizeFull();
 	}
 

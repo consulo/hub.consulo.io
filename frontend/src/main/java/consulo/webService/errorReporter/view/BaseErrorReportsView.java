@@ -26,6 +26,7 @@ import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
 import consulo.webService.errorReporter.ui.ScrollableListPanel;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -58,7 +59,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	{
 		removeAllComponents();
 
-		HorizontalLayout header = new HorizontalLayout();
+		HorizontalLayout header = VaadinUIUtil.newHorizontalLayout();
 		header.addStyleName("headerMargin");
 		header.setWidth(100, Unit.PERCENTAGE);
 		myLabel = new Label();
@@ -70,7 +71,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		if(allowFilters())
 		{
-			HorizontalLayout filters = new HorizontalLayout();
+			HorizontalLayout filters = VaadinUIUtil.newHorizontalLayout();
 			filters.setHeight(100, Unit.PERCENTAGE);
 			filters.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			filters.setSpacing(true);
@@ -98,7 +99,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 					rebuildList();
 				});
 
-				HorizontalLayout layout = new HorizontalLayout();
+				HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 				layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 				layout.setHeight(2, Unit.EM);
 				layout.addStyleName("errorViewLineLayoutBox");
@@ -146,23 +147,23 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		for(ErrorReport errorReport : page)
 		{
-			VerticalLayout lineLayout = new VerticalLayout();
+			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
 			lineLayout.setWidth(100, Unit.PERCENTAGE);
 
-			HorizontalLayout shortLine = new HorizontalLayout();
+			HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
 			lineLayout.addComponent(shortLine);
 			lineLayout.addStyleName("errorViewLineLayout");
 
 			shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 			shortLine.setWidth(100, Unit.PERCENTAGE);
 
-			HorizontalLayout leftLayout = new HorizontalLayout();
+			HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
 			leftLayout.setWidth(100, Unit.PERCENTAGE);
 			leftLayout.setSpacing(true);
 			leftLayout.addComponent(TinyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
 			leftLayout.addComponent(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
 
-			HorizontalLayout rightLayout = new HorizontalLayout();
+			HorizontalLayout rightLayout = VaadinUIUtil.newHorizontalLayout();
 			rightLayout.setSpacing(true);
 
 			List<Consumer<ErrorReport>> onUpdate = new ArrayList<>();
@@ -191,7 +192,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		if(page.hasPrevious() || page.hasNext())
 		{
-			HorizontalLayout pageLayout = new HorizontalLayout();
+			HorizontalLayout pageLayout = VaadinUIUtil.newHorizontalLayout();
 			pageLayout.setMargin(true);
 			pageLayout.setSpacing(true);
 			if(page.hasPrevious())
@@ -270,6 +271,8 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			}
 
 			GridLayout layout = new GridLayout(2, rows.size());
+			layout.setMargin(false);
+			layout.setSpacing(false);
 			layout.setColumnExpandRatio(0, 0.2f);
 			layout.setColumnExpandRatio(1, 0.7f);
 			layout.setWidth(100, Unit.PERCENTAGE);

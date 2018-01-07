@@ -35,6 +35,7 @@ import consulo.webService.auth.oauth2.OAuth2ServerConfiguration;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -79,7 +80,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 			return;
 		}
 
-		HorizontalLayout header = new HorizontalLayout();
+		HorizontalLayout header = VaadinUIUtil.newHorizontalLayout();
 		header.setWidth(100, Unit.PERCENTAGE);
 		header.addComponent(new Label("OAuth Keys"));
 		header.addStyleName("headerMargin");
@@ -142,7 +143,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 		addComponent(header);
 
-		myTokenListPanel = new VerticalLayout();
+		myTokenListPanel = VaadinUIUtil.newVerticalLayout();
 		myTokenListPanel.setSpacing(true);
 		myTokenListPanel.addStyleName("bodyMargin");
 
@@ -157,7 +158,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 	private void addToken(OAuth2AuthenticationAccessToken token, boolean hide)
 	{
-		HorizontalLayout layout = new HorizontalLayout();
+		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addStyleName("errorViewLineLayout");
 		layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 		layout.addStyleName(ValoTheme.LAYOUT_CARD);

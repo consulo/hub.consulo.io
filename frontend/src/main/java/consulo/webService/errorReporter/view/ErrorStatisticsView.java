@@ -7,6 +7,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -29,14 +30,14 @@ public class ErrorStatisticsView extends VerticalLayout implements View
 	{
 		removeAllComponents();
 
-		HorizontalLayout header = new HorizontalLayout();
+		HorizontalLayout header = VaadinUIUtil.newHorizontalLayout();
 		header.addStyleName("headerMargin");
 		header.setWidth(100, Unit.PERCENTAGE);
 		Label myLabel = new Label("Error Report Statistics");
 
 		header.addComponent(myLabel);
 
-		HorizontalLayout layout = new HorizontalLayout();
+		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addComponent(TinyComponents.newLabel("Not Implemented Yet"));
 		layout.addStyleName("bodyMargin");
 		addComponent(layout);

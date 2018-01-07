@@ -8,6 +8,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -38,7 +39,7 @@ public class UserInfoView extends VerticalLayout implements View
 		label.addStyleName("headerMargin");
 		addComponent(label);
 
-		VerticalLayout verticalLayout = new VerticalLayout();
+		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setSizeFull();
 		verticalLayout.addStyleName("bodyMargin");
 

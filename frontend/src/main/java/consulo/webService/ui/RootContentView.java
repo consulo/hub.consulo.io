@@ -13,6 +13,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.themes.ValoTheme;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -34,16 +35,18 @@ public class RootContentView extends HorizontalLayout
 		myComponentContainer.setSizeFull();
 
 		GridLayout table = new GridLayout(1, 2);
+		table.setSpacing(false);
+		table.setMargin(false);
 		table.setSizeFull();
 
 		table.addComponent(myComponentContainer, 0, 0);
 
-		HorizontalLayout bottomPanel = new HorizontalLayout();
+		HorizontalLayout bottomPanel = VaadinUIUtil.newHorizontalLayout();
 		bottomPanel.setWidth(100, Unit.PERCENTAGE);
 		bottomPanel.addStyleName("bottomPanel");
 		bottomPanel.setSpacing(true);
 
-		HorizontalLayout leftLayout = new HorizontalLayout();
+		HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
 		Label copyright = new Label(String.format("@ 2013 - %d consulo.io", LocalDate.now().getYear()));
 		copyright.addStyleName(ValoTheme.LABEL_SMALL);
 		copyright.addStyleName(ValoTheme.LABEL_LIGHT);
@@ -52,7 +55,7 @@ public class RootContentView extends HorizontalLayout
 		bottomPanel.addComponent(leftLayout);
 		bottomPanel.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
 
-		HorizontalLayout rightLayout = new HorizontalLayout();
+		HorizontalLayout rightLayout = VaadinUIUtil.newHorizontalLayout();
 		Link link = new Link("hub.consulo.io", new ExternalResource("https://github.com/consulo/hub.consulo.io"));
 		link.addStyleName(ValoTheme.LINK_SMALL);
 		link.setIcon(FontAwesome.GITHUB);

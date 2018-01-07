@@ -40,7 +40,10 @@ public class ConfigPanel extends VerticalLayout
 	public ConfigPanel(@NotNull UserConfigurationService configurationService, @NotNull String buttonName, @NotNull Runnable action)
 	{
 		myConfigurationService = configurationService;
-		VerticalLayout layout = new VerticalLayout();
+		setSpacing(false);
+		setMargin(false);
+
+		VerticalLayout layout = VaadinUIUtil.newVerticalLayout();
 		layout.setSizeUndefined();
 		layout.setSpacing(true);
 		layout.setSizeFull();
@@ -198,7 +201,7 @@ public class ConfigPanel extends VerticalLayout
 		Panel panel = new Panel(title);
 		panel.setSizeFull();
 
-		VerticalLayout verticalLayout = new VerticalLayout();
+		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);
 		verticalLayout.setSizeFull();

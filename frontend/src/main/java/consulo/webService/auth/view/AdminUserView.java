@@ -30,6 +30,8 @@ public class AdminUserView extends VerticalLayout implements View
 	public AdminUserView(UserAccountRepository userAccountRepository)
 	{
 		myUserAccountRepository = userAccountRepository;
+		setSpacing(false);
+		setMargin(false);
 		setSizeFull();
 	}
 

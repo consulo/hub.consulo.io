@@ -22,6 +22,7 @@ import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -42,7 +43,7 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			return;
 		}
 
-		HorizontalLayout panel = new HorizontalLayout();
+		HorizontalLayout panel = VaadinUIUtil.newHorizontalLayout();
 		panel.setSpacing(true);
 		rightLayout.addComponent(panel);
 

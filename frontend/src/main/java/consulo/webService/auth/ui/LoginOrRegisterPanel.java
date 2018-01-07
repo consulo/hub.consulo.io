@@ -17,6 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.ui.components.Captcha;
 import consulo.webService.ui.components.CaptchaFactory;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 public class LoginOrRegisterPanel extends VerticalLayout
 {
@@ -29,7 +30,7 @@ public class LoginOrRegisterPanel extends VerticalLayout
 
 	public LoginOrRegisterPanel(CaptchaFactory captchaFactory, LoginOrRegisterCallback loginCallback, LoginOrRegisterCallback registerCallback)
 	{
-		VerticalLayout mainPanel = new VerticalLayout();
+		VerticalLayout mainPanel = VaadinUIUtil.newVerticalLayout();
 		mainPanel.setSizeUndefined();
 		mainPanel.setSpacing(true);
 		mainPanel.setMargin(true);

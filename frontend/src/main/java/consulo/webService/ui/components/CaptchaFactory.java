@@ -9,6 +9,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.wcs.wcslib.vaadin.widget.recaptcha.ReCaptcha;
 import com.wcs.wcslib.vaadin.widget.recaptcha.shared.ReCaptchaOptions;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.ui.util.VaadinUIUtil;
 import consulo.webService.util.PropertyKeys;
 import consulo.webService.util.PropertySet;
 
@@ -75,7 +76,7 @@ public class CaptchaFactory
 				@Override
 				public Component getComponent()
 				{
-					HorizontalLayout layout = new HorizontalLayout();
+					HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 					layout.setHeight(30, Sizeable.Unit.PIXELS);
 					layout.setWidth(100, Sizeable.Unit.PERCENTAGE);
 					return layout;

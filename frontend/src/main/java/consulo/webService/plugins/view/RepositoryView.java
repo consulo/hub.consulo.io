@@ -54,7 +54,7 @@ public class RepositoryView extends VerticalLayout implements View
 
 		removeAllComponents();
 
-		HorizontalLayout headerLayout = new HorizontalLayout();
+		HorizontalLayout headerLayout = VaadinUIUtil.newHorizontalLayout();
 		headerLayout.setWidth(100, Unit.PERCENTAGE);
 		headerLayout.addStyleName("headerMargin");
 		addComponent(headerLayout);

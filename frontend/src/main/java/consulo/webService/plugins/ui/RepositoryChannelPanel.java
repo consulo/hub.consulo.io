@@ -77,7 +77,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		myListSelect.setSizeFull();
 		addComponent(myListSelect);
 
-		HorizontalLayout rightLayout = new HorizontalLayout();
+		HorizontalLayout rightLayout = VaadinUIUtil.newHorizontalLayout();
 		rightLayout.setSizeFull();
 
 		addComponent(rightLayout);
@@ -254,7 +254,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			return null;
 		}
 
-		VerticalLayout verticalLayout = new VerticalLayout();
+		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setMargin(true);
 		verticalLayout.setSpacing(true);
 		verticalLayout.setDefaultComponentAlignment(Alignment.TOP_LEFT);

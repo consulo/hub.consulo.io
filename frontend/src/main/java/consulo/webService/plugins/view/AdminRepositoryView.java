@@ -7,12 +7,14 @@ import com.intellij.util.ui.UIUtil;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelIterationService;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -35,12 +37,13 @@ public class AdminRepositoryView extends VerticalLayout implements View
 		setMargin(false);
 		setSpacing(false);
 		setSizeFull();
+		setDefaultComponentAlignment(Alignment.TOP_LEFT);
 
 		Label label = new Label("Force iteration");
 		label.addStyleName("headerMargin");
 		addComponent(label);
 
-		HorizontalLayout layout = new HorizontalLayout();
+		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addStyleName("bodyMargin");
 		layout.setSpacing(true);
 		layout.addComponent(TinyComponents.newButton("nightly " + UIUtil.rightArrow() + " alpha", event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha)));

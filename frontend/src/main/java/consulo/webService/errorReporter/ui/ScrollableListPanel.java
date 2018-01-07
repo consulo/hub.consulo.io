@@ -4,6 +4,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
+import consulo.webService.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL
@@ -11,7 +12,7 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class ScrollableListPanel extends CustomComponent
 {
-	private VerticalLayout myListLayout = new VerticalLayout();
+	private VerticalLayout myListLayout = VaadinUIUtil.newVerticalLayout();
 
 	public ScrollableListPanel()
 	{
