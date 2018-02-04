@@ -241,7 +241,7 @@ public class PluginsState
 			PluginNode last = pluginNodes.last();
 
 			PluginNode lastCloned = last.clone();
-			lastCloned.downloads = statisticsService.getDownloadStat(last.id).size();
+			//lastCloned.downloads = statisticsService.getDownloadStat(last.id).size();
 			list.add(lastCloned);
 		}
 	}
