@@ -22,6 +22,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.text.VersionComparatorUtil;
+import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginNode;
 import consulo.webService.plugins.PluginStatisticsService;
@@ -228,7 +229,7 @@ public class PluginsState
 		}
 	}
 
-	public void selectInto(@NotNull PluginStatisticsService statisticsService, @NotNull String platformVersion, boolean platformBuildSelect, List<PluginNode> list)
+	public void selectInto(@NotNull PluginStatisticsService statisticsService, @NotNull PluginChannel channel, @NotNull String platformVersion, boolean platformBuildSelect, List<PluginNode> list)
 	{
 		try (AccessToken ignored = readLock())
 		{
@@ -241,7 +242,7 @@ public class PluginsState
 			PluginNode last = pluginNodes.last();
 
 			PluginNode lastCloned = last.clone();
-			//lastCloned.downloads = statisticsService.getDownloadStat(last.id).size();
+			lastCloned.downloads = statisticsService.getDownloadStatCount(last.id, channel);
 			list.add(lastCloned);
 		}
 	}

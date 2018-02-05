@@ -106,7 +106,7 @@ public class PluginChannelService
 		List<PluginNode> list = new ArrayList<>();
 		for(PluginsState state : myPlugins.values())
 		{
-			state.selectInto(statisticsService, platformVersion, platformBuildSelect, list);
+			state.selectInto(statisticsService, myChannel, platformVersion, platformBuildSelect, list);
 		}
 		return list.isEmpty() ? PluginNode.EMPTY_ARRAY : list.toArray(new PluginNode[list.size()]);
 	}
