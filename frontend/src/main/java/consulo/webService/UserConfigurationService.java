@@ -51,7 +51,7 @@ public class UserConfigurationService
 
 	private AtomicLong myTempCount = new AtomicLong();
 
-	private Executor myExecutor = Executors.newFixedThreadPool(Integer.MAX_VALUE, new ThreadFactory()
+	private Executor myExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory()
 	{
 		private final ThreadGroup myGroup = new ThreadGroup("async delete");
 
@@ -135,7 +135,10 @@ public class UserConfigurationService
 			{
 				PropertySet oldPropertySet = myPropertySet;
 
-				properties.loadFromXML(new FileInputStream(file));
+				try (FileInputStream in = new FileInputStream(file))
+				{
+					properties.loadFromXML(in);
+				}
 				myPropertySet = new PropertySet(properties);
 
 				onPropertySetChanged(oldPropertySet, myPropertySet);
