@@ -162,7 +162,7 @@ public class PluginChannelIterationService
 	/**
 	 * every hour
 	 */
-	@Scheduled(cron = "0 0 * * * *")
+	//@Scheduled(cron = "0 0 * * * *")
 	public void iterAlpha()
 	{
 		iterate(PluginChannel.nightly, PluginChannel.alpha);
