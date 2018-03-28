@@ -234,6 +234,16 @@ public class PluginAnalyzerService
 							}
 						});
 						break;
+					case "com.intellij.vcs":
+						forEachQuiet(entry, element ->
+						{
+							String extensionKey = element.getAttributeValue("name");
+							if(extensionKey != null)
+							{
+								data.putValue(key, extensionKey);
+							}
+						});
+						break;
 					case "com.intellij.fileTypeFactory":
 						forEachQuiet(entry, element ->
 						{

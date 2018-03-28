@@ -69,6 +69,17 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.extensions[0].values[0], "GradleRunConfiguration");
 	}
 
+	@Test
+	public void testGitPlugin() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/com.intellij.git_583.zip");
+
+		assertEquals(pluginNode.id, "com.intellij.git");
+		assertNotNull(pluginNode.extensions);
+		assertEquals(pluginNode.extensions.length, 1);
+		assertEquals(pluginNode.extensions[0].values[0], "Git");
+	}
+
 	private PluginNode loadPlugin(String... pluginPaths) throws Exception
 	{
 		assertTrue(pluginPaths.length != 0);
