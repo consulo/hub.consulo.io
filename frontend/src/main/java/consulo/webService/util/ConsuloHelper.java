@@ -1,9 +1,12 @@
 package consulo.webService.util;
 
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
+import consulo.util.logging.LoggerFactory;
 
 /**
  * @author VISTALL
@@ -66,8 +69,9 @@ public class ConsuloHelper
 		}
 	}
 
-	private static class MyLoggerFactory implements Logger.Factory
+	private static class MyLoggerFactory implements LoggerFactory
 	{
+		@Nonnull
 		@Override
 		public Logger getLoggerInstance(String s)
 		{
@@ -77,7 +81,7 @@ public class ConsuloHelper
 
 	static
 	{
-		Logger.setFactory(MyLoggerFactory.class);
+		Logger.setFactory(new MyLoggerFactory());
 	}
 
 	public static void init()

@@ -2,6 +2,8 @@ package consulo.pluginAnalyzer;
 
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.core.CoreApplicationEnvironment;
@@ -13,6 +15,7 @@ import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.AppScheduledExecutorService;
+import consulo.util.logging.LoggerFactory;
 
 /**
  * @author VISTALL
@@ -41,8 +44,9 @@ public class Analyzer
 		}
 	}
 
-	public static class SilentFactory implements Logger.Factory
+	public static class SilentFactory implements LoggerFactory
 	{
+		@Nonnull
 		@Override
 		public Logger getLoggerInstance(String s)
 		{
@@ -55,7 +59,7 @@ public class Analyzer
 	// called by reflection inside PluginAnalyzerService
 	public static void before()
 	{
-		Logger.setFactory(SilentFactory.class);
+		Logger.setFactory(new SilentFactory());
 
 		// we need create app, and disable UnitTest mode, some plugins check it in fileTypeFactory
 		new CoreApplicationEnvironment(ourRootDisposable)
