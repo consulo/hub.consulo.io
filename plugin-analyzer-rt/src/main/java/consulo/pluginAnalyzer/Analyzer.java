@@ -52,6 +52,18 @@ public class Analyzer
 		{
 			return new SilentLogger(s);
 		}
+
+		@Override
+		public int getPriority()
+		{
+			return 0;
+		}
+
+		@Override
+		public void shutdown()
+		{
+
+		}
 	}
 
 	private static Disposable ourRootDisposable = Disposer.newDisposable();

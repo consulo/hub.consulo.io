@@ -77,6 +77,18 @@ public class ConsuloHelper
 		{
 			return new MyLogger(s);
 		}
+
+		@Override
+		public int getPriority()
+		{
+			return 0;
+		}
+
+		@Override
+		public void shutdown()
+		{
+
+		}
 	}
 
 	static
