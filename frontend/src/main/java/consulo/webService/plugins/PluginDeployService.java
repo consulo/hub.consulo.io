@@ -164,7 +164,7 @@ public class PluginDeployService
 	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
 	{
 		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
-		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1);
+		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1, false);
 		if(pluginDescriptors.size() != 1)
 		{
 			throw new IllegalArgumentException("Bad plugin [" + pluginDescriptors.size() + "]");

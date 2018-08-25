@@ -181,6 +181,20 @@
 		</dependency>
 
 		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-injecting-api</artifactId>
+			<version>${consulo.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-injecting-pico-impl</artifactId>
+			<version>${consulo.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>consulo.internal</groupId>
 			<artifactId>jdom</artifactId>
 		</dependency>

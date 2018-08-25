@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -89,6 +91,16 @@ public class PluginAnalyzerService
 		addUrlByClass("com.intellij.openapi.externalSystem.model.ExternalProject");
 		// external-system-impl
 		addUrlByClass("com.intellij.openapi.externalSystem.action.AttachExternalProjectAction");
+		// injeting-api
+		addUrlByClass("consulo.injecting.InjectingContainerOwner");
+		// injecting-pico-impl
+		addUrlByClass("consulo.injecting.pico.PicoInjectingContainer");
+		// test-impl
+		addUrlByClass("consulo.test.light.LightApplicationBuilder");
+		// editor-ex
+		addUrlByClass("com.intellij.ide.ui.UISettings");
+		// javax.inject
+		addUrlByClass(Inject.class);
 		// extensions
 		addUrlByClass(PluginId.class);
 		// picocontainer

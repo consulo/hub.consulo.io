@@ -4,10 +4,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.core.CoreApplicationEnvironment;
-import com.intellij.mock.MockApplication;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
@@ -15,6 +12,7 @@ import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.AppScheduledExecutorService;
+import consulo.test.light.LightApplicationBuilder;
 import consulo.util.logging.LoggerFactory;
 
 /**
@@ -74,22 +72,7 @@ public class Analyzer
 		Logger.setFactory(new SilentFactory());
 
 		// we need create app, and disable UnitTest mode, some plugins check it in fileTypeFactory
-		new CoreApplicationEnvironment(ourRootDisposable)
-		{
-			@NotNull
-			@Override
-			protected MockApplication createApplication(@NotNull Disposable parentDisposable)
-			{
-				return new MockApplication(parentDisposable)
-				{
-					@Override
-					public boolean isUnitTestMode()
-					{
-						return false;
-					}
-				};
-			}
-		};
+		LightApplicationBuilder.create(ourRootDisposable).build();
 	}
 
 	// called by reflection inside PluginAnalyzerService
