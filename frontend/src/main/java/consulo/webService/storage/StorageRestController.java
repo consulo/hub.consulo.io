@@ -109,6 +109,25 @@ public class StorageRestController
 		}
 	}
 
+	@RequestMapping(value = "/api/storage/deleteFile", method = RequestMethod.GET)
+	public ResponseEntity<?> deleteFile(@RequestParam("filePath") String filePath, @RequestHeader("Authorization") String authorization)
+	{
+		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
+		if(token == null)
+		{
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		MongoStorageFile storageFile = myStorageFileRepository.findByEmailAndFilePath(token.getUserName(), filePath);
+		if(storageFile == null)
+		{
+			return ResponseEntity.notFound().build();
+		}
+
+		myStorageFileRepository.delete(storageFile);
+		return ResponseEntity.ok().build();
+	}
+
 	@RequestMapping(value = "/api/storage/pushFile", method = RequestMethod.POST)
 	public PushFileBeanResponse pushFile(@RequestBody(required = true) PushFileBeanRequest data, @RequestHeader("Authorization") String authorization) throws Exception
 	{
