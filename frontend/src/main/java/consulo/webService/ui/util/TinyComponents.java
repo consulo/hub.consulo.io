@@ -6,6 +6,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -57,6 +58,23 @@ public class TinyComponents
 		TextField textField = new TextField();
 		textField.setValue(value);
 		textField.setStyleName(ValoTheme.TEXTFIELD_TINY);
+		return textField;
+	}
+
+	public static TextArea newTextArea()
+	{
+		return newTextArea("");
+	}
+
+	public static TextArea newTextArea(@Nullable String value)
+	{
+		if(value == null)
+		{
+			value = "";
+		}
+		TextArea textField = new TextArea();
+		textField.setValue(value);
+		textField.setStyleName(ValoTheme.TEXTAREA_TINY);
 		return textField;
 	}
 

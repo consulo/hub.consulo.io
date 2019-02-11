@@ -1,8 +1,8 @@
 package consulo.webService.storage;
 
-import java.io.DataOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
+import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -15,11 +15,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import com.intellij.openapi.util.io.BufferExposingByteArrayOutputStream;
+import com.intellij.openapi.util.Pair;
+import consulo.externalStorage.storage.DataCompressor;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
+import consulo.webService.storage.bean.PushFileBeanRequest;
+import consulo.webService.storage.bean.PushFileBeanResponse;
 import consulo.webService.storage.mongo.MongoStorageFile;
 import consulo.webService.storage.mongo.MongoStorageFileRepository;
+import consulo.webService.storage.mongo.MongoStorageFileUpdateBy;
 
 /**
  * @author VISTALL
@@ -33,55 +37,45 @@ public class StorageRestController
 	{
 	}
 
-	public static class PushFile
-	{
-		public int modCount;
-
-		public PushFile(int modCount)
-		{
-			this.modCount = modCount;
-		}
-	}
-
 	@Autowired
 	private MongoStorageFileRepository myStorageFileRepository;
 
 	@Autowired
 	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
 
-	@RequestMapping(value = "/api/storage/getAll", method = RequestMethod.GET)
-	public ResponseEntity<?> getAll(@RequestHeader("Authorization") String authorization) throws IOException
-	{
-		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		if(token == null)
-		{
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-
-		List<MongoStorageFile> list = myStorageFileRepository.findByEmail(token.getUserName());
-		if(list.isEmpty())
-		{
-			return ResponseEntity.noContent().build();
-		}
-
-		BufferExposingByteArrayOutputStream arrayOutputStream = new BufferExposingByteArrayOutputStream();
-		try (DataOutputStream stream = new DataOutputStream(arrayOutputStream))
-		{
-			stream.writeByte(0x01); // version
-
-			stream.writeShort(list.size());
-			for(MongoStorageFile storageFile : list)
-			{
-				stream.writeInt(storageFile.getModCount());
-				stream.writeUTF(storageFile.getFilePath());
-				byte[] data = storageFile.getData();
-				stream.writeShort(data.length);
-				stream.write(data);
-			}
-		}
-
-		return ResponseEntity.ok(new ByteArrayResource(arrayOutputStream.toByteArray()));
-	}
+//	@RequestMapping(value = "/api/storage/getAll", method = RequestMethod.GET)
+//	public ResponseEntity<?> getAll(@RequestHeader("Authorization") String authorization) throws IOException
+//	{
+//		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
+//		if(token == null)
+//		{
+//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//		}
+//
+//		List<MongoStorageFile> list = myStorageFileRepository.findByEmail(token.getUserName());
+//		if(list.isEmpty())
+//		{
+//			return ResponseEntity.noContent().build();
+//		}
+//
+//		BufferExposingByteArrayOutputStream arrayOutputStream = new BufferExposingByteArrayOutputStream();
+//		try (DataOutputStream stream = new DataOutputStream(arrayOutputStream))
+//		{
+//			stream.writeByte(0x01); // version
+//
+//			stream.writeShort(list.size());
+//			for(MongoStorageFile storageFile : list)
+//			{
+//				stream.writeInt(storageFile.getModCount());
+//				stream.writeUTF(storageFile.getFilePath());
+//				byte[] data = storageFile.getData();
+//				stream.writeShort(data.length);
+//				stream.write(data);
+//			}
+//		}
+//
+//		return ResponseEntity.ok(new ByteArrayResource(arrayOutputStream.toByteArray()));
+//	}
 
 	@RequestMapping(value = "/api/storage/getFile", method = RequestMethod.GET)
 	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @RequestHeader("Authorization") String authorization)
@@ -103,17 +97,28 @@ public class StorageRestController
 			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
 		}
 
-		return ResponseEntity.ok(new ByteArrayResource(storageFile.getData()));
+		try
+		{
+			byte[] data = storageFile.getData();
+			byte[] compressedData = DataCompressor.compress(data, data.length, storageFile.getModCount());
+			return ResponseEntity.ok(new ByteArrayResource(compressedData));
+		}
+		catch(IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	@RequestMapping(value = "/api/storage/pushFile", method = RequestMethod.POST)
-	public PushFile pushFile(@RequestParam("filePath") String filePath, @RequestBody(required = true) byte[] data, @RequestHeader("Authorization") String authorization) throws Exception
+	public PushFileBeanResponse pushFile(@RequestBody(required = true) PushFileBeanRequest data, @RequestHeader("Authorization") String authorization) throws Exception
 	{
 		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
 		if(token == null)
 		{
 			throw new NotAuthorizedException();
 		}
+
+		String filePath = data.getFilePath();
 
 		MongoStorageFile prevFile = myStorageFileRepository.findByEmailAndFilePath(token.getUserName(), filePath);
 
@@ -131,11 +136,20 @@ public class StorageRestController
 			file.setModCount(count = 1);
 		}
 
-		file.setData(data);
+		MongoStorageFileUpdateBy by = new MongoStorageFileUpdateBy();
+		by.setTime(System.currentTimeMillis());
+		data.copyTo(by);
+
+		file.setUpdateBy(by);
+
+		String bytes = data.getBytes();
+
+		Pair<byte[], Integer> uncompress = DataCompressor.uncompress(new ByteArrayInputStream(Base64.getDecoder().decode(bytes)));
+
+		file.setData(uncompress.getFirst());
 
 		myStorageFileRepository.save(file);
 
-		return new PushFile(count);
+		return new PushFileBeanResponse(count);
 	}
-
 }

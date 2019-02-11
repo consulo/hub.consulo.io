@@ -26,6 +26,8 @@ public class MongoStorageFile
 
 	private int modCount;
 
+	private MongoStorageFileUpdateBy updateBy;
+
 	public MongoStorageFile()
 	{
 	}
@@ -83,6 +85,16 @@ public class MongoStorageFile
 	public void setModCount(int modCount)
 	{
 		this.modCount = modCount;
+	}
+
+	public MongoStorageFileUpdateBy getUpdateBy()
+	{
+		return updateBy;
+	}
+
+	public void setUpdateBy(MongoStorageFileUpdateBy updateBy)
+	{
+		this.updateBy = updateBy;
 	}
 
 	@Override
