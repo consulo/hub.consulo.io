@@ -22,6 +22,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -83,9 +84,12 @@ public class StorageView extends VerticalLayout implements View
 		rightLayout.addComponent(textArea);
 
 		VerticalLayout updateInfoPanel = new VerticalLayout();
+		updateInfoPanel.setSizeFull();
 		updateInfoPanel.setSpacing(false);
-		updateInfoPanel.setMargin(false);
-		rightLayout.addComponent(updateInfoPanel);
+
+		Panel bottom = new Panel("Updated by", updateInfoPanel);
+		bottom.setSizeFull();
+		rightLayout.addComponent(bottom);
 
 		listSelect.addValueChangeListener(event1 ->
 		{
