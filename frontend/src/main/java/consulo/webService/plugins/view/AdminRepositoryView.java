@@ -51,6 +51,7 @@ public class AdminRepositoryView extends VerticalLayout implements View
 		layout.addComponent(TinyComponents.newButton("beta " + UIUtil.rightArrow() + " release", event -> forceIterate(PluginChannel.beta, PluginChannel.release)));
 
 		addComponent(layout);
+		setExpandRatio(layout, 1);
 	}
 
 	private void forceIterate(@NotNull PluginChannel from, @NotNull PluginChannel to)

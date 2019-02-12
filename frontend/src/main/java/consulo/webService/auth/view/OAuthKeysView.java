@@ -148,6 +148,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 		myTokenListPanel.addStyleName("bodyMargin");
 
 		addComponent(myTokenListPanel);
+		setExpandRatio(myTokenListPanel, 1);
 
 		List<OAuth2AuthenticationAccessToken> tokens = myOAuth2AccessTokenRepository.findByClientIdAndUserName(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID, authentication.getName());
 		for(OAuth2AuthenticationAccessToken token : tokens)
