@@ -2,7 +2,8 @@ package consulo.webService.util;
 
 import java.lang.reflect.Modifier;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -16,13 +17,13 @@ public class GsonUtil
 
 	private static final Gson ourPrettyGson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).create();
 
-	@NotNull
+	@Nonnull
 	public static Gson prettyGet()
 	{
 		return ourPrettyGson;
 	}
 
-	@NotNull
+	@Nonnull
 	public static Gson get()
 	{
 		return ourGson;

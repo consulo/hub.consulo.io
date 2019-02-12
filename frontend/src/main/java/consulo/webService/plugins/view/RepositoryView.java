@@ -1,7 +1,8 @@
 package consulo.webService.plugins.view;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
@@ -94,8 +95,8 @@ public class RepositoryView extends VerticalLayout implements View
 		repositoryChannelPanel.selectPlugin(viewChangeEvent.getParameters());
 	}
 
-	@NotNull
-	public static Pair<PluginChannel, String> parseViewParameters(@NotNull String fragment)
+	@Nonnull
+	public static Pair<PluginChannel, String> parseViewParameters(@Nonnull String fragment)
 	{
 		try
 		{
@@ -112,7 +113,7 @@ public class RepositoryView extends VerticalLayout implements View
 		return Pair.create(PluginChannel.release, null);
 	}
 
-	public static String getViewParameters(@NotNull PluginChannel pluginChannel, @Nullable String id)
+	public static String getViewParameters(@Nonnull PluginChannel pluginChannel, @Nullable String id)
 	{
 		if(id != null)
 		{

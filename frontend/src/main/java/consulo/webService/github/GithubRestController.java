@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.kohsuke.github.GHEventPayload;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHIssueBuilder;
@@ -55,7 +55,7 @@ public class GithubRestController
 
 	@Nullable
 	@VisibleForTesting
-	public static String getRepoName(@NotNull String comment)
+	public static String getRepoName(@Nonnull String comment)
 	{
 		Matcher matcher = ourPattern.matcher(comment);
 		if(matcher.find())

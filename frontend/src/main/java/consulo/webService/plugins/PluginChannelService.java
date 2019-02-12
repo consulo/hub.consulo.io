@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
@@ -89,7 +89,7 @@ public class PluginChannelService
 	}
 
 	@Nullable
-	public PluginNode select(@NotNull String platformVersion, @NotNull String pluginId, @Nullable String version, boolean platformBuildSelect)
+	public PluginNode select(@Nonnull String platformVersion, @Nonnull String pluginId, @Nullable String version, boolean platformBuildSelect)
 	{
 		PluginsState state = myPlugins.get(pluginId);
 		if(state == null)
@@ -100,8 +100,8 @@ public class PluginChannelService
 		return state.select(platformVersion, version, platformBuildSelect);
 	}
 
-	@NotNull
-	public PluginNode[] select(@NotNull PluginStatisticsService statisticsService, @NotNull String platformVersion, boolean platformBuildSelect)
+	@Nonnull
+	public PluginNode[] select(@Nonnull PluginStatisticsService statisticsService, @Nonnull String platformVersion, boolean platformBuildSelect)
 	{
 		List<PluginNode> list = new ArrayList<>();
 		for(PluginsState state : myPlugins.values())
@@ -111,7 +111,7 @@ public class PluginChannelService
 		return list.isEmpty() ? PluginNode.EMPTY_ARRAY : list.toArray(new PluginNode[list.size()]);
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<String, PluginsState> copyPluginsState()
 	{
 		Map<String, PluginsState> map = new LinkedHashMap<>();
@@ -122,7 +122,7 @@ public class PluginChannelService
 		return map;
 	}
 
-	public void iteratePluginNodes(@NotNull Consumer<PluginNode> consumer)
+	public void iteratePluginNodes(@Nonnull Consumer<PluginNode> consumer)
 	{
 		for(PluginsState pluginsState : myPlugins.values())
 		{

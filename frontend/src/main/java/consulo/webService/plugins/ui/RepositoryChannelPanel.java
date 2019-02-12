@@ -7,6 +7,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
 import org.dussan.vaadin.dcharts.base.elements.XYseries;
@@ -23,8 +25,8 @@ import org.dussan.vaadin.dcharts.options.Options;
 import org.dussan.vaadin.dcharts.options.Series;
 import org.dussan.vaadin.dcharts.options.SeriesDefaults;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.ejt.vaadin.sizereporter.SizeReporter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -66,7 +68,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private Map<PluginNode, String> myNameToIdMap;
 
-	public RepositoryChannelPanel(@NotNull PluginChannel pluginChannel, @NotNull UserConfigurationService userConfigurationService, @NotNull PluginStatisticsService pluginStatisticsService)
+	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull UserConfigurationService userConfigurationService, @Nonnull PluginStatisticsService pluginStatisticsService)
 	{
 		myPluginChannel = pluginChannel;
 		myPluginStatisticsService = pluginStatisticsService;

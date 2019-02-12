@@ -1,6 +1,7 @@
 package consulo.webService.errorReporter.mongo;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -15,12 +16,12 @@ public interface ErrorReportRepository extends MongoRepository<ErrorReport, Stri
 {
 	String CREATE_DATE = "createDate";
 
-	@NotNull
+	@Nonnull
 	Page<ErrorReport> findByReporterEmail(String email, Pageable pageable);
 
-	@NotNull
+	@Nonnull
 	Page<ErrorReport> findByReporterEmailAndStatusIn(String email, ErrorReporterStatus[] errorReporterStatuses, Pageable pageable);
 
-	@NotNull
+	@Nonnull
 	Page<ErrorReport> findByStatusIn(ErrorReporterStatus[] errorReporterStatuses, Pageable pageable);
 }

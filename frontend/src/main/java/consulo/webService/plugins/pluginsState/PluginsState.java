@@ -9,8 +9,8 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
@@ -48,7 +48,7 @@ public class PluginsState
 		myPluginDirectory = new File(rootDir, pluginId);
 	}
 
-	@NotNull
+	@Nonnull
 	public NavigableMap<String, NavigableSet<PluginNode>> getPluginsByPlatformVersion()
 	{
 		return myPluginsByPlatformVersion;
@@ -57,7 +57,7 @@ public class PluginsState
 	/**
 	 * @return lock free plugins state
 	 */
-	@NotNull
+	@Nonnull
 	public PluginsState copy()
 	{
 		PluginsState copy = new PluginsState(myPluginDirectory, myPluginId);
@@ -93,12 +93,12 @@ public class PluginsState
 		nodes.add(pluginNode);
 	}
 
-	private static NavigableSet<PluginNode> newTreeSet(@NotNull String unused)
+	private static NavigableSet<PluginNode> newTreeSet(@Nonnull String unused)
 	{
 		return new TreeSet<>((o1, o2) -> VersionComparatorUtil.compare(o1.version, o2.version));
 	}
 
-	@NotNull
+	@Nonnull
 	public List<PluginNode> getAll()
 	{
 		try (AccessToken ignored = readLock())
@@ -112,7 +112,7 @@ public class PluginsState
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public File getFileForPlugin(String version, String ext)
 	{
 		String fileName = myPluginId + "_" + version + "." + ext;
@@ -202,7 +202,7 @@ public class PluginsState
 	}
 
 	@Nullable
-	public PluginNode select(@NotNull String platformVersion, @Nullable String version, boolean platformBuildSelect)
+	public PluginNode select(@Nonnull String platformVersion, @Nullable String version, boolean platformBuildSelect)
 	{
 		try (AccessToken ignored = readLock())
 		{
@@ -229,7 +229,7 @@ public class PluginsState
 		}
 	}
 
-	public void selectInto(@NotNull PluginStatisticsService statisticsService, @NotNull PluginChannel channel, @NotNull String platformVersion, boolean platformBuildSelect, List<PluginNode> list)
+	public void selectInto(@Nonnull PluginStatisticsService statisticsService, @Nonnull PluginChannel channel, @Nonnull String platformVersion, boolean platformBuildSelect, List<PluginNode> list)
 	{
 		try (AccessToken ignored = readLock())
 		{
@@ -290,7 +290,7 @@ public class PluginsState
 	}
 
 	@Nullable
-	private NavigableSet<PluginNode> getPluginSetByVersion(@NotNull String platformVersion, boolean platformBuildSelect)
+	private NavigableSet<PluginNode> getPluginSetByVersion(@Nonnull String platformVersion, boolean platformBuildSelect)
 	{
 		NavigableMap<String, NavigableSet<PluginNode>> map = myPluginsByPlatformVersion;
 		if(PluginChannelService.SNAPSHOT.equals(platformVersion) || !platformBuildSelect && PluginChannelService.isPlatformNode(myPluginId))

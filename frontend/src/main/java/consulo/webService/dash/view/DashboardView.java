@@ -3,7 +3,7 @@ package consulo.webService.dash.view;
 import java.util.Date;
 import java.util.Locale;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -114,7 +114,7 @@ public class DashboardView extends VerticalLayout implements View
 		return panel("Last Error Reports", verticalLayout);
 	}
 
-	@NotNull
+	@Nonnull
 	private static Panel panel(String cap, Component component)
 	{
 		Panel panel = new Panel(cap, component);

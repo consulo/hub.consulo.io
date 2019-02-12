@@ -1,9 +1,9 @@
 package consulo.webService.util;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
 import consulo.util.logging.LoggerFactory;

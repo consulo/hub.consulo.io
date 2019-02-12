@@ -11,7 +11,8 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,7 +187,7 @@ public class PluginChannelIterationService
 		iterate(PluginChannel.beta, PluginChannel.release);
 	}
 
-	public void iterate(@NotNull PluginChannel from, @NotNull PluginChannel to)
+	public void iterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
 	{
 		PluginChannelService fromChannel = myUserConfigurationService.getRepositoryByChannel(from);
 		PluginChannelService toChannel = myUserConfigurationService.getRepositoryByChannel(to);

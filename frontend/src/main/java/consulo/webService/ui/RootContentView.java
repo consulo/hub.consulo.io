@@ -2,7 +2,8 @@ package consulo.webService.ui;
 
 import java.time.LocalDate;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Alignment;
@@ -72,7 +73,7 @@ public class RootContentView extends HorizontalLayout
 		setExpandRatio(table, 1.0f);
 	}
 
-	@NotNull
+	@Nonnull
 	public ComponentContainer getComponentContainer()
 	{
 		return myComponentContainer;

@@ -1,6 +1,6 @@
 package consulo.webService.ui.util;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;

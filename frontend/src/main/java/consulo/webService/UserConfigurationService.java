@@ -11,10 +11,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +59,9 @@ public class UserConfigurationService
 			myGroup.setMaxPriority(Thread.MIN_PRIORITY);
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
-		public Thread newThread(@NotNull Runnable r)
+		public Thread newThread(@Nonnull Runnable r)
 		{
 			return new Thread(myGroup, r);
 		}
@@ -71,13 +71,13 @@ public class UserConfigurationService
 	private TaskExecutor myTaskExecutor;
 
 	@Autowired
-	public UserConfigurationService(@NotNull TaskExecutor taskExecutor)
+	public UserConfigurationService(@Nonnull TaskExecutor taskExecutor)
 	{
 		this(SystemProperties.getUserHome(), taskExecutor);
 	}
 
 	@VisibleForTesting
-	public UserConfigurationService(String userHome, @NotNull TaskExecutor taskExecutor)
+	public UserConfigurationService(String userHome, @Nonnull TaskExecutor taskExecutor)
 	{
 		myTaskExecutor = taskExecutor;
 
@@ -97,7 +97,7 @@ public class UserConfigurationService
 		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConfigDirectory.getPath());
 	}
 
-	@NotNull
+	@Nonnull
 	public PropertySet getPropertySet()
 	{
 		return Objects.requireNonNull(myPropertySet);
@@ -150,13 +150,13 @@ public class UserConfigurationService
 		}
 	}
 
-	@NotNull
-	public PluginChannelService getRepositoryByChannel(@NotNull PluginChannel channel)
+	@Nonnull
+	public PluginChannelService getRepositoryByChannel(@Nonnull PluginChannel channel)
 	{
 		return myPluginChannelServices[channel.ordinal()];
 	}
 
-	@NotNull
+	@Nonnull
 	public File createTempFile(String prefix, @Nullable String ext)
 	{
 		long l = myTempCount.incrementAndGet();
@@ -191,7 +191,7 @@ public class UserConfigurationService
 		reloadProperties();
 	}
 
-	private void onPropertySetChanged(@Nullable PropertySet oldPropertySet, @NotNull PropertySet propertySet)
+	private void onPropertySetChanged(@Nullable PropertySet oldPropertySet, @Nonnull PropertySet propertySet)
 	{
 		myTaskExecutor.execute(() ->
 		{

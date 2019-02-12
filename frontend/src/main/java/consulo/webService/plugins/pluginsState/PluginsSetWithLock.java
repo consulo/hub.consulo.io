@@ -6,7 +6,8 @@ import java.util.NavigableSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.util.io.FileUtilRt;
 import consulo.webService.plugins.PluginNode;
@@ -43,7 +44,7 @@ public class PluginsSetWithLock extends PluginsState
 		FileUtilRt.createParentDirs(myPluginDirectory);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public NavigableMap<String, NavigableSet<PluginNode>> getPluginsByPlatformVersion()
 	{

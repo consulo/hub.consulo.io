@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -33,9 +34,9 @@ public class PluginChannelRestController
 	private final PluginStatisticsService myPluginStatisticsService;
 
 	@Autowired
-	public PluginChannelRestController(@NotNull UserConfigurationService userConfigurationService,
-			@NotNull PluginDeployService pluginDeployService,
-			@NotNull PluginStatisticsService pluginStatisticsService)
+	public PluginChannelRestController(@Nonnull UserConfigurationService userConfigurationService,
+			@Nonnull PluginDeployService pluginDeployService,
+			@Nonnull PluginStatisticsService pluginStatisticsService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;

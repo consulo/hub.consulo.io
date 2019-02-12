@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -21,7 +23,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.io.StreamUtil;
@@ -35,7 +36,7 @@ public class TarGzArchive
 {
 	private final Map<String, TarGzArchiveEntry> myEntries = new LinkedHashMap<>();
 
-	public void extract(@NotNull File from, @NotNull File targetDirectory) throws IOException
+	public void extract(@Nonnull File from, @Nonnull File targetDirectory) throws IOException
 	{
 		FileSystemUtils.deleteRecursively(targetDirectory);
 		FileUtilRt.createDirectory(targetDirectory);
@@ -88,7 +89,7 @@ public class TarGzArchive
 		}
 	}
 
-	public void create(@NotNull File file, @NotNull String type) throws IOException, ArchiveException
+	public void create(@Nonnull File file, @Nonnull String type) throws IOException, ArchiveException
 	{
 		ArchiveStreamFactory factory = new ArchiveStreamFactory();
 		try (OutputStream pathStream = createFileStream(file, type))
@@ -151,7 +152,7 @@ public class TarGzArchive
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private ArchiveEntry createEntry(String name, TarGzArchiveEntry entry, String type)
 	{
 		ArchiveEntry archiveEntry;
@@ -180,19 +181,19 @@ public class TarGzArchive
 		return archiveEntry;
 	}
 
-	public boolean removeEntry(@NotNull String entryName)
+	public boolean removeEntry(@Nonnull String entryName)
 	{
 		return myEntries.remove(entryName) != null;
 	}
 
-	public void putEntry(@NotNull String entryName, @NotNull byte[] data)
+	public void putEntry(@Nonnull String entryName, @Nonnull byte[] data)
 	{
 		TarGzArchiveEntry entry = new TarGzArchiveEntry(entryName, false, TarEntry.DEFAULT_FILE_MODE, System.currentTimeMillis(), TarEntry.LF_NORMAL, null);
 		entry.setExtractedData(data);
 		myEntries.put(entryName, entry);
 	}
 
-	@NotNull
+	@Nonnull
 	private static OutputStream createFileStream(File file, String type) throws IOException
 	{
 		FileOutputStream fileOutputStream = new FileOutputStream(file);

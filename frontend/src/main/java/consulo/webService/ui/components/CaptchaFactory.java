@@ -1,6 +1,7 @@
 package consulo.webService.ui.components;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.vaadin.server.Sizeable;
@@ -28,7 +29,7 @@ public class CaptchaFactory
 		myConfigurationService = configurationService;
 	}
 
-	@NotNull
+	@Nonnull
 	public Captcha create()
 	{
 		PropertySet propertySet = myConfigurationService.getPropertySet();
@@ -45,7 +46,7 @@ public class CaptchaFactory
 
 			return new Captcha()
 			{
-				@NotNull
+				@Nonnull
 				@Override
 				public Component getComponent()
 				{
@@ -72,7 +73,7 @@ public class CaptchaFactory
 		{
 			return new Captcha()
 			{
-				@NotNull
+				@Nonnull
 				@Override
 				public Component getComponent()
 				{

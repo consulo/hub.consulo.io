@@ -3,7 +3,8 @@ package consulo.webService.ui;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import com.google.common.eventbus.Subscribe;
 import com.intellij.openapi.util.Pair;
 import com.vaadin.navigator.View;
@@ -92,7 +93,7 @@ public class NavigationMenu extends CustomComponent
 		return logoWrapper;
 	}
 
-	@NotNull
+	@Nonnull
 	public MenuBar.MenuItem setUser(String name, Resource icon)
 	{
 		myUserMenuBar.removeItems();
@@ -100,7 +101,7 @@ public class NavigationMenu extends CustomComponent
 		return myUserMenuBar.addItem(name, icon, null);
 	}
 
-	@NotNull
+	@Nonnull
 	public Component addSeparator(String title)
 	{
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
@@ -123,7 +124,7 @@ public class NavigationMenu extends CustomComponent
 		return layout;
 	}
 
-	@NotNull
+	@Nonnull
 	public Component addSeparator()
 	{
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
@@ -150,8 +151,8 @@ public class NavigationMenu extends CustomComponent
 		return midLayout;
 	}
 
-	@NotNull
-	public Component addNavigation(@NotNull String name, @NotNull Resource resource, @NotNull Class<? extends View> clazz)
+	@Nonnull
+	public Component addNavigation(@Nonnull String name, @Nonnull Resource resource, @Nonnull Class<? extends View> clazz)
 	{
 		try
 		{
@@ -172,8 +173,8 @@ public class NavigationMenu extends CustomComponent
 		}
 	}
 
-	@NotNull
-	public Pair<Component, Consumer<Integer>> addNavigationWithBadge(@NotNull String name, @NotNull Resource resource, @NotNull Class<? extends View> clazz)
+	@Nonnull
+	public Pair<Component, Consumer<Integer>> addNavigationWithBadge(@Nonnull String name, @Nonnull Resource resource, @Nonnull Class<? extends View> clazz)
 	{
 		try
 		{
@@ -213,7 +214,7 @@ public class NavigationMenu extends CustomComponent
 		return dashboardWrapper;
 	}
 
-	public void removeMenuItem(@NotNull Component component)
+	public void removeMenuItem(@Nonnull Component component)
 	{
 		myMenuItemsLayout.removeComponent(component);
 	}

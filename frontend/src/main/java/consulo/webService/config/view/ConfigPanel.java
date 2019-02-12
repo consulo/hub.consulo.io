@@ -7,8 +7,9 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.SystemProperties;
 import com.vaadin.data.HasValue;
@@ -37,7 +38,7 @@ public class ConfigPanel extends VerticalLayout
 	private final List<Consumer<Properties>> myConsumers = new ArrayList<>();
 	private final UserConfigurationService myConfigurationService;
 
-	public ConfigPanel(@NotNull UserConfigurationService configurationService, @NotNull String buttonName, @NotNull Runnable action)
+	public ConfigPanel(@Nonnull UserConfigurationService configurationService, @Nonnull String buttonName, @Nonnull Runnable action)
 	{
 		myConfigurationService = configurationService;
 		setSpacing(false);
@@ -77,7 +78,7 @@ public class ConfigPanel extends VerticalLayout
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> void map(@NotNull Class<T> clazz, @NotNull HasValue<T> property, @NotNull String key, @Nullable Supplier<T> defSupplier)
+	private <T> void map(@Nonnull Class<T> clazz, @Nonnull HasValue<T> property, @Nonnull String key, @Nullable Supplier<T> defSupplier)
 	{
 		myConsumers.add(properties ->
 		{
@@ -120,7 +121,7 @@ public class ConfigPanel extends VerticalLayout
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private Component buildRepositoryGroup()
 	{
 		return buildGroup("Repository", layout ->
@@ -137,7 +138,7 @@ public class ConfigPanel extends VerticalLayout
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	private Component buildCaptchaGroup()
 	{
 		return buildGroup("Captcha", layout ->
@@ -165,7 +166,7 @@ public class ConfigPanel extends VerticalLayout
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	private Component buildGithubGroup()
 	{
 		return buildGroup("Github", layout ->
@@ -180,7 +181,7 @@ public class ConfigPanel extends VerticalLayout
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	private Component buildGAGroup()
 	{
 		return buildGroup("Google Analytics", layout ->
@@ -195,7 +196,7 @@ public class ConfigPanel extends VerticalLayout
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	private static Panel buildGroup(String title, Consumer<VerticalLayout> consumer)
 	{
 		Panel panel = new Panel(title);

@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +96,7 @@ public class PluginStatisticsService
 		myStatistics.putAll(map);
 	}
 
-	public void increaseDownload(@NotNull String pluginId, PluginChannel channel, @NotNull String version, @NotNull String platformVersion, boolean viaUpdate)
+	public void increaseDownload(@Nonnull String pluginId, PluginChannel channel, @Nonnull String version, @Nonnull String platformVersion, boolean viaUpdate)
 	{
 		Block block = myBlock;
 
@@ -110,7 +110,7 @@ public class PluginStatisticsService
 		info.myDownloadStat.add(downloadStat);
 	}
 
-	public int getDownloadStatCount(@NotNull String pluginId, @NotNull PluginChannel pluginChannel)
+	public int getDownloadStatCount(@Nonnull String pluginId, @Nonnull PluginChannel pluginChannel)
 	{
 		DownloadPluginStatistics statistics = myStatistics.get(pluginId);
 		if(statistics == null)
@@ -120,8 +120,8 @@ public class PluginStatisticsService
 		return statistics.byChannel[pluginChannel.ordinal()];
 	}
 
-	@NotNull
-	public List<MongoDownloadStat> getDownloadStat(@NotNull String pluginId)
+	@Nonnull
+	public List<MongoDownloadStat> getDownloadStat(@Nonnull String pluginId)
 	{
 		List<MongoDownloadStat> stats = getMongoDownloadStatFromMongo(pluginId);
 
@@ -133,7 +133,7 @@ public class PluginStatisticsService
 		return stats;
 	}
 
-	private List<MongoDownloadStat> getMongoDownloadStatFromMongo(@NotNull String pluginId)
+	private List<MongoDownloadStat> getMongoDownloadStatFromMongo(@Nonnull String pluginId)
 	{
 		MongoPluginNode pluginNode = myMongoPluginNodeRepository.findOne(pluginId);
 		if(pluginNode == null)

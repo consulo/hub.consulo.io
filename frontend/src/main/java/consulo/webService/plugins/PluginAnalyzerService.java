@@ -16,11 +16,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jetbrains.annotations.NotNull;
 import org.picocontainer.PicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +140,7 @@ public class PluginAnalyzerService
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public MultiMap<String, String> analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor, PluginChannelService channelService, String[] dependencies) throws Exception
 	{
 		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
@@ -184,14 +184,14 @@ public class PluginAnalyzerService
 
 		MultiMap<String, String> data = new MultiMap<String, String>()
 		{
-			@NotNull
+			@Nonnull
 			@Override
 			protected Map<String, Collection<String>> createMap()
 			{
 				return new TreeMap<>();
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
 			protected Collection<String> createCollection()
 			{

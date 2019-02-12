@@ -18,7 +18,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +59,8 @@ public class PluginDeployService
 		myPluginAnalyzerService = pluginAnalyzerService;
 	}
 
-	@NotNull
-	public PluginNode deployPlatform(@NotNull PluginChannel channel, int platformVersion, @NotNull MultipartFile multipartFile) throws Exception
+	@Nonnull
+	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull MultipartFile multipartFile) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
@@ -75,8 +75,8 @@ public class PluginDeployService
 		return pluginNode;
 	}
 
-	@NotNull
-	public PluginNode deployPlatform(@NotNull PluginChannel channel, int platformVersion, @NotNull String pluginId, @NotNull File tempFile) throws Exception
+	@Nonnull
+	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull File tempFile) throws Exception
 	{
 		File deployPlatform = myUserConfigurationService.createTempFile("deploy_platform_extract", null);
 
@@ -97,7 +97,7 @@ public class PluginDeployService
 		return pluginNode;
 	}
 
-	@NotNull
+	@Nonnull
 	private PluginNode deployPlatformImpl(PluginChannel channel, String pluginId, int platformVersion, TarGzArchive archive, String ext) throws Exception
 	{
 		PluginNode pluginNode = new PluginNode();

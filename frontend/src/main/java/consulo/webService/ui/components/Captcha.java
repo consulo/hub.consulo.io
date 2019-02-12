@@ -1,6 +1,6 @@
 package consulo.webService.ui.components;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.vaadin.ui.Component;
 
 /**
@@ -9,7 +9,7 @@ import com.vaadin.ui.Component;
 */
 public interface Captcha
 {
-	@NotNull
+	@Nonnull
 	Component getComponent();
 
 	boolean isValid();

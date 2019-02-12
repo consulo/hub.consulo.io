@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.intellij.openapi.fileTypes.ExactFileNameMatcher;
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
@@ -30,13 +32,13 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 	}
 
 	@Override
-	public void consume(@NotNull FileType fileType)
+	public void consume(@Nonnull FileType fileType)
 	{
 		consume(fileType, fileType.getDefaultExtension());
 	}
 
 	@Override
-	public void consume(@NotNull FileType fileType, @NonNls String extensions)
+	public void consume(@Nonnull FileType fileType, @NonNls String extensions)
 	{
 		if(extensions.isEmpty())
 		{
@@ -51,7 +53,7 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 	}
 
 	@Override
-	public void consume(@NotNull FileType fileType, FileNameMatcher... fileNameMatchers)
+	public void consume(@Nonnull FileType fileType, FileNameMatcher... fileNameMatchers)
 	{
 		if(fileType == PlainTextFileType.INSTANCE)
 		{
@@ -70,7 +72,7 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 
 	@Nullable
 	@Override
-	public FileType getStandardFileTypeByName(@NonNls @NotNull String s)
+	public FileType getStandardFileTypeByName(@NonNls @Nonnull String s)
 	{
 		return null;
 	}

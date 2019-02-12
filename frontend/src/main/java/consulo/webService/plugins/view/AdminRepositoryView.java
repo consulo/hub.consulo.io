@@ -1,6 +1,6 @@
 package consulo.webService.plugins.view;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import com.intellij.util.ui.UIUtil;
@@ -54,7 +54,7 @@ public class AdminRepositoryView extends VerticalLayout implements View
 		setExpandRatio(layout, 1);
 	}
 
-	private void forceIterate(@NotNull PluginChannel from, @NotNull PluginChannel to)
+	private void forceIterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
 	{
 		myTaskExecutor.execute(() -> myPluginChannelIterationService.iterate(from, to));
 	}

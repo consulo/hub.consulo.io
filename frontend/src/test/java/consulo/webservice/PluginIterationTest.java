@@ -5,7 +5,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.*;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -225,7 +226,7 @@ public class PluginIterationTest extends Assert
 		assertFalse(archive.removeEntry("Consulo/.nightly"));
 	}
 
-	@NotNull
+	@Nonnull
 	private PluginNode deployPlatform(PluginChannel channel, int platformVersion, String pluginId, String pluginPath) throws Exception
 	{
 		InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);

@@ -3,8 +3,8 @@ package consulo.pluginAnalyzer;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
