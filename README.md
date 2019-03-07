@@ -1,4 +1,4 @@
-# hub.consulo.io [![Build Status](https://ci.consulo.io/view/consulo-webservices/job/hub.consulo.io/badge/icon)](https://ci.consulo.io/view/consulo-webservices/job/hub.consulo.io/)
+# hub.consulo.io [![Build Status](https://ci.consulo.io/job/hub.consulo.io/badge/icon)](https://ci.consulo.io/job/hub.consulo.io/)
 
 Channels
  * release
