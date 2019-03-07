@@ -189,6 +189,12 @@
 
 		<dependency>
 			<groupId>consulo</groupId>
+			<artifactId>consulo-disposer-impl</artifactId>
+			<version>${consulo.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
 			<artifactId>consulo-injecting-pico-impl</artifactId>
 			<version>${consulo.version}</version>
 			<scope>runtime</scope>

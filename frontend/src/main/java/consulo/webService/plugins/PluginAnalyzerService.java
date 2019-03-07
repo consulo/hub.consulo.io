@@ -37,8 +37,10 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.ContainerUtilRt;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
+import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
 import consulo.webService.UserConfigurationService;
 
@@ -108,7 +110,11 @@ public class PluginAnalyzerService
 		// util
 		addUrlByClass(ContainerUtil.class);
 		// util-rt
+		addUrlByClass(ContainerUtilRt.class);
+		// disposer-api
 		addUrlByClass(Disposable.class);
+		// disposer-impl
+		addUrlByClass(DisposerInternalImpl.class);
 		// jdom
 		addUrlByClass(Document.class);
 		// trove4j
