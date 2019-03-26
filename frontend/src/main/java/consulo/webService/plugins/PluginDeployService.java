@@ -17,8 +17,9 @@ import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import javax.annotation.Nonnull;
+
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,7 +165,7 @@ public class PluginDeployService
 	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
 	{
 		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
-		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1, false);
+		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1, false, false);
 		if(pluginDescriptors.size() != 1)
 		{
 			throw new IllegalArgumentException("Bad plugin [" + pluginDescriptors.size() + "]");
