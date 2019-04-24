@@ -41,7 +41,7 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.extensions.length, 3);
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.configurationType");
 
-		assertTrue(ArrayUtil.contains("*.pom", pluginNode.extensions[1].values));
+		assertTrue(ArrayUtil.contains("*|pom", pluginNode.extensions[1].values));
 
 		assertEquals(pluginNode.extensions[2].values[0], "maven");
 	}
@@ -54,8 +54,7 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.extensions.length, 1);
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.fileTypeFactory");
 
-		assertTrue(ArrayUtil.contains("*.xml", pluginNode.extensions[0].values));
-
+		assertTrue(ArrayUtil.contains("*|xml", pluginNode.extensions[0].values));
 	}
 
 	@Test
@@ -67,6 +66,17 @@ public class AnalyzerTest extends Assert
 		assertNotNull(pluginNode.extensions);
 		assertEquals(pluginNode.extensions.length, 1);
 		assertEquals(pluginNode.extensions[0].values[0], "GradleRunConfiguration");
+	}
+
+	@Test
+	public void testDotIgnorePlugin() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/mobi.hsz.idea.gitignore_4.zip");
+
+		assertEquals(pluginNode.id, "mobi.hsz.idea.gitignore");
+		assertNotNull(pluginNode.extensions);
+		assertEquals(pluginNode.extensions.length, 1);
+		assertEquals(pluginNode.extensions[0].values.length, 58);
 	}
 
 	@Test

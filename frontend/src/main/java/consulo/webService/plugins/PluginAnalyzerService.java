@@ -285,7 +285,7 @@ public class PluginAnalyzerService
 								{
 									// somebodies can insert foreign logic in factory (com.intellij.xml.XmlFileTypeFactory:38)
 									// it can failed, but - before logic, extensions can be registered
-									//LOGGER.error(e);
+									//LOGGER.error(e.getMessage(), e);
 								}
 
 								if(!ext.isEmpty())

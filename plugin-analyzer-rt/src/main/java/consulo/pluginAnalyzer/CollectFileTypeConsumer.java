@@ -5,10 +5,9 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
 import com.intellij.openapi.fileTypes.ExactFileNameMatcher;
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileNameMatcher;
@@ -62,12 +61,39 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 
 		for(FileNameMatcher fileNameMatcher : fileNameMatchers)
 		{
-			// we accept only our file matches
-			if(fileNameMatcher instanceof ExactFileNameMatcher || fileNameMatcher instanceof ExtensionFileNameMatcher || fileNameMatcher instanceof WildcardFileNameMatcher)
+			String text = getText(fileNameMatcher);
+			if(text == null)
 			{
-				myExtensions.add(fileNameMatcher.getPresentableString());
+				continue;
+			}
+
+			myExtensions.add(text);
+		}
+	}
+
+	@Nullable
+	private String getText(FileNameMatcher fileNameMatcher)
+	{
+		if(fileNameMatcher instanceof ExactFileNameMatcher)
+		{
+			if(((ExactFileNameMatcher) fileNameMatcher).isIgnoreCase())
+			{
+				return "!|" + ((ExactFileNameMatcher) fileNameMatcher).getFileName();
+			}
+			else
+			{
+				return "¡|" + ((ExactFileNameMatcher) fileNameMatcher).getFileName();
 			}
 		}
+		else if(fileNameMatcher instanceof ExtensionFileNameMatcher)
+		{
+			return "*|" + ((ExtensionFileNameMatcher) fileNameMatcher).getExtension();
+		}
+		else if(fileNameMatcher instanceof WildcardFileNameMatcher)
+		{
+			return "?|" + ((WildcardFileNameMatcher) fileNameMatcher).getPattern();
+		}
+		return null;
 	}
 
 	@Nullable
