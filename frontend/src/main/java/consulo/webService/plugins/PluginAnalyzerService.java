@@ -238,25 +238,7 @@ public class PluginAnalyzerService
 							{
 								Class<?> aClass = urlClassLoader.loadClass(implementation);
 
-								Constructor constructorForNew = null;
-								Constructor<?>[] declaredConstructors = aClass.getDeclaredConstructors();
-								for(Constructor<?> declaredConstructor : declaredConstructors)
-								{
-									if(declaredConstructor.getParameterCount() == 0)
-									{
-										declaredConstructor.setAccessible(true);
-										constructorForNew = declaredConstructor;
-									}
-								}
-
-								if(constructorForNew == null)
-								{
-									return;
-								}
-
-								constructorForNew.setAccessible(true);
-
-								Object configurationType = constructorForNew.newInstance();
+								Object configurationType = newInstance(aClass);
 
 								String id = (String) configurationTypeIdMethod.invoke(configurationType);
 
@@ -284,7 +266,7 @@ public class PluginAnalyzerService
 							{
 								Class<?> aClass = urlClassLoader.loadClass(implementation);
 
-								Object fileTypeFactory = aClass.newInstance();
+								Object fileTypeFactory = newInstance(aClass);
 
 								Class<?> fileTypeFactoryClass = urlClassLoader.loadClass("com.intellij.openapi.fileTypes.FileTypeFactory");
 
@@ -316,7 +298,7 @@ public class PluginAnalyzerService
 							{
 								Class<?> aClass = urlClassLoader.loadClass(implementation);
 
-								Object artifactInstance = aClass.newInstance();
+								Object artifactInstance = newInstance(aClass);
 
 								Class<?> artifactType = urlClassLoader.loadClass("com.intellij.packaging.artifacts.ArtifactType");
 
@@ -357,6 +339,29 @@ public class PluginAnalyzerService
 		extensionsResult.v1 = extensionsV1;
 		extensionsResult.v2 = extensionsV2;
 		return extensionsResult;
+	}
+
+	@Nonnull
+	private static Object newInstance(Class<?> clazz) throws Exception
+	{
+		Constructor constructorForNew = null;
+
+		Constructor<?>[] declaredConstructors = clazz.getDeclaredConstructors();
+		for(Constructor<?> declaredConstructor : declaredConstructors)
+		{
+			if(declaredConstructor.getParameterCount() == 0)
+			{
+				declaredConstructor.setAccessible(true);
+				constructorForNew = declaredConstructor;
+				break;
+			}
+		}
+
+		if(constructorForNew == null)
+		{
+			throw new IllegalArgumentException("no empty constructor");
+		}
+		return constructorForNew.newInstance();
 	}
 
 	private static void forEachQuiet(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Throwable> consumer)
