@@ -1,21 +1,14 @@
 package consulo.pluginAnalyzer;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import com.intellij.openapi.fileTypes.*;
+import com.intellij.openapi.util.text.StringUtil;
+import org.jetbrains.annotations.NonNls;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import org.jetbrains.annotations.NonNls;
-import com.intellij.openapi.fileTypes.ExactFileNameMatcher;
-import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher;
-import com.intellij.openapi.fileTypes.FileNameMatcher;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeConsumer;
-import com.intellij.openapi.fileTypes.PlainTextFileType;
-import com.intellij.openapi.fileTypes.WildcardFileNameMatcher;
-import com.intellij.openapi.util.text.StringUtil;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * @author VISTALL
@@ -23,11 +16,14 @@ import com.intellij.openapi.util.text.StringUtil;
  */
 public class CollectFileTypeConsumer implements FileTypeConsumer
 {
-	private Set<String> myExtensions;
+	@Nonnull
+	private final Set<String> myExtensions;
+	private final Set<String> myExtensionsV2;
 
-	public CollectFileTypeConsumer(Set<String> extensions)
+	public CollectFileTypeConsumer(@Nonnull Set<String> extensions, @Nonnull Set<String> extensionsV2)
 	{
 		myExtensions = extensions;
+		myExtensionsV2 = extensionsV2;
 	}
 
 	@Override
@@ -61,18 +57,34 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 
 		for(FileNameMatcher fileNameMatcher : fileNameMatchers)
 		{
-			String text = getText(fileNameMatcher);
-			if(text == null)
-			{
-				continue;
-			}
+			processExtensionsOld(fileNameMatcher);
 
-			myExtensions.add(text);
+			processExtensionsV2(fileNameMatcher);
 		}
 	}
 
+	private void processExtensionsOld(FileNameMatcher fileNameMatcher)
+	{
+		// we accept only our file matches
+		if(fileNameMatcher instanceof ExactFileNameMatcher || fileNameMatcher instanceof ExtensionFileNameMatcher || fileNameMatcher instanceof WildcardFileNameMatcher)
+		{
+			myExtensions.add(fileNameMatcher.getPresentableString());
+		}
+	}
+
+	private void processExtensionsV2(@Nonnull FileNameMatcher fileNameMatcher)
+	{
+		String id = buildMatcherIdentificator(fileNameMatcher);
+		if(id == null)
+		{
+			return;
+		}
+
+		myExtensionsV2.add(id);
+	}
+
 	@Nullable
-	private String getText(FileNameMatcher fileNameMatcher)
+	private String buildMatcherIdentificator(FileNameMatcher fileNameMatcher)
 	{
 		if(fileNameMatcher instanceof ExactFileNameMatcher)
 		{

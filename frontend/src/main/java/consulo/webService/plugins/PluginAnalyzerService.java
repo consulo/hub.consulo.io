@@ -1,31 +1,5 @@
 package consulo.webService.plugins;
 
-import gnu.trove.THashMap;
-
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
-
-import org.jdom.Document;
-import org.jdom.Element;
-import org.picocontainer.PicoContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.lang.Language;
@@ -43,6 +17,24 @@ import com.intellij.util.io.ZipUtil;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
 import consulo.webService.UserConfigurationService;
+import gnu.trove.THashMap;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.picocontainer.PicoContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -51,6 +43,40 @@ import consulo.webService.UserConfigurationService;
 @Service
 public class PluginAnalyzerService
 {
+	private static class TreeMultiMap<K, V> extends MultiMap<K, V>
+	{
+		@Nonnull
+		@Override
+		protected Map<K, Collection<V>> createMap()
+		{
+			return new TreeMap<>();
+		}
+
+		@Nonnull
+		@Override
+		protected Collection<V> createCollection()
+		{
+			return new TreeSet<>();
+		}
+
+		@Override
+		public void putValues(K key, @Nonnull Collection<? extends V> values)
+		{
+			if(values.isEmpty())
+			{
+				return;
+			}
+
+			super.putValues(key, values);
+		}
+	}
+
+	public static class ExtensionsResult
+	{
+		public MultiMap<String, String> v1 = MultiMap.create();
+		public MultiMap<String, String> v2 = MultiMap.create();
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerService.class);
 
 	private final List<URL> platformClassUrls = new ArrayList<>();
@@ -147,12 +173,12 @@ public class PluginAnalyzerService
 	}
 
 	@Nonnull
-	public MultiMap<String, String> analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor, PluginChannelService channelService, String[] dependencies) throws Exception
+	public ExtensionsResult analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor, PluginChannelService channelService, String[] dependencies) throws Exception
 	{
 		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
 		if(extensions == null)
 		{
-			return MultiMap.empty();
+			return new ExtensionsResult();
 		}
 
 		List<URL> urls = new ArrayList<>();
@@ -188,22 +214,8 @@ public class PluginAnalyzerService
 			urls.add(file.toURI().toURL());
 		}
 
-		MultiMap<String, String> data = new MultiMap<String, String>()
-		{
-			@Nonnull
-			@Override
-			protected Map<String, Collection<String>> createMap()
-			{
-				return new TreeMap<>();
-			}
-
-			@Nonnull
-			@Override
-			protected Collection<String> createCollection()
-			{
-				return new TreeSet<>();
-			}
-		};
+		MultiMap<String, String> extensionsV1 = new TreeMultiMap<>();
+		MultiMap<String, String> extensionsV2 = new TreeMultiMap<>();
 
 		try (URLClassLoader urlClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[urls.size()]), null))
 		{
@@ -248,7 +260,8 @@ public class PluginAnalyzerService
 
 								String id = (String) configurationTypeIdMethod.invoke(configurationType);
 
-								data.putValue(key, id);
+								extensionsV1.putValue(key, id);
+								extensionsV2.putValue(key, id);
 							}
 						});
 						break;
@@ -258,7 +271,8 @@ public class PluginAnalyzerService
 							String extensionKey = element.getAttributeValue("name");
 							if(extensionKey != null)
 							{
-								data.putValue(key, extensionKey);
+								extensionsV1.putValue(key, extensionKey);
+								extensionsV2.putValue(key, extensionKey);
 							}
 						});
 						break;
@@ -274,12 +288,13 @@ public class PluginAnalyzerService
 
 								Class<?> fileTypeFactoryClass = urlClassLoader.loadClass("com.intellij.openapi.fileTypes.FileTypeFactory");
 
-								Set<String> ext = new TreeSet<>();
+								Set<String> extV1 = new TreeSet<>();
+								Set<String> extV2 = new TreeSet<>();
 
-								Method analyzeFileType = analyzerClass.getDeclaredMethod("analyzeFileType", Set.class, fileTypeFactoryClass);
+								Method analyzeFileType = analyzerClass.getDeclaredMethod("analyzeFileType", Set.class, Set.class, fileTypeFactoryClass);
 								try
 								{
-									analyzeFileType.invoke(null, ext, fileTypeFactory);
+									analyzeFileType.invoke(null, extV1, extV2, fileTypeFactory);
 								}
 								catch(Throwable e)
 								{
@@ -288,10 +303,8 @@ public class PluginAnalyzerService
 									//LOGGER.error(e.getMessage(), e);
 								}
 
-								if(!ext.isEmpty())
-								{
-									data.putValues(key, ext);
-								}
+								extensionsV1.putValues(key, extV1);
+								extensionsV2.putValues(key, extV2);
 							}
 						});
 						break;
@@ -313,7 +326,8 @@ public class PluginAnalyzerService
 								String artifactId = (String) idMethod.invoke(artifactInstance);
 								if(!StringUtil.isEmpty(artifactId))
 								{
-									data.putValue(key, artifactId);
+									extensionsV1.putValue(key, artifactId);
+									extensionsV2.putValue(key, artifactId);
 								}
 							}
 						});
@@ -324,7 +338,8 @@ public class PluginAnalyzerService
 							String extensionKey = element.getAttributeValue("key");
 							if(extensionKey != null)
 							{
-								data.putValue(key, extensionKey);
+								extensionsV1.putValue(key, extensionKey);
+								extensionsV2.putValue(key, extensionKey);
 							}
 						});
 						break;
@@ -338,7 +353,10 @@ public class PluginAnalyzerService
 			myUserConfigurationService.asyncDelete(forRemove);
 		}
 
-		return data;
+		ExtensionsResult extensionsResult = new ExtensionsResult();
+		extensionsResult.v1 = extensionsV1;
+		extensionsResult.v2 = extensionsV2;
+		return extensionsResult;
 	}
 
 	private static void forEachQuiet(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Throwable> consumer)

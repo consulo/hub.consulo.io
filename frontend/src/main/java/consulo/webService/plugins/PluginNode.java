@@ -1,10 +1,10 @@
 package consulo.webService.plugins;
 
-import java.io.File;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ArrayUtilRt;
+
+import java.io.File;
 
 /**
  * @author VISTALL
@@ -37,7 +37,9 @@ public class PluginNode implements Cloneable
 	public String platformVersion;
 	public String[] dependencies;
 	public String[] optionalDependencies;
+
 	public Extension[] extensions;
+	public Extension[] extensionsV2;
 
 	public transient File targetFile;
 

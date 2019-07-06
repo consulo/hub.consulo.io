@@ -1,12 +1,5 @@
 package consulo.webservice;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Properties;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import consulo.webService.UserConfigurationService;
@@ -15,6 +8,13 @@ import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
 import consulo.webService.util.PropertyKeys;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.util.FileSystemUtils;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author VISTALL
@@ -39,9 +39,12 @@ public class AnalyzerTest extends Assert
 		PluginNode pluginNode = loadPlugin("/com.intellij.xml_108.zip", "/org.jetbrains.idea.maven_149.zip");
 
 		assertEquals(pluginNode.extensions.length, 3);
+		assertEquals(pluginNode.extensionsV2.length, 3);
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.configurationType");
+		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.configurationType");
 
-		assertTrue(ArrayUtil.contains("*|pom", pluginNode.extensions[1].values));
+		assertTrue(ArrayUtil.contains("*.pom", pluginNode.extensions[1].values));
+		assertTrue(ArrayUtil.contains("*|pom", pluginNode.extensionsV2[1].values));
 
 		assertEquals(pluginNode.extensions[2].values[0], "maven");
 	}
@@ -54,7 +57,8 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.extensions.length, 1);
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.fileTypeFactory");
 
-		assertTrue(ArrayUtil.contains("*|xml", pluginNode.extensions[0].values));
+		assertTrue(ArrayUtil.contains("*.xml", pluginNode.extensions[0].values));
+		assertTrue(ArrayUtil.contains("*|xml", pluginNode.extensionsV2[0].values));
 	}
 
 	@Test

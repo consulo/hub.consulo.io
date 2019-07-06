@@ -1,30 +1,5 @@
 package consulo.webService.plugins;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Nonnull;
-
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.ByteStreams;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
@@ -39,6 +14,19 @@ import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.archive.TarGzArchive;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author VISTALL
@@ -199,19 +187,10 @@ public class PluginDeployService
 
 		try
 		{
-			PluginNode.Extension[] extensions = new PluginNode.Extension[0];
+			PluginAnalyzerService.ExtensionsResult result = myPluginAnalyzerService.analyze(ideaPluginDescriptor, pluginChannelService, pluginNode.dependencies);
 
-			MultiMap<String, String> extensionsMap = myPluginAnalyzerService.analyze(ideaPluginDescriptor, pluginChannelService, pluginNode.dependencies);
-			for(Map.Entry<String, Collection<String>> entry : extensionsMap.entrySet())
-			{
-				PluginNode.Extension extension = new PluginNode.Extension();
-				extension.key = entry.getKey();
-				extension.values = ArrayUtil.toStringArray(entry.getValue());
-
-				extensions = ArrayUtil.append(extensions, extension);
-			}
-
-			pluginNode.extensions = extensions.length == 0 ? null : extensions;
+			pluginNode.extensions = convert(result.v1);
+			pluginNode.extensionsV2 = convert(result.v2);
 		}
 		catch(Exception e)
 		{
@@ -249,6 +228,23 @@ public class PluginDeployService
 		});
 
 		return pluginNode;
+	}
+
+	@Nullable
+	private static PluginNode.Extension[] convert(MultiMap<String, String> extensions)
+	{
+		PluginNode.Extension[] extensionsV1 = new PluginNode.Extension[0];
+
+		for(Map.Entry<String, Collection<String>> entry : extensions.entrySet())
+		{
+			PluginNode.Extension extension = new PluginNode.Extension();
+			extension.key = entry.getKey();
+			extension.values = ArrayUtil.toStringArray(entry.getValue());
+
+			extensionsV1 = ArrayUtil.append(extensionsV1, extension);
+		}
+
+		return extensionsV1.length == 0 ? null : extensionsV1;
 	}
 
 	private static String stableVersion(String value)

@@ -1,10 +1,5 @@
 package consulo.pluginAnalyzer;
 
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
@@ -14,6 +9,10 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.AppScheduledExecutorService;
 import consulo.test.light.LightApplicationBuilder;
 import consulo.util.logging.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Set;
 
 /**
  * @author VISTALL
@@ -85,9 +84,9 @@ public class Analyzer
 	}
 
 	// called by reflection inside PluginAnalyzerService
-	public static void analyzeFileType(Set<String> extensions, FileTypeFactory fileTypeFactory)
+	public static void analyzeFileType(Set<String> extensions, Set<String> extensionsV2, FileTypeFactory fileTypeFactory)
 	{
-		CollectFileTypeConsumer consumer = new CollectFileTypeConsumer(extensions);
+		CollectFileTypeConsumer consumer = new CollectFileTypeConsumer(extensions, extensionsV2);
 
 		fileTypeFactory.createFileTypes(consumer);
 	}
