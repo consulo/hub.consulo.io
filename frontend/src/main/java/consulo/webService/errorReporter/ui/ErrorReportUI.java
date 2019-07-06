@@ -1,6 +1,5 @@
 package consulo.webService.errorReporter.ui;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
@@ -12,13 +11,14 @@ import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
 import consulo.webService.errorReporter.view.DirectErrorReportsView;
 import consulo.webService.ui.BaseUI;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author VISTALL
  * @since 11-Mar-17
  */
 @SpringUI(path = "errorReport")
-@Widgetset("WidgetSet")
+@Widgetset("consulo.webService.WidgetSet")
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class ErrorReportUI extends BaseUI

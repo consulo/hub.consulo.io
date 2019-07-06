@@ -1,9 +1,5 @@
 package consulo.webService.plugins.view;
 
-import javax.annotation.Nonnull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
-import com.intellij.util.ui.UIUtil;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
@@ -15,6 +11,10 @@ import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginChannelIterationService;
 import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author VISTALL
@@ -46,12 +46,18 @@ public class AdminRepositoryView extends VerticalLayout implements View
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addStyleName("bodyMargin");
 		layout.setSpacing(true);
-		layout.addComponent(TinyComponents.newButton("nightly " + UIUtil.rightArrow() + " alpha", event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha)));
-		layout.addComponent(TinyComponents.newButton("alpha " + UIUtil.rightArrow() + " beta", event -> forceIterate(PluginChannel.alpha, PluginChannel.beta)));
-		layout.addComponent(TinyComponents.newButton("beta " + UIUtil.rightArrow() + " release", event -> forceIterate(PluginChannel.beta, PluginChannel.release)));
+		layout.addComponent(TinyComponents.newButton("nightly " + rightArrow() + " alpha", event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha)));
+		layout.addComponent(TinyComponents.newButton("alpha " + rightArrow() + " beta", event -> forceIterate(PluginChannel.alpha, PluginChannel.beta)));
+		layout.addComponent(TinyComponents.newButton("beta " + rightArrow() + " release", event -> forceIterate(PluginChannel.beta, PluginChannel.release)));
 
 		addComponent(layout);
 		setExpandRatio(layout, 1);
+	}
+
+	@Nonnull
+	private static String rightArrow()
+	{
+		return "->";
 	}
 
 	private void forceIterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
