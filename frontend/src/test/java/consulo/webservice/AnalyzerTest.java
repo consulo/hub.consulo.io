@@ -84,6 +84,17 @@ public class AnalyzerTest extends Assert
 	}
 
 	@Test
+	public void testJavaFxPlugin() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/org.jetbrains.plugins.javaFX_4303.zip");
+
+		assertEquals(pluginNode.id, "org.jetbrains.plugins.javaFX");
+
+		assertEquals(pluginNode.extensionsV2.length, 1);
+		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.packaging.artifactType");
+	}
+
+	@Test
 	public void testGitPlugin() throws Exception
 	{
 		PluginNode pluginNode = loadPlugin("/com.intellij.git_583.zip");

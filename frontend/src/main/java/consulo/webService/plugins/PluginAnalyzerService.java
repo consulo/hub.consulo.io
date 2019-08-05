@@ -14,12 +14,14 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.ContainerUtilRt;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
+import consulo.container.impl.parser.ExtensionInfo;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
+import consulo.util.nodep.map.SimpleMultiMap;
+import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
 import gnu.trove.THashMap;
 import org.jdom.Document;
-import org.jdom.Element;
 import org.picocontainer.PicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,8 +177,8 @@ public class PluginAnalyzerService
 	@Nonnull
 	public ExtensionsResult analyze(IdeaPluginDescriptorImpl ideaPluginDescriptor, PluginChannelService channelService, String[] dependencies) throws Exception
 	{
-		MultiMap<String, Element> extensions = ideaPluginDescriptor.getExtensions();
-		if(extensions == null)
+		SimpleMultiMap<String, ExtensionInfo> extensions = ideaPluginDescriptor.getExtensions();
+		if(extensions.isEmpty())
 		{
 			return new ExtensionsResult();
 		}
@@ -225,7 +227,7 @@ public class PluginAnalyzerService
 			Class<?> configurationTypeClass = urlClassLoader.loadClass("com.intellij.execution.configurations.ConfigurationType");
 			Method configurationTypeIdMethod = configurationTypeClass.getDeclaredMethod("getId");
 
-			for(Map.Entry<String, Collection<Element>> entry : extensions.entrySet())
+			for(Map.Entry<String, Collection<ExtensionInfo>> entry : extensions.entrySet())
 			{
 				String key = entry.getKey();
 				switch(key)
@@ -364,13 +366,13 @@ public class PluginAnalyzerService
 		return constructorForNew.newInstance();
 	}
 
-	private static void forEachQuiet(Map.Entry<String, Collection<Element>> entry, ThrowableConsumer<Element, Throwable> consumer)
+	private static void forEachQuiet(Map.Entry<String, Collection<ExtensionInfo>> entry, ThrowableConsumer<SimpleXmlElement, Throwable> consumer)
 	{
-		for(Element element : entry.getValue())
+		for(ExtensionInfo element : entry.getValue())
 		{
 			try
 			{
-				consumer.consume(element);
+				consumer.consume(element.getElement());
 			}
 			catch(Throwable e)
 			{
