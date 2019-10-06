@@ -10,7 +10,6 @@ import com.vaadin.server.VaadinSession;
  */
 public class VaadinSessionSecurityContextHolderStrategy implements SecurityContextHolderStrategy
 {
-
 	@Override
 	public void clearContext()
 	{

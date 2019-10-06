@@ -1,14 +1,15 @@
 package consulo.pluginAnalyzer;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.diagnostic.DefaultLogger;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.AppScheduledExecutorService;
+import consulo.logging.Logger;
+import consulo.logging.internal.DefaultLogger;
+import consulo.logging.internal.LoggerFactory;
+import consulo.logging.internal.LoggerFactoryInitializer;
 import consulo.test.light.LightApplicationBuilder;
-import consulo.util.logging.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,7 +69,7 @@ public class Analyzer
 	// called by reflection inside PluginAnalyzerService
 	public static void before()
 	{
-		Logger.setFactory(new SilentFactory());
+		LoggerFactoryInitializer.setFactory(new SilentFactory());
 
 		// we need create app, and disable UnitTest mode, some plugins check it in fileTypeFactory
 		LightApplicationBuilder.create(ourRootDisposable).build();

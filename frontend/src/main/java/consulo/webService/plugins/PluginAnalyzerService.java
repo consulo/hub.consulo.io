@@ -129,6 +129,10 @@ public class PluginAnalyzerService
 		addUrlByClass("consulo.test.light.LightApplicationBuilder");
 		// editor-ex
 		addUrlByClass("com.intellij.ide.ui.UISettings");
+		// logging-api
+		addUrlByClass("consulo.logging.Logger");
+		// logging-impl
+		addUrlByClass("consulo.logging.internal.LoggerFactory");
 		// javax.inject
 		addUrlByClass(Inject.class);
 		// extensions

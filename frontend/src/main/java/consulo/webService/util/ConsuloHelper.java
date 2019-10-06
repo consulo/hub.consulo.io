@@ -1,12 +1,13 @@
 package consulo.webService.util;
 
+import consulo.logging.Logger;
+import consulo.logging.internal.DefaultLogger;
+import consulo.logging.internal.LoggerFactory;
+import consulo.logging.internal.LoggerFactoryInitializer;
+import org.jetbrains.annotations.NonNls;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import org.jetbrains.annotations.NonNls;
-import com.intellij.openapi.diagnostic.DefaultLogger;
-import com.intellij.openapi.diagnostic.Logger;
-import consulo.util.logging.LoggerFactory;
 
 /**
  * @author VISTALL
@@ -93,7 +94,7 @@ public class ConsuloHelper
 
 	static
 	{
-		Logger.setFactory(new MyLoggerFactory());
+		LoggerFactoryInitializer.setFactory(new MyLoggerFactory());
 	}
 
 	public static void init()
