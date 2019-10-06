@@ -7,6 +7,7 @@ import consulo.webService.plugins.PluginAnalyzerService;
 import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginDeployService;
 import consulo.webService.plugins.PluginNode;
+import consulo.webService.util.GsonUtil;
 import consulo.webService.util.PropertyKeys;
 import org.junit.Assert;
 import org.junit.Test;
@@ -90,8 +91,8 @@ public class AnalyzerTest extends Assert
 
 		assertEquals(pluginNode.id, "org.jetbrains.plugins.javaFX");
 
-		assertEquals(pluginNode.extensionsV2.length, 1);
-		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.packaging.artifactType");
+		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2.length, 1);
+		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[0].key, "com.intellij.packaging.artifactType");
 	}
 
 	@Test
