@@ -1,6 +1,7 @@
 package consulo.pluginAnalyzer;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
@@ -31,14 +32,14 @@ public class Analyzer
 		@Override
 		public void error(String message, @Nullable Throwable t, String... details)
 		{
-			/*if(message != null)
+			if(message != null)
 			{
 				System.out.println(message);
 			}
 			if(t != null)
 			{
 				t.printStackTrace();
-			} */
+			}
 		}
 	}
 
@@ -82,6 +83,11 @@ public class Analyzer
 
 		AppScheduledExecutorService service = (AppScheduledExecutorService) AppExecutorUtil.getAppScheduledExecutorService();
 		service.shutdownAppScheduledExecutorService();
+
+		if(ApplicationManager.getApplication() != null)
+		{
+			throw new IllegalArgumentException("Application is not disposed");
+		}
 	}
 
 	// called by reflection inside PluginAnalyzerService

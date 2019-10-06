@@ -87,7 +87,7 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testJavaFxPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/org.jetbrains.plugins.javaFX_4303.zip");
+		PluginNode pluginNode = loadPlugin("/org.jetbrains.plugins.javaFX_4412.zip");
 
 		assertEquals(pluginNode.id, "org.jetbrains.plugins.javaFX");
 
