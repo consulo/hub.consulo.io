@@ -87,12 +87,16 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testJavaFxPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/org.jetbrains.plugins.javaFX_4412.zip");
+		PluginNode pluginNode = loadPlugin("/com.intellij.xml_108.zip", "/org.jetbrains.plugins.javaFX_4413.zip");
 
 		assertEquals(pluginNode.id, "org.jetbrains.plugins.javaFX");
 
-		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2.length, 1);
-		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[0].key, "com.intellij.packaging.artifactType");
+		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2.length, 2);
+
+		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[0].key, "com.intellij.fileTypeFactory");
+		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[0].values[0], "*|fxml");
+
+		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[1].key, "com.intellij.packaging.artifactType");
 	}
 
 	@Test

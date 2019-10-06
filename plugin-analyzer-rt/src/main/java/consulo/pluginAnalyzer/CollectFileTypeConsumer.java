@@ -110,7 +110,7 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 
 	@Nullable
 	@Override
-	public FileType getStandardFileTypeByName(@NonNls @Nonnull String s)
+	public FileType getStandardFileTypeByName(@NonNls @Nonnull String type)
 	{
 		return null;
 	}
