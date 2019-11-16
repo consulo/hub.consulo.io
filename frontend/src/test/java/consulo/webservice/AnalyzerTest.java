@@ -110,6 +110,14 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.extensions[0].values[0], "Git");
 	}
 
+	@Test
+	public void testImagesPlugin() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/com.intellij.images_972.zip");
+
+		assertEquals(pluginNode.id, "com.intellij.images");
+	}
+
 	private PluginNode loadPlugin(String... pluginPaths) throws Exception
 	{
 		assertTrue(pluginPaths.length != 0);

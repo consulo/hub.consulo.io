@@ -14,7 +14,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -324,5 +326,17 @@ public class StubUIInternal extends UIInternal
 	public boolean _UIAccess_isUIThread()
 	{
 		return false;
+	}
+
+	@Override
+	public TextBoxWithExpandAction _Components_textBoxWithExpandAction(Image image, String s, Function<String, List<String>> function, Function<List<String>, String> function1)
+	{
+		return null;
+	}
+
+	@Override
+	public TextBoxWithExtensions _Components_textBoxWithExtensions(String s)
+	{
+		return null;
 	}
 }

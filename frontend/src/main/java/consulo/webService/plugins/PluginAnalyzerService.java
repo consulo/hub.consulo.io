@@ -22,7 +22,6 @@ import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
 import gnu.trove.THashMap;
 import org.jdom.Document;
-import org.picocontainer.PicoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,8 +136,6 @@ public class PluginAnalyzerService
 		addUrlByClass(Inject.class);
 		// extensions
 		addUrlByClass(PluginId.class);
-		// picocontainer
-		addUrlByClass(PicoContainer.class);
 		// util
 		addUrlByClass(ContainerUtil.class);
 		// util-rt
@@ -286,6 +283,7 @@ public class PluginAnalyzerService
 								}
 								catch(Throwable e)
 								{
+									e.printStackTrace();
 									// somebodies can insert foreign logic in factory (com.intellij.xml.XmlFileTypeFactory:38)
 									// it can failed, but - before logic, extensions can be registered
 									//LOGGER.error(e.getMessage(), e);
