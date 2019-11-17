@@ -215,6 +215,12 @@
 			<groupId>consulo</groupId>
 			<artifactId>consulo-util</artifactId>
 			<version>${consulo.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>consulo-desktop-util-awt</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
