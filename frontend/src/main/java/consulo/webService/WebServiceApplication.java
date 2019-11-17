@@ -1,8 +1,11 @@
 package consulo.webService;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.MultipartConfigElement;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import consulo.webService.auth.Roles;
+import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
+import consulo.webService.auth.mongo.domain.Role;
+import consulo.webService.auth.mongo.service.LocalAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,12 +28,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import consulo.webService.auth.Roles;
-import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
-import consulo.webService.auth.mongo.domain.Role;
-import consulo.webService.auth.mongo.service.LocalAuthenticationProvider;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.MultipartConfigElement;
 
 @EnableScheduling
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
@@ -53,8 +53,8 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		@Bean
 		public MultipartConfigElement multipartConfigElement()
 		{
-			int _128mb = 128 * 1024 * 1024;
-			return new MultipartConfigElement(null, _128mb, _128mb, -1);
+			int _256mb = 256 * 1024 * 1024;
+			return new MultipartConfigElement(null, _256mb, _256mb, -1);
 		}
 
 		@Bean
