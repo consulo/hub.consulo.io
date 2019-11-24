@@ -1,7 +1,6 @@
 package consulo.webService.plugins;
 
 import com.google.common.collect.Lists;
-import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.extensions.PluginId;
@@ -11,12 +10,14 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.ContainerUtilRt;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
+import consulo.container.impl.IdeaPluginDescriptorImpl;
+import consulo.container.impl.classloader.PluginClassLoaderFactory;
 import consulo.container.impl.parser.ExtensionInfo;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
+import consulo.util.nodep.collection.ContainerUtilRt;
 import consulo.util.nodep.map.SimpleMultiMap;
 import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
@@ -134,11 +135,13 @@ public class PluginAnalyzerService
 		addUrlByClass("consulo.logging.internal.LoggerFactory");
 		// javax.inject
 		addUrlByClass(Inject.class);
-		// extensions
+		// container-api
 		addUrlByClass(PluginId.class);
+		// container-impl
+		addUrlByClass(PluginClassLoaderFactory.class);
 		// util
 		addUrlByClass(ContainerUtil.class);
-		// util-rt
+		// util-nodet
 		addUrlByClass(ContainerUtilRt.class);
 		// disposer-api
 		addUrlByClass(Disposable.class);

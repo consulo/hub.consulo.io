@@ -56,8 +56,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>consulo.internal</groupId>
-			<artifactId>jdom</artifactId>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom-core</artifactId>
 		</dependency>
 
 		<dependency>

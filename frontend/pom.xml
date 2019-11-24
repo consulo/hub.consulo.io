@@ -141,6 +141,23 @@
 
 		<dependency>
 			<groupId>consulo</groupId>
+			<artifactId>consulo-container-api</artifactId>
+			<version>${consulo.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-container-impl</artifactId>
+			<version>${consulo.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
 			<artifactId>consulo-platform-api</artifactId>
 			<version>${consulo.version}</version>
 			<scope>runtime</scope>
@@ -202,8 +219,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>consulo.internal</groupId>
-			<artifactId>jdom</artifactId>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom-core</artifactId>
 		</dependency>
 
 		<dependency>
@@ -239,12 +256,6 @@
 		<dependency>
 			<groupId>org.iq80.snappy</groupId>
 			<artifactId>snappy</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-extensions</artifactId>
-			<version>${consulo.version}</version>
 		</dependency>
 
 		<dependency>

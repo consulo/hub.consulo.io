@@ -1,9 +1,7 @@
 package consulo.webService.plugins;
 
 import com.google.common.io.ByteStreams;
-import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
@@ -12,6 +10,8 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
+import consulo.container.impl.IdeaPluginDescriptorImpl;
+import consulo.container.plugin.PluginId;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.archive.TarGzArchive;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
