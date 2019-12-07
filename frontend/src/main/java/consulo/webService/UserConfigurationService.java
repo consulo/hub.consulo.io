@@ -1,28 +1,6 @@
 package consulo.webService;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import com.google.common.annotations.VisibleForTesting;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
@@ -33,6 +11,26 @@ import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.util.ConsuloHelper;
 import consulo.webService.util.PropertyKeys;
 import consulo.webService.util.PropertySet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author VISTALL
@@ -93,8 +91,6 @@ public class UserConfigurationService
 		myConfigDirectory = new File(userHome, ".consuloWebservice");
 
 		FileUtilRt.createDirectory(myConfigDirectory);
-
-		System.setProperty(PathManager.PROPERTY_HOME_PATH, myConfigDirectory.getPath());
 	}
 
 	@Nonnull
