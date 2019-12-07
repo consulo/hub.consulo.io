@@ -3,21 +3,24 @@ package consulo.webService.plugins;
 import com.google.common.collect.Lists;
 import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.PathUtil;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
+import com.intellij.util.io.URLUtil;
 import com.intellij.util.io.ZipUtil;
 import consulo.container.impl.IdeaPluginDescriptorImpl;
 import consulo.container.impl.classloader.PluginClassLoaderFactory;
 import consulo.container.impl.parser.ExtensionInfo;
+import consulo.container.plugin.PluginId;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
-import consulo.util.nodep.collection.ContainerUtilRt;
+import consulo.util.concurrent.atomic.AtomicFieldUpdater;
+import consulo.util.dataholder.UserDataHolder;
+import consulo.util.lang.ObjectUtil;
+import consulo.util.nodep.classloader.UrlClassLoader;
 import consulo.util.nodep.map.SimpleMultiMap;
 import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
@@ -36,6 +39,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.CodeSource;
 import java.util.*;
 
 /**
@@ -141,8 +145,16 @@ public class PluginAnalyzerService
 		addUrlByClass(PluginClassLoaderFactory.class);
 		// util
 		addUrlByClass(ContainerUtil.class);
-		// util-nodet
-		addUrlByClass(ContainerUtilRt.class);
+		// util-collection
+		addUrlByClass(consulo.util.collection.ContainerUtil.class);
+		// util-lang
+		addUrlByClass(ObjectUtil.class);
+		// util-concurrent
+		addUrlByClass(AtomicFieldUpdater.class);
+		// util-dataholder
+		addUrlByClass(UserDataHolder.class);
+		// util-nodep
+		addUrlByClass(UrlClassLoader.class);
 		// disposer-api
 		addUrlByClass(Disposable.class);
 		// disposer-impl
@@ -168,14 +180,29 @@ public class PluginAnalyzerService
 		{
 			Class<?> clazz = Class.forName(clazzName);
 
-			String jarPathForClass = PathUtil.getJarPathForClass(clazz);
+			File jarPathForClass = getJarPathForClass(clazz);
 
-			platformClassUrls.add(new File(jarPathForClass).toURI().toURL());
+			platformClassUrls.add(jarPathForClass.toURI().toURL());
 		}
 		catch(ClassNotFoundException | MalformedURLException e)
 		{
 			LOGGER.error("Class " + clazzName + " is not found", e);
 		}
+	}
+
+	@Nonnull
+	private static File getJarPathForClass(@Nonnull Class aClass)
+	{
+		CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+		if(codeSource != null)
+		{
+			URL location = codeSource.getLocation();
+			if(location != null)
+			{
+				return URLUtil.urlToFile(location);
+			}
+		}
+		throw new IllegalArgumentException("can't find path for class " + aClass.getName());
 	}
 
 	@Nonnull

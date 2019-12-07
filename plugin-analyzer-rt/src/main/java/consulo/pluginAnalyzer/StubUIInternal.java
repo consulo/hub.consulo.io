@@ -1,6 +1,7 @@
 package consulo.pluginAnalyzer;
 
 import consulo.ui.*;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.ui.image.canvas.Canvas2D;
 import consulo.ui.layout.*;
