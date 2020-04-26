@@ -1,5 +1,15 @@
 package consulo.pluginAnalyzer;
 
+import java.net.URL;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
@@ -10,15 +20,6 @@ import consulo.ui.model.MutableListModel;
 import consulo.ui.shared.ColorValue;
 import consulo.ui.shared.StaticPosition;
 import consulo.ui.style.StyleManager;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author VISTALL
@@ -133,6 +134,13 @@ public class StubUIInternal extends UIInternal
 
 	@Override
 	public TextBox _Components_textBox(String s)
+	{
+		return null;
+	}
+
+	@Nonnull
+	@Override
+	public IntBox _Components_intBox(int i)
 	{
 		return null;
 	}
