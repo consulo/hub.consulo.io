@@ -138,6 +138,12 @@ public class StubUIInternal extends UIInternal
 		return null;
 	}
 
+	@Override
+	public ProgressBar _Components_progressBar()
+	{
+		return null;
+	}
+
 	@Nonnull
 	@Override
 	public IntBox _Components_intBox(int i)
