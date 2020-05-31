@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import consulo.localize.LocalizeValue;
 import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
@@ -91,7 +92,7 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public LabeledLayout _Layouts_labeled(String s)
+	public LabeledLayout _Layouts_labeled(LocalizeValue localizeValue)
 	{
 		return null;
 	}
@@ -351,6 +352,12 @@ public class StubUIInternal extends UIInternal
 
 	@Override
 	public TextBoxWithExtensions _Components_textBoxWithExtensions(String s)
+	{
+		return null;
+	}
+
+	@Override
+	public FoldoutLayout _Layouts_foldout(LocalizeValue localizeValue, Component component, boolean b)
 	{
 		return null;
 	}
