@@ -56,6 +56,7 @@ import consulo.webService.plugins.PluginChannel;
 import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
+import consulo.webService.statistics.view.AdminStatisticsView;
 import consulo.webService.storage.view.StorageView;
 import consulo.webService.ui.event.AfterViewChangeEvent;
 import consulo.webService.util.GAPropertyKeys;
@@ -101,13 +102,7 @@ public class RootUI extends UI
 
 	private GoogleAnalyticsTracker myAnalyticsTracker;
 
-	private final Map<PluginChannel, View> myRepositoryViewCache = new FactoryMap<PluginChannel, View>()
-	{
-		public View create(PluginChannel c)
-		{
-			return new RepositoryView(myUserConfigurationService, myPluginStatisticsService, c);
-		}
-	};
+	private final Map<PluginChannel, View> myRepositoryViewCache = FactoryMap.create(pluginChannel -> new RepositoryView(myUserConfigurationService, myPluginStatisticsService, pluginChannel));
 
 	private boolean myNotificationShow;
 
@@ -243,6 +238,7 @@ public class RootUI extends UI
 			myUnstableButtons.add(myNavigationMenu.addSeparator("admin"));
 			myUnstableButtons.add(myNavigationMenu.addNavigation("Users", FontAwesome.USERS, AdminUserView.class));
 			myUnstableButtons.add(myNavigationMenu.addNavigation("Error Reports", FontAwesome.BOLT, AdminErrorReportsView.class));
+			myUnstableButtons.add(myNavigationMenu.addNavigation("Statistics", FontAwesome.SIGNAL, AdminStatisticsView.class));
 			myUnstableButtons.add(myNavigationMenu.addNavigation("Repository", FontAwesome.PLUG, AdminRepositoryView.class));
 			myUnstableButtons.add(myNavigationMenu.addNavigation("Config", FontAwesome.WRENCH, AdminConfigView.class));
 		}

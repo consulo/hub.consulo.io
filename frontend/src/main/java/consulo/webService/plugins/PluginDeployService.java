@@ -1,7 +1,32 @@
 package consulo.webService.plugins;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.ByteStreams;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
@@ -10,23 +35,12 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.ZipUtil;
-import consulo.container.impl.IdeaPluginDescriptorImpl;
+import consulo.container.impl.ContainerLogger;
+import consulo.container.impl.PluginDescriptorImpl;
+import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.archive.TarGzArchive;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.*;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @author VISTALL
@@ -35,6 +49,35 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class PluginDeployService
 {
+	private static class OwnContainerLogger implements ContainerLogger
+	{
+		private static final OwnContainerLogger ourInstance = new OwnContainerLogger();
+
+		@Override
+		public void info(String message)
+		{
+			logger.info(message);
+		}
+
+		@Override
+		public void warn(String message)
+		{
+			logger.warn(message);
+		}
+
+		@Override
+		public void info(String message, Throwable throwable)
+		{
+			logger.info(message, throwable);
+		}
+
+		@Override
+		public void error(String message, Throwable throwable)
+		{
+			logger.error(message, throwable);
+		}
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(PluginDeployService.class);
 
 	private UserConfigurationService myUserConfigurationService;
@@ -152,14 +195,16 @@ public class PluginDeployService
 
 	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
 	{
-		List<IdeaPluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
-		PluginManagerCore.loadDescriptors(deployUnzip.getAbsolutePath(), pluginDescriptors, null, 1, false, false);
+		List<PluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
+
+		loadDescriptors(deployUnzip, pluginDescriptors);
+
 		if(pluginDescriptors.size() != 1)
 		{
 			throw new IllegalArgumentException("Bad plugin [" + pluginDescriptors.size() + "]");
 		}
 
-		IdeaPluginDescriptorImpl ideaPluginDescriptor = pluginDescriptors.get(0);
+		PluginDescriptorImpl ideaPluginDescriptor = pluginDescriptors.get(0);
 
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = ideaPluginDescriptor.getPluginId().getIdString();
@@ -228,6 +273,24 @@ public class PluginDeployService
 		});
 
 		return pluginNode;
+	}
+
+	public static void loadDescriptors(@Nonnull File pluginsHome, @Nonnull List<PluginDescriptorImpl> result)
+	{
+		final File[] files = pluginsHome.listFiles();
+		if(files != null)
+		{
+			for(File file : files)
+			{
+				final PluginDescriptorImpl descriptor = PluginDescriptorLoader.loadDescriptor(file, true, false, OwnContainerLogger.ourInstance);
+				if(descriptor == null)
+				{
+					continue;
+				}
+
+				result.add(descriptor);
+			}
+		}
 	}
 
 	@Nullable

@@ -16,6 +16,7 @@ import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
 import consulo.webService.errorReporter.domain.ErrorReport;
 import consulo.webService.errorReporter.domain.ErrorReportAttachment;
+import consulo.webService.errorReporter.domain.ErrorReporterStatus;
 import consulo.webService.errorReporter.mongo.ErrorReportAttachmentRepository;
 import consulo.webService.errorReporter.mongo.ErrorReportRepository;
 import consulo.webService.plugins.PluginChannel;
@@ -148,6 +149,12 @@ public class ErrorReportRestController
 		{
 			errorReport.setReporterEmail(ServiceConstants.ourBotEmail);
 		}
+
+		// do not allow override it via post body
+		errorReport.setChangedByEmail(null);
+		errorReport.setChangeTime(null);
+		errorReport.setStatus(ErrorReporterStatus.UNKNOWN);
+		errorReport.setCreateDate(System.currentTimeMillis());
 
 		errorReport = myErrorReportRepository.save(errorReport);
 		for(ErrorReportAttachment attachment : errorReport.getAttachments())

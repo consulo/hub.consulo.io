@@ -12,6 +12,7 @@ import consulo.webService.errorReporter.view.AdminErrorReportsView;
 import consulo.webService.errorReporter.view.ErrorStatisticsView;
 import consulo.webService.plugins.view.AdminRepositoryView;
 import consulo.webService.plugins.view.RepositoryView;
+import consulo.webService.statistics.view.AdminStatisticsView;
 
 /**
  * This demonstrates how you can control access to views.
@@ -21,6 +22,7 @@ public class VaadinViewAccessControl implements ViewAccessControl
 {
 	private static final String[] ourWantAdminRole = new String[]{
 			makeBeanName(AdminErrorReportsView.ID),
+			makeBeanName(AdminStatisticsView.ID),
 			makeBeanName(AdminConfigView.ID),
 			makeBeanName(AdminRepositoryView.ID),
 			makeBeanName(AdminUserView.ID)
