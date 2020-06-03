@@ -1,20 +1,21 @@
 package consulo.pluginAnalyzer;
 
-import com.intellij.openapi.Disposable;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.AppScheduledExecutorService;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.logging.Logger;
 import consulo.logging.internal.DefaultLogger;
 import consulo.logging.internal.LoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
 import consulo.test.light.LightApplicationBuilder;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Set;
 
 /**
  * @author VISTALL
@@ -65,7 +66,7 @@ public class Analyzer
 		}
 	}
 
-	private static Disposable ourRootDisposable = Disposer.newDisposable();
+	private static Disposable ourRootDisposable = Disposable.newDisposable();
 
 	// called by reflection inside PluginAnalyzerService
 	public static void before()
