@@ -249,6 +249,12 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
+	public Image _ImageEffects_withText(Image image, String s)
+	{
+		return stubImage;
+	}
+
+	@Override
 	public Image _ImageEffects_resize(Image image, int i, int i1)
 	{
 		return stubImage;
