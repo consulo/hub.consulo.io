@@ -33,7 +33,7 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 	}
 
 	@Override
-	public void consume(@Nonnull FileType fileType, @NonNls String extensions)
+	public void consume(@Nonnull FileType fileType, String extensions)
 	{
 		if(extensions.isEmpty())
 		{
@@ -110,7 +110,7 @@ public class CollectFileTypeConsumer implements FileTypeConsumer
 
 	@Nullable
 	@Override
-	public FileType getStandardFileTypeByName(@NonNls @Nonnull String type)
+	public FileType getStandardFileTypeByName(@Nonnull String type)
 	{
 		return null;
 	}

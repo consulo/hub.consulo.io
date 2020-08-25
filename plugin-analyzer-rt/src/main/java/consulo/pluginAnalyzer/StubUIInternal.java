@@ -62,7 +62,7 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public VerticalLayout _Layouts_vertical()
+	public VerticalLayout _Layouts_vertical(int gap)
 	{
 		return null;
 	}
@@ -116,13 +116,13 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public Label _Components_label(String s)
+	public Label _Components_label(LocalizeValue s)
 	{
 		return null;
 	}
 
 	@Override
-	public HtmlLabel _Components_htmlLabel(String s)
+	public HtmlLabel _Components_htmlLabel(LocalizeValue s)
 	{
 		return null;
 	}
