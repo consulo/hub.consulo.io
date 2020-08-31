@@ -1,31 +1,5 @@
 package consulo.webService.plugins;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
@@ -41,6 +15,19 @@ import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.archive.TarGzArchive;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author VISTALL
@@ -215,6 +202,7 @@ public class PluginDeployService
 		pluginNode.category = ideaPluginDescriptor.getCategory();
 		pluginNode.description = ideaPluginDescriptor.getDescription();
 		pluginNode.vendor = ideaPluginDescriptor.getVendor();
+		pluginNode.experimental = ideaPluginDescriptor.isEnabled();
 
 		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
 

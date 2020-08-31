@@ -1,32 +1,5 @@
 package consulo.webService.plugins.ui;
 
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
-import org.dussan.vaadin.dcharts.DCharts;
-import org.dussan.vaadin.dcharts.base.elements.XYaxis;
-import org.dussan.vaadin.dcharts.base.elements.XYseries;
-import org.dussan.vaadin.dcharts.data.DataSeries;
-import org.dussan.vaadin.dcharts.data.Ticks;
-import org.dussan.vaadin.dcharts.metadata.TooltipAxes;
-import org.dussan.vaadin.dcharts.metadata.XYaxes;
-import org.dussan.vaadin.dcharts.metadata.locations.TooltipLocations;
-import org.dussan.vaadin.dcharts.metadata.renderers.AxisRenderers;
-import org.dussan.vaadin.dcharts.metadata.renderers.SeriesRenderers;
-import org.dussan.vaadin.dcharts.options.Axes;
-import org.dussan.vaadin.dcharts.options.Highlighter;
-import org.dussan.vaadin.dcharts.options.Options;
-import org.dussan.vaadin.dcharts.options.Series;
-import org.dussan.vaadin.dcharts.options.SeriesDefaults;
-import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
-
-import javax.annotation.Nullable;
 import com.ejt.vaadin.sizereporter.SizeReporter;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
@@ -50,6 +23,27 @@ import consulo.webService.plugins.mongo.MongoDownloadStat;
 import consulo.webService.plugins.view.RepositoryView;
 import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
+import org.dussan.vaadin.dcharts.DCharts;
+import org.dussan.vaadin.dcharts.base.elements.XYaxis;
+import org.dussan.vaadin.dcharts.base.elements.XYseries;
+import org.dussan.vaadin.dcharts.data.DataSeries;
+import org.dussan.vaadin.dcharts.data.Ticks;
+import org.dussan.vaadin.dcharts.metadata.TooltipAxes;
+import org.dussan.vaadin.dcharts.metadata.XYaxes;
+import org.dussan.vaadin.dcharts.metadata.locations.TooltipLocations;
+import org.dussan.vaadin.dcharts.metadata.renderers.AxisRenderers;
+import org.dussan.vaadin.dcharts.metadata.renderers.SeriesRenderers;
+import org.dussan.vaadin.dcharts.options.*;
+import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author VISTALL
@@ -268,6 +262,11 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		if(!StringUtil.isEmpty(pluginNode.vendor))
 		{
 			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TinyComponents.newLabel(pluginNode.vendor)));
+		}
+
+		if(pluginNode.experimental)
+		{
+			verticalLayout.addComponent(TinyComponents.newLabel("!!!EXPERIMENTAL!!!"));
 		}
 
 		if(!StringUtil.isEmpty(pluginNode.description))

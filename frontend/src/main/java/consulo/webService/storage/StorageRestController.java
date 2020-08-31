@@ -1,20 +1,5 @@
 package consulo.webService.storage;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Base64;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import com.intellij.openapi.util.Pair;
 import consulo.externalStorage.storage.DataCompressor;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
@@ -24,6 +9,15 @@ import consulo.webService.storage.bean.PushFileBeanResponse;
 import consulo.webService.storage.mongo.MongoStorageFile;
 import consulo.webService.storage.mongo.MongoStorageFileRepository;
 import consulo.webService.storage.mongo.MongoStorageFileUpdateBy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Base64;
 
 /**
  * @author VISTALL
@@ -100,7 +94,7 @@ public class StorageRestController
 		try
 		{
 			byte[] data = storageFile.getData();
-			byte[] compressedData = DataCompressor.compress(data, data.length, storageFile.getModCount());
+			byte[] compressedData = DataCompressor.compress(data, storageFile.getModCount());
 			return ResponseEntity.ok(new ByteArrayResource(compressedData));
 		}
 		catch(IOException e)
