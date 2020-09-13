@@ -15,7 +15,6 @@ import consulo.webService.auth.mongo.repository.UserAccountRepository;
 @Service
 public class UserService
 {
-
 	@Autowired
 	private UserAccountRepository userRepository;
 
@@ -46,6 +45,24 @@ public class UserService
 		user.setStatus(UserAccountStatus.STATUS_APPROVED.name());
 
 		save(user);
+		return true;
+	}
+
+	public boolean changePassword(String username, String oldPassword, String newPassword)
+	{
+		UserAccount account = getByUsername(username);
+		if(account == null)
+		{
+			return false;
+		}
+
+		if(!myPasswordEncoder.matches(oldPassword, account.getPassword()))
+		{
+			return false;
+		}
+
+		account.setPassword(myPasswordEncoder.encode(newPassword));
+		userRepository.save(account);
 		return true;
 	}
 

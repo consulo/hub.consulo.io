@@ -22,7 +22,7 @@ import consulo.webService.ui.util.VaadinUIUtil;
 public class LoginOrRegisterPanel extends VerticalLayout
 {
 	private static final Validator<String> ourEmailValidator = new EmailValidator("Bad email");
-	private static final Validator<String> ourPasswordValidator = new StringLengthValidator("Bad password", 1, Integer.MAX_VALUE);
+	public static final Validator<String> ourPasswordValidator = new StringLengthValidator("Bad password", 1, Integer.MAX_VALUE);
 
 	private Captcha myCaptcha;
 	private TextField myEmailTextField;
