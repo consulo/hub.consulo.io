@@ -11,5 +11,5 @@ public enum PluginChannel
 	alpha,   // every day
 	nightly, // every commit
 
-	internal
+	// obsolete internal
 }

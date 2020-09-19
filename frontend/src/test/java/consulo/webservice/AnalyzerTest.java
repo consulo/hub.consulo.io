@@ -145,7 +145,7 @@ public class AnalyzerTest extends Assert
 		{
 			InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
 
-			lastNode = deploy.deployPlugin(PluginChannel.internal, () -> resourceAsStream);
+			lastNode = deploy.deployPlugin(PluginChannel.alpha, () -> resourceAsStream);
 		}
 
 		FileSystemUtils.deleteRecursively(tempDir);
