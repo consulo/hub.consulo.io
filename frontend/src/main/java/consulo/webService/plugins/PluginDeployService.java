@@ -202,7 +202,7 @@ public class PluginDeployService
 		pluginNode.category = ideaPluginDescriptor.getCategory();
 		pluginNode.description = ideaPluginDescriptor.getDescription();
 		pluginNode.vendor = ideaPluginDescriptor.getVendor();
-		pluginNode.experimental = ideaPluginDescriptor.isEnabled();
+		pluginNode.experimental = ideaPluginDescriptor.isExperimental();
 
 		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
 
