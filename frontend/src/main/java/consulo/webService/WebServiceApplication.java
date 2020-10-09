@@ -124,6 +124,11 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		}
 	}
 
+	public WebServiceApplication()
+	{
+		setRegisterErrorPageFilter(false);
+	}
+
 	public static void main(String[] args)
 	{
 		SpringApplication.run(WebServiceApplication.class, args);
