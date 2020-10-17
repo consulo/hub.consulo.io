@@ -76,7 +76,7 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testDotIgnorePlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/mobi.hsz.idea.gitignore_4.zip");
+		PluginNode pluginNode = loadPlugin("/mobi.hsz.idea.gitignore.consulo-plugin");
 
 		assertEquals(pluginNode.id, "mobi.hsz.idea.gitignore");
 		assertNotNull(pluginNode.extensions);

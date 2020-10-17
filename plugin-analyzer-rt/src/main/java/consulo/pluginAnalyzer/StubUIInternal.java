@@ -5,6 +5,7 @@ import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.font.FontManager;
 import consulo.ui.image.Image;
+import consulo.ui.image.ImageKey;
 import consulo.ui.image.canvas.Canvas2D;
 import consulo.ui.layout.*;
 import consulo.ui.model.ListModel;
@@ -42,6 +43,54 @@ public class StubUIInternal extends UIInternal
 			return 0;
 		}
 	};
+
+	private static class StubImageKey implements ImageKey
+	{
+		private final String myGroupId;
+		private final String myImageId;
+		private final int myWidth;
+		private final int myHeight;
+
+		public StubImageKey(String groupId, String imageId, int width, int height)
+		{
+			myGroupId = groupId;
+			myImageId = imageId;
+			myWidth = width;
+			myHeight = height;
+		}
+
+		@Nonnull
+		@Override
+		public String getGroupId()
+		{
+			return myGroupId;
+		}
+
+		@Nonnull
+		@Override
+		public String getImageId()
+		{
+			return myImageId;
+		}
+
+		@Override
+		public int getHeight()
+		{
+			return myHeight;
+		}
+
+		@Override
+		public int getWidth()
+		{
+			return myWidth;
+		}
+	}
+
+	@Override
+	public ImageKey _ImageKey_of(@Nonnull String groupId, @Nonnull String imageId, int width, int height)
+	{
+		return new StubImageKey(groupId, imageId, width, height);
+	}
 
 	@Override
 	public CheckBox _Components_checkBox()
