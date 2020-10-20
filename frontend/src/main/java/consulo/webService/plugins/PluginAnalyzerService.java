@@ -1,30 +1,5 @@
 package consulo.webService.plugins;
 
-import gnu.trove.THashMap;
-
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
-
-import org.jdom.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.intellij.lang.Language;
 import com.intellij.openapi.util.text.StringUtil;
@@ -49,6 +24,22 @@ import consulo.util.nodep.classloader.UrlClassLoader;
 import consulo.util.nodep.map.SimpleMultiMap;
 import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
+import gnu.trove.THashMap;
+import org.jdom.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.security.CodeSource;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -145,8 +136,8 @@ public class PluginAnalyzerService
 		addUrlByClass("consulo.logging.Logger");
 		// logging-impl
 		addUrlByClass("consulo.logging.internal.LoggerFactory");
-		// javax.inject
-		addUrlByClass(Inject.class);
+		// jakarta.inject
+		addUrlByClass("jakarta.inject.Inject");
 		// container-api
 		addUrlByClass(PluginId.class);
 		// container-impl
