@@ -134,6 +134,7 @@ public class PluginAnalyzerService
 		addUrlByClass("com.intellij.ide.ui.UISettings");
 		// logging-api
 		addUrlByClass("consulo.logging.Logger");
+		addUrlByClass("org.slf4j.LoggerFactory");
 		// logging-impl
 		addUrlByClass("consulo.logging.internal.LoggerFactory");
 		// jakarta.inject
@@ -148,6 +149,12 @@ public class PluginAnalyzerService
 		addUrlByClass(consulo.util.collection.ContainerUtil.class);
 		// util-lang
 		addUrlByClass(ObjectUtil.class);
+		// util-serializer
+		addUrlByClass("com.intellij.util.xmlb.XmlSerializerImpl");
+		// util-jdom
+		addUrlByClass("consulo.util.jdom.JDOMUtil");
+		// util-io
+		addUrlByClass("consulo.util.io.URLUtil");
 		// util-concurrent
 		addUrlByClass(AtomicFieldUpdater.class);
 		// util-dataholder
