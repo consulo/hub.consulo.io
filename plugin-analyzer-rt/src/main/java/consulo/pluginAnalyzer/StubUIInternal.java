@@ -3,15 +3,15 @@ package consulo.pluginAnalyzer;
 import consulo.localize.LocalizeValue;
 import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.color.ColorValue;
 import consulo.ui.font.FontManager;
 import consulo.ui.image.Image;
 import consulo.ui.image.ImageKey;
 import consulo.ui.image.canvas.Canvas2D;
+import consulo.ui.internal.UIInternal;
 import consulo.ui.layout.*;
 import consulo.ui.model.ListModel;
 import consulo.ui.model.MutableListModel;
-import consulo.ui.shared.ColorValue;
-import consulo.ui.shared.StaticPosition;
 import consulo.ui.style.StyleManager;
 
 import javax.annotation.Nonnull;

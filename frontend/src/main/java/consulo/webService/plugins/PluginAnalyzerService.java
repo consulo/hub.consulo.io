@@ -17,7 +17,7 @@ import consulo.container.plugin.PluginId;
 import consulo.disposer.Disposable;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
-import consulo.util.concurrent.atomic.AtomicFieldUpdater;
+import consulo.util.concurrent.AsyncResult;
 import consulo.util.dataholder.UserDataHolder;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.nodep.classloader.UrlClassLoader;
@@ -156,7 +156,7 @@ public class PluginAnalyzerService
 		// util-io
 		addUrlByClass("consulo.util.io.URLUtil");
 		// util-concurrent
-		addUrlByClass(AtomicFieldUpdater.class);
+		addUrlByClass(AsyncResult.class);
 		// util-dataholder
 		addUrlByClass(UserDataHolder.class);
 		// util-nodep
