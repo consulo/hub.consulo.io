@@ -37,6 +37,7 @@ public class PluginNode implements Cloneable
 	public String platformVersion;
 	public String[] dependencies;
 	public String[] optionalDependencies;
+	public String iconBytes;
 
 	public Extension[] extensions;
 	public Extension[] extensionsV2;

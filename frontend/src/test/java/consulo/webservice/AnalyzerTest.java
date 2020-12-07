@@ -118,6 +118,15 @@ public class AnalyzerTest extends Assert
 		assertEquals(pluginNode.id, "com.intellij.images");
 	}
 
+	@Test
+	public void testPluginIcon() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/consulo.nodejs_3624.zip");
+
+		assertEquals(pluginNode.id, "consulo.nodejs");
+		assertNotNull(pluginNode.iconBytes);
+	}
+
 	private PluginNode loadPlugin(String... pluginPaths) throws Exception
 	{
 		assertTrue(pluginPaths.length != 0);

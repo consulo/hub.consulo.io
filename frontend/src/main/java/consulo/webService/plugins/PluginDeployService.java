@@ -191,25 +191,27 @@ public class PluginDeployService
 			throw new IllegalArgumentException("Bad plugin [" + pluginDescriptors.size() + "]");
 		}
 
-		PluginDescriptorImpl ideaPluginDescriptor = pluginDescriptors.get(0);
+		PluginDescriptorImpl pluginDescriptor = pluginDescriptors.get(0);
 
 		PluginNode pluginNode = new PluginNode();
-		pluginNode.id = ideaPluginDescriptor.getPluginId().getIdString();
-		pluginNode.version = stableVersion(ideaPluginDescriptor.getVersion());
-		pluginNode.platformVersion = stableVersion(ideaPluginDescriptor.getPlatformVersion());
+		pluginNode.id = pluginDescriptor.getPluginId().getIdString();
+		pluginNode.version = stableVersion(pluginDescriptor.getVersion());
+		pluginNode.platformVersion = stableVersion(pluginDescriptor.getPlatformVersion());
 
-		pluginNode.name = ideaPluginDescriptor.getName();
-		pluginNode.category = ideaPluginDescriptor.getCategory();
-		pluginNode.description = ideaPluginDescriptor.getDescription();
-		pluginNode.vendor = ideaPluginDescriptor.getVendor();
-		pluginNode.experimental = ideaPluginDescriptor.isExperimental();
+		pluginNode.name = pluginDescriptor.getName();
+		pluginNode.category = pluginDescriptor.getCategory();
+		pluginNode.description = pluginDescriptor.getDescription();
+		pluginNode.vendor = pluginDescriptor.getVendor();
+		pluginNode.experimental = pluginDescriptor.isExperimental();
+		byte[] iconBytes = pluginDescriptor.getIconBytes();
+		pluginNode.iconBytes = iconBytes.length == 0 ? null : Base64.getEncoder().encodeToString(iconBytes);
 
-		pluginNode.optionalDependencies = Arrays.stream(ideaPluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
+		pluginNode.optionalDependencies = Arrays.stream(pluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
 
 		Set<PluginId> deps = new TreeSet<>();
-		Collections.addAll(deps, ideaPluginDescriptor.getDependentPluginIds());
+		Collections.addAll(deps, pluginDescriptor.getDependentPluginIds());
 
-		for(PluginId pluginId : ideaPluginDescriptor.getOptionalDependentPluginIds())
+		for(PluginId pluginId : pluginDescriptor.getOptionalDependentPluginIds())
 		{
 			deps.remove(pluginId);
 		}
@@ -220,7 +222,7 @@ public class PluginDeployService
 
 		try
 		{
-			PluginAnalyzerService.ExtensionsResult result = myPluginAnalyzerService.analyze(ideaPluginDescriptor, pluginChannelService, pluginNode.dependencies);
+			PluginAnalyzerService.ExtensionsResult result = myPluginAnalyzerService.analyze(pluginDescriptor, pluginChannelService, pluginNode.dependencies);
 
 			pluginNode.extensions = convert(result.v1);
 			pluginNode.extensionsV2 = convert(result.v2);
@@ -234,7 +236,7 @@ public class PluginDeployService
 			try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(f)))
 			{
 				CommonProcessors.CollectProcessor<File> fileCollectProcessor = new CommonProcessors.CollectProcessor<>();
-				File ideaPluginDescriptorPath = ideaPluginDescriptor.getPath();
+				File ideaPluginDescriptorPath = pluginDescriptor.getPath();
 				assert ideaPluginDescriptorPath != null;
 				FileUtil.visitFiles(ideaPluginDescriptorPath, fileCollectProcessor);
 

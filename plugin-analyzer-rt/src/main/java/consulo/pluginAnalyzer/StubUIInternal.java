@@ -16,6 +16,7 @@ import consulo.ui.style.StyleManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
@@ -153,7 +154,7 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public ScrollLayout _ScrollLayout_create(Component component)
+	public ScrollableLayout _ScrollLayout_create(Component component)
 	{
 		return null;
 	}
@@ -214,12 +215,6 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public Button _Components_button(String s)
-	{
-		return null;
-	}
-
-	@Override
 	public Hyperlink _Components_hyperlink(String s)
 	{
 		return null;
@@ -250,7 +245,7 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public Image _Image_fromBytes(byte[] bytes, int i, int i1)
+	public Image _Image_fromBytes(Image.ImageType imageType, byte[] bytes, int width, int height) throws IOException
 	{
 		return stubImage;
 	}
