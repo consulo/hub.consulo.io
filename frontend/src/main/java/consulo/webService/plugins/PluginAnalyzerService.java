@@ -108,8 +108,10 @@ public class PluginAnalyzerService
 		addUrlByClass("com.intellij.openapi.fileTypes.FileTypeConsumer");
 		// platform-impl
 		addUrlByClass("com.intellij.concurrency.ApplierCompleter");
-		// lang-api
+		// execution-api
 		addUrlByClass("com.intellij.execution.configurations.ConfigurationType");
+		// lang-api
+		addUrlByClass("com.intellij.lang.CompositeLanguage");
 		// lang-impl
 		addUrlByClass("com.intellij.execution.configuration.ConfigurationFactoryEx");
 		// compiler-api
