@@ -79,6 +79,13 @@ public class ConsuloHelper
 			return new MyLogger(s);
 		}
 
+		@Nonnull
+		@Override
+		public Logger getLoggerInstance(@Nonnull Class<?> aClass)
+		{
+			return new MyLogger(aClass.getName());
+		}
+
 		@Override
 		public int getPriority()
 		{
