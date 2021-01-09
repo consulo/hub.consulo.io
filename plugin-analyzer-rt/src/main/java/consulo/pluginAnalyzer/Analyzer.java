@@ -1,10 +1,5 @@
 package consulo.pluginAnalyzer;
 
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.util.concurrency.AppExecutorUtil;
@@ -16,6 +11,10 @@ import consulo.logging.internal.DefaultLogger;
 import consulo.logging.internal.LoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
 import consulo.test.light.LightApplicationBuilder;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Set;
 
 /**
  * @author VISTALL
@@ -51,6 +50,13 @@ public class Analyzer
 		public Logger getLoggerInstance(String s)
 		{
 			return new SilentLogger(s);
+		}
+
+		@Nonnull
+		@Override
+		public Logger getLoggerInstance(@Nonnull Class<?> aClass)
+		{
+			return new SilentLogger(aClass.getName());
 		}
 
 		@Override
