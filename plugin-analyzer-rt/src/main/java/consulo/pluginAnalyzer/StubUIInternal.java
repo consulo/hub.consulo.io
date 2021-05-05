@@ -166,13 +166,13 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public Label _Components_label(LocalizeValue s)
+	public Label _Components_label(LocalizeValue s, LabelOptions options)
 	{
 		return null;
 	}
 
 	@Override
-	public HtmlLabel _Components_htmlLabel(LocalizeValue s)
+	public HtmlLabel _Components_htmlLabel(LocalizeValue s, LabelOptions options)
 	{
 		return null;
 	}
@@ -350,7 +350,7 @@ public class StubUIInternal extends UIInternal
 
 	@Nonnull
 	@Override
-	public Window _Window_modalWindow(String s)
+	public Window _Window_create(String s, WindowOptions windowOptions)
 	{
 		return null;
 	}
