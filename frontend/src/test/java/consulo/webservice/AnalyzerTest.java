@@ -111,6 +111,16 @@ public class AnalyzerTest extends Assert
 	}
 
 	@Test
+	public void testFileTypeNewExtension() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/net.seesharpsoft.intellij.plugins.csv_1.zip");
+
+		assertEquals(pluginNode.id, "net.seesharpsoft.intellij.plugins.csv");
+		assertNotNull(pluginNode.extensionsV2);
+		assertNotNull(pluginNode.extensionsV2[0].values[0], "*|csv");
+	}
+
+	@Test
 	public void testImagesPlugin() throws Exception
 	{
 		PluginNode pluginNode = loadPlugin("/com.intellij.images_972.zip");

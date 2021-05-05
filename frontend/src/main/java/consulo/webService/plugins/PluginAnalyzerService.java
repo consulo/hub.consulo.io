@@ -299,6 +299,19 @@ public class PluginAnalyzerService
 							}
 						});
 						break;
+					case "com.intellij.fileType":
+						forEachQuiet(entry, element ->
+						{
+							String exts = element.getAttributeValue("extensions");
+							
+							List<String> extsAsList = StringUtil.split(StringUtil.notNullize(exts), ";");
+							for(String ext : extsAsList)
+							{
+								extensionsV1.putValue(key, ext);
+								extensionsV2.putValue(key, "*|" + ext);
+							}
+						});
+						break;
 					case "com.intellij.fileTypeFactory":
 						forEachQuiet(entry, element ->
 						{
