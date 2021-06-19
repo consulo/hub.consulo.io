@@ -240,6 +240,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-util-collection-via-trove</artifactId>
+			<version>${consulo.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>jdom-core</artifactId>
 		</dependency>

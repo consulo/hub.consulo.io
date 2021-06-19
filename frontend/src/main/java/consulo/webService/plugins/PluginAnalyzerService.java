@@ -17,6 +17,7 @@ import consulo.container.plugin.PluginId;
 import consulo.disposer.Disposable;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
 import consulo.pluginAnalyzer.Analyzer;
+import consulo.util.collection.primitive.ints.IntMaps;
 import consulo.util.concurrent.AsyncResult;
 import consulo.util.dataholder.UserDataHolder;
 import consulo.util.lang.ObjectUtil;
@@ -149,6 +150,12 @@ public class PluginAnalyzerService
 		addUrlByClass(ContainerUtil.class);
 		// util-collection
 		addUrlByClass(consulo.util.collection.ContainerUtil.class);
+		// util-collection-primitive
+		addUrlByClass(IntMaps.class);
+		// util-collection-via-trove
+		addUrlByClass("consulo.util.collection.trove.impl.TroveCollectionFactory");
+		// trove4j
+		addUrlByClass(THashMap.class);
 		// util-lang
 		addUrlByClass(ObjectUtil.class);
 		// util-serializer
@@ -169,8 +176,6 @@ public class PluginAnalyzerService
 		addUrlByClass(DisposerInternalImpl.class);
 		// jdom
 		addUrlByClass(Document.class);
-		// trove4j
-		addUrlByClass(THashMap.class);
 		// guava
 		addUrlByClass(Lists.class);
 		// plugin-analyzer-rt
