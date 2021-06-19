@@ -1,29 +1,20 @@
 package consulo.webService.plugins;
 
-import gnu.trove.THashSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.pluginsState.PluginsState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -63,7 +54,7 @@ public class PluginChannelIterationService
 			return;
 		}
 
-		Set<String> outdatedPlatformVersions = new THashSet<>();
+		Set<String> outdatedPlatformVersions = new HashSet<>();
 		List<PluginNode> toRemove = new ArrayList<>();
 
 		Map<String, PluginsState> pluginStates = pluginChannelService.copyPluginsState();

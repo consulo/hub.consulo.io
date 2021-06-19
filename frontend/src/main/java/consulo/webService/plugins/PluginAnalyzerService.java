@@ -25,7 +25,6 @@ import consulo.util.nodep.classloader.UrlClassLoader;
 import consulo.util.nodep.map.SimpleMultiMap;
 import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
-import gnu.trove.THashMap;
 import org.jdom.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +154,7 @@ public class PluginAnalyzerService
 		// util-collection-via-trove
 		addUrlByClass("consulo.util.collection.trove.impl.TroveCollectionFactory");
 		// trove4j
-		addUrlByClass(THashMap.class);
+		addUrlByClass("gnu.trove.THashMap");
 		// util-lang
 		addUrlByClass(ObjectUtil.class);
 		// util-serializer
