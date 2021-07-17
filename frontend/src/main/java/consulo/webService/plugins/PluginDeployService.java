@@ -221,6 +221,7 @@ public class PluginDeployService
 		}
 
 		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
+		pluginNode.incompatibleWiths = Arrays.stream(pluginDescriptor.getIncompatibleWithPlugindIds()).map(PluginId::getIdString).toArray(String[]::new);
 
 		PluginChannelService pluginChannelService = userConfigurationService.getRepositoryByChannel(channel);
 

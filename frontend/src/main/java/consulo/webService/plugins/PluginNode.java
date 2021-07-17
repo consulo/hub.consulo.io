@@ -45,6 +45,7 @@ public class PluginNode implements Cloneable
 	public String platformVersion;
 	public String[] dependencies;
 	public String[] optionalDependencies;
+	public String[] incompatibleWiths;
 	public String iconBytes;
 
 	public Extension[] extensions;
@@ -67,6 +68,11 @@ public class PluginNode implements Cloneable
 		if(optionalDependencies.length == 0)
 		{
 			optionalDependencies = null;
+		}
+
+		if(incompatibleWiths != null && incompatibleWiths.length == 0)
+		{
+			incompatibleWiths = null;
 		}
 	}
 
