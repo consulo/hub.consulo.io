@@ -1,23 +1,10 @@
 package consulo.webService.plugins.pluginsState;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.FileSystemUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.ThrowableNotNullFunction;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ThrowableConsumer;
@@ -27,6 +14,19 @@ import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginNode;
 import consulo.webService.plugins.PluginStatisticsService;
 import consulo.webService.util.GsonUtil;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -255,6 +255,14 @@ public class PluginsState
 
 			writeConsumer.consume(fileForPlugin);
 
+			pluginNode.checksum.md5 = calculateChecksum(fileForPlugin, DigestUtils::md5Hex);
+			pluginNode.checksum.sha_256 = calculateChecksum(fileForPlugin, DigestUtils::sha256Hex);
+			pluginNode.checksum.sha3_256 = calculateChecksum(fileForPlugin, stream -> {
+				MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+				DigestUtils.updateDigest(digest, stream);
+				return Hex.encodeHexString(digest.digest());
+			});
+
 			pluginNode.date = System.currentTimeMillis();
 			pluginNode.length = fileForPlugin.length();
 			pluginNode.targetFile = fileForPlugin;
@@ -267,6 +275,19 @@ public class PluginsState
 			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
 
 			_add(pluginNode);
+		}
+	}
+
+	private String calculateChecksum(File input, ThrowableNotNullFunction<InputStream, String, Exception> digFunc)
+	{
+		try(FileInputStream in = new FileInputStream(input))
+		{
+			return digFunc.fun(in).toUpperCase(Locale.ROOT);
+		}
+		catch(Exception e)
+		{
+			logger.error("Can't calculate checksum " + input.getPath(), e);
+			return "__error__";
 		}
 	}
 

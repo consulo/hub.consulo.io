@@ -8,13 +8,13 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
-import com.intellij.util.io.ZipUtil;
 import consulo.container.impl.ContainerLogger;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
 import consulo.webService.UserConfigurationService;
 import consulo.webService.plugins.archive.TarGzArchive;
+import consulo.webService.util.ZipUtil;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -131,7 +132,7 @@ public class PluginDeployService
 			archive.removeEntry(makePluginChannelFileName(pluginId, pluginChannel));
 		}
 
-		archive.putEntry(makePluginChannelFileName(pluginId, channel), ArrayUtil.EMPTY_BYTE_ARRAY);
+		archive.putEntry(makePluginChannelFileName(pluginId, channel), ArrayUtil.EMPTY_BYTE_ARRAY, System.currentTimeMillis());
 
 		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
@@ -171,7 +172,10 @@ public class PluginDeployService
 
 		FileUtilRt.createDirectory(deployUnzip);
 
-		ZipUtil.extract(tempFile, deployUnzip, null);
+		try(ZipFile zipFile = new ZipFile(tempFile))
+		{
+			ZipUtil.extract(zipFile, deployUnzip);
+		}
 
 		PluginNode pluginNode = loadPlugin(myUserConfigurationService, channel, deployUnzip);
 
@@ -250,6 +254,13 @@ public class PluginDeployService
 					String relativePath = FileUtilRt.getRelativePath(ideaPluginDescriptorPath, child);
 
 					ZipEntry zipEntry = new ZipEntry(pluginNode.id + "/" + relativePath);
+					//BasicFileAttributes attr = Files.readAttributes(child.toPath(), BasicFileAttributes.class);
+
+					zipEntry.setTime(child.lastModified());
+					//zipEntry.setCreationTime(attr.creationTime());
+					//zipEntry.setLastAccessTime(attr.lastAccessTime());
+					//zipEntry.setLastModifiedTime(attr.lastModifiedTime());
+
 					zipOutputStream.putNextEntry(zipEntry);
 
 					try (FileInputStream fileOutputStream = new FileInputStream(child))

@@ -9,7 +9,6 @@ import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.URLUtil;
-import com.intellij.util.io.ZipUtil;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.classloader.PluginClassLoaderFactory;
 import consulo.container.impl.parser.ExtensionInfo;
@@ -25,6 +24,7 @@ import consulo.util.nodep.classloader.UrlClassLoader;
 import consulo.util.nodep.map.SimpleMultiMap;
 import consulo.util.nodep.xml.node.SimpleXmlElement;
 import consulo.webService.UserConfigurationService;
+import consulo.webService.util.ZipUtil;
 import org.jdom.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +40,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.*;
+import java.util.zip.ZipFile;
 
 /**
  * @author VISTALL
@@ -121,7 +122,7 @@ public class PluginAnalyzerService
 		// project-model-api
 		addUrlByClass("com.intellij.openapi.roots.ui.configuration.ModulesProvider");
 		// project-model-impl
-		addUrlByClass("consulo.extension.impl.ModuleExtensionImpl");
+		addUrlByClass("consulo.module.extension.impl.ModuleExtensionImpl");
 		// external-system-api
 		addUrlByClass("com.intellij.openapi.externalSystem.model.ExternalProject");
 		// external-system-impl
@@ -159,6 +160,8 @@ public class PluginAnalyzerService
 		addUrlByClass(ObjectUtil.class);
 		// util-serializer
 		addUrlByClass("com.intellij.util.xmlb.XmlSerializerImpl");
+		// icon library
+		addUrlByClass("consulo.platform.base.icon.PlatformIconGroup");
 		// util-jdom
 		addUrlByClass("consulo.util.jdom.JDOMUtil");
 		// util-io
@@ -241,7 +244,10 @@ public class PluginAnalyzerService
 			File analyzeUnzip = myUserConfigurationService.createTempFile("analyze_unzip", "");
 			forRemove = ArrayUtil.append(forRemove, analyzeUnzip);
 
-			ZipUtil.extract(pluginNode.targetFile, analyzeUnzip, null);
+			try(ZipFile zipFile = new ZipFile(pluginNode.targetFile))
+			{
+				ZipUtil.extract(zipFile, analyzeUnzip);
+			}
 
 			File libFile = new File(analyzeUnzip, dependencyId + "/lib");
 			File[] files = libFile.listFiles((dir, name) -> name.endsWith(".jar"));

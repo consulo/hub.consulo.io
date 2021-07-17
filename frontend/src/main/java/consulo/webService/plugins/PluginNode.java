@@ -20,6 +20,13 @@ public class PluginNode implements Cloneable
 		public String[] values = ArrayUtilRt.EMPTY_STRING_ARRAY;
 	}
 
+	public static class Checksum
+	{
+		public String md5;
+		public String sha_256;
+		public String sha3_256;
+	}
+
 	private static final String CORE_PLUGIN = "com.intellij";
 
 	public static final PluginNode[] EMPTY_ARRAY = new PluginNode[0];
@@ -29,6 +36,7 @@ public class PluginNode implements Cloneable
 	public String description;
 	public String category;
 	public String vendor;
+	public Checksum checksum = new Checksum();
 	public Integer downloads;
 	public Long length;
 	public Long date;

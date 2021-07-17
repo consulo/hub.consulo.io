@@ -26,7 +26,7 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testJavaPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/consulo.java_178.zip");
+		PluginNode pluginNode = loadPlugin("/consulo.java_4615.zip");
 
 		assertEquals(pluginNode.extensions.length, 4);
 		assertEquals(pluginNode.extensions[0].key, "com.intellij.configurationType");

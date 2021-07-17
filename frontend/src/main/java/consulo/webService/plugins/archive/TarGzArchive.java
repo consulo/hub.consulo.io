@@ -1,16 +1,8 @@
 package consulo.webService.plugins.archive;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
+import com.intellij.openapi.util.io.FileUtilRt;
+import com.intellij.openapi.util.io.StreamUtil;
+import com.intellij.util.io.tar.TarEntry;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -24,9 +16,11 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.util.FileSystemUtils;
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.openapi.util.io.StreamUtil;
-import com.intellij.util.io.tar.TarEntry;
+
+import javax.annotation.Nonnull;
+import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -186,9 +180,9 @@ public class TarGzArchive
 		return myEntries.remove(entryName) != null;
 	}
 
-	public void putEntry(@Nonnull String entryName, @Nonnull byte[] data)
+	public void putEntry(@Nonnull String entryName, @Nonnull byte[] data, long lastModified)
 	{
-		TarGzArchiveEntry entry = new TarGzArchiveEntry(entryName, false, TarEntry.DEFAULT_FILE_MODE, System.currentTimeMillis(), TarEntry.LF_NORMAL, null);
+		TarGzArchiveEntry entry = new TarGzArchiveEntry(entryName, false, TarEntry.DEFAULT_FILE_MODE, lastModified, TarEntry.LF_NORMAL, null);
 		entry.setExtractedData(data);
 		myEntries.put(entryName, entry);
 	}
