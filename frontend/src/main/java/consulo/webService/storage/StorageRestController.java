@@ -4,6 +4,7 @@ import com.intellij.openapi.util.Pair;
 import consulo.externalStorage.storage.DataCompressor;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
+import consulo.webService.storage.bean.InfoAllBeanResponse;
 import consulo.webService.storage.bean.PushFileBeanRequest;
 import consulo.webService.storage.bean.PushFileBeanResponse;
 import consulo.webService.storage.mongo.MongoStorageFile;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * @author VISTALL
@@ -37,39 +39,59 @@ public class StorageRestController
 	@Autowired
 	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
 
-//	@RequestMapping(value = "/api/storage/getAll", method = RequestMethod.GET)
-//	public ResponseEntity<?> getAll(@RequestHeader("Authorization") String authorization) throws IOException
-//	{
-//		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-//		if(token == null)
-//		{
-//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//		}
-//
-//		List<MongoStorageFile> list = myStorageFileRepository.findByEmail(token.getUserName());
-//		if(list.isEmpty())
-//		{
-//			return ResponseEntity.noContent().build();
-//		}
-//
-//		BufferExposingByteArrayOutputStream arrayOutputStream = new BufferExposingByteArrayOutputStream();
-//		try (DataOutputStream stream = new DataOutputStream(arrayOutputStream))
-//		{
-//			stream.writeByte(0x01); // version
-//
-//			stream.writeShort(list.size());
-//			for(MongoStorageFile storageFile : list)
-//			{
-//				stream.writeInt(storageFile.getModCount());
-//				stream.writeUTF(storageFile.getFilePath());
-//				byte[] data = storageFile.getData();
-//				stream.writeShort(data.length);
-//				stream.write(data);
-//			}
-//		}
-//
-//		return ResponseEntity.ok(new ByteArrayResource(arrayOutputStream.toByteArray()));
-//	}
+	@RequestMapping(value = "/api/storage/infoAll", method = RequestMethod.GET)
+	public InfoAllBeanResponse getAll(@RequestHeader("Authorization") String authorization) throws IOException
+	{
+		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
+		if(token == null)
+		{
+			throw new NotAuthorizedException();
+		}
+
+		InfoAllBeanResponse response = new InfoAllBeanResponse();
+
+		List<MongoStorageFile> files = myStorageFileRepository.findByEmail(token.getUserName());
+		for(MongoStorageFile file : files)
+		{
+			response.files.put(file.getFilePath(), file.getModCount());
+		}
+
+		return response;
+	}
+
+	//	@RequestMapping(value = "/api/storage/getAll", method = RequestMethod.GET)
+	//	public ResponseEntity<?> getAll(@RequestHeader("Authorization") String authorization) throws IOException
+	//	{
+	//		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
+	//		if(token == null)
+	//		{
+	//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	//		}
+	//
+	//		List<MongoStorageFile> list = myStorageFileRepository.findByEmail(token.getUserName());
+	//		if(list.isEmpty())
+	//		{
+	//			return ResponseEntity.noContent().build();
+	//		}
+	//
+	//		BufferExposingByteArrayOutputStream arrayOutputStream = new BufferExposingByteArrayOutputStream();
+	//		try (DataOutputStream stream = new DataOutputStream(arrayOutputStream))
+	//		{
+	//			stream.writeByte(0x01); // version
+	//
+	//			stream.writeShort(list.size());
+	//			for(MongoStorageFile storageFile : list)
+	//			{
+	//				stream.writeInt(storageFile.getModCount());
+	//				stream.writeUTF(storageFile.getFilePath());
+	//				byte[] data = storageFile.getData();
+	//				stream.writeShort(data.length);
+	//				stream.write(data);
+	//			}
+	//		}
+	//
+	//		return ResponseEntity.ok(new ByteArrayResource(arrayOutputStream.toByteArray()));
+	//	}
 
 	@RequestMapping(value = "/api/storage/getFile", method = RequestMethod.GET)
 	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @RequestHeader("Authorization") String authorization)
