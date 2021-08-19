@@ -22,10 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -57,12 +54,19 @@ public class StorageView extends VerticalLayout implements View
 			return;
 		}
 
+		ListSelect<String> listSelect = TinyComponents.newListSelect();
+		VerticalLayout updateInfoPanel = new VerticalLayout();
+
 		List<MongoStorageFile> files = myStorageFileRepository.findByEmail(authentication.getName());
 
 		Label label = new Label("Storage: ");
 
 		Button wipeDataButton = TinyComponents.newButton("Wipe All", e -> {
 			myStorageFileRepository.deleteAllByEmail(authentication.getName());
+
+			listSelect.setDataProvider(new ListDataProvider<String>(new ArrayList<>()));
+			listSelect.setItemCaptionGenerator(s -> "");
+			updateInfoPanel.removeAllComponents();
 		});
 
 		HorizontalLayout header = VaadinUIUtil.newHorizontalLayout();
@@ -83,7 +87,6 @@ public class StorageView extends VerticalLayout implements View
 		rightLayout.setSpacing(false);
 		rightLayout.setSizeFull();
 
-		ListSelect<String> listSelect = TinyComponents.newListSelect();
 		listSelect.setSizeFull();
 
 		TextArea textArea = TinyComponents.newTextArea();
@@ -91,7 +94,6 @@ public class StorageView extends VerticalLayout implements View
 		textArea.setSizeFull();
 		rightLayout.addComponent(textArea);
 
-		VerticalLayout updateInfoPanel = new VerticalLayout();
 		updateInfoPanel.setSizeFull();
 		updateInfoPanel.setSpacing(false);
 
