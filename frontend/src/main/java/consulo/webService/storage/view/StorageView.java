@@ -1,15 +1,5 @@
 package consulo.webService.storage.view;
 
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import com.intellij.openapi.util.io.StreamUtil;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.io.UnsyncByteArrayInputStream;
@@ -18,19 +8,24 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.storage.mongo.MongoStorageFile;
 import consulo.webService.storage.mongo.MongoStorageFileRepository;
 import consulo.webService.storage.mongo.MongoStorageFileUpdateBy;
 import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 import consulo.webService.util.InformationBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -65,8 +60,21 @@ public class StorageView extends VerticalLayout implements View
 		List<MongoStorageFile> files = myStorageFileRepository.findByEmail(authentication.getName());
 
 		Label label = new Label("Storage: ");
-		label.addStyleName("headerMargin");
-		addComponent(label);
+
+		Button wipeDataButton = TinyComponents.newButton("Wipe All", e -> {
+			myStorageFileRepository.deleteAllByEmail(authentication.getName());
+		});
+
+		HorizontalLayout header = VaadinUIUtil.newHorizontalLayout();
+		header.setWidth(100, Unit.PERCENTAGE);
+		header.addStyleName("headerMargin");
+		header.addComponent(label);
+		header.addComponent(wipeDataButton);
+
+		header.setComponentAlignment(wipeDataButton, Alignment.MIDDLE_RIGHT);
+		wipeDataButton.addStyleName(ValoTheme.BUTTON_DANGER);
+
+		addComponent(header);
 
 		HorizontalSplitPanel panel = new HorizontalSplitPanel();
 

@@ -1,11 +1,10 @@
 package consulo.webService.storage.mongo;
 
-import java.util.List;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.List;
 
 /**
  * @author VISTALL
@@ -18,4 +17,6 @@ public interface MongoStorageFileRepository extends MongoRepository<MongoStorage
 
 	@Nonnull
 	List<MongoStorageFile> findByEmail(String email);
+
+	void deleteAllByEmail(@Nonnull String email);
 }
