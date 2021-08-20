@@ -3,6 +3,7 @@ package consulo.webService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
+import consulo.webService.auth.oauth2.OAuth2LoginAuthenticationProvider;
 import consulo.webService.auth.service.LocalAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -23,8 +23,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.annotation.PostConstruct;
@@ -89,15 +91,16 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		private LocalAuthenticationProvider myLocalAuthenticationProvider;
 
 		@Autowired
-		private MongoOperations myMongoOperations;
+		private UserDetailsService myUserDetailsService;
 
-		//@Autowired
-		//protected DbService dbService;
+		@Autowired
+		private TokenStore myTokenStore;
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception
 		{
 			auth.authenticationProvider(myLocalAuthenticationProvider);
+			auth.authenticationProvider(new OAuth2LoginAuthenticationProvider(myUserDetailsService, myTokenStore));
 		}
 
 		@Bean

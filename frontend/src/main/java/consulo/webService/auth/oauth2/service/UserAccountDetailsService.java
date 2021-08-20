@@ -1,4 +1,4 @@
-package consulo.webService.auth.oauth2;
+package consulo.webService.auth.oauth2.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,12 +13,12 @@ import consulo.webService.auth.service.UserAccountService;
  * @since 26-Sep-16
  */
 @Service
-public class MongoUserDetailsService implements UserDetailsService
+public class UserAccountDetailsService implements UserDetailsService
 {
 	private final UserAccountService userRepository;
 
 	@Autowired
-	public MongoUserDetailsService(UserAccountService userRepository)
+	public UserAccountDetailsService(UserAccountService userRepository)
 	{
 		this.userRepository = userRepository;
 	}

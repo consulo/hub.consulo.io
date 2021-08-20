@@ -1,8 +1,18 @@
 package consulo.webService.auth.view;
 
-import java.util.Date;
-import java.util.List;
-
+import com.google.common.base.Strings;
+import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.containers.ContainerUtil;
+import com.vaadin.event.ShortcutAction;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
+import consulo.webService.auth.oauth2.OAuth2ServerConfiguration;
+import consulo.webService.ui.util.TinyComponents;
+import consulo.webService.ui.util.VaadinUIUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.core.Authentication;
@@ -13,29 +23,10 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import com.google.common.base.Strings;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.vaadin.event.ShortcutAction;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
-import consulo.webService.auth.oauth2.OAuth2ServerConfiguration;
-import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
-import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
-import consulo.webService.ui.util.TinyComponents;
-import consulo.webService.ui.util.VaadinUIUtil;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+
+import java.util.Collection;
+import java.util.Date;
 
 /**
  * @author VISTALL
@@ -48,7 +39,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 	private final DefaultTokenServices myTokenServices;
 	private final DefaultOAuth2RequestFactory myOAuth2RequestFactory;
-	private final OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
+	private final TokenStore myTokenStore;
 	private final TaskScheduler myTaskScheduler;
 
 	private VerticalLayout myTokenListPanel;
@@ -56,12 +47,12 @@ public class OAuthKeysView extends VerticalLayout implements View
 	@Autowired
 	public OAuthKeysView(DefaultTokenServices defaultTokenServices,
 			DefaultOAuth2RequestFactory defaultOAuth2RequestFactory,
-			OAuth2AccessTokenRepository accessTokenRepository,
+						 TokenStore accessTokenRepository,
 			TaskScheduler taskScheduler)
 	{
 		myTokenServices = defaultTokenServices;
 		myOAuth2RequestFactory = defaultOAuth2RequestFactory;
-		myOAuth2AccessTokenRepository = accessTokenRepository;
+		myTokenStore = accessTokenRepository;
 		myTaskScheduler = taskScheduler;
 
 		setMargin(false);
@@ -101,11 +92,12 @@ public class OAuthKeysView extends VerticalLayout implements View
 					Notification.show("Bad name", Notification.Type.ERROR_MESSAGE);
 					return;
 				}
-				if(myOAuth2AccessTokenRepository.findByUserNameAndName(authentication.getName(), value) != null)
-				{
-					Notification.show("Duplicate key", Notification.Type.ERROR_MESSAGE);
-					return;
-				}
+
+//				if(myTokenStore.findByUserNameAndName(authentication.getName(), value) != null)
+//				{
+//					Notification.show("Duplicate key", Notification.Type.ERROR_MESSAGE);
+//					return;
+//				}
 
 				AuthorizationRequest request = new AuthorizationRequest();
 				request.setExtensions(ContainerUtil.newHashMap(Pair.create("name", value)));
@@ -116,7 +108,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 				OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
 				OAuth2AccessToken accessToken = myTokenServices.createAccessToken(oAuth2Authentication);
 
-				addToken(new OAuth2AuthenticationAccessToken(accessToken, oAuth2Authentication, accessToken.getValue()), false);
+				addToken(accessToken, false);
 
 				window.close();
 			});
@@ -150,14 +142,14 @@ public class OAuthKeysView extends VerticalLayout implements View
 		addComponent(myTokenListPanel);
 		setExpandRatio(myTokenListPanel, 1);
 
-		List<OAuth2AuthenticationAccessToken> tokens = myOAuth2AccessTokenRepository.findByClientIdAndUserName(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID, authentication.getName());
-		for(OAuth2AuthenticationAccessToken token : tokens)
+		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID, authentication.getName());
+		for(OAuth2AccessToken token : tokens)
 		{
 			addToken(token, true);
 		}
 	}
 
-	private void addToken(OAuth2AuthenticationAccessToken token, boolean hide)
+	private void addToken(OAuth2AccessToken token, boolean hide)
 	{
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addStyleName("errorViewLineLayout");
@@ -165,8 +157,10 @@ public class OAuthKeysView extends VerticalLayout implements View
 		layout.addStyleName(ValoTheme.LAYOUT_CARD);
 		layout.setWidth(100, Unit.PERCENTAGE);
 
-		layout.addComponent(TinyComponents.newLabel("Name: " + token.getName()));
-		Label label = TinyComponents.newLabel("Token: " + (hide ? StringUtil.shortenTextWithEllipsis(token.getTokenId(), 18, 7) : token.getTokenId()));
+		layout.addComponent(TinyComponents.newLabel("Name: " + "??"));
+		String tokenId = token.getValue();
+
+		Label label = TinyComponents.newLabel("Token: " + (hide ? StringUtil.shortenTextWithEllipsis(tokenId, 18, 7) : tokenId));
 		layout.addComponent(label);
 		if(!hide)
 		{
@@ -176,7 +170,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 			{
 				try
 				{
-					current.access(() -> label.setValue("Token: " + StringUtil.shortenTextWithEllipsis(token.getTokenId(), 18, 7)));
+					current.access(() -> label.setValue("Token: " + StringUtil.shortenTextWithEllipsis(tokenId, 18, 7)));
 				}
 				catch(Exception e)
 				{
@@ -187,7 +181,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 
 		Button revokeButton = new Button("Revoke", e ->
 		{
-			myTokenServices.revokeToken(token.getTokenId());
+			myTokenServices.revokeToken(tokenId);
 
 			myTokenListPanel.removeComponent(layout);
 		});

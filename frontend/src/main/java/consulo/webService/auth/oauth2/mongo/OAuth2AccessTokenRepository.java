@@ -1,10 +1,10 @@
 package consulo.webService.auth.oauth2.mongo;
 
-import java.util.List;
-
+import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
+
+import java.util.List;
 
 /**
  * @version 1.0
@@ -12,6 +12,7 @@ import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
  * @since 22/05/2013
  */
 @Repository
+@Deprecated
 public interface OAuth2AccessTokenRepository extends MongoRepository<OAuth2AuthenticationAccessToken, String>
 {
 	OAuth2AuthenticationAccessToken findByTokenId(String tokenId);

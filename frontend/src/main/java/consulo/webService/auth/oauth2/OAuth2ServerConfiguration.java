@@ -1,7 +1,9 @@
 package consulo.webService.auth.oauth2;
 
+import consulo.webService.auth.oauth2.service.JpaTokenStore;
+import consulo.webService.auth.oauth2.service.OAuthAccessTokenRepository;
+import consulo.webService.auth.oauth2.service.UserAccountDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -17,10 +19,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
-import consulo.webService.auth.oauth2.mongo.OAuth2RepositoryTokenStore;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+
+import javax.sql.DataSource;
 
 /**
  * @author VISTALL
@@ -55,11 +59,10 @@ public class OAuth2ServerConfiguration
 	protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter
 	{
 		@Autowired
-		@Qualifier("authenticationManagerBean")
-		private AuthenticationManager myAuthenticationManager;
+		private AuthenticationManager authenticationManager;
 
 		@Autowired
-		private MongoUserDetailsService myUserDetailsService;
+		private UserAccountDetailsService myUserDetailsService;
 
 		@Autowired
 		@Lazy
@@ -67,20 +70,23 @@ public class OAuth2ServerConfiguration
 
 		@Autowired
 		@Lazy
-		private OAuth2RepositoryTokenStore myTokenStore;
+		private TokenStore myTokenStore;
 
 		@Autowired
-		private OAuth2AccessTokenRepository myAccessTokenRepository;
+		private OAuthAccessTokenRepository myOAuthAccessTokenRepository;
 
 		@Autowired
 		@Lazy
-		private DefaultOAuth2RequestFactory myDefaultOAuth2RequestFactory;
+		private OAuth2RequestFactory myDefaultOAuth2RequestFactory;
+
+		@Autowired
+		private DataSource myDataSource;
 
 		@Override
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception
 		{
 			endpoints.tokenStore(myTokenStore);
-			endpoints.authenticationManager(myAuthenticationManager);
+			endpoints.authenticationManager(authenticationManager);
 			endpoints.userDetailsService(myUserDetailsService);
 			endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST);
 		}
@@ -92,9 +98,9 @@ public class OAuth2ServerConfiguration
 		}
 
 		@Bean
-		public OAuth2RepositoryTokenStore tokenStore()
+		public TokenStore tokenStore()
 		{
-			return new OAuth2RepositoryTokenStore(myAccessTokenRepository, myDefaultOAuth2RequestFactory);
+			return new JpaTokenStore(myOAuthAccessTokenRepository);
 		}
 
 		@Bean
