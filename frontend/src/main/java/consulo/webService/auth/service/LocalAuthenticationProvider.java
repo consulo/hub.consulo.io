@@ -1,7 +1,7 @@
-package consulo.webService.auth.mongo.service;
+package consulo.webService.auth.service;
 
-import java.util.List;
-
+import consulo.webService.auth.domain.UserAccount;
+import consulo.webService.auth.domain.UserAccountStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,30 +9,19 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import consulo.webService.auth.mongo.domain.UserAccount;
-import consulo.webService.auth.mongo.domain.UserAccountStatus;
 
-/*
- Extend AbstractUserDetailsAuthenticationProvider when you want to
- prehandle authentication, as in throwing custom exception messages,
- checking status, etc. 
- */
 @Component
 public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider
 {
-
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	UserService userService;
+	private UserService userService;
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -65,32 +54,13 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 			throw new BadCredentialsException("Invalid Login");
 		}
 
-		if(!(UserAccountStatus.STATUS_APPROVED.name().equals(user.getStatus())))
+		if(user.getStatus() != UserAccountStatus.STATUS_APPROVED)
 		{
 			logger.warn("Username {}: not approved", username);
 			throw new BadCredentialsException("User has not been approved");
 		}
-		if(!user.isEnabled())
-		{
-			logger.warn("Username {}: disabled", username);
-			throw new BadCredentialsException("User disabled");
-		}
 
-		final List<GrantedAuthority> auths;
-		if(!user.getRoles().isEmpty())
-		{
-			auths = AuthorityUtils.commaSeparatedStringToAuthorityList(user.getRolesCSV());
-		}
-		else
-		{
-			auths = AuthorityUtils.NO_AUTHORITIES;
-		}
-
-		return new User(username, password, user.isEnabled(), // enabled
-				true, // account not expired
-				true, // credentials not expired
-				true, // account not locked
-				auths);
+		return user;
 	}
 
 }

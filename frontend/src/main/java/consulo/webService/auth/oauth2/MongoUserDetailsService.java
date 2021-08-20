@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import consulo.webService.auth.mongo.domain.UserAccount;
-import consulo.webService.auth.mongo.service.UserService;
+import consulo.webService.auth.domain.UserAccount;
+import consulo.webService.auth.service.UserService;
 
 /**
  * @author VISTALL

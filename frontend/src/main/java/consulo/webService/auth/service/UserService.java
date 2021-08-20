@@ -1,25 +1,19 @@
-package consulo.webService.auth.mongo.service;
+package consulo.webService.auth.service;
 
+import consulo.webService.auth.domain.UserAccount;
+import consulo.webService.auth.domain.UserAccountStatus;
+import consulo.webService.auth.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import consulo.webService.auth.Roles;
-import consulo.webService.auth.mongo.domain.Role;
-import consulo.webService.auth.mongo.domain.UserAccount;
-import consulo.webService.auth.mongo.domain.UserAccountStatus;
-import consulo.webService.auth.mongo.repository.RoleRepository;
-import consulo.webService.auth.mongo.repository.UserAccountRepository;
 
 @Service
 public class UserService
 {
 	@Autowired
 	private UserAccountRepository userRepository;
-
-	@Autowired
-	private RoleRepository roleRepository;
 
 	@Autowired
 	private PasswordEncoder myPasswordEncoder;
@@ -32,17 +26,13 @@ public class UserService
 		UserAccount user = new UserAccount();
 		user.setUsername(username);
 		user.setPassword(myPasswordEncoder.encode(password));
-
-		//user.addRole(getRole("ROLE_ADMIN"));
-		user.addRole(getRole(Roles.ROLE_USER));
+		user.setRights(0);
+		user.setStatus(UserAccountStatus.STATUS_DISABLED);
 
 		if(!create(user))
 		{
 			return false;
 		}
-
-		user.setEnabled(true);
-		user.setStatus(UserAccountStatus.STATUS_APPROVED.name());
 
 		save(user);
 		return true;
@@ -66,35 +56,30 @@ public class UserService
 		return true;
 	}
 
-	public Role getRole(String role)
-	{
-		return roleRepository.findOne(role);
-	}
-
 	public boolean create(UserAccount user)
 	{
-		Assert.isNull(user.getId());
+		Assert.isNull(user.getId(), "userId must be null");
 
 		// duplicate username
 		if(userRepository.findByUsername(user.getUsername()) != null)
 		{
 			return false;
 		}
-		user.setEnabled(false);
-		user.setStatus(UserAccountStatus.STATUS_DISABLED.name());
+
+		user.setStatus(UserAccountStatus.STATUS_APPROVED);
 		userRepository.save(user);
 		return true;
 	}
 
 	public void save(UserAccount user)
 	{
-		Assert.notNull(user.getId());
+		Assert.notNull(user.getId(), "userId must be not null");
 		userRepository.save(user);
 	}
 
 	public void delete(UserAccount user)
 	{
-		Assert.notNull(user.getId());
+		Assert.notNull(user.getId(), "userId must be not null");
 		userRepository.delete(user);
 	}
 
@@ -102,5 +87,4 @@ public class UserService
 	{
 		return userRepository.findByUsername(username);
 	}
-
 }

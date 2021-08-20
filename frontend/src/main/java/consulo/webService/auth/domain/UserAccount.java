@@ -1,50 +1,51 @@
-package consulo.webService.auth.mongo.domain;
+package consulo.webService.auth.domain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import consulo.util.lang.BitUtil;
+import consulo.webService.auth.Roles;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.IndexDirection;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Document
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.List;
+
+@Entity
+@Table
 public class UserAccount implements UserDetails
 {
+	public static final int ROLE_SUPERUSER = 1 << 1;
+
 	@Id
-	private String id;
-
-	@Indexed(unique = true, direction = IndexDirection.DESCENDING, dropDups = true)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column
+	private Integer id;
+	@Column
 	private String username;
-
+	@Column
 	private String password;
+	@Column
 	private String firstname;
+	@Column
 	private String lastname;
-	private String status;
-	private boolean enabled;
+	@Column
+	private UserAccountStatus status = UserAccountStatus.STATUS_APPROVED;
 
-	@DBRef
-	private List<Role> roles = new ArrayList<Role>();
+	private int rights;
 
-	public String getId()
+	public Integer getId()
 	{
 		return id;
 	}
 
-	public void setId(String id)
+	public void setId(Integer id)
 	{
 		this.id = id;
 	}
 
+	@Override
 	public String getUsername()
 	{
 		return username;
@@ -76,9 +77,14 @@ public class UserAccount implements UserDetails
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities()
 	{
-		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getId())).collect(Collectors.toList());
+		if(BitUtil.isSet(rights, ROLE_SUPERUSER))
+		{
+			return List.of(new SimpleGrantedAuthority(Roles.ROLE_USER), new SimpleGrantedAuthority(Roles.ROLE_ADMIN));
+		}
+		return List.of(new SimpleGrantedAuthority(Roles.ROLE_USER));
 	}
 
+	@Override
 	public String getPassword()
 	{
 		return password;
@@ -109,62 +115,33 @@ public class UserAccount implements UserDetails
 		this.lastname = lastname;
 	}
 
-	public String getStatus()
+	public UserAccountStatus getStatus()
 	{
 		return status;
 	}
 
-	public void setStatus(String status)
+	public void setStatus(UserAccountStatus status)
 	{
 		this.status = status;
 	}
 
+	@Override
 	public boolean isEnabled()
 	{
-		return enabled;
+		return status != UserAccountStatus.STATUS_DISABLED;
 	}
 
-	public void setEnabled(Boolean enabled)
+	public int getRights()
 	{
-		this.enabled = enabled;
+		return rights;
 	}
 
-	public List<Role> getRoles()
+	public void setRights(int rights)
 	{
-		return roles;
+		this.rights = rights;
 	}
 
-	public void addRole(Role role)
-	{
-		this.roles.add(role);
-	}
-
-	public void removeRole(Role role)
-	{
-		//use iterator to avoid java.util.ConcurrentModificationException with foreach
-		for(Iterator<Role> iter = this.roles.iterator(); iter.hasNext(); )
-		{
-			if(iter.next().equals(role))
-			{
-				iter.remove();
-			}
-		}
-	}
-
-	public String getRolesCSV()
-	{
-		StringBuilder sb = new StringBuilder();
-		for(Iterator<Role> iter = this.roles.iterator(); iter.hasNext(); )
-		{
-			sb.append(iter.next().getId());
-			if(iter.hasNext())
-			{
-				sb.append(',');
-			}
-		}
-		return sb.toString();
-	}
-
+	@Override
 	public boolean equals(Object obj)
 	{
 		if(!(obj instanceof UserAccount))
@@ -179,6 +156,7 @@ public class UserAccount implements UserDetails
 		return new EqualsBuilder().append(id, rhs.id).isEquals();
 	}
 
+	@Override
 	public int hashCode()
 	{
 		return new HashCodeBuilder().append(id).append(username).toHashCode();

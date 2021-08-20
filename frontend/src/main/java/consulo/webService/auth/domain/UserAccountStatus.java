@@ -1,4 +1,4 @@
-package consulo.webService.auth.mongo.domain;
+package consulo.webService.auth.domain;
 
 public enum UserAccountStatus
 {

@@ -7,7 +7,7 @@ import com.vaadin.server.Page;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import consulo.webService.auth.mongo.service.UserService;
+import consulo.webService.auth.service.UserService;
 import consulo.webService.auth.ui.LoginOrRegisterPanel;
 import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;

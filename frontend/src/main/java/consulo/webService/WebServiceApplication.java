@@ -2,10 +2,8 @@ package consulo.webService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import consulo.webService.auth.Roles;
 import consulo.webService.auth.VaadinSessionSecurityContextHolderStrategy;
-import consulo.webService.auth.mongo.domain.Role;
-import consulo.webService.auth.mongo.service.LocalAuthenticationProvider;
+import consulo.webService.auth.service.LocalAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,7 +12,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -33,6 +31,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.MultipartConfigElement;
 
 @EnableScheduling
+@EnableJpaRepositories
 @SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 //@ServletComponentScan(basePackages = "consulo.webService")
 //@ComponentScan(basePackages = "consulo.webService")
@@ -99,16 +98,6 @@ public class WebServiceApplication extends SpringBootServletInitializer
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception
 		{
 			auth.authenticationProvider(myLocalAuthenticationProvider);
-
-			try
-			{
-				myMongoOperations.insert(new Role(Roles.ROLE_USER), "role");
-				myMongoOperations.insert(new Role(Roles.ROLE_ADMIN), "role");
-			}
-			catch(DuplicateKeyException e)
-			{
-				// don't throw error on duplicate
-			}
 		}
 
 		@Bean

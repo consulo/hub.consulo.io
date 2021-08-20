@@ -14,7 +14,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
-import consulo.webService.auth.mongo.service.UserService;
+import consulo.webService.auth.service.UserService;
 import consulo.webService.auth.ui.LoginOrRegisterPanel;
 import consulo.webService.config.view.ConfigPanel;
 import consulo.webService.ui.RootUI;

@@ -1,8 +1,5 @@
 package consulo.webService.auth.view;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
@@ -11,9 +8,12 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import consulo.webService.auth.mongo.domain.Role;
-import consulo.webService.auth.mongo.domain.UserAccount;
-import consulo.webService.auth.mongo.repository.UserAccountRepository;
+import consulo.webService.auth.domain.UserAccount;
+import consulo.webService.auth.repository.UserAccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.List;
 
 /**
  * @author VISTALL
@@ -51,7 +51,7 @@ public class AdminUserView extends VerticalLayout implements View
 
 		table.addColumn(UserAccount::getUsername).setCaption("Email");
 		table.addColumn(UserAccount::getStatus).setCaption("Status");
-		table.addColumn(userAccount -> StringUtil.join(userAccount.getRoles(), Role::getId, ", ")).setCaption("Roles");
+		table.addColumn(userAccount -> StringUtil.join(userAccount.getAuthorities(), GrantedAuthority::getAuthority, ", ")).setCaption("Roles");
 
 		addComponent(table);
 		setExpandRatio(table, 1);
