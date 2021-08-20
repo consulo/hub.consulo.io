@@ -14,16 +14,16 @@ import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.io.FileUtil;
-import consulo.webService.UserConfigurationService;
+import consulo.hub.frontend.UserConfigurationService;
 import consulo.webService.plugins.PluginAnalyzerService;
-import consulo.webService.plugins.PluginChannel;
+import consulo.hub.shared.repository.PluginChannel;
 import consulo.webService.plugins.PluginChannelIterationService;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.plugins.PluginDeployService;
-import consulo.webService.plugins.PluginNode;
+import consulo.hub.shared.repository.PluginNode;
 import consulo.webService.plugins.archive.TarGzArchive;
 import consulo.webService.plugins.pluginsState.PluginsState;
-import consulo.webService.util.PropertyKeys;
+import consulo.hub.frontend.util.PropertyKeys;
 
 /**
  * @author VISTALL

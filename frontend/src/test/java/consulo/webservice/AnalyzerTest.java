@@ -2,13 +2,13 @@ package consulo.webservice;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
-import consulo.webService.UserConfigurationService;
+import consulo.hub.frontend.UserConfigurationService;
 import consulo.webService.plugins.PluginAnalyzerService;
-import consulo.webService.plugins.PluginChannel;
+import consulo.hub.shared.repository.PluginChannel;
 import consulo.webService.plugins.PluginDeployService;
-import consulo.webService.plugins.PluginNode;
+import consulo.hub.shared.repository.PluginNode;
 import consulo.webService.util.GsonUtil;
-import consulo.webService.util.PropertyKeys;
+import consulo.hub.frontend.util.PropertyKeys;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;

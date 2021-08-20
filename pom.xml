@@ -59,5 +59,7 @@
 	<modules>
 		<module>plugin-analyzer-rt</module>
 		<module>frontend</module>
+		<module>backend</module>
+		<module>shared</module>
 	</modules>
 </project>
