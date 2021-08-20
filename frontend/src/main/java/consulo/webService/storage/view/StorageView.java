@@ -10,9 +10,11 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.webService.storage.mongo.MongoStorageFile;
-import consulo.webService.storage.mongo.MongoStorageFileRepository;
-import consulo.webService.storage.mongo.MongoStorageFileUpdateBy;
+import consulo.webService.auth.domain.UserAccount;
+import consulo.webService.storage.domain.StorageFile;
+import consulo.webService.storage.domain.StorageFileUpdateBy;
+import consulo.webService.storage.repository.StorageFileRepository;
+import consulo.webService.storage.service.StorageService;
 import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
 import consulo.webService.util.InformationBean;
@@ -34,7 +36,10 @@ public class StorageView extends VerticalLayout implements View
 	public static final String ID = "storage";
 
 	@Autowired
-	private MongoStorageFileRepository myStorageFileRepository;
+	private StorageFileRepository myStorageFileRepository;
+
+	@Autowired
+	private StorageService myStorageService;
 
 	public StorageView()
 	{
@@ -57,14 +62,14 @@ public class StorageView extends VerticalLayout implements View
 		ListSelect<String> listSelect = TinyComponents.newListSelect();
 		VerticalLayout updateInfoPanel = new VerticalLayout();
 
-		List<MongoStorageFile> files = myStorageFileRepository.findByEmail(authentication.getName());
+		List<StorageFile> files = myStorageFileRepository.findAllByUser((UserAccount) authentication.getPrincipal());
 
 		Label label = new Label("Storage: ");
 
 		Button wipeDataButton = TinyComponents.newButton("Wipe All", e -> {
-			myStorageFileRepository.deleteAllByEmail(authentication.getName());
+			myStorageService.wipeData((UserAccount) authentication.getPrincipal());
 
-			listSelect.setDataProvider(new ListDataProvider<String>(new ArrayList<>()));
+			listSelect.setDataProvider(new ListDataProvider<>(new ArrayList<>()));
 			listSelect.setItemCaptionGenerator(s -> "");
 			updateInfoPanel.removeAllComponents();
 		});
@@ -103,7 +108,7 @@ public class StorageView extends VerticalLayout implements View
 
 		listSelect.addValueChangeListener(event1 ->
 		{
-			MongoStorageFile file = myStorageFileRepository.findOne(event1.getValue().iterator().next());
+			StorageFile file = myStorageFileRepository.findOne(Integer.parseInt(event1.getValue().iterator().next()));
 
 			String text = "not found";
 
@@ -113,7 +118,7 @@ public class StorageView extends VerticalLayout implements View
 			{
 				try
 				{
-					byte[] bytes = StreamUtil.loadFromStream(new UnsyncByteArrayInputStream(file.getData()));
+					byte[] bytes = StreamUtil.loadFromStream(new UnsyncByteArrayInputStream(file.getFileData()));
 					text = new String(bytes, StandardCharsets.UTF_8);
 				}
 				catch(Exception e)
@@ -122,7 +127,7 @@ public class StorageView extends VerticalLayout implements View
 				}
 
 				addFields(InformationBean.class, file.getUpdateBy(), updateInfoPanel);
-				addFields(MongoStorageFileUpdateBy.class, file.getUpdateBy(), updateInfoPanel);
+				addFields(StorageFileUpdateBy.class, file.getUpdateBy(), updateInfoPanel);
 			}
 
 			textArea.setReadOnly(false);
@@ -131,9 +136,9 @@ public class StorageView extends VerticalLayout implements View
 		});
 
 		Map<String, String> captions = new HashMap<>();
-		for(MongoStorageFile file : files)
+		for(StorageFile file : files)
 		{
-			captions.put(file.getId(), file.getFilePath());
+			captions.put(String.valueOf(file.getId()), file.getFilePath());
 		}
 		listSelect.setDataProvider(new ListDataProvider<>(captions.keySet()));
 		listSelect.setItemCaptionGenerator(captions::get);

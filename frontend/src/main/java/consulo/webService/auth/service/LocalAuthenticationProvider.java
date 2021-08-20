@@ -21,7 +21,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private UserService userService;
+	private UserAccountService myUserAccountService;
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -41,7 +41,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 			throw new BadCredentialsException("Please enter password");
 		}
 
-		UserAccount user = userService.getByUsername(username);
+		UserAccount user = myUserAccountService.getByUsername(username);
 		if(user == null)
 		{
 			logger.warn("Username {} password {}: user not found", username, password);

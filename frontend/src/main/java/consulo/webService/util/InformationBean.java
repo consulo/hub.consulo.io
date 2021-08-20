@@ -1,22 +1,37 @@
 package consulo.webService.util;
 
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+
 /**
  * @author VISTALL
  * @since 2019-02-11
  */
+@MappedSuperclass
 public class InformationBean
 {
+	@Column
 	private String osName;
+	@Column
 	private String osVersion;
+	@Column
 	private String javaVersion;
+	@Column
 	private String javaVmVendor;
+	@Column
 	private String locale;
 
+	@Column
 	private String appUpdateChannel;
+	@Column
 	private String appBuild;
+	@Column
 	private String appVersionMajor;
+	@Column
 	private String appVersionMinor;
+	@Column
 	private String appBuildDate;
+	@Column
 	private boolean appIsInternal;
 
 	public void copyTo(InformationBean bean)

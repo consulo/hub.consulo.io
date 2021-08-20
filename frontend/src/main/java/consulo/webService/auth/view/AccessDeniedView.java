@@ -14,7 +14,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.webService.UserConfigurationService;
-import consulo.webService.auth.service.UserService;
+import consulo.webService.auth.service.UserAccountService;
 import consulo.webService.auth.ui.LoginOrRegisterPanel;
 import consulo.webService.config.view.ConfigPanel;
 import consulo.webService.ui.RootUI;
@@ -31,7 +31,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 	private AuthenticationManager myAuthenticationManager;
 
 	@Autowired
-	private UserService myUserService;
+	private UserAccountService myUserAccountService;
 
 	@Autowired
 	private UserConfigurationService myUserConfigurationService;
@@ -101,7 +101,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 
 	private boolean register(String username, String password)
 	{
-		if(!myUserService.registerUser(username, password))
+		if(!myUserAccountService.registerUser(username, password))
 		{
 			return false;
 		}

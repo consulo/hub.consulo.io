@@ -3,14 +3,16 @@ package consulo.webService.storage;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.BufferExposingByteArrayOutputStream;
 import consulo.externalStorage.storage.DataCompressor;
+import consulo.webService.auth.domain.UserAccount;
 import consulo.webService.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.webService.auth.oauth2.mongo.OAuth2AccessTokenRepository;
+import consulo.webService.auth.repository.UserAccountRepository;
 import consulo.webService.storage.bean.InfoAllBeanResponse;
 import consulo.webService.storage.bean.PushFileBeanRequest;
 import consulo.webService.storage.bean.PushFileBeanResponse;
-import consulo.webService.storage.mongo.MongoStorageFile;
-import consulo.webService.storage.mongo.MongoStorageFileRepository;
-import consulo.webService.storage.mongo.MongoStorageFileUpdateBy;
+import consulo.webService.storage.domain.StorageFile;
+import consulo.webService.storage.domain.StorageFileUpdateBy;
+import consulo.webService.storage.repository.StorageFileRepository;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +21,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -38,13 +42,16 @@ public class StorageRestController
 	}
 
 	@Autowired
-	private MongoStorageFileRepository myStorageFileRepository;
+	private StorageFileRepository myStorageFileRepository;
 
 	@Autowired
 	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
 
-	@RequestMapping(value = "/api/storage/infoAll", method = RequestMethod.GET)
-	public InfoAllBeanResponse infoAll(@RequestHeader("Authorization") String authorization) throws IOException
+	@Autowired
+	private UserAccountRepository myUserAccountRepository;
+
+	@Nonnull
+	private UserAccount findUserByToken(@Nonnull String authorization)  throws NotAuthorizedException
 	{
 		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
 		if(token == null)
@@ -52,10 +59,18 @@ public class StorageRestController
 			throw new NotAuthorizedException();
 		}
 
+		return Objects.requireNonNull(myUserAccountRepository.findByUsername(token.getUserName()));
+	}
+
+	@RequestMapping(value = "/api/storage/infoAll", method = RequestMethod.GET)
+	public InfoAllBeanResponse infoAll(@RequestHeader("Authorization") String authorization) throws IOException
+	{
+		UserAccount account = findUserByToken(authorization);
+
 		InfoAllBeanResponse response = new InfoAllBeanResponse();
 
-		List<MongoStorageFile> files = myStorageFileRepository.findByEmail(token.getUserName());
-		for(MongoStorageFile file : files)
+		List<StorageFile> files = myStorageFileRepository.findAllByUser(account);
+		for(StorageFile file : files)
 		{
 			response.files.put(file.getFilePath(), file.getModCount());
 		}
@@ -66,13 +81,9 @@ public class StorageRestController
 	@RequestMapping(value = "/api/storage/getAll", method = RequestMethod.GET)
 	public ResponseEntity<?> getAll(@RequestHeader("Authorization") String authorization) throws IOException
 	{
-		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		if(token == null)
-		{
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
+		UserAccount account = findUserByToken(authorization);
 
-		List<MongoStorageFile> list = myStorageFileRepository.findByEmail(token.getUserName());
+		List<StorageFile> list = myStorageFileRepository.findAllByUser(account);
 		if(list.isEmpty())
 		{
 			return ResponseEntity.noContent().build();
@@ -85,14 +96,14 @@ public class StorageRestController
 			zipStream.setMethod(ZipArchiveOutputStream.DEFLATED);
 			zipStream.setEncoding(StandardCharsets.UTF_8.toString());
 
-			for(MongoStorageFile storageFile : list)
+			for(StorageFile storageFile : list)
 			{
 				String path = storageFile.getFilePath().replace("\\", "/");
 
 				ZipArchiveEntry entry = new ZipArchiveEntry(path);
 
 				zipStream.putArchiveEntry(entry);
-				zipStream.write(storageFile.getData());
+				zipStream.write(storageFile.getFileData());
 				zipStream.closeArchiveEntry();
 
 				entry = new ZipArchiveEntry(path + ".modcount");
@@ -111,13 +122,10 @@ public class StorageRestController
 	@RequestMapping(value = "/api/storage/getFile", method = RequestMethod.GET)
 	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @RequestHeader("Authorization") String authorization)
 	{
-		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		if(token == null)
-		{
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
+		UserAccount account = findUserByToken(authorization);
 
-		MongoStorageFile storageFile = myStorageFileRepository.findByEmailAndFilePath(token.getUserName(), filePath);
+		StorageFile storageFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);
+
 		if(storageFile == null)
 		{
 			return ResponseEntity.notFound().build();
@@ -130,7 +138,7 @@ public class StorageRestController
 
 		try
 		{
-			byte[] data = storageFile.getData();
+			byte[] data = storageFile.getFileData();
 			byte[] compressedData = DataCompressor.compress(data, storageFile.getModCount());
 			return ResponseEntity.ok(new ByteArrayResource(compressedData));
 		}
@@ -143,13 +151,9 @@ public class StorageRestController
 	@RequestMapping(value = "/api/storage/deleteFile", method = RequestMethod.GET)
 	public ResponseEntity<?> deleteFile(@RequestParam("filePath") String filePath, @RequestHeader("Authorization") String authorization)
 	{
-		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		if(token == null)
-		{
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
+		UserAccount account = findUserByToken(authorization);
 
-		MongoStorageFile storageFile = myStorageFileRepository.findByEmailAndFilePath(token.getUserName(), filePath);
+		StorageFile storageFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);
 		if(storageFile == null)
 		{
 			return ResponseEntity.notFound().build();
@@ -162,18 +166,14 @@ public class StorageRestController
 	@RequestMapping(value = "/api/storage/pushFile", method = RequestMethod.POST)
 	public PushFileBeanResponse pushFile(@RequestBody(required = true) PushFileBeanRequest data, @RequestHeader("Authorization") String authorization) throws Exception
 	{
-		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		if(token == null)
-		{
-			throw new NotAuthorizedException();
-		}
+		UserAccount account = findUserByToken(authorization);
 
 		String filePath = data.getFilePath();
 
-		MongoStorageFile prevFile = myStorageFileRepository.findByEmailAndFilePath(token.getUserName(), filePath);
+		StorageFile prevFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);
 
 		int count;
-		MongoStorageFile file = prevFile == null ? new MongoStorageFile() : prevFile;
+		StorageFile file = prevFile == null ? new StorageFile() : prevFile;
 
 		if(prevFile != null)
 		{
@@ -182,11 +182,11 @@ public class StorageRestController
 		else
 		{
 			file.setFilePath(filePath);
-			file.setEmail(token.getUserName());
+			file.setUser(account);
 			file.setModCount(count = 1);
 		}
 
-		MongoStorageFileUpdateBy by = new MongoStorageFileUpdateBy();
+		StorageFileUpdateBy by = new StorageFileUpdateBy();
 		by.setTime(System.currentTimeMillis());
 		data.copyTo(by);
 
@@ -196,7 +196,7 @@ public class StorageRestController
 
 		Pair<byte[], Integer> uncompress = DataCompressor.uncompress(new ByteArrayInputStream(Base64.getDecoder().decode(bytes)));
 
-		file.setData(uncompress.getFirst());
+		file.setFileData(uncompress.getFirst());
 
 		myStorageFileRepository.save(file);
 

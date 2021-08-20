@@ -7,7 +7,7 @@ import com.vaadin.server.Page;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import consulo.webService.auth.service.UserService;
+import consulo.webService.auth.service.UserAccountService;
 import consulo.webService.auth.ui.LoginOrRegisterPanel;
 import consulo.webService.ui.util.TinyComponents;
 import consulo.webService.ui.util.VaadinUIUtil;
@@ -25,7 +25,7 @@ public class UserInfoView extends VerticalLayout implements View
 	public static final String ID = "userInfo";
 
 	@Autowired
-	private UserService myUserService;
+	private UserAccountService myUserAccountService;
 
 	public UserInfoView()
 	{
@@ -96,7 +96,7 @@ public class UserInfoView extends VerticalLayout implements View
 			return;
 		}
 
-		if(!myUserService.changePassword(authentication.getName(), oldPassword, newPassword))
+		if(!myUserAccountService.changePassword(authentication.getName(), oldPassword, newPassword))
 		{
 			error("Failed to change password");
 			return;

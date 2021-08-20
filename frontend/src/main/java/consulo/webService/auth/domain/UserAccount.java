@@ -13,13 +13,15 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table
+@Table(indexes = {
+	@Index(columnList = "username", unique = true)
+})
 public class UserAccount implements UserDetails
 {
 	public static final int ROLE_SUPERUSER = 1 << 1;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue
 	@Column
 	private Integer id;
 	@Column
@@ -32,7 +34,7 @@ public class UserAccount implements UserDetails
 	private String lastname;
 	@Column
 	private UserAccountStatus status = UserAccountStatus.STATUS_APPROVED;
-
+	@Column
 	private int rights;
 
 	public Integer getId()

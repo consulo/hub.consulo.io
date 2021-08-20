@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import consulo.webService.auth.domain.UserAccount;
-import consulo.webService.auth.service.UserService;
+import consulo.webService.auth.service.UserAccountService;
 
 /**
  * @author VISTALL
@@ -15,10 +15,10 @@ import consulo.webService.auth.service.UserService;
 @Service
 public class MongoUserDetailsService implements UserDetailsService
 {
-	private final UserService userRepository;
+	private final UserAccountService userRepository;
 
 	@Autowired
-	public MongoUserDetailsService(UserService userRepository)
+	public MongoUserDetailsService(UserAccountService userRepository)
 	{
 		this.userRepository = userRepository;
 	}

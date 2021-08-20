@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 @Service
-public class UserService
+public class UserAccountService
 {
 	@Autowired
 	private UserAccountRepository userRepository;
