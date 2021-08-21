@@ -6,7 +6,9 @@ package consulo.hub.shared.auth;
  */
 public interface Roles
 {
-	String ROLE_ANONYM = "ROLE_ANONYM";
-	String ROLE_ADMIN = "ROLE_ADMIN";
+	String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
+	String ROLE_SUPERUSER = "ROLE_SUPERUSER";
+	String ROLE_SUPERDEPLOYER = "ROLE_SUPERDEPLOYER";
+
 	String ROLE_USER = "ROLE_USER";
 }

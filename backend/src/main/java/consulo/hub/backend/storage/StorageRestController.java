@@ -3,31 +3,28 @@ package consulo.hub.backend.storage;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.BufferExposingByteArrayOutputStream;
 import consulo.externalStorage.storage.DataCompressor;
-import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.hub.backend.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
-import consulo.hub.backend.auth.oauth2.mongo.OAuth2AccessTokenRepository;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.storage.bean.InfoAllBeanResponse;
 import consulo.hub.backend.storage.bean.PushFileBeanRequest;
 import consulo.hub.backend.storage.bean.PushFileBeanResponse;
+import consulo.hub.backend.storage.repository.StorageFileRepository;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.storage.domain.StorageFile;
 import consulo.hub.shared.storage.domain.StorageFileUpdateBy;
-import consulo.hub.backend.storage.repository.StorageFileRepository;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -45,28 +42,11 @@ public class StorageRestController
 	private StorageFileRepository myStorageFileRepository;
 
 	@Autowired
-	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
-
-	@Autowired
 	private UserAccountRepository myUserAccountRepository;
 
-	@Nonnull
-	private UserAccount findUserByToken(@Nonnull String authorization)  throws NotAuthorizedException
-	{
-		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		if(token == null)
-		{
-			throw new NotAuthorizedException();
-		}
-
-		return Objects.requireNonNull(myUserAccountRepository.findByUsername(token.getUserName()));
-	}
-
 	@RequestMapping(value = "/api/storage/infoAll", method = RequestMethod.GET)
-	public InfoAllBeanResponse infoAll(@RequestHeader("Authorization") String authorization) throws IOException
+	public InfoAllBeanResponse infoAll(@AuthenticationPrincipal UserAccount account) throws IOException
 	{
-		UserAccount account = findUserByToken(authorization);
-
 		InfoAllBeanResponse response = new InfoAllBeanResponse();
 
 		List<StorageFile> files = myStorageFileRepository.findAllByUser(account);
@@ -79,10 +59,8 @@ public class StorageRestController
 	}
 
 	@RequestMapping(value = "/api/storage/getAll", method = RequestMethod.GET)
-	public ResponseEntity<?> getAll(@RequestHeader("Authorization") String authorization) throws IOException
+	public ResponseEntity<?> getAll(@AuthenticationPrincipal UserAccount account) throws IOException
 	{
-		UserAccount account = findUserByToken(authorization);
-
 		List<StorageFile> list = myStorageFileRepository.findAllByUser(account);
 		if(list.isEmpty())
 		{
@@ -120,10 +98,8 @@ public class StorageRestController
 	}
 
 	@RequestMapping(value = "/api/storage/getFile", method = RequestMethod.GET)
-	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @RequestHeader("Authorization") String authorization)
+	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @AuthenticationPrincipal UserAccount account)
 	{
-		UserAccount account = findUserByToken(authorization);
-
 		StorageFile storageFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);
 
 		if(storageFile == null)
@@ -149,10 +125,8 @@ public class StorageRestController
 	}
 
 	@RequestMapping(value = "/api/storage/deleteFile", method = RequestMethod.GET)
-	public ResponseEntity<?> deleteFile(@RequestParam("filePath") String filePath, @RequestHeader("Authorization") String authorization)
+	public ResponseEntity<?> deleteFile(@RequestParam("filePath") String filePath, @AuthenticationPrincipal UserAccount account)
 	{
-		UserAccount account = findUserByToken(authorization);
-
 		StorageFile storageFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);
 		if(storageFile == null)
 		{
@@ -164,10 +138,8 @@ public class StorageRestController
 	}
 
 	@RequestMapping(value = "/api/storage/pushFile", method = RequestMethod.POST)
-	public PushFileBeanResponse pushFile(@RequestBody(required = true) PushFileBeanRequest data, @RequestHeader("Authorization") String authorization) throws Exception
+	public PushFileBeanResponse pushFile(@RequestBody(required = true) PushFileBeanRequest data, @AuthenticationPrincipal UserAccount account) throws Exception
 	{
-		UserAccount account = findUserByToken(authorization);
-
 		String filePath = data.getFilePath();
 
 		StorageFile prevFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);

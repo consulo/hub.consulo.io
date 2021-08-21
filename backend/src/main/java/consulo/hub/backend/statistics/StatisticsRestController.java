@@ -1,11 +1,15 @@
 package consulo.hub.backend.statistics;
 
-import consulo.hub.backend.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
-import consulo.hub.backend.auth.oauth2.mongo.OAuth2AccessTokenRepository;
-import consulo.hub.shared.statistics.domain.StatisticBean;
 import consulo.hub.backend.statistics.mongo.StatisticRepository;
+import consulo.hub.shared.ServiceAccounts;
+import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.hub.shared.statistics.domain.StatisticBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,30 +23,16 @@ public class StatisticsRestController
 {
 	private static enum PushResult
 	{
-		OK,
-		BAD_OAUTHK_KEY
+		OK
 	}
 
 	@Autowired
 	private StatisticRepository myStatisticRepository;
 
-	@Autowired
-	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
-
 	@RequestMapping(value = "/api/statistics/push", method = RequestMethod.POST)
-	public Map<String, String> doPushStatistic(@RequestHeader(value = "Authorization", required = false) String authorizationKey, @RequestBody StatisticBean bean)
+	public Map<String, String> doPushStatistic(@AuthenticationPrincipal UserAccount account, @RequestBody StatisticBean bean)
 	{
-		String ownerEmail = null;
-		if(authorizationKey != null)
-		{
-			OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorizationKey);
-			if(token == null)
-			{
-				return resultWithMessage(PushResult.BAD_OAUTHK_KEY, null);
-			}
-
-			ownerEmail = token.getUserName();
-		}
+		String ownerEmail = account != null ? account.getUsername() : ServiceAccounts.STATISTICS;
 
 		bean.setOwnerEmail(ownerEmail);
 

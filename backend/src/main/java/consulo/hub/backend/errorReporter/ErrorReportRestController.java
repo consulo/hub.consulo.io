@@ -1,19 +1,22 @@
 package consulo.hub.backend.errorReporter;
 
-import consulo.hub.backend.ServiceConstants;
-import consulo.hub.backend.repository.PluginChannelsService;
-import consulo.hub.backend.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
-import consulo.hub.backend.auth.oauth2.mongo.OAuth2AccessTokenRepository;
 import consulo.hub.backend.errorReporter.mongo.ErrorReportAttachmentRepository;
 import consulo.hub.backend.errorReporter.mongo.ErrorReportRepository;
 import consulo.hub.backend.repository.PluginChannelService;
+import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.shared.ServiceAccounts;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportAttachment;
 import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ public class ErrorReportRestController
 {
 	private static enum CreateResult
 	{
-		OK, PLATFORM_UPDATE_REQUIRED, PLUGIN_UPDATE_REQUIRED, BAD_REPORT, BAD_OAUTHK_KEY
+		OK, PLATFORM_UPDATE_REQUIRED, PLUGIN_UPDATE_REQUIRED, BAD_REPORT
 	}
 
 	private static enum OS
@@ -68,11 +71,8 @@ public class ErrorReportRestController
 	@Autowired
 	private PluginChannelsService myUserConfigurationService;
 
-	@Autowired
-	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;
-
 	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
-	public Map<String, String> create(@RequestHeader(value = "Authorization", required = false) String authorizationKey, @RequestBody ErrorReport errorReport) throws IOException
+	public Map<String, String> create(@AuthenticationPrincipal UserAccount account, @RequestBody ErrorReport errorReport) throws IOException
 	{
 		String appBuild = errorReport.getAppBuild();
 		if(appBuild == null)
@@ -131,19 +131,13 @@ public class ErrorReportRestController
 			}
 		}
 
-		if(authorizationKey != null)
+		if(account != null)
 		{
-			OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorizationKey);
-			if(token == null)
-			{
-				return resultWithMessage(CreateResult.BAD_OAUTHK_KEY, errorReport.getId(), null);
-			}
-
-			errorReport.setReporterEmail(token.getUserName());
+			errorReport.setReporterEmail(account.getUsername());
 		}
 		else
 		{
-			errorReport.setReporterEmail(ServiceConstants.ourBotEmail);
+			errorReport.setReporterEmail(ServiceAccounts.ERROR_REPORTER);
 		}
 
 		// do not allow override it via post body

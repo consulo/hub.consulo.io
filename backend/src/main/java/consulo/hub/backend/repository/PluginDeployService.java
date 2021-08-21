@@ -14,12 +14,14 @@ import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
+import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -97,6 +99,7 @@ public class PluginDeployService
 	}
 
 	@Nonnull
+	@Secured(Roles.ROLE_SUPERDEPLOYER)
 	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull File tempFile) throws Exception
 	{
 		File deployPlatform = myUserConfigurationService.createTempFile("deploy_platform_extract", null);
@@ -157,6 +160,7 @@ public class PluginDeployService
 		}
 	}
 
+	@Secured(Roles.ROLE_SUPERDEPLOYER)
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");

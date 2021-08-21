@@ -18,12 +18,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 {
-	@Autowired
 	private UserDetailsService myUserDetailsService;
 
-	@Autowired
 	private TokenStore myTokenStore;
 
+	@Autowired
 	public OAuth2LoginAuthenticationProvider(UserDetailsService userDetailsService, TokenStore tokenStore)
 	{
 		myUserDetailsService = userDetailsService;

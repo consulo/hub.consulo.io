@@ -1,23 +1,19 @@
 package consulo.hub.backend.auth.oauth2.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import consulo.hub.backend.auth.service.UserAccountService;
+import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.hub.backend.auth.service.UserAccountService;
 
 /**
  * @author VISTALL
  * @since 26-Sep-16
  */
-@Service
 public class UserAccountDetailsService implements UserDetailsService
 {
 	private final UserAccountService userRepository;
 
-	@Autowired
 	public UserAccountDetailsService(UserAccountService userRepository)
 	{
 		this.userRepository = userRepository;

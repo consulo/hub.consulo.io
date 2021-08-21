@@ -7,4 +7,8 @@ package consulo.hub.shared;
 public interface ServiceAccounts
 {
 	String JENKINS_DEPLOY = "jenkins@consulo.io";
+
+	String ERROR_REPORTER = "hub.error.reporter@consulo.io";
+
+	String STATISTICS = "hub.statistics@consulo.io";
 }

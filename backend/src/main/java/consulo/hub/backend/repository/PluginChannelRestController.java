@@ -1,5 +1,6 @@
 package consulo.hub.backend.repository;
 
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,14 +8,13 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -29,8 +29,8 @@ public class PluginChannelRestController
 
 	@Autowired
 	public PluginChannelRestController(@Nonnull PluginChannelsService userConfigurationService,
-			@Nonnull PluginDeployService pluginDeployService,
-			@Nonnull PluginStatisticsService pluginStatisticsService)
+									   @Nonnull PluginDeployService pluginDeployService,
+									   @Nonnull PluginStatisticsService pluginStatisticsService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;
@@ -41,14 +41,14 @@ public class PluginChannelRestController
 
 	@RequestMapping("/api/repository/download")
 	public ResponseEntity<?> download(@RequestParam("channel") PluginChannel channel,
-			@RequestParam("platformVersion") String platformVersion,
-			@Deprecated @RequestParam(value = "pluginId", required = false) final String pluginId,
-			@RequestParam(value = "id", required = false /* TODO [VISTALL] remove it after dropping 'pluginId' parameter*/) final String id,
-			@RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
-			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
-			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
-			@RequestParam(value = "viaUpdate", defaultValue = "false", required = false) boolean viaUpdate,
-			@RequestParam(value = "version", required = false) String version)
+									  @RequestParam("platformVersion") String platformVersion,
+									  @Deprecated @RequestParam(value = "pluginId", required = false) final String pluginId,
+									  @RequestParam(value = "id", required = false /* TODO [VISTALL] remove it after dropping 'pluginId' parameter*/) final String id,
+									  @RequestParam(value = "noTracking", defaultValue = "false", required = false) boolean noTracking,
+									  @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
+									  @RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
+									  @RequestParam(value = "viaUpdate", defaultValue = "false", required = false) boolean viaUpdate,
+									  @RequestParam(value = "version", required = false) String version)
 	{
 		if(id == null && pluginId == null)
 		{
@@ -93,41 +93,41 @@ public class PluginChannelRestController
 
 	@RequestMapping(value = "/api/repository/platformDeploy", method = RequestMethod.POST)
 	public PluginNode platformDeploy(@RequestParam("channel") PluginChannel channel,
-			@RequestBody(required = true) MultipartFile file,
-			@RequestParam("platformVersion") int platformVersion,
-			@RequestHeader("Authorization") String authorization) throws Exception
+									 @RequestBody(required = true) MultipartFile file,
+									 @RequestParam("platformVersion") int platformVersion,
+									 @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
-		String keyFromClient = authorization;
-		String keyFromFs = getDeployKey();
-		//TODO [VISTALL] removed this hack later - use oauth
-		if(!Objects.equals(keyFromClient, keyFromFs))
-		{
-			throw new IOException("bad auth");
-		}
+//		String keyFromClient = authorization;
+//		String keyFromFs = getDeployKey();
+//		//TODO [VISTALL] removed this hack later - use oauth
+//		if(!Objects.equals(keyFromClient, keyFromFs))
+//		{
+//			throw new IOException("bad auth");
+//		}
 
 		return myPluginDeployService.deployPlatform(channel, platformVersion, file);
 	}
 
 	@RequestMapping(value = "/api/repository/pluginDeploy", method = RequestMethod.POST)
 	public PluginNode pluginDeploy(@RequestParam("channel") PluginChannel channel,
-			@RequestBody(required = true) MultipartFile file,
-			@RequestHeader("Authorization") String authorization) throws Exception
+								   @RequestBody(required = true) MultipartFile file,
+								   @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
-		String keyFromClient = authorization;
-		String keyFromFs = getDeployKey();
-		//TODO [VISTALL] removed this hack later - use oauth
-		if(!Objects.equals(keyFromClient, keyFromFs))
-		{
-			throw new IOException("bad auth");
-		}
+//		String keyFromClient = authorization;
+//		String keyFromFs = getDeployKey();
+//		//TODO [VISTALL] removed this hack later - use oauth
+//		if(!Objects.equals(keyFromClient, keyFromFs))
+//		{
+//			throw new IOException("bad auth");
+//		}
 
 		return myPluginDeployService.deployPlugin(channel, file::getInputStream);
 	}
 
 	@RequestMapping("/api/repository/list")
 	public PluginNode[] list(@RequestParam("channel") PluginChannel channel,
-			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
+							 @RequestParam("platformVersion") String platformVersion,
+							 @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 
@@ -136,10 +136,10 @@ public class PluginChannelRestController
 
 	@RequestMapping("/api/repository/info")
 	public ResponseEntity<PluginNode> info(@RequestParam("channel") PluginChannel channel,
-			@RequestParam("platformVersion") String platformVersion,
-			@RequestParam("id") final String id,
-			@RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
-			@RequestParam(value = "version") String version)
+										   @RequestParam("platformVersion") String platformVersion,
+										   @RequestParam("id") final String id,
+										   @RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
+										   @RequestParam(value = "version") String version)
 	{
 		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
 

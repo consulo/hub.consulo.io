@@ -40,7 +40,7 @@ public class JpaTokenStore implements TokenStore
 	@Override
 	public OAuth2Authentication readAuthentication(OAuth2AccessToken token)
 	{
-		return null;
+		return readAuthentication(token.getValue());
 	}
 
 	@Override
@@ -65,19 +65,27 @@ public class JpaTokenStore implements TokenStore
 	@Override
 	public OAuth2AccessToken readAccessToken(String tokenValue)
 	{
+		// select token_id, token from oauth_access_token where token_id = ?
+		JpaOAuthAccessToken jpa = myRepository.findOne(extractTokenKey(tokenValue));
+
+		Optional<OAuth2AccessToken> optional = convertToToken(jpa);
+		if(optional.isPresent())
+		{
+			return optional.get();
+		}
 		return null;
 	}
 
 	@Override
 	public void storeRefreshToken(OAuth2RefreshToken refreshToken, OAuth2Authentication authentication)
 	{
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public OAuth2RefreshToken readRefreshToken(String tokenValue)
 	{
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -177,25 +185,25 @@ public class JpaTokenStore implements TokenStore
 	@Override
 	public OAuth2Authentication readAuthenticationForRefreshToken(OAuth2RefreshToken token)
 	{
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void removeRefreshToken(OAuth2RefreshToken token)
 	{
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void removeAccessTokenUsingRefreshToken(OAuth2RefreshToken refreshToken)
 	{
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication)
 	{
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -228,6 +236,11 @@ public class JpaTokenStore implements TokenStore
 
 	private Optional<OAuth2AccessToken> convertToToken(JpaOAuthAccessToken jpaToken)
 	{
+		if(jpaToken == null)
+		{
+			return Optional.empty();
+		}
+
 		try
 		{
 			return Optional.ofNullable(deserializeAccessToken(jpaToken.getToken()));

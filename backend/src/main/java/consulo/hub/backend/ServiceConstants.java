@@ -7,4 +7,7 @@ package consulo.hub.backend;
 public interface ServiceConstants
 {
 	public static final String ourBotEmail = "consulo.bot@gmail.com";
+
+	public static final String DEFAULT_CLIENT_ID = "consulo";
+
 }

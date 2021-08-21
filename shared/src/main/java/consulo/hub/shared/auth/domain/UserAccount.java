@@ -8,16 +8,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(indexes = {
-	@Index(columnList = "username", unique = true)
+		@Index(columnList = "username", unique = true)
 })
 public class UserAccount implements UserDetails
 {
 	public static final int ROLE_SUPERUSER = 1 << 1;
+	public static final int ROLE_SUPERDEPLOYER = 1 << 2;
 
 	@Id
 	@GeneratedValue
@@ -78,11 +80,20 @@ public class UserAccount implements UserDetails
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities()
 	{
+		List<GrantedAuthority> authorities = new ArrayList<>();
+
 		if((rights & ROLE_SUPERUSER) == ROLE_SUPERUSER)
 		{
-			return List.of(new SimpleGrantedAuthority(Roles.ROLE_USER), new SimpleGrantedAuthority(Roles.ROLE_ADMIN));
+			authorities.add(new SimpleGrantedAuthority(Roles.ROLE_SUPERUSER));
 		}
-		return List.of(new SimpleGrantedAuthority(Roles.ROLE_USER));
+
+		if((rights & ROLE_SUPERDEPLOYER) == ROLE_SUPERDEPLOYER)
+		{
+			authorities.add(new SimpleGrantedAuthority(Roles.ROLE_SUPERDEPLOYER));
+		}
+
+		authorities.add(new SimpleGrantedAuthority(Roles.ROLE_USER));
+		return authorities;
 	}
 
 	@Override

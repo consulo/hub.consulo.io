@@ -1,4 +1,4 @@
-package consulo.hub.frontend.auth;
+package consulo.hub.shared.auth;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

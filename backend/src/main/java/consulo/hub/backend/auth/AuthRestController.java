@@ -2,16 +2,16 @@ package consulo.hub.backend.auth;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.shared.auth.Roles;
-import consulo.hub.backend.auth.oauth2.OAuth2ServerConfiguration;
+import com.google.common.base.Objects;
+import consulo.hub.backend.ServiceConstants;
+import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -19,10 +19,10 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author VISTALL
@@ -51,7 +51,7 @@ public class AuthRestController
 			Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
 			AuthorizationRequest request = new AuthorizationRequest();
-			request.setClientId(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID);
+			request.setClientId(ServiceConstants.DEFAULT_CLIENT_ID);
 
 			OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
 
@@ -76,40 +76,13 @@ public class AuthRestController
 		return ResponseEntity.ok().build();
 	}
 
-	@RequestMapping(value = "/api/auth/validate", method = RequestMethod.GET)
-	public ResponseEntity<?> validate(@RequestParam("email") String email, @RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/api/oauth/validate", method = RequestMethod.GET)
+	public ResponseEntity<?> validate(@RequestParam("email") String email, @AuthenticationPrincipal UserAccount account)
 	{
-		Collection<OAuth2AccessToken> tokensByClientId = myTokenStore.findTokensByClientId(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID);
-		for(OAuth2AccessToken oAuth2AccessToken : tokensByClientId)
+		if(!Objects.equal(account.getUsername(), email))
 		{
-			System.out.println(oAuth2AccessToken.getValue());
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
-
-		Authentication target = myTokenStore.readAuthentication(authorization);
-		if(target == null)
-		{
-			target = new AnonymousAuthenticationToken("anonym", "anonym", List.of(new SimpleGrantedAuthority(Roles.ROLE_ANONYM)));
-		}
-
-		Authentication authenticate = myAuthenticationManager.authenticate(target);
-
-		if(authenticate == null)
-		{
-			throw new IllegalArgumentException();
-		}
-
-		//		OAuth2AuthenticationAccessToken token = myOAuth2AccessTokenRepository.findByTokenId(authorization);
-		//		if(token == null)
-		//		{
-		//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		//		}
-		//
-		//		email = StringUtil.unquoteString(email);
-		//
-		//		if(!token.getUserName().equals(email))
-		//		{
-		//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		//		}
 		return ResponseEntity.ok().build();
 	}
 }
