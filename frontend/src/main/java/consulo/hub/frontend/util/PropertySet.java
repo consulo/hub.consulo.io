@@ -1,4 +1,4 @@
-package consulo.hub.shared.util;
+package consulo.hub.frontend.util;
 
 import java.util.Properties;
 

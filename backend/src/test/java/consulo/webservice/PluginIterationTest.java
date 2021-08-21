@@ -1,29 +1,23 @@
 package consulo.webservice;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.*;
-
-import javax.annotation.Nonnull;
-
+import com.intellij.openapi.util.Couple;
+import com.intellij.openapi.util.io.FileUtil;
+import consulo.hub.backend.repository.*;
+import consulo.hub.backend.repository.archive.TarGzArchive;
+import consulo.hub.backend.repository.pluginsState.PluginsState;
+import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.PluginNode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
-import com.intellij.openapi.util.Couple;
-import com.intellij.openapi.util.io.FileUtil;
-import consulo.hub.frontend.UserConfigurationService;
-import consulo.webService.plugins.PluginAnalyzerService;
-import consulo.hub.shared.repository.PluginChannel;
-import consulo.webService.plugins.PluginChannelIterationService;
-import consulo.webService.plugins.PluginChannelService;
-import consulo.webService.plugins.PluginDeployService;
-import consulo.hub.shared.repository.PluginNode;
-import consulo.webService.plugins.archive.TarGzArchive;
-import consulo.webService.plugins.pluginsState.PluginsState;
-import consulo.hub.frontend.util.PropertyKeys;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -33,7 +27,7 @@ public class PluginIterationTest extends Assert
 {
 	private PluginDeployService myDeployService;
 	private PluginChannelIterationService myPluginChannelIterationService;
-	private UserConfigurationService myUserConfigurationService;
+	private PluginChannelsService myPluginChannelsService;
 
 	private File myTempDir;
 
@@ -46,19 +40,15 @@ public class PluginIterationTest extends Assert
 
 		String canonicalPath = myTempDir.getCanonicalPath();
 
-		myUserConfigurationService = new UserConfigurationService(canonicalPath, Runnable::run);
-		Properties properties = new Properties();
-		properties.setProperty(PropertyKeys.WORKING_DIRECTORY, canonicalPath);
+		myPluginChannelsService = new PluginChannelsService(canonicalPath);
 
-		myUserConfigurationService.setProperties(properties);
+		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(myPluginChannelsService);
 
-		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(myUserConfigurationService);
+		myDeployService = new PluginDeployService(myPluginChannelsService, pluginAnalyzerService);
 
-		myDeployService = new PluginDeployService(myUserConfigurationService, pluginAnalyzerService);
+		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 
-		myPluginChannelIterationService = new PluginChannelIterationService(myUserConfigurationService, myDeployService);
-
-		myUserConfigurationService.contextInitialized();
+		myPluginChannelsService.contextInitialized();
 	}
 
 	@After
@@ -73,7 +63,7 @@ public class PluginIterationTest extends Assert
 		PluginChannel pluginChannel = PluginChannel.release;
 		String platformId = PluginChannelService.ourStandardWinId;
 
-		PluginChannelService channel = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+		PluginChannelService channel = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
 
 		int bootBuild = Integer.parseInt(PluginChannelIterationService.ourConsuloBootBuild);
 		final int count = 100;
@@ -203,11 +193,11 @@ public class PluginIterationTest extends Assert
 	@Test
 	public void testPlatformIteration() throws Exception
 	{
-		PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, "consulo-win-no-jre", "/consulo-win-no-jre_1554.tar.gz");
+		PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, "consulo-win-no-jre", "/src/test/resources/consulo-win-no-jre_1554.tar.gz");
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
-		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(PluginChannel.alpha);
+		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
 
 		PluginNode pluginNodeInAlpha = pluginChannelService.select(platformNode.platformVersion, platformNode.id, null, false);
 		assertNotNull(pluginNodeInAlpha);
@@ -218,7 +208,7 @@ public class PluginIterationTest extends Assert
 
 		TarGzArchive archive = new TarGzArchive();
 
-		File testDir = myUserConfigurationService.createTempFile("test_extract_iter", null);
+		File testDir = myPluginChannelsService.createTempFile("test_extract_iter", null);
 
 		archive.extract(pluginNodeInAlpha.targetFile, testDir);
 
@@ -231,7 +221,7 @@ public class PluginIterationTest extends Assert
 	{
 		InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
 
-		File tempFile = myUserConfigurationService.createTempFile("platformTemp", ".tar.gz");
+		File tempFile = myPluginChannelsService.createTempFile("platformTemp", ".tar.gz");
 		try (FileOutputStream outputStream = new FileOutputStream(tempFile))
 		{
 			FileUtil.copy(resourceAsStream, outputStream);
@@ -243,11 +233,11 @@ public class PluginIterationTest extends Assert
 	@Test
 	public void testPluginIteration() throws Exception
 	{
-		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "/com.intellij.xml_108.zip");
+		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "/src/test/resources/com.intellij.xml_108.zip");
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
-		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(PluginChannel.alpha);
+		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
 
 		PluginNode pluginNodeInAlpha = pluginChannelService.select(pluginNode.platformVersion, pluginNode.id, null, false);
 		assertNotNull(pluginNodeInAlpha);

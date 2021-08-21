@@ -1,7 +1,5 @@
 package consulo.hub.backend.repository;
 
-import consulo.hub.backend.UserConfigurationService;
-import consulo.hub.backend.util.PropertyKeys;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +23,12 @@ import java.util.Objects;
 @RestController
 public class PluginChannelRestController
 {
-	private final UserConfigurationService myUserConfigurationService;
+	private final PluginChannelsService myUserConfigurationService;
 	private final PluginDeployService myPluginDeployService;
 	private final PluginStatisticsService myPluginStatisticsService;
 
 	@Autowired
-	public PluginChannelRestController(@Nonnull UserConfigurationService userConfigurationService,
+	public PluginChannelRestController(@Nonnull PluginChannelsService userConfigurationService,
 			@Nonnull PluginDeployService pluginDeployService,
 			@Nonnull PluginStatisticsService pluginStatisticsService)
 	{
@@ -169,6 +167,7 @@ public class PluginChannelRestController
 	@Nullable
 	private String getDeployKey()
 	{
-		return myUserConfigurationService.getPropertySet().getStringProperty(PropertyKeys.DEPLOY_KEY);
+		// todo
+		return null;
 	}
 }

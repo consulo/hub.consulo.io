@@ -1,7 +1,7 @@
 package consulo.hub.backend.errorReporter;
 
 import consulo.hub.backend.ServiceConstants;
-import consulo.hub.backend.UserConfigurationService;
+import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.auth.oauth2.domain.OAuth2AuthenticationAccessToken;
 import consulo.hub.backend.auth.oauth2.mongo.OAuth2AccessTokenRepository;
 import consulo.hub.backend.errorReporter.mongo.ErrorReportAttachmentRepository;
@@ -66,7 +66,7 @@ public class ErrorReportRestController
 	private ErrorReportAttachmentRepository myErrorReportAttachmentRepository;
 
 	@Autowired
-	private UserConfigurationService myUserConfigurationService;
+	private PluginChannelsService myUserConfigurationService;
 
 	@Autowired
 	private OAuth2AccessTokenRepository myOAuth2AccessTokenRepository;

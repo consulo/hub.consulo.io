@@ -15,7 +15,6 @@ import consulo.container.impl.parser.ExtensionInfo;
 import consulo.container.plugin.PluginId;
 import consulo.disposer.Disposable;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
-import consulo.hub.backend.UserConfigurationService;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.pluginAnalyzer.Analyzer;
@@ -88,10 +87,10 @@ public class PluginAnalyzerService
 
 	private final List<URL> platformClassUrls = new ArrayList<>();
 
-	private UserConfigurationService myUserConfigurationService;
+	private PluginChannelsService myUserConfigurationService;
 
 	@Autowired
-	public PluginAnalyzerService(UserConfigurationService userConfigurationService)
+	public PluginAnalyzerService(PluginChannelsService userConfigurationService)
 	{
 		myUserConfigurationService = userConfigurationService;
 

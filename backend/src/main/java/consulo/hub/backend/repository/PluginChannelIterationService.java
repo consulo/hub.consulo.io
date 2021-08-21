@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.util.ArrayUtil;
-import consulo.hub.backend.UserConfigurationService;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
@@ -30,12 +29,12 @@ public class PluginChannelIterationService
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
-	private final UserConfigurationService myUserConfigurationService;
+	private final PluginChannelsService myUserConfigurationService;
 
 	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	public PluginChannelIterationService(UserConfigurationService userConfigurationService, PluginDeployService pluginDeployService)
+	public PluginChannelIterationService(PluginChannelsService userConfigurationService, PluginDeployService pluginDeployService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginDeployService = pluginDeployService;

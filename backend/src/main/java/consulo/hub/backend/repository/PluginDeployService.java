@@ -12,7 +12,6 @@ import consulo.container.impl.ContainerLogger;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
-import consulo.hub.backend.UserConfigurationService;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
@@ -70,12 +69,12 @@ public class PluginDeployService
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginDeployService.class);
 
-	private UserConfigurationService myUserConfigurationService;
+	private PluginChannelsService myUserConfigurationService;
 
 	private PluginAnalyzerService myPluginAnalyzerService;
 
 	@Autowired
-	public PluginDeployService(UserConfigurationService userConfigurationService, PluginAnalyzerService pluginAnalyzerService)
+	public PluginDeployService(PluginChannelsService userConfigurationService, PluginAnalyzerService pluginAnalyzerService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginAnalyzerService = pluginAnalyzerService;
@@ -186,7 +185,7 @@ public class PluginDeployService
 		return pluginNode;
 	}
 
-	private PluginNode loadPlugin(UserConfigurationService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
+	private PluginNode loadPlugin(PluginChannelsService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
 	{
 		List<PluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
 

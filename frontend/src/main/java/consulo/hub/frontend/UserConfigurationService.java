@@ -10,7 +10,7 @@ import consulo.hub.shared.repository.PluginChannel;
 import consulo.webService.plugins.PluginChannelService;
 import consulo.webService.util.ConsuloHelper;
 import consulo.hub.frontend.util.PropertyKeys;
-import consulo.hub.shared.util.PropertySet;
+import consulo.hub.frontend.util.PropertySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,29 +41,9 @@ public class UserConfigurationService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserConfigurationService.class);
 
-	private final PluginChannelService[] myPluginChannelServices;
-
 	private final File myConfigDirectory;
 
 	private File myTempUploadDirectory;
-
-	private AtomicLong myTempCount = new AtomicLong();
-
-	private Executor myExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory()
-	{
-		private final ThreadGroup myGroup = new ThreadGroup("async delete");
-
-		{
-			myGroup.setMaxPriority(Thread.MIN_PRIORITY);
-		}
-
-		@Nonnull
-		@Override
-		public Thread newThread(@Nonnull Runnable r)
-		{
-			return new Thread(myGroup, r);
-		}
-	});
 
 	private PropertySet myPropertySet;
 	private TaskExecutor myTaskExecutor;
@@ -78,15 +58,6 @@ public class UserConfigurationService
 	public UserConfigurationService(String userHome, @Nonnull TaskExecutor taskExecutor)
 	{
 		myTaskExecutor = taskExecutor;
-
-		ConsuloHelper.init();
-
-		PluginChannel[] values = PluginChannel.values();
-		myPluginChannelServices = new PluginChannelService[values.length];
-		for(int i = 0; i < values.length; i++)
-		{
-			myPluginChannelServices[i] = new PluginChannelService(values[i]);
-		}
 
 		myConfigDirectory = new File(userHome, ".consuloWebservice");
 
@@ -150,35 +121,6 @@ public class UserConfigurationService
 	public PluginChannelService getRepositoryByChannel(@Nonnull PluginChannel channel)
 	{
 		return myPluginChannelServices[channel.ordinal()];
-	}
-
-	@Nonnull
-	public File createTempFile(String prefix, @Nullable String ext)
-	{
-		long l = myTempCount.incrementAndGet();
-
-		File file = new File(myTempUploadDirectory, StringUtil.isEmpty(ext) ? prefix + "_" + l : prefix + "_" + l + "." + ext);
-		if(file.exists())
-		{
-			FileSystemUtils.deleteRecursively(file);
-		}
-
-		return file;
-	}
-
-	public void asyncDelete(File... files)
-	{
-		if(files.length == 0)
-		{
-			return;
-		}
-		myExecutor.execute(() ->
-		{
-			for(File file : files)
-			{
-				FileSystemUtils.deleteRecursively(file);
-			}
-		});
 	}
 
 	@PostConstruct

@@ -8,7 +8,7 @@ import com.wcs.wcslib.vaadin.widget.recaptcha.shared.ReCaptchaOptions;
 import consulo.hub.frontend.UserConfigurationService;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.PropertyKeys;
-import consulo.hub.shared.util.PropertySet;
+import consulo.hub.frontend.util.PropertySet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

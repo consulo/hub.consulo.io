@@ -1,12 +1,11 @@
 package consulo.webservice;
 
 import com.intellij.openapi.util.io.FileUtil;
-import consulo.hub.frontend.UserConfigurationService;
-import consulo.webService.plugins.PluginAnalyzerService;
+import consulo.hub.backend.repository.PluginAnalyzerService;
+import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.shared.repository.PluginChannel;
-import consulo.webService.plugins.PluginDeployService;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.hub.frontend.util.PropertyKeys;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,7 +15,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.security.MessageDigest;
-import java.util.Properties;
 
 /**
  * @author VISTALL
@@ -27,9 +25,9 @@ public class ChecksumTest extends Assert
 	@Test
 	public void testCheckSum() throws Exception
 	{
-		PluginNode l1 = loadPlugin("/consulo.java_4615.zip");
+		PluginNode l1 = loadPlugin("/src/test/resources/consulo.java_4615.zip");
 		Thread.sleep(2000L);
-		PluginNode l2 = loadPlugin("/consulo.java_4615.zip");
+		PluginNode l2 = loadPlugin("/src/test/resources/consulo.java_4615.zip");
 
 		assertArrayEquals(Files.readAllBytes(l1.targetFile.toPath()), Files.readAllBytes(l2.targetFile.toPath()));
 		
@@ -50,11 +48,7 @@ public class ChecksumTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		UserConfigurationService userConfigurationService = new UserConfigurationService(canonicalPath, Runnable::run);
-		Properties properties = new Properties();
-		properties.setProperty(PropertyKeys.WORKING_DIRECTORY, canonicalPath);
-
-		userConfigurationService.setProperties(properties);
+		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath);
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 

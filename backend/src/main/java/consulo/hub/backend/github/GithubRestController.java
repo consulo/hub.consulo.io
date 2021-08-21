@@ -1,8 +1,7 @@
 package consulo.hub.backend.github;
 
 import com.intellij.openapi.util.text.StringUtil;
-import consulo.hub.backend.UserConfigurationService;
-import consulo.hub.shared.github.GithubPropertyKeys;
+import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.shared.util.PropertySet;
 import org.kohsuke.github.GitHub;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +27,18 @@ public class GithubRestController
 	private static final int ourBotId = 21259940;
 
 	@Autowired
-	private UserConfigurationService myUserConfigurationService;
+	private PluginChannelsService myUserConfigurationService;
 
 	@RequestMapping(value = "/github/webhook", method = RequestMethod.POST)
 	public ResponseEntity<?> hook(@RequestHeader("X-GitHub-Event") String event, @RequestHeader("X-Hub-Signature") String signature, @RequestBody byte[] array) throws IOException
 	{
-		if(myUserConfigurationService.isNotInstalled())
-		{
-			return ResponseEntity.badRequest().build();
-		}
-
-		PropertySet propertySet = myUserConfigurationService.getPropertySet();
-
-		String oauthKey = propertySet.getStringProperty(GithubPropertyKeys.OAUTH_KEY);
+		String oauthKey = null;//propertySet.getStringProperty(GithubPropertyKeys.OAUTH_KEY);
 		if(StringUtil.isEmptyOrSpaces(oauthKey))
 		{
 			return ResponseEntity.badRequest().build();
 		}
 
-		String secretKey = propertySet.getStringProperty(GithubPropertyKeys.SECRET_HOOK_KEY);
+		String secretKey = null;//propertySet.getStringProperty(GithubPropertyKeys.SECRET_HOOK_KEY);
 		if(!StringUtil.isEmpty(secretKey))
 		{
 			String bodySignature = generateSha1(array, secretKey);

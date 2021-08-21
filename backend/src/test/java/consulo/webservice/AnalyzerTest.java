@@ -2,20 +2,18 @@ package consulo.webservice;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
-import consulo.hub.frontend.UserConfigurationService;
-import consulo.webService.plugins.PluginAnalyzerService;
+import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.PluginAnalyzerService;
+import consulo.hub.backend.repository.PluginDeployService;
+import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
-import consulo.webService.plugins.PluginDeployService;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.webService.util.GsonUtil;
-import consulo.hub.frontend.util.PropertyKeys;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * @author VISTALL
@@ -147,11 +145,7 @@ public class AnalyzerTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		UserConfigurationService userConfigurationService = new UserConfigurationService(canonicalPath, Runnable::run);
-		Properties properties = new Properties();
-		properties.setProperty(PropertyKeys.WORKING_DIRECTORY, canonicalPath);
-
-		userConfigurationService.setProperties(properties);
+		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath);
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 

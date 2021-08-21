@@ -9,7 +9,7 @@ import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.GAPropertyKeys;
 import consulo.hub.frontend.util.PropertyKeys;
-import consulo.hub.shared.util.PropertySet;
+import consulo.hub.frontend.util.PropertySet;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;

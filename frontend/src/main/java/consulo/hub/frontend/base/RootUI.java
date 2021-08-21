@@ -60,7 +60,7 @@ import consulo.hub.frontend.statistics.view.AdminStatisticsView;
 import consulo.hub.frontend.storage.view.StorageView;
 import consulo.hub.frontend.base.ui.event.AfterViewChangeEvent;
 import consulo.hub.frontend.util.GAPropertyKeys;
-import consulo.hub.shared.util.PropertySet;
+import consulo.hub.frontend.util.PropertySet;
 
 @SpringUI
 @Widgetset("consulo.webService.WidgetSet")
