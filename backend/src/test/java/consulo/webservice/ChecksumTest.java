@@ -25,9 +25,9 @@ public class ChecksumTest extends Assert
 	@Test
 	public void testCheckSum() throws Exception
 	{
-		PluginNode l1 = loadPlugin("/src/test/resources/consulo.java_4615.zip");
+		PluginNode l1 = loadPlugin("/consulo.java_4615.zip");
 		Thread.sleep(2000L);
-		PluginNode l2 = loadPlugin("/src/test/resources/consulo.java_4615.zip");
+		PluginNode l2 = loadPlugin("/consulo.java_4615.zip");
 
 		assertArrayEquals(Files.readAllBytes(l1.targetFile.toPath()), Files.readAllBytes(l2.targetFile.toPath()));
 		

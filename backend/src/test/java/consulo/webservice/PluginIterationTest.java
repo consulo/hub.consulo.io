@@ -194,7 +194,7 @@ public class PluginIterationTest extends Assert
 	@Test
 	public void testPlatformIteration() throws Exception
 	{
-		PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, "consulo-win-no-jre", "/src/test/resources/consulo-win-no-jre_1554.tar.gz");
+		PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, "consulo-win-no-jre", "/consulo-win-no-jre_1554.tar.gz");
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
@@ -234,7 +234,7 @@ public class PluginIterationTest extends Assert
 	@Test
 	public void testPluginIteration() throws Exception
 	{
-		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "/src/test/resources/com.intellij.xml_108.zip");
+		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "/com.intellij.xml_108.zip");
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
