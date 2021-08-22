@@ -7,6 +7,7 @@ import com.intellij.util.ArrayUtil;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class PluginChannelIterationService
 
 		Map<String, PluginsState> pluginStates = pluginChannelService.copyPluginsState();
 		// first of all we need check platform nodes
-		for(String platformPluginId : PluginChannelService.ourPlatformPluginIds)
+		for(String platformPluginId : RepositoryUtil.ourPlatformPluginIds)
 		{
 			PluginsState pluginsState = pluginStates.get(platformPluginId);
 			if(pluginsState == null)
@@ -97,7 +98,7 @@ public class PluginChannelIterationService
 		// process other plugins
 		for(Map.Entry<String, PluginsState> entry : pluginStates.entrySet())
 		{
-			if(ArrayUtil.contains(PluginChannelService.ourPlatformPluginIds, entry.getKey()))
+			if(ArrayUtil.contains(RepositoryUtil.ourPlatformPluginIds, entry.getKey()))
 			{
 				continue;
 			}
@@ -141,11 +142,11 @@ public class PluginChannelIterationService
 
 	private static boolean weNeedSkip(PluginNode pluginNode)
 	{
-		if(PluginChannelService.ourStandardWinId.equals(pluginNode.id) && pluginNode.version.equals(ourConsuloBootBuild))
+		if(RepositoryUtil.ourStandardWinId.equals(pluginNode.id) && pluginNode.version.equals(ourConsuloBootBuild))
 		{
 			return true;
 		}
-		if(PluginChannelService.isPlatformNode(pluginNode.id))
+		if(RepositoryUtil.isPlatformNode(pluginNode.id))
 		{
 			return false;
 		}

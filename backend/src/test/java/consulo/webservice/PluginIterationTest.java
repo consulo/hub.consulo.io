@@ -7,6 +7,7 @@ import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +49,7 @@ public class PluginIterationTest extends Assert
 
 		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 
-		myPluginChannelsService.contextInitialized();
+		myPluginChannelsService.run();
 	}
 
 	@After
@@ -61,7 +62,7 @@ public class PluginIterationTest extends Assert
 	public void testCleanupTask() throws Exception
 	{
 		PluginChannel pluginChannel = PluginChannel.release;
-		String platformId = PluginChannelService.ourStandardWinId;
+		String platformId = RepositoryUtil.ourStandardWinId;
 
 		PluginChannelService channel = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
 

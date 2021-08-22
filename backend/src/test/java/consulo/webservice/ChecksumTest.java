@@ -54,7 +54,7 @@ public class ChecksumTest extends Assert
 
 		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService);
 
-		userConfigurationService.contextInitialized();
+		userConfigurationService.run();
 
 		PluginNode lastNode = null;
 		for(String pluginPath : pluginPaths)

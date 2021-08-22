@@ -1,22 +1,8 @@
 package consulo.hub.frontend.base;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 import com.google.common.eventbus.EventBus;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.containers.FactoryMap;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
@@ -25,12 +11,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewProvider;
-import com.vaadin.server.DefaultErrorHandler;
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
+import com.vaadin.server.*;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.ui.ui.Transport;
 import com.vaadin.spring.annotation.SpringUI;
@@ -39,31 +20,42 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
-import consulo.hub.frontend.UserConfigurationService;
-import consulo.hub.shared.auth.Roles;
-import consulo.hub.frontend.auth.SecurityUtil;
-import consulo.hub.frontend.auth.view.AccessDeniedView;
-import consulo.hub.frontend.auth.view.AdminUserView;
-import consulo.hub.frontend.auth.view.ErrorView;
-import consulo.hub.frontend.auth.view.OAuthKeysView;
-import consulo.hub.frontend.auth.view.UserInfoView;
+import consulo.hub.frontend.PropertiesService;
+import consulo.hub.frontend.auth.view.*;
+import consulo.hub.frontend.backend.service.PluginChannelsService;
+import consulo.hub.frontend.backend.service.PluginStatisticsService;
+import consulo.hub.frontend.base.ui.event.AfterViewChangeEvent;
 import consulo.hub.frontend.config.view.AdminConfigView;
 import consulo.hub.frontend.dash.view.DashboardView;
 import consulo.hub.frontend.errorReporter.view.AdminErrorReportsView;
 import consulo.hub.frontend.errorReporter.view.ErrorReportsView;
 import consulo.hub.frontend.errorReporter.view.ErrorStatisticsView;
-import consulo.hub.shared.repository.PluginChannel;
-import consulo.webService.plugins.PluginStatisticsService;
 import consulo.hub.frontend.repository.view.AdminRepositoryView;
 import consulo.hub.frontend.repository.view.RepositoryView;
 import consulo.hub.frontend.statistics.view.AdminStatisticsView;
 import consulo.hub.frontend.storage.view.StorageView;
-import consulo.hub.frontend.base.ui.event.AfterViewChangeEvent;
 import consulo.hub.frontend.util.GAPropertyKeys;
 import consulo.hub.frontend.util.PropertySet;
+import consulo.hub.shared.auth.Roles;
+import consulo.hub.shared.auth.SecurityUtil;
+import consulo.hub.shared.repository.PluginChannel;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @SpringUI
-@Widgetset("consulo.webService.WidgetSet")
+@Widgetset("consulo.hub.frontend.WidgetSet")
 @Push(value = PushMode.AUTOMATIC, transport = Transport.WEBSOCKET)
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
@@ -88,7 +80,10 @@ public class RootUI extends UI
 	private ErrorView errorView;
 
 	@Autowired
-	private UserConfigurationService myUserConfigurationService;
+	private PropertiesService myPropertiesService;
+
+	@Autowired
+	private PluginChannelsService myPluginChannelsService;
 
 	@Autowired
 	private PluginStatisticsService myPluginStatisticsService;
@@ -102,7 +97,7 @@ public class RootUI extends UI
 
 	private GoogleAnalyticsTracker myAnalyticsTracker;
 
-	private final Map<PluginChannel, View> myRepositoryViewCache = FactoryMap.create(pluginChannel -> new RepositoryView(myUserConfigurationService, myPluginStatisticsService, pluginChannel));
+	private final Map<PluginChannel, View> myRepositoryViewCache = new ConcurrentHashMap<>();
 
 	private boolean myNotificationShow;
 
@@ -137,9 +132,9 @@ public class RootUI extends UI
 
 		updateSideMenu(authentication);
 
-		if(!myUserConfigurationService.isNotInstalled())
+		if(!myPropertiesService.isNotInstalled())
 		{
-			PropertySet propertySet = myUserConfigurationService.getPropertySet();
+			PropertySet propertySet = myPropertiesService.getPropertySet();
 
 			String trackerId = propertySet.getStringProperty(GAPropertyKeys.TRACKER_ID);
 			if(!StringUtil.isEmptyOrSpaces(trackerId))
@@ -194,7 +189,7 @@ public class RootUI extends UI
 			@Override
 			public View getView(String viewName)
 			{
-				if(myUserConfigurationService.isNotInstalled())
+				if(myPropertiesService.isNotInstalled())
 				{
 					return myApplicationContext.getBean(AccessDeniedView.class);
 				}
@@ -202,7 +197,7 @@ public class RootUI extends UI
 				if(viewName.startsWith(RepositoryView.ID))
 				{
 					Pair<PluginChannel, String> pair = RepositoryView.parseViewParameters(viewName);
-					return myRepositoryViewCache.get(pair.getFirst());
+					return myRepositoryViewCache.computeIfAbsent(pair.getFirst(), it -> new RepositoryView(myPropertiesService, myPluginChannelsService, myPluginStatisticsService, it));
 				}
 				return null;
 			}
@@ -233,7 +228,7 @@ public class RootUI extends UI
 
 		myUnstableButtons.clear();
 
-		if(SecurityUtil.hasRole(Roles.ROLE_ADMIN))
+		if(SecurityUtil.hasRole(Roles.ROLE_SUPERUSER))
 		{
 			myUnstableButtons.add(myNavigationMenu.addSeparator("admin"));
 			myUnstableButtons.add(myNavigationMenu.addNavigation("Users", FontAwesome.USERS, AdminUserView.class));

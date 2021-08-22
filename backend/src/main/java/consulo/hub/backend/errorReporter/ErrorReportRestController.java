@@ -11,6 +11,7 @@ import consulo.hub.shared.errorReporter.domain.ErrorReportAttachment;
 import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +37,7 @@ public class ErrorReportRestController
 
 	private static enum OS
 	{
-		win(PluginChannelService.ourStandardWinId), linux(PluginChannelService.ourStandardLinuxId), mac(PluginChannelService.ourStandardMacId);
+		win(RepositoryUtil.ourStandardWinId), linux(RepositoryUtil.ourStandardLinuxId), mac(RepositoryUtil.ourStandardMacId);
 
 		private String myPluginId;
 

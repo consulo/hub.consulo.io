@@ -3,14 +3,14 @@ package consulo.hub.backend.repository;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.ArrayUtil;
 import com.intellij.util.ThrowableConsumer;
 import com.intellij.util.containers.ContainerUtil;
-import consulo.hub.shared.repository.PluginChannel;
-import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.backend.repository.pluginsState.PluginsSetWithLock;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.backend.util.GsonUtil;
+import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,28 +30,10 @@ import java.util.function.Consumer;
  */
 public class PluginChannelService
 {
-	public static final String ourStandardWinId = "consulo-win-no-jre";
-	public static final String ourStandardLinuxId = "consulo-linux-no-jre";
-	public static final String ourStandardMacId = "consulo-mac-no-jre";
-
-	public static final String[] ourPlatformPluginIds = {
-			ourStandardWinId,
-			"consulo-win",
-			"consulo-win64",
-			ourStandardLinuxId,
-			"consulo-linux",
-			"consulo-linux64",
-			ourStandardMacId,
-			"consulo-mac64",
-			// special case for windows
-			ourStandardWinId + "-zip",
-			"consulo-win" + "-zip",
-			"consulo-win64" + "-zip",
-	};
-
+	@Deprecated
 	public static boolean isPlatformNode(String pluginId)
 	{
-		return ArrayUtil.contains(pluginId, ourPlatformPluginIds);
+		return RepositoryUtil.isPlatformNode(pluginId);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelService.class);

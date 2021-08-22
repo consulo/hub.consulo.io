@@ -1,5 +1,6 @@
 package consulo.hub.shared.auth.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import consulo.hub.shared.auth.Roles;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -21,6 +22,8 @@ public class UserAccount implements UserDetails
 	public static final int ROLE_SUPERUSER = 1 << 1;
 	public static final int ROLE_SUPERDEPLOYER = 1 << 2;
 
+	public static final int ROLE_HUB = 1 << 3;
+
 	@Id
 	@GeneratedValue
 	@Column
@@ -28,6 +31,7 @@ public class UserAccount implements UserDetails
 	@Column
 	private String username;
 	@Column
+	@JsonIgnore
 	private String password;
 	@Column
 	private String firstname;
@@ -55,18 +59,21 @@ public class UserAccount implements UserDetails
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonExpired()
 	{
 		return true;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonLocked()
 	{
 		return true;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isCredentialsNonExpired()
 	{
 		return true;
@@ -78,8 +85,14 @@ public class UserAccount implements UserDetails
 	}
 
 	@Override
+	@JsonIgnore
 	public Collection<? extends GrantedAuthority> getAuthorities()
 	{
+		if((rights & ROLE_HUB) == ROLE_HUB)
+		{
+			return List.of(new SimpleGrantedAuthority(Roles.ROLE_HUB));
+		}
+
 		List<GrantedAuthority> authorities = new ArrayList<>();
 
 		if((rights & ROLE_SUPERUSER) == ROLE_SUPERUSER)
@@ -138,6 +151,7 @@ public class UserAccount implements UserDetails
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isEnabled()
 	{
 		return status != UserAccountStatus.STATUS_DISABLED;

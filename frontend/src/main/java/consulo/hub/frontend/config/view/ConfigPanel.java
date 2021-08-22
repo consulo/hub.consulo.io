@@ -4,7 +4,7 @@ import com.vaadin.data.HasValue;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import consulo.hub.shared.github.GithubPropertyKeys;
-import consulo.hub.frontend.UserConfigurationService;
+import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.GAPropertyKeys;
@@ -26,9 +26,9 @@ import java.util.function.Supplier;
 public class ConfigPanel extends VerticalLayout
 {
 	private final List<Consumer<Properties>> myConsumers = new ArrayList<>();
-	private final UserConfigurationService myConfigurationService;
+	private final PropertiesService myConfigurationService;
 
-	public ConfigPanel(UserConfigurationService configurationService, String buttonName, Runnable action)
+	public ConfigPanel(PropertiesService configurationService, String buttonName, Runnable action)
 	{
 		myConfigurationService = configurationService;
 		setSpacing(false);

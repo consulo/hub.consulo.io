@@ -3,17 +3,16 @@ package consulo.hub.frontend;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import consulo.hub.frontend.auth.VaadinSessionSecurityContextHolderStrategy;
-import consulo.webService.auth.oauth2.OAuth2LoginAuthenticationProvider;
-import consulo.webService.auth.service.LocalAuthenticationProvider;
+import consulo.hub.frontend.backend.BackendAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -23,20 +22,18 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.MultipartConfigElement;
 
 @EnableScheduling
-@EnableJpaRepositories
-@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
-//@ServletComponentScan(basePackages = "consulo.webService")
-//@ComponentScan(basePackages = "consulo.webService")
+@SpringBootApplication(exclude = {
+		DataSourceAutoConfiguration.class,
+		SecurityAutoConfiguration.class
+})
 public class WebServiceApplication extends SpringBootServletInitializer
 {
 	@Configuration
@@ -88,19 +85,12 @@ public class WebServiceApplication extends SpringBootServletInitializer
 	public static class SecurityConfiguration extends GlobalMethodSecurityConfiguration
 	{
 		@Autowired
-		private LocalAuthenticationProvider myLocalAuthenticationProvider;
-
-		@Autowired
-		private UserDetailsService myUserDetailsService;
-
-		@Autowired
-		private TokenStore myTokenStore;
+		private BackendAuthenticationProvider myBackendAuthenticationProvider;
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception
 		{
-			auth.authenticationProvider(myLocalAuthenticationProvider);
-			auth.authenticationProvider(new OAuth2LoginAuthenticationProvider(myUserDetailsService, myTokenStore));
+			auth.authenticationProvider(myBackendAuthenticationProvider);
 		}
 
 		@Bean

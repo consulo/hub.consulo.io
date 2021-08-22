@@ -2,6 +2,8 @@ package consulo.hub.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import consulo.hub.backend.auth.oauth2.service.UserAccountDetailsService;
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
@@ -37,6 +40,15 @@ public class BackendApplication
 	{
 		@Autowired
 		private ObjectMapper objectMapper;
+
+		@Autowired
+		public UserAccountRepository myUserAccountRepository;
+
+		@Bean
+		public UserDetailsService userDetailsService()
+		{
+			return new UserAccountDetailsService(myUserAccountRepository);
+		}
 
 		@Bean
 		public StandardServletMultipartResolver multipartResolver()

@@ -5,7 +5,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.UserConfigurationService;
+import consulo.hub.frontend.PropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -18,7 +18,7 @@ public class AdminConfigView extends VerticalLayout implements View
 	public static final String ID = "adminConfig";
 
 	@Autowired
-	private UserConfigurationService myUserConfigurationService;
+	private PropertiesService myPropertiesService;
 
 	public AdminConfigView()
 	{
@@ -35,7 +35,7 @@ public class AdminConfigView extends VerticalLayout implements View
 		Label label = new Label("Config");
 		label.addStyleName("headerMargin");
 
-		ConfigPanel configPanel = new ConfigPanel(myUserConfigurationService, "Apply", () -> {});
+		ConfigPanel configPanel = new ConfigPanel(myPropertiesService, "Apply", () -> {});
 		configPanel.addStyleName("bodyMargin");
 
 		addComponent(label);

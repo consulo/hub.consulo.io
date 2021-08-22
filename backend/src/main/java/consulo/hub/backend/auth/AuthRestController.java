@@ -3,7 +3,7 @@ package consulo.hub.backend.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
-import consulo.hub.backend.ServiceConstants;
+import consulo.hub.shared.ServiceConstants;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,15 +1,14 @@
 package consulo.hub.backend.auth.service;
 
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.domain.UserAccountStatus;
-import consulo.hub.backend.auth.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-@Service
+@Component
 public class UserAccountService
 {
 	@Autowired
@@ -17,9 +16,6 @@ public class UserAccountService
 
 	@Autowired
 	private PasswordEncoder myPasswordEncoder;
-
-	@Autowired
-	private MongoOperations myMongoOperations;
 
 	public boolean registerUser(String username, String password)
 	{

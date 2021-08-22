@@ -1,31 +1,26 @@
 package consulo.hub.frontend.dash.view;
 
-import java.util.Date;
-import java.util.Locale;
-
-import javax.annotation.Nonnull;
+import com.intellij.openapi.util.text.StringUtil;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.*;
+import com.vaadin.ui.themes.ValoTheme;
+import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.base.ui.util.TinyComponents;
+import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.shared.errorReporter.domain.ErrorReport;
+import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import com.intellij.openapi.util.text.StringUtil;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
-import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.hub.frontend.base.ui.util.TinyComponents;
-import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+
+import javax.annotation.Nonnull;
+import java.util.Date;
+import java.util.Locale;
 
 @SpringView(name = DashboardView.ID)
 public class DashboardView extends VerticalLayout implements View
@@ -33,7 +28,7 @@ public class DashboardView extends VerticalLayout implements View
 	public static final String ID = "";
 
 	@Autowired
-	protected ErrorReportRepository myErrorReportRepository;
+	protected ErrorReporterService myErrorReportRepository;
 
 	public DashboardView()
 	{
@@ -64,7 +59,7 @@ public class DashboardView extends VerticalLayout implements View
 
 	private Component buildLastErrorReports(Authentication authentication)
 	{
-		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
+		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.addStyleName("bodyMargin");

@@ -9,12 +9,12 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.base.ui.util.TinyComponents;
+import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
-import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.hub.frontend.base.ui.util.TinyComponents;
-import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	private static final int ourPageSize = 50;
 
 	@Autowired
-	protected ErrorReportRepository myErrorReportRepository;
+	protected ErrorReporterService myErrorReportRepository;
 
 	protected final Set<ErrorReporterStatus> myFilters = new HashSet<>();
 	private int myPage = 0;

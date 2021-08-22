@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
-import consulo.hub.frontend.UserConfigurationService;
+import consulo.hub.frontend.PropertiesService;
 
 /**
  * @author VISTALL
@@ -13,7 +13,7 @@ import consulo.hub.frontend.UserConfigurationService;
 public abstract class BaseUI extends UI
 {
 	@Autowired
-	private UserConfigurationService myConfigurationService;
+	private PropertiesService myConfigurationService;
 
 	@Override
 	protected final void init(VaadinRequest request)

@@ -1,26 +1,22 @@
 package consulo.hub.frontend.repository.view;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Lists;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.UserConfigurationService;
-import consulo.hub.shared.repository.PluginChannel;
-import consulo.webService.plugins.PluginStatisticsService;
-import consulo.hub.frontend.repository.ui.RepositoryChannelPanel;
+import com.vaadin.ui.*;
+import consulo.hub.frontend.PropertiesService;
+import consulo.hub.frontend.backend.service.PluginChannelsService;
+import consulo.hub.frontend.backend.service.PluginStatisticsService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.frontend.repository.ui.RepositoryChannelPanel;
+import consulo.hub.shared.repository.PluginChannel;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author VISTALL
@@ -30,13 +26,15 @@ public class RepositoryView extends VerticalLayout implements View
 {
 	public static final String ID = "repo";
 
-	private final UserConfigurationService myUserConfigurationService;
+	private final PluginChannelsService myPluginChannelsService;
 	private final PluginStatisticsService myPluginStatisticsService;
 	private final PluginChannel myChannel;
+	private final PropertiesService myPropertiesService;
 
-	public RepositoryView(UserConfigurationService userConfigurationService, PluginStatisticsService pluginStatisticsService, PluginChannel channel)
+	public RepositoryView(PropertiesService propertiesService, PluginChannelsService pluginChannelsService, PluginStatisticsService pluginStatisticsService, PluginChannel channel)
 	{
-		myUserConfigurationService = userConfigurationService;
+		myPropertiesService = propertiesService;
+		myPluginChannelsService = pluginChannelsService;
 		myPluginStatisticsService = pluginStatisticsService;
 		myChannel = channel;
 
@@ -48,7 +46,7 @@ public class RepositoryView extends VerticalLayout implements View
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent)
 	{
-		if(myUserConfigurationService.isNotInstalled())
+		if(myPropertiesService.isNotInstalled())
 		{
 			return;
 		}
@@ -73,7 +71,7 @@ public class RepositoryView extends VerticalLayout implements View
 		channelBox.setValue(myChannel);
 
 		RepositoryChannelPanel repositoryChannelPanel;
-		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myUserConfigurationService, myPluginStatisticsService));
+		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myPluginChannelsService, myPluginStatisticsService));
 
 		setExpandRatio(repositoryChannelPanel, 1);
 

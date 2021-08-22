@@ -1,6 +1,6 @@
 package consulo.hub.backend.auth.oauth2.service;
 
-import consulo.hub.backend.auth.service.UserAccountService;
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,17 +12,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 public class UserAccountDetailsService implements UserDetailsService
 {
-	private final UserAccountService userRepository;
+	private final UserAccountRepository myUserRepository;
 
-	public UserAccountDetailsService(UserAccountService userRepository)
+	public UserAccountDetailsService(UserAccountRepository userRepository)
 	{
-		this.userRepository = userRepository;
+		myUserRepository = userRepository;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
 	{
-		UserAccount user = userRepository.getByUsername(username);
+		UserAccount user = myUserRepository.findByUsername(username);
 		if(user == null)
 		{
 			throw new UsernameNotFoundException(String.format("User %s does not exist!", username));

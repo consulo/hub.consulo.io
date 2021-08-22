@@ -14,4 +14,6 @@ public interface OAuthAccessTokenRepository extends JpaRepository<JpaOAuthAccess
 	List<JpaOAuthAccessToken> findAllByUserNameAndClientId(String userName, String clientId);
 
 	List<JpaOAuthAccessToken> findAllByClientId(String clientId);
+
+	JpaOAuthAccessToken findByAuthenticationId(String authenticationId);
 }

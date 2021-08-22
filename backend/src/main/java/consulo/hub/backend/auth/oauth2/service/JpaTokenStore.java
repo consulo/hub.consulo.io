@@ -203,7 +203,17 @@ public class JpaTokenStore implements TokenStore
 	@Override
 	public OAuth2AccessToken getAccessToken(OAuth2Authentication authentication)
 	{
-		throw new UnsupportedOperationException();
+		String key = authenticationKeyGenerator.extractKey(authentication);
+
+		// select token_id, token from oauth_access_token where authentication_id = ?
+
+		Optional<OAuth2AccessToken> optional = convertToToken(myRepository.findByAuthenticationId(key));
+		if(optional.isPresent())
+		{
+			return optional.get();
+		}
+
+		return null;
 	}
 
 	@Override

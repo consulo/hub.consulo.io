@@ -5,7 +5,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.wcs.wcslib.vaadin.widget.recaptcha.ReCaptcha;
 import com.wcs.wcslib.vaadin.widget.recaptcha.shared.ReCaptchaOptions;
-import consulo.hub.frontend.UserConfigurationService;
+import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.PropertyKeys;
 import consulo.hub.frontend.util.PropertySet;
@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class CaptchaFactory
 {
-	private UserConfigurationService myConfigurationService;
+	private PropertiesService myConfigurationService;
 
 	@Autowired
-	public CaptchaFactory(UserConfigurationService configurationService)
+	public CaptchaFactory(PropertiesService configurationService)
 	{
 		myConfigurationService = configurationService;
 	}

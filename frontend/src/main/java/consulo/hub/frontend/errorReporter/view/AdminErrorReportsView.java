@@ -1,28 +1,25 @@
 package consulo.hub.frontend.errorReporter.view;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Consumer;
-
+import com.intellij.openapi.util.text.StringUtil;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
+import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.base.ui.util.TinyComponents;
+import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.frontend.util.AuthUtil;
+import consulo.hub.shared.errorReporter.domain.ErrorReport;
+import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import com.intellij.openapi.util.text.StringUtil;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
-import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
-import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.hub.frontend.base.ui.util.TinyComponents;
-import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
@@ -60,12 +57,13 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			{
 				if(errorReport.getStatus() != status)
 				{
-					errorReport.setChangedByEmail(authentication.getName());
-					errorReport.setChangeTime(System.currentTimeMillis());
-					errorReport.setStatus(status);
-
 					fireChanged(onUpdate, errorReport);
-					myErrorReportRepository.save(errorReport);
+
+					ErrorReport updated = myErrorReportRepository.changeStatus(errorReport.getId(), status, AuthUtil.getUserId());
+					if(updated != null)
+					{
+						fireChanged(onUpdate, updated);
+					}
 				}
 			});
 		}
@@ -105,6 +103,6 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return myErrorReportRepository.findByStatusIn(errorReporterStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReportRepository.CREATE_DATE)));
+		return myErrorReportRepository.findByStatusIn(errorReporterStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
 	}
 }

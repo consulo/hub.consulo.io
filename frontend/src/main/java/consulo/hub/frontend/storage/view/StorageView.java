@@ -10,14 +10,13 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.hub.shared.storage.domain.StorageFile;
-import consulo.hub.shared.storage.domain.StorageFileUpdateBy;
-import consulo.webService.storage.repository.StorageFileRepository;
-import consulo.webService.storage.service.StorageService;
+import consulo.hub.frontend.backend.service.StorageService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.frontend.util.AuthUtil;
 import consulo.hub.shared.base.InformationBean;
+import consulo.hub.shared.storage.domain.StorageFile;
+import consulo.hub.shared.storage.domain.StorageFileUpdateBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,9 +33,6 @@ import java.util.*;
 public class StorageView extends VerticalLayout implements View
 {
 	public static final String ID = "storage";
-
-	@Autowired
-	private StorageFileRepository myStorageFileRepository;
 
 	@Autowired
 	private StorageService myStorageService;
@@ -62,12 +58,12 @@ public class StorageView extends VerticalLayout implements View
 		ListSelect<String> listSelect = TinyComponents.newListSelect();
 		VerticalLayout updateInfoPanel = new VerticalLayout();
 
-		List<StorageFile> files = myStorageFileRepository.findAllByUser((UserAccount) authentication.getPrincipal());
+		List<StorageFile> files = myStorageService.findAllByUser(AuthUtil.getUserId());
 
 		Label label = new Label("Storage: ");
 
 		Button wipeDataButton = TinyComponents.newButton("Wipe All", e -> {
-			myStorageService.wipeData((UserAccount) authentication.getPrincipal());
+			myStorageService.wipeData(AuthUtil.getUserId());
 
 			listSelect.setDataProvider(new ListDataProvider<>(new ArrayList<>()));
 			listSelect.setItemCaptionGenerator(s -> "");
@@ -108,7 +104,7 @@ public class StorageView extends VerticalLayout implements View
 
 		listSelect.addValueChangeListener(event1 ->
 		{
-			StorageFile file = myStorageFileRepository.findOne(Integer.parseInt(event1.getValue().iterator().next()));
+			StorageFile file = myStorageService.findOne(AuthUtil.getUserId(), Integer.parseInt(event1.getValue().iterator().next()));
 
 			String text = "not found";
 

@@ -47,6 +47,11 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 		// only user can call validate
 		http.authorizeRequests().antMatchers("/api/oauth/validate").hasAuthority(Roles.ROLE_USER);
 
+		// private install can be access without user
+		http.authorizeRequests().antMatchers("/private/api/install").permitAll();
+		// others require hub right
+		http.authorizeRequests().antMatchers("/private/api/**").hasAuthority(Roles.ROLE_HUB);
+
 		http.authorizeRequests().antMatchers("/**").denyAll();
 	}
 }

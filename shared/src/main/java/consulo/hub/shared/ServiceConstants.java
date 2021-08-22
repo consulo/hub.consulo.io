@@ -1,4 +1,4 @@
-package consulo.hub.backend;
+package consulo.hub.shared;
 
 /**
  * @author VISTALL

@@ -14,15 +14,16 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.UserConfigurationService;
-import consulo.hub.shared.repository.PluginChannel;
-import consulo.webService.plugins.PluginChannelService;
-import consulo.hub.shared.repository.PluginNode;
-import consulo.webService.plugins.PluginStatisticsService;
-import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
-import consulo.hub.frontend.repository.view.RepositoryView;
+import consulo.hub.frontend.backend.service.PluginChannelService;
+import consulo.hub.frontend.backend.service.PluginChannelsService;
+import consulo.hub.frontend.backend.service.PluginStatisticsService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.frontend.repository.view.RepositoryView;
+import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
 import org.dussan.vaadin.dcharts.base.elements.XYseries;
@@ -62,7 +63,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private Map<PluginNode, String> myNameToIdMap;
 
-	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull UserConfigurationService userConfigurationService, @Nonnull PluginStatisticsService pluginStatisticsService)
+	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull PluginChannelsService pluginChannelsService, @Nonnull PluginStatisticsService pluginStatisticsService)
 	{
 		myPluginChannel = pluginChannel;
 		myPluginStatisticsService = pluginStatisticsService;
@@ -83,7 +84,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		myPanel.setSplitPosition(80, Unit.PERCENTAGE);
 		rightLayout.addComponent(myPanel);
 
-		PluginChannelService repositoryByChannel = userConfigurationService.getRepositoryByChannel(pluginChannel);
+		PluginChannelService repositoryByChannel = pluginChannelsService.getRepositoryByChannel(pluginChannel);
 
 		myPluginBuilds = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
 		repositoryByChannel.iteratePluginNodes(pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
@@ -91,15 +92,15 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		// name -> id
 		myNameToIdMap = new TreeMap<>((o1, o2) ->
 		{
-			if(PluginChannelService.isPlatformNode(o1.id))
+			if(RepositoryUtil.isPlatformNode(o1.id))
 			{
 				return -1;
 			}
-			else if(PluginChannelService.isPlatformNode(o2.id))
+			else if(RepositoryUtil.isPlatformNode(o2.id))
 			{
 				return 1;
 			}
-			else if(PluginChannelService.isPlatformNode(o1.id) && PluginChannelService.isPlatformNode(o2.id))
+			else if(RepositoryUtil.isPlatformNode(o1.id) && RepositoryUtil.isPlatformNode(o2.id))
 			{
 				return getPluginNodeName(o1).compareToIgnoreCase(getPluginNodeName(o2));
 			}
@@ -194,7 +195,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 				lastPluginNodeByVersion = entry.getValue().iterator().next();
 			}
 
-			if(!PluginChannelService.isPlatformNode(lastPluginNodeByVersion.id))
+			if(!RepositoryUtil.isPlatformNode(lastPluginNodeByVersion.id))
 			{
 				for(PluginNode node : entry.getValue())
 				{
@@ -356,7 +357,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private static String getPluginNodeName(PluginNode pluginNode)
 	{
-		if(PluginChannelService.isPlatformNode(pluginNode.id))
+		if(RepositoryUtil.isPlatformNode(pluginNode.id))
 		{
 			switch(pluginNode.id)
 			{

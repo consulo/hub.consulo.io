@@ -7,7 +7,7 @@ import com.vaadin.server.Page;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import consulo.hub.frontend.auth.service.UserAccountService;
+import consulo.hub.frontend.backend.service.UserAccountService;
 import consulo.hub.frontend.auth.ui.LoginOrRegisterPanel;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;

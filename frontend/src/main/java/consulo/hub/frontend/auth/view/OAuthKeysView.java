@@ -1,18 +1,15 @@
 package consulo.hub.frontend.auth.view;
 
 import com.google.common.base.Strings;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.containers.ContainerUtil;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.webService.auth.oauth2.OAuth2ServerConfiguration;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.shared.ServiceConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.core.Authentication;
@@ -27,6 +24,8 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -100,9 +99,9 @@ public class OAuthKeysView extends VerticalLayout implements View
 //				}
 
 				AuthorizationRequest request = new AuthorizationRequest();
-				request.setExtensions(ContainerUtil.newHashMap(Pair.create("name", value)));
-				request.setScope(ContainerUtil.newArrayList("read"));
-				request.setClientId(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID);
+				request.setExtensions(Map.of("name", value));
+				request.setScope(List.of("read"));
+				request.setClientId(ServiceConstants.DEFAULT_CLIENT_ID);
 
 				OAuth2Request oAuth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
 				OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
@@ -142,7 +141,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 		addComponent(myTokenListPanel);
 		setExpandRatio(myTokenListPanel, 1);
 
-		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(OAuth2ServerConfiguration.DEFAULT_CLIENT_ID, authentication.getName());
+		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceConstants.DEFAULT_CLIENT_ID, authentication.getName());
 		for(OAuth2AccessToken token : tokens)
 		{
 			addToken(token, true);
@@ -170,7 +169,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 			{
 				try
 				{
-					current.access(() -> label.setValue("Token: " + tokenId);
+					current.access(() -> label.setValue("Token: " + tokenId));
 				}
 				catch(Exception e)
 				{

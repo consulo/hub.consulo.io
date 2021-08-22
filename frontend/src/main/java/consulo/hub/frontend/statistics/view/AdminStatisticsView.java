@@ -1,12 +1,15 @@
 package consulo.hub.frontend.statistics.view;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.ejt.vaadin.sizereporter.SizeReporter;
+import com.intellij.util.ArrayUtil;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.*;
+import consulo.hub.frontend.backend.service.StatisticsService;
+import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
+import consulo.hub.shared.statistics.domain.StatisticBean;
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
 import org.dussan.vaadin.dcharts.base.elements.XYseries;
@@ -17,31 +20,13 @@ import org.dussan.vaadin.dcharts.metadata.XYaxes;
 import org.dussan.vaadin.dcharts.metadata.locations.TooltipLocations;
 import org.dussan.vaadin.dcharts.metadata.renderers.AxisRenderers;
 import org.dussan.vaadin.dcharts.metadata.renderers.SeriesRenderers;
-import org.dussan.vaadin.dcharts.options.Axes;
-import org.dussan.vaadin.dcharts.options.Highlighter;
-import org.dussan.vaadin.dcharts.options.Options;
-import org.dussan.vaadin.dcharts.options.Series;
-import org.dussan.vaadin.dcharts.options.SeriesDefaults;
+import org.dussan.vaadin.dcharts.options.*;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import com.ejt.vaadin.sizereporter.SizeReporter;
-import com.intellij.util.ArrayUtil;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
-import consulo.hub.shared.statistics.domain.StatisticBean;
-import consulo.webService.statistics.mongo.StatisticRepository;
-import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author VISTALL
@@ -53,10 +38,7 @@ public class AdminStatisticsView extends VerticalLayout implements View
 	public static final String ID = "adminStatistics";
 
 	@Autowired
-	private StatisticRepository myStatisticRepository;
-
-	@Autowired
-	private MongoTemplate myMongoTemplate;
+	private StatisticsService myStatisticRepository;
 
 	public AdminStatisticsView()
 	{
@@ -138,10 +120,11 @@ public class AdminStatisticsView extends VerticalLayout implements View
 
 		SeriesDefaults seriesDefaults = new SeriesDefaults().setFillToZero(true).setRenderer(SeriesRenderers.BAR);
 		Series series = new Series().addSeries(new XYseries().setLabel("Count"));
-		Axes axes = new Axes().addAxis(new XYaxis().setRenderer(AxisRenderers.CATEGORY).setTicks(new Ticks().add(reverse(counts.keySet())))).addAxis(new XYaxis(XYaxes.Y4).setTickOptions(new 
+		Axes axes = new Axes().addAxis(new XYaxis().setRenderer(AxisRenderers.CATEGORY).setTicks(new Ticks().add(reverse(counts.keySet())))).addAxis(new XYaxis(XYaxes.Y4).setTickOptions(new
 				AxisTickRenderer().setFormatString("%d")));
 
-		Highlighter highlighter = new Highlighter().setShow(true).setShowTooltip(true).setTooltipAlwaysVisible(true).setKeepTooltipInsideChart(true).setTooltipLocation(TooltipLocations.NORTH).setTooltipAxes(TooltipAxes.XY_BAR);
+		Highlighter highlighter = new Highlighter().setShow(true).setShowTooltip(true).setTooltipAlwaysVisible(true).setKeepTooltipInsideChart(true).setTooltipLocation(TooltipLocations.NORTH)
+				.setTooltipAxes(TooltipAxes.XY_BAR);
 
 		Options options = new Options().setHighlighter(highlighter).setSeriesDefaults(seriesDefaults).setSeries(series).setAxes(axes);
 		DCharts chart = new DCharts().setDataSeries(dataSeries).setOptions(options).show();

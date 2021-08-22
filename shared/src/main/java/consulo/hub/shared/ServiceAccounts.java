@@ -11,4 +11,6 @@ public interface ServiceAccounts
 	String ERROR_REPORTER = "hub.error.reporter@consulo.io";
 
 	String STATISTICS = "hub.statistics@consulo.io";
+
+	String HUB = "hub@consulo.io";
 }

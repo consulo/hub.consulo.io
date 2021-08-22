@@ -6,9 +6,9 @@ import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.auth.service.UserAccountService;
+import consulo.hub.frontend.backend.service.UserAccountService;
 import consulo.hub.frontend.auth.ui.LoginOrRegisterPanel;
-import consulo.hub.frontend.UserConfigurationService;
+import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.config.view.ConfigPanel;
 import consulo.hub.frontend.base.RootUI;
 import consulo.hub.frontend.base.ui.captcha.CaptchaFactory;
@@ -34,7 +34,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 	private UserAccountService myUserAccountService;
 
 	@Autowired
-	private UserConfigurationService myUserConfigurationService;
+	private PropertiesService myPropertiesService;
 
 	public AccessDeniedView()
 	{
@@ -45,7 +45,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 	{
 		removeAllComponents();
 
-		if(myUserConfigurationService.isNotInstalled())
+		if(myPropertiesService.isNotInstalled())
 		{
 			getUI().getPage().setTitle("Hub / Install");
 
@@ -53,7 +53,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 			label.addStyleName("headerMargin");
 			addComponent(label);
 
-			ConfigPanel configPanel = new ConfigPanel(myUserConfigurationService, "Install", () -> getUI().getPage().reload());
+			ConfigPanel configPanel = new ConfigPanel(myPropertiesService, "Install", () -> getUI().getPage().reload());
 			configPanel.addStyleName("bodyMargin");
 			addComponent(configPanel);
 			setExpandRatio(configPanel, .9f);
@@ -91,6 +91,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 			ui.getNavigator().navigateTo(ui.getNavigator().getState());
 
 			ui.logged();
+
 			return true;
 		}
 		catch(AuthenticationException ex)

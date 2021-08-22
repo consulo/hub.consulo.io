@@ -7,10 +7,10 @@ import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
-import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.webService.errorReporter.mongo.ErrorReportRepository;
-import consulo.hub.frontend.errorReporter.view.DirectErrorReportsView;
+import consulo.hub.frontend.backend.service.ErrorReporterService;
 import consulo.hub.frontend.base.BaseUI;
+import consulo.hub.frontend.errorReporter.view.DirectErrorReportsView;
+import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -18,13 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @since 11-Mar-17
  */
 @SpringUI(path = "errorReport")
-@Widgetset("consulo.webService.WidgetSet")
+@Widgetset("consulo.hub.frontend.WidgetSet")
 @Theme("tests-valo-metro")
 @StyleSheet("https://fonts.googleapis.com/css?family=Roboto")
 public class ErrorReportUI extends BaseUI
 {
 	@Autowired
-	private ErrorReportRepository myErrorReportRepository;
+	private ErrorReporterService myErrorReportRepository;
 
 	@Override
 	protected void initImpl(VaadinRequest request, Page page)

@@ -1,5 +1,6 @@
 package consulo.hub.backend.auth.service;
 
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.domain.UserAccountStatus;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private UserAccountService myUserAccountService;
+	private UserAccountRepository myUserAccountRepository;
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -41,7 +42,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 			throw new BadCredentialsException("Please enter password");
 		}
 
-		UserAccount user = myUserAccountService.getByUsername(username);
+		UserAccount user = myUserAccountRepository.findByUsername(username);
 		if(user == null)
 		{
 			logger.warn("Username {} password {}: user not found", username, password);

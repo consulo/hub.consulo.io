@@ -1,4 +1,4 @@
-package consulo.hub.frontend.auth.service;
+package consulo.hub.frontend.backend.service;
 
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.stereotype.Service;

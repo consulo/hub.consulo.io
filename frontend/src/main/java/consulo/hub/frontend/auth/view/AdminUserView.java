@@ -7,7 +7,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.auth.service.UserAccountService;
+import consulo.hub.frontend.backend.service.UserAccountService;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
