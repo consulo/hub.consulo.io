@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
@@ -52,10 +53,14 @@ public class PluginChannelsService implements CommandLineRunner
 		}
 	});
 
+	private final TaskExecutor myTaskExecutor;
+
 	@Autowired
-	public PluginChannelsService(@Value("${working.directory}") String workingDirectoryPath)
+	public PluginChannelsService(@Value("${working.directory}") String workingDirectoryPath, TaskExecutor taskExecutor)
 	{
 		myWorkingDirectoryPath = workingDirectoryPath;
+		myTaskExecutor = taskExecutor;
+
 		ConsuloHelper.init();
 
 		PluginChannel[] values = PluginChannel.values();
@@ -124,16 +129,19 @@ public class PluginChannelsService implements CommandLineRunner
 		File pluginChannelDir = new File(workingDirectory, "plugin");
 		FileUtilRt.createDirectory(pluginChannelDir);
 
-		for(PluginChannelService service : myPluginChannelServices)
+		myTaskExecutor.execute(() ->
 		{
-			try
+			for(PluginChannelService service : myPluginChannelServices)
 			{
-				service.initImpl(pluginChannelDir);
+				try
+				{
+					service.initImpl(pluginChannelDir);
+				}
+				catch(Exception e)
+				{
+					LOGGER.error(e.getMessage(), e);
+				}
 			}
-			catch(Exception e)
-			{
-				LOGGER.error(e.getMessage(), e);
-			}
-		}
+		});
 	}
 }

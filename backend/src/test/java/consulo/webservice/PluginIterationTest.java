@@ -41,7 +41,7 @@ public class PluginIterationTest extends Assert
 
 		String canonicalPath = myTempDir.getCanonicalPath();
 
-		myPluginChannelsService = new PluginChannelsService(canonicalPath);
+		myPluginChannelsService = new PluginChannelsService(canonicalPath, Runnable::run);
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(myPluginChannelsService);
 

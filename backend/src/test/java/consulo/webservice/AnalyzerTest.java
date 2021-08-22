@@ -145,7 +145,7 @@ public class AnalyzerTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath);
+		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath, Runnable::run);
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 
