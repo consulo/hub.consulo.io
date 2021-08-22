@@ -1,6 +1,8 @@
 package consulo.hub.backend.configuration;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ReadPreference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +21,7 @@ public class MongoConfiguration
 	@Bean
 	public MongoClient mongo()
 	{
-		return new MongoClient(myMongoHostName);
+		return new MongoClient(myMongoHostName, MongoClientOptions.builder().readPreference(ReadPreference.secondary()).build());
 	}
 
 	@Bean

@@ -42,6 +42,12 @@
 			<artifactId>spring-data-mongodb</artifactId>
 			<version>1.10.7.RELEASE</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.mongodb</groupId>
+					<artifactId>mongodb-driver</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
