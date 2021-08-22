@@ -20,7 +20,7 @@ public class FrontendUserRestController
 	@Autowired
 	private AuthenticationManager myAuthenticationManager;
 
-	@RequestMapping("/private/api/user/auth")
+	@RequestMapping("/api/private/user/auth")
 	public UserAccount userAuth(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount userAccount)
 	{
 		Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));

@@ -27,7 +27,7 @@ public class FrontendRepositoryRestController
 	@Autowired
 	private PluginStatisticsService myPluginStatisticsService;
 
-	@RequestMapping("/private/api/repository/list")
+	@RequestMapping("/api/private/repository/list")
 	public List<PluginNode> listPlugins(@RequestParam("channel") PluginChannel pluginChannel)
 	{
 		PluginChannelService service = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
@@ -37,7 +37,7 @@ public class FrontendRepositoryRestController
 		return pluginNodes;
 	}
 
-	@RequestMapping("/private/api/repository/downloadStat")
+	@RequestMapping("/api/private/repository/downloadStat")
 	public List<MongoDownloadStat> downloadStat(@RequestParam("pluginId") String pluginId)
 	{
 		return myPluginStatisticsService.getDownloadStat(pluginId);

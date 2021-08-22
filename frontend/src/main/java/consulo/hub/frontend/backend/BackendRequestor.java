@@ -27,7 +27,7 @@ public class BackendRequestor
 
 	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
 	{
-		RequestBuilder builder = RequestBuilder.get("http://localhost:22333/private/api" + urlSuffix);
+		RequestBuilder builder = RequestBuilder.get("http://localhost:22333/api/private" + urlSuffix);
 		for(Map.Entry<String, String> entry : parameters.entrySet())
 		{
 			builder.addParameter(entry.getKey(), entry.getValue());

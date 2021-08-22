@@ -54,7 +54,7 @@ public class FrontendRestController
 
 	private boolean myInstalled;
 
-	@RequestMapping("/private/api/install")
+	@RequestMapping("/api/private/install")
 	public ResponseEntity<?> install()
 	{
 		if(myInstalled)
