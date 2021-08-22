@@ -129,6 +129,8 @@ public class PluginChannelService
 
 	public void initImpl(File pluginChannelDir)
 	{
+		logger.info("Starting initializing repository. Channel: " + myChannel);
+
 		myLoading = true;
 		File channelDir = new File(pluginChannelDir, myChannel.name());
 
