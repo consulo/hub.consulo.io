@@ -15,7 +15,7 @@ import java.util.UUID;
 public class MongoDownloadStat
 {
 	@Id
-	private final String id = UUID.randomUUID().toString();
+	private String id;
 
 	private long time;
 	private String channel;
@@ -29,6 +29,7 @@ public class MongoDownloadStat
 
 	public MongoDownloadStat(long timeMillis, PluginChannel channel, String version, String platformVersion)
 	{
+		this.id = UUID.randomUUID().toString();
 		this.time = timeMillis;
 		this.channel = channel.name();
 		this.version = version;
@@ -48,6 +49,11 @@ public class MongoDownloadStat
 	public String getId()
 	{
 		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
 	}
 
 	public void setChannel(String channel)
