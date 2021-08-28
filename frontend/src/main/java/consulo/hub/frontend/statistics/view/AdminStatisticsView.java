@@ -9,7 +9,7 @@ import com.vaadin.ui.*;
 import consulo.hub.frontend.backend.service.StatisticsService;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
-import consulo.hub.shared.statistics.domain.StatisticBean;
+import consulo.hub.shared.statistics.domain.MongoStatisticBean;
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
 import org.dussan.vaadin.dcharts.base.elements.XYseries;
@@ -60,14 +60,14 @@ public class AdminStatisticsView extends VerticalLayout implements View
 
 		addComponent(header);
 
-		List<StatisticBean> all = myStatisticRepository.findAll(new Sort(Sort.Direction.ASC, "createTime"));
+		List<MongoStatisticBean> all = myStatisticRepository.findAll(new Sort(Sort.Direction.ASC, "createTime"));
 
-		Map<String, StatisticBean> group = new HashMap<>();
+		Map<String, MongoStatisticBean> group = new HashMap<>();
 
 		// TODO [VISTALL] we need it do via mongo?
-		for(StatisticBean bean : all)
+		for(MongoStatisticBean bean : all)
 		{
-			StatisticBean old = group.get(bean.getInstallationID());
+			MongoStatisticBean old = group.get(bean.getInstallationID());
 
 			if(old == null || old.getCreateTime() > bean.getCreateTime())
 			{
@@ -79,15 +79,15 @@ public class AdminStatisticsView extends VerticalLayout implements View
 
 		Map<String, StatisticsGroup> merged = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		for(StatisticBean bean : group.values())
+		for(MongoStatisticBean bean : group.values())
 		{
-			for(StatisticBean.UsageGroup usageGroup : bean.getGroups())
+			for(MongoStatisticBean.UsageGroup usageGroup : bean.getGroups())
 			{
-				StatisticsGroup statGroup = merged.computeIfAbsent(usageGroup.getId(), StatisticsGroup::new);
+				StatisticsGroup statGroup = merged.computeIfAbsent(usageGroup.getUsageGroupId(), StatisticsGroup::new);
 
-				for(StatisticBean.UsageGroupValue values : usageGroup.getValues())
+				for(MongoStatisticBean.UsageGroupValue values : usageGroup.getValues())
 				{
-					statGroup.incData(values.getId(), values.getCount());
+					statGroup.incData(values.getUsageGroupValueId(), values.getCount());
 				}
 			}
 		}

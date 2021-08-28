@@ -3,12 +3,19 @@ package consulo.hub.backend.convert;
 import consulo.hub.backend.property.PropertyService;
 import consulo.hub.backend.repository.mongo.MongoPluginNodeRepository;
 import consulo.hub.backend.repository.repository.RepositoryDownloadInfoRepository;
+import consulo.hub.backend.statistics.mongo.MongoStatisticRepository;
+import consulo.hub.backend.statistics.repository.StatisticEntryRepository;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
 import consulo.hub.shared.repository.mongo.domain.MongoPluginNode;
+import consulo.hub.shared.statistics.domain.MongoStatisticBean;
+import consulo.hub.shared.statistics.domain.StatisticEntry;
+import consulo.hub.shared.statistics.domain.StatisticUsageGroup;
+import consulo.hub.shared.statistics.domain.StatisticUsageGroupValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -31,7 +38,14 @@ public class ConvertionService
 	private RepositoryDownloadInfoRepository myRepositoryDownloadInfoRepository;
 
 	@Autowired
+	@Lazy
 	private MongoPluginNodeRepository myMongoPluginNodeRepository;
+
+	@Autowired
+	private StatisticEntryRepository myStatisticEntryRepository;
+
+	@Autowired
+	private MongoStatisticRepository myMongoStatisticRepository;
 
 	@PostConstruct
 	public void start()
@@ -41,6 +55,53 @@ public class ConvertionService
 			convertDownloads();
 			myPropertyService.setValue("download_conversion", true);
 		}
+
+		if(!myPropertyService.getValue("statistics_conversion"))
+		{
+			convertStatistics();
+			myPropertyService.setValue("statistics_conversion", true);
+		}
+	}
+
+	private void convertStatistics()
+	{
+		LOG.info("Starting conversion statistics");
+
+		myStatisticEntryRepository.deleteAll();
+
+		List<MongoStatisticBean> all = myMongoStatisticRepository.findAll();
+
+		List<StatisticEntry> statisticEntries = new ArrayList<>(all.size());
+
+		for(MongoStatisticBean bean : all)
+		{
+			StatisticEntry s = new StatisticEntry();
+			statisticEntries.add(s);
+
+			s.setKey(bean.key);
+			s.setCreateTime(bean.getCreateTime());
+			s.setInstallationID(bean.getInstallationID());
+			s.setOwnerEmail(bean.getOwnerEmail());
+
+			for(MongoStatisticBean.UsageGroup mongoGroup : bean.getGroups())
+			{
+				StatisticUsageGroup usageGroup = new StatisticUsageGroup();
+				usageGroup.setUsageGroupId(mongoGroup.getUsageGroupId());
+
+				for(MongoStatisticBean.UsageGroupValue mongoGroupValue : mongoGroup.getValues())
+				{
+					StatisticUsageGroupValue usageGroupValue = new StatisticUsageGroupValue();
+					usageGroupValue.setUsageGroupValueId(mongoGroupValue.getUsageGroupValueId());
+					usageGroupValue.setCount(mongoGroupValue.getCount());
+
+					usageGroup.getValues().add(usageGroupValue);
+				}
+
+				s.getGroups().add(usageGroup);
+			}
+		}
+
+		myStatisticEntryRepository.save(statisticEntries);
 	}
 
 	private void convertDownloads()

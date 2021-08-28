@@ -1,9 +1,9 @@
 package consulo.hub.backend.statistics;
 
-import consulo.hub.backend.statistics.mongo.StatisticRepository;
+import consulo.hub.backend.statistics.repository.StatisticEntryRepository;
 import consulo.hub.shared.ServiceAccounts;
 import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.hub.shared.statistics.domain.StatisticBean;
+import consulo.hub.shared.statistics.domain.StatisticEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,18 +27,20 @@ public class StatisticsRestController
 	}
 
 	@Autowired
-	private StatisticRepository myStatisticRepository;
+	private StatisticEntryRepository myStatisticEntryRepository;
 
 	@RequestMapping(value = "/api/statistics/push", method = RequestMethod.POST)
-	public Map<String, String> doPushStatistic(@AuthenticationPrincipal UserAccount account, @RequestBody StatisticBean bean)
+	public Map<String, String> doPushStatistic(@AuthenticationPrincipal UserAccount account, @RequestBody StatisticEntry bean)
 	{
 		String ownerEmail = account != null ? account.getUsername() : ServiceAccounts.STATISTICS;
+
+		bean.setId(null);
 
 		bean.setOwnerEmail(ownerEmail);
 
 		bean.setCreateTime(System.currentTimeMillis());
 
-		myStatisticRepository.save(bean);
+		myStatisticEntryRepository.save(bean);
 
 		return resultWithMessage(PushResult.OK, null);
 	}

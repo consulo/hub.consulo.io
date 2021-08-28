@@ -1,0 +1,66 @@
+package consulo.hub.shared.statistics.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+/**
+ * @author VISTALL
+ * @since 28/08/2021
+ */
+@Entity
+public class StatisticUsageGroupValue
+{
+	@JsonIgnore
+	@Id
+	@GeneratedValue
+	private Long id;
+
+	@JsonProperty("id")
+	public String usageGroupValueId;
+
+	public int count;
+
+	public StatisticUsageGroupValue()
+	{
+	}
+
+	public StatisticUsageGroupValue(String usageGroupValueId, int count)
+	{
+		this.usageGroupValueId = usageGroupValueId;
+		this.count = count;
+	}
+
+	public String getUsageGroupValueId()
+	{
+		return usageGroupValueId;
+	}
+
+	public void setUsageGroupValueId(String usageGroupValueId)
+	{
+		this.usageGroupValueId = usageGroupValueId;
+	}
+
+	public int getCount()
+	{
+		return count;
+	}
+
+	public void setCount(int count)
+	{
+		this.count = count;
+	}
+
+	public Long getId()
+	{
+		return id;
+	}
+
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+}

@@ -1,9 +1,11 @@
 package consulo.hub.shared.statistics.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -14,22 +16,25 @@ import java.util.UUID;
  */
 @Document(collection = "statistic")
 @JsonIgnoreProperties
-public class StatisticBean implements Serializable
+@Deprecated
+public class MongoStatisticBean implements Serializable
 {
 	public static class UsageGroup implements Serializable
 	{
-		public String id;
+		@JsonProperty("id")
+		@Field("_id")
+		public String usageGroupId;
 
 		public UsageGroupValue[] values = new UsageGroupValue[0];
 
-		public String getId()
+		public String getUsageGroupId()
 		{
-			return id;
+			return usageGroupId;
 		}
 
-		public void setId(String id)
+		public void setUsageGroupId(String usageGroupId)
 		{
-			this.id = id;
+			this.usageGroupId = usageGroupId;
 		}
 
 		public UsageGroupValue[] getValues()
@@ -45,7 +50,9 @@ public class StatisticBean implements Serializable
 
 	public static class UsageGroupValue implements Serializable
 	{
-		public String id;
+		@JsonProperty("id")
+		@Field("_id")
+		public String usageGroupValueId;
 
 		public int count;
 
@@ -53,20 +60,20 @@ public class StatisticBean implements Serializable
 		{
 		}
 
-		public UsageGroupValue(String id, int count)
+		public UsageGroupValue(String usageGroupValueId, int count)
 		{
-			this.id = id;
+			this.usageGroupValueId = usageGroupValueId;
 			this.count = count;
 		}
 
-		public String getId()
+		public String getUsageGroupValueId()
 		{
-			return id;
+			return usageGroupValueId;
 		}
 
-		public void setId(String id)
+		public void setUsageGroupValueId(String usageGroupValueId)
 		{
-			this.id = id;
+			this.usageGroupValueId = usageGroupValueId;
 		}
 
 		public int getCount()

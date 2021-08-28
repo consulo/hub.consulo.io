@@ -1,6 +1,6 @@
 package consulo.hub.frontend.backend.service;
 
-import consulo.hub.shared.statistics.domain.StatisticBean;
+import consulo.hub.shared.statistics.domain.MongoStatisticBean;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class StatisticsService
 {
-	public List<StatisticBean> findAll(Sort sort)
+	public List<MongoStatisticBean> findAll(Sort sort)
 	{
 		throw new UnsupportedOperationException();
 	}
