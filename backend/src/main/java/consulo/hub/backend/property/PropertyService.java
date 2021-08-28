@@ -25,7 +25,7 @@ public class PropertyService
 		Property property = myPropertyRepository.findOne(name);
 		if(property != null)
 		{
-			return Boolean.valueOf(name);
+			return Boolean.valueOf(property.getValue());
 		}
 		return false;
 	}
