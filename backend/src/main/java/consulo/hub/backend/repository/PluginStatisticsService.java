@@ -1,11 +1,9 @@
 package consulo.hub.backend.repository;
 
 import com.intellij.util.containers.ContainerUtil;
-import consulo.hub.backend.repository.mongo.MongoDownloadStatRepository;
-import consulo.hub.backend.repository.mongo.MongoPluginNodeRepository;
+import consulo.hub.backend.repository.repository.RepositoryDownloadInfoRepository;
 import consulo.hub.shared.repository.PluginChannel;
-import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
-import consulo.hub.shared.repository.mongo.domain.MongoPluginNode;
+import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +25,9 @@ public class PluginStatisticsService
 {
 	private static final Logger logger = LoggerFactory.getLogger(PluginStatisticsService.class);
 
-	private static class PluginInfo
-	{
-		private List<MongoDownloadStat> myDownloadStat = new CopyOnWriteArrayList<>();
-	}
-
 	private static class Block
 	{
-		private final Map<String, PluginInfo> myPluginInfos = new ConcurrentHashMap<>();
+		private final List<RepositoryDownloadInfo> myDownloadStat = new CopyOnWriteArrayList<>();
 	}
 
 	private static class DownloadPluginStatistics
@@ -42,18 +35,16 @@ public class PluginStatisticsService
 		private int[] byChannel = new int[PluginChannel.values().length];
 	}
 
-	private MongoPluginNodeRepository myMongoPluginNodeRepository;
-	private MongoDownloadStatRepository myMongoDownloadStatRepository;
+	private final RepositoryDownloadInfoRepository myRepositoryDownloadInfoRepository;
 
-	private Block myBlock = new Block();
+	private volatile Block myBlock = new Block();
 
 	private final Map<String, DownloadPluginStatistics> myStatistics = new ConcurrentHashMap<>();
 
 	@Autowired
-	public PluginStatisticsService(MongoPluginNodeRepository mongoPluginNodeRepository, MongoDownloadStatRepository mongoDownloadStatRepository)
+	public PluginStatisticsService(RepositoryDownloadInfoRepository repositoryDownloadInfoRepository)
 	{
-		myMongoPluginNodeRepository = mongoPluginNodeRepository;
-		myMongoDownloadStatRepository = mongoDownloadStatRepository;
+		myRepositoryDownloadInfoRepository = repositoryDownloadInfoRepository;
 	}
 
 	@Scheduled(cron = "0 0 * * * *")
@@ -62,30 +53,20 @@ public class PluginStatisticsService
 	{
 		Map<String, DownloadPluginStatistics> map = new HashMap<>();
 
-		List<MongoPluginNode> all = myMongoPluginNodeRepository.findAll();
-		for(MongoPluginNode pluginNode : all)
+		List<RepositoryDownloadInfo> all = myRepositoryDownloadInfoRepository.findAll();
+		for(RepositoryDownloadInfo stat : all)
 		{
-			DownloadPluginStatistics statistics = map.computeIfAbsent(pluginNode.getId(), id -> new DownloadPluginStatistics());
+			DownloadPluginStatistics statistics = map.computeIfAbsent(stat.getPluginId(), id -> new DownloadPluginStatistics());
 
-			List<MongoDownloadStat> downloadStat = pluginNode.getDownloadStat();
-			PluginInfo pluginInfo = myBlock.myPluginInfos.get(pluginNode.getId());
-			if(pluginInfo != null)
+			try
 			{
-				downloadStat = ContainerUtil.concat(downloadStat, pluginInfo.myDownloadStat);
+				PluginChannel pluginChannel = PluginChannel.valueOf(stat.getChannel());
+
+				statistics.byChannel[pluginChannel.ordinal()]++;
 			}
-
-			for(MongoDownloadStat mongoDownloadStat : downloadStat)
+			catch(IllegalArgumentException e)
 			{
-				try
-				{
-					PluginChannel pluginChannel = PluginChannel.valueOf(mongoDownloadStat.getChannel());
-
-					statistics.byChannel[pluginChannel.ordinal()] ++;
-				}
-				catch(IllegalArgumentException e)
-				{
-					logger.error(e.getMessage(), e);
-				}
+				logger.error(e.getMessage(), e);
 			}
 		}
 
@@ -96,14 +77,9 @@ public class PluginStatisticsService
 	{
 		Block block = myBlock;
 
-		PluginInfo info = block.myPluginInfos.computeIfAbsent(pluginId, s -> new PluginInfo());
+		RepositoryDownloadInfo downloadStat = new RepositoryDownloadInfo(System.currentTimeMillis(), pluginId, channel.name(), version, platformVersion, viaUpdate);
 
-		MongoDownloadStat downloadStat = new MongoDownloadStat(System.currentTimeMillis(), channel, version, platformVersion);
-		if(viaUpdate)
-		{
-			downloadStat.setViaUpdate(true);
-		}
-		info.myDownloadStat.add(downloadStat);
+		block.myDownloadStat.add(downloadStat);
 	}
 
 	public int getDownloadStatCount(@Nonnull String pluginId, @Nonnull PluginChannel pluginChannel)
@@ -117,59 +93,32 @@ public class PluginStatisticsService
 	}
 
 	@Nonnull
-	public List<MongoDownloadStat> getDownloadStat(@Nonnull String pluginId)
+	public List<RepositoryDownloadInfo> getDownloadStat(@Nonnull String pluginId)
 	{
-		List<MongoDownloadStat> stats = getMongoDownloadStatFromMongo(pluginId);
+		List<RepositoryDownloadInfo> stats = new ArrayList<>(getMongoDownloadStatFromMongo(pluginId));
 
-		PluginInfo pluginInfo = myBlock.myPluginInfos.get(pluginId);
-		if(pluginInfo != null)
+		for(RepositoryDownloadInfo info : myBlock.myDownloadStat)
 		{
-			return ContainerUtil.concat(stats, pluginInfo.myDownloadStat);
+			if(Objects.equals(info.getPluginId(), pluginId))
+			{
+				stats.add(info);
+			}
 		}
 		return stats;
 	}
 
-	private List<MongoDownloadStat> getMongoDownloadStatFromMongo(@Nonnull String pluginId)
+	private List<RepositoryDownloadInfo> getMongoDownloadStatFromMongo(@Nonnull String pluginId)
 	{
-		MongoPluginNode pluginNode = myMongoPluginNodeRepository.findOne(pluginId);
-		if(pluginNode == null)
-		{
-			return Collections.emptyList();
-		}
-		return pluginNode.getDownloadStat();
+		return myRepositoryDownloadInfoRepository.findAllByPluginId(pluginId);
 	}
 
 	@Scheduled(fixedRate = 60 * 1000)
 	private void tick()
 	{
 		Block block = myBlock;
+
 		myBlock = new Block();
 
-		Map<String, PluginInfo> pluginInfos = block.myPluginInfos;
-		if(pluginInfos.isEmpty())
-		{
-			return;
-		}
-
-		List<MongoPluginNode> nodes = new ArrayList<>(pluginInfos.size());
-
-		for(Map.Entry<String, PluginInfo> entry : pluginInfos.entrySet())
-		{
-			MongoPluginNode pluginNode = myMongoPluginNodeRepository.findOne(entry.getKey());
-			if(pluginNode == null)
-			{
-				pluginNode = new MongoPluginNode(entry.getKey());
-			}
-
-			List<MongoDownloadStat> downloads = entry.getValue().myDownloadStat;
-
-			myMongoDownloadStatRepository.save(downloads);
-
-			pluginNode.getDownloadStat().addAll(downloads);
-
-			nodes.add(pluginNode);
-		}
-
-		myMongoPluginNodeRepository.save(nodes);
+		myRepositoryDownloadInfoRepository.save(block.myDownloadStat);
 	}
 }

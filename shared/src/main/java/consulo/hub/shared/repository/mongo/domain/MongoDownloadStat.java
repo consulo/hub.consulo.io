@@ -12,6 +12,7 @@ import java.util.UUID;
  * @since 04-Jan-17
  */
 @Document(collection = "repositoryNodeDownloadStat")
+@Deprecated
 public class MongoDownloadStat
 {
 	@Id

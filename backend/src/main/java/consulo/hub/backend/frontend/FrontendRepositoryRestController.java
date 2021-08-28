@@ -5,7 +5,7 @@ import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginStatisticsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
+import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,7 +38,7 @@ public class FrontendRepositoryRestController
 	}
 
 	@RequestMapping("/api/private/repository/downloadStat")
-	public List<MongoDownloadStat> downloadStat(@RequestParam("pluginId") String pluginId)
+	public List<RepositoryDownloadInfo> downloadStat(@RequestParam("pluginId") String pluginId)
 	{
 		return myPluginStatisticsService.getDownloadStat(pluginId);
 	}
