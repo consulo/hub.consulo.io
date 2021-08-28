@@ -32,7 +32,10 @@ import javax.servlet.MultipartConfigElement;
 		WebSocketAutoConfiguration.class
 })
 @EnableGlobalMethodSecurity(securedEnabled = true)
-@EntityScan("consulo.hub.shared.*")
+@EntityScan({
+		"consulo.hub.shared.*",
+		"consulo.hub.backend.*"
+})
 public class BackendApplication
 {
 	@Configuration

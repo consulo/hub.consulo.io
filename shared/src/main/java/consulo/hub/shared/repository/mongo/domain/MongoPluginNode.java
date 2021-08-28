@@ -13,6 +13,7 @@ import java.util.Objects;
  * @since 04-Jan-17
  */
 @Document(collection = "repositoryNode")
+@Deprecated
 public class MongoPluginNode
 {
 	@Id
