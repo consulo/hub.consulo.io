@@ -1,38 +1,24 @@
 package consulo.hub.shared.errorReporter.domain;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.io.Serializable;
-import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import java.util.Objects;
 
 /**
-* @author VISTALL
-* @since 02-Oct-16
-*/
-@Document(collection = "errorReportAttachment")
-public class ErrorReportAttachment implements Serializable
+ * @author VISTALL
+ * @since 28/08/2021
+ */
+@Entity
+public class ErrorReportAttachment
 {
-	private final String id = UUID.randomUUID().toString();
+	@Id
+	@GeneratedValue
+	private Integer id;
 
 	private String name;
 	private String path;
 	private String encodedText;
-
-	ErrorReportAttachment()
-	{
-	}
-
-	ErrorReportAttachment(String name, String path, String encodedText)
-	{
-		this.name = name;
-		this.path = path;
-		this.encodedText = encodedText;
-	}
-
-	public String getId()
-	{
-		return id;
-	}
 
 	public String getName()
 	{
@@ -64,6 +50,16 @@ public class ErrorReportAttachment implements Serializable
 		this.encodedText = encodedText;
 	}
 
+	public Integer getId()
+	{
+		return id;
+	}
+
+	public void setId(Integer id)
+	{
+		this.id = id;
+	}
+
 	@Override
 	public boolean equals(Object o)
 	{
@@ -71,24 +67,17 @@ public class ErrorReportAttachment implements Serializable
 		{
 			return true;
 		}
-		if(!(o instanceof ErrorReportAttachment))
+		if(o == null || getClass() != o.getClass())
 		{
 			return false;
 		}
-
 		ErrorReportAttachment that = (ErrorReportAttachment) o;
-
-		if(!id.equals(that.id))
-		{
-			return false;
-		}
-
-		return true;
+		return Objects.equals(id, that.id);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return id.hashCode();
+		return Objects.hash(id);
 	}
 }

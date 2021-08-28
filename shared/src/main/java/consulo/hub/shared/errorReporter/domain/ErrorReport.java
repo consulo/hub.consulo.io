@@ -1,51 +1,29 @@
 package consulo.hub.shared.errorReporter.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
-import java.util.UUID;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author VISTALL
- * @since 02-Oct-16
+ * @since 28/08/2021
  */
 @SuppressWarnings("unused")
-@Document(collection = "errorReport")
 @JsonIgnoreProperties
-public class ErrorReport implements Serializable
+@Entity
+@Table(
+		indexes = @Index(columnList = "longId", unique = true)
+)
+public class ErrorReport
 {
-	public static class AffectedPlugin
-	{
-		private String pluginId;
-		private String pluginVersion;
-
-		public void setPluginId(String pluginId)
-		{
-			this.pluginId = pluginId;
-		}
-
-		public void setPluginVersion(String pluginVersion)
-		{
-			this.pluginVersion = pluginVersion;
-		}
-
-		public String getPluginVersion()
-		{
-			return pluginVersion;
-		}
-
-		public String getPluginId()
-		{
-			return pluginId;
-		}
-	}
-
 	@Id
-	private final String id = UUID.randomUUID().toString();
+	@GeneratedValue
+	private Integer id;
+
+	private String longId;
 
 	private String osName;
 	private String osVersion;
@@ -66,102 +44,40 @@ public class ErrorReport implements Serializable
 	private String message;
 	private String description;
 	private Integer assigneeId;
-	private AffectedPlugin[] affectedPlugins = new AffectedPlugin[0];
 
-	@DBRef
-	private ErrorReportAttachment[] attachments;
+	@OneToMany(cascade = CascadeType.ALL)
+	@OrderColumn
+	private List<ErrorReportAffectedPlugin> affectedPlugins = new ArrayList<>();
 
-	// status fields
-	@Indexed
+	@OneToMany(cascade = CascadeType.ALL)
+	@OrderColumn
+	private List<ErrorReportAttachment> attachments = new ArrayList<>();
+
 	private String reporterEmail;
-	@Indexed
+
 	private String changedByEmail;
 
 	private Long changeTime;
 
-	private ErrorReporterStatus status = ErrorReporterStatus.UNKNOWN;
+	private ErrorReportStatus status = ErrorReportStatus.UNKNOWN;
 
+	@Column(length = 51200)
 	private String stackTrace;
 
-	private long createDate = System.currentTimeMillis();
+	private long createDate;
 
 	public ErrorReport()
 	{
 	}
 
-	public String getOsVersion()
-	{
-		return osVersion;
-	}
-
-	public void setOsVersion(String osVersion)
-	{
-		this.osVersion = osVersion;
-	}
-
-	public String getLocale()
-	{
-		return locale;
-	}
-
-	public void setLocale(String locale)
-	{
-		this.locale = locale;
-	}
-
-	public long getCreateDate()
-	{
-		return createDate;
-	}
-
-	public void setCreateDate(long createDate)
-	{
-		this.createDate = createDate;
-	}
-
-	public String getId()
+	public Integer getId()
 	{
 		return id;
 	}
 
-	public ErrorReporterStatus getStatus()
+	public void setId(Integer id)
 	{
-		return status;
-	}
-
-	public void setStatus(ErrorReporterStatus status)
-	{
-		this.status = status;
-	}
-
-	public String getReporterEmail()
-	{
-		return reporterEmail;
-	}
-
-	public void setReporterEmail(String reporterEmail)
-	{
-		this.reporterEmail = reporterEmail;
-	}
-
-	public Long getChangeTime()
-	{
-		return changeTime;
-	}
-
-	public void setChangeTime(Long changeTime)
-	{
-		this.changeTime = changeTime;
-	}
-
-	public String getChangedByEmail()
-	{
-		return changedByEmail;
-	}
-
-	public void setChangedByEmail(String changedByEmail)
-	{
-		this.changedByEmail = changedByEmail;
+		this.id = id;
 	}
 
 	public String getOsName()
@@ -172,6 +88,16 @@ public class ErrorReport implements Serializable
 	public void setOsName(String osName)
 	{
 		this.osName = osName;
+	}
+
+	public String getOsVersion()
+	{
+		return osVersion;
+	}
+
+	public void setOsVersion(String osVersion)
+	{
+		this.osVersion = osVersion;
 	}
 
 	public String getJavaVersion()
@@ -192,6 +118,16 @@ public class ErrorReport implements Serializable
 	public void setJavaVmVendor(String javaVmVendor)
 	{
 		this.javaVmVendor = javaVmVendor;
+	}
+
+	public String getLocale()
+	{
+		return locale;
+	}
+
+	public void setLocale(String locale)
+	{
+		this.locale = locale;
 	}
 
 	public String getAppUpdateChannel()
@@ -284,16 +220,6 @@ public class ErrorReport implements Serializable
 		this.message = message;
 	}
 
-	public String getStackTrace()
-	{
-		return stackTrace;
-	}
-
-	public void setStackTrace(String stackTrace)
-	{
-		this.stackTrace = stackTrace;
-	}
-
 	public String getDescription()
 	{
 		return description;
@@ -314,24 +240,94 @@ public class ErrorReport implements Serializable
 		this.assigneeId = assigneeId;
 	}
 
-	public AffectedPlugin[] getAffectedPlugins()
+	public String getReporterEmail()
+	{
+		return reporterEmail;
+	}
+
+	public void setReporterEmail(String reporterEmail)
+	{
+		this.reporterEmail = reporterEmail;
+	}
+
+	public String getChangedByEmail()
+	{
+		return changedByEmail;
+	}
+
+	public void setChangedByEmail(String changedByEmail)
+	{
+		this.changedByEmail = changedByEmail;
+	}
+
+	public Long getChangeTime()
+	{
+		return changeTime;
+	}
+
+	public void setChangeTime(Long changeTime)
+	{
+		this.changeTime = changeTime;
+	}
+
+	public ErrorReportStatus getStatus()
+	{
+		return status;
+	}
+
+	public void setStatus(ErrorReportStatus status)
+	{
+		this.status = status;
+	}
+
+	public String getStackTrace()
+	{
+		return stackTrace;
+	}
+
+	public void setStackTrace(String stackTrace)
+	{
+		this.stackTrace = stackTrace;
+	}
+
+	public long getCreateDate()
+	{
+		return createDate;
+	}
+
+	public void setCreateDate(long createDate)
+	{
+		this.createDate = createDate;
+	}
+
+	public List<ErrorReportAffectedPlugin> getAffectedPlugins()
 	{
 		return affectedPlugins;
 	}
 
-	public void setAffectedPlugins(AffectedPlugin[] affectedPlugins)
+	public void setAffectedPlugins(List<ErrorReportAffectedPlugin> affectedPlugins)
 	{
 		this.affectedPlugins = affectedPlugins;
 	}
 
-	public ErrorReportAttachment[] getAttachments()
+	public List<ErrorReportAttachment> getAttachments()
 	{
 		return attachments;
 	}
 
-	public void setAttachments(ErrorReportAttachment[] attachments)
+	public void setAttachments(List<ErrorReportAttachment> attachments)
 	{
 		this.attachments = attachments;
+	}
+
+	public String getLongId()
+	{
+		return longId;
+	}
+
+	public void setLongId(String longId)
+	{
+		this.longId = longId;
 	}
 
 	@Override
@@ -341,19 +337,17 @@ public class ErrorReport implements Serializable
 		{
 			return true;
 		}
-		if(!(o instanceof ErrorReport))
+		if(o == null || getClass() != o.getClass())
 		{
 			return false;
 		}
-
 		ErrorReport that = (ErrorReport) o;
-
-		return id.equals(that.id);
+		return id == that.id;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return id.hashCode();
+		return Objects.hash(id);
 	}
 }

@@ -10,7 +10,7 @@ import consulo.hub.frontend.backend.service.ErrorReporterService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,7 +68,7 @@ public class DashboardView extends VerticalLayout implements View
 		legendLayout.setWidth(100, Unit.PERCENTAGE);
 		legendLayout.setSpacing(true);
 
-		for(ErrorReporterStatus reporterStatus : ErrorReporterStatus.values())
+		for(ErrorReportStatus reporterStatus : ErrorReportStatus.values())
 		{
 			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
 

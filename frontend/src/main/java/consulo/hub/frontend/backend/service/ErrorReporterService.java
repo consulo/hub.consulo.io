@@ -1,7 +1,7 @@
 package consulo.hub.frontend.backend.service;
 
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ public class ErrorReporterService
 {
 	public static String CREATE_DATE = "createDate";
 
-	public ErrorReport changeStatus(String errorReportId, ErrorReporterStatus status, int byUserId)
+	public ErrorReport changeStatus(int errorReportId, ErrorReportStatus status, int byUserId)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -25,12 +25,12 @@ public class ErrorReporterService
 		throw new UnsupportedOperationException();
 	}
 
-	public Page<ErrorReport> findByStatusIn(ErrorReporterStatus[] errorReporterStatuses, PageRequest pageRequest)
+	public Page<ErrorReport> findByStatusIn(ErrorReportStatus[] errorReportStatuses, PageRequest pageRequest)
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	public Page<ErrorReport> findByReporterEmailAndStatusIn(String email, ErrorReporterStatus[] errorReporterStatuses, PageRequest pageRequest)
+	public Page<ErrorReport> findByReporterEmailAndStatusIn(String email, ErrorReportStatus[] errorReportStatuses, PageRequest pageRequest)
 	{
 		throw new UnsupportedOperationException();
 	}

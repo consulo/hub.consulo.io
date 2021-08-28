@@ -1,17 +1,18 @@
 package consulo.hub.backend.errorReporter;
 
-import consulo.hub.backend.errorReporter.mongo.ErrorReportAttachmentRepository;
-import consulo.hub.backend.errorReporter.mongo.ErrorReportRepository;
+import consulo.hub.backend.errorReporter.repository.ErrorReportRepository;
 import consulo.hub.backend.repository.PluginChannelService;
 import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.shared.ServiceAccounts;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
+import consulo.hub.shared.errorReporter.domain.ErrorReportAffectedPlugin;
 import consulo.hub.shared.errorReporter.domain.ErrorReportAttachment;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,9 +69,6 @@ public class ErrorReportRestController
 	private ErrorReportRepository myErrorReportRepository;
 
 	@Autowired
-	private ErrorReportAttachmentRepository myErrorReportAttachmentRepository;
-
-	@Autowired
 	private PluginChannelsService myUserConfigurationService;
 
 	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
@@ -85,6 +84,12 @@ public class ErrorReportRestController
 		if(appUpdateChannel == null)
 		{
 			return resultWithMessage(CreateResult.BAD_REPORT, null, "'appUpdateChannel' required");
+		}
+
+		String stackTrace = errorReport.getStackTrace();
+		if(stackTrace == null)
+		{
+			return resultWithMessage(CreateResult.BAD_REPORT, null, "'stackTrace' required");
 		}
 
 		PluginChannel pluginChannel = PluginChannel.valueOf(appUpdateChannel);
@@ -113,9 +118,17 @@ public class ErrorReportRestController
 			}
 		}
 
-		ErrorReport.AffectedPlugin[] affectedPlugins = errorReport.getAffectedPlugins();
-		for(ErrorReport.AffectedPlugin entry : affectedPlugins)
+		List<ErrorReportAffectedPlugin> affectedPlugins = errorReport.getAffectedPlugins();
+		for(ErrorReportAffectedPlugin entry : affectedPlugins)
 		{
+			entry.setId(null);
+
+			// snapshot ignore version check
+			if("SNAPSHOT".equals(entry.getPluginVersion()))
+			{
+				continue;
+			}
+
 			int pluginVersion = Integer.parseInt(entry.getPluginVersion());
 
 			PluginNode pluginNode = repository.select(appBuild, entry.getPluginId(), null, false);
@@ -143,17 +156,21 @@ public class ErrorReportRestController
 
 		// do not allow override it via post body
 		errorReport.setChangedByEmail(null);
+		errorReport.setId(null);
 		errorReport.setChangeTime(null);
-		errorReport.setStatus(ErrorReporterStatus.UNKNOWN);
+		errorReport.setStatus(ErrorReportStatus.UNKNOWN);
 		errorReport.setCreateDate(System.currentTimeMillis());
 
-		errorReport = myErrorReportRepository.save(errorReport);
 		for(ErrorReportAttachment attachment : errorReport.getAttachments())
 		{
-			myErrorReportAttachmentRepository.save(attachment);
+			attachment.setId(null);
 		}
 
-		return resultWithMessage(CreateResult.OK, errorReport.getId(), null);
+		errorReport.setLongId(RandomStringUtils.randomAlphanumeric(32));
+
+		errorReport = myErrorReportRepository.save(errorReport);
+
+		return resultWithMessage(CreateResult.OK, errorReport.getLongId(), null);
 	}
 
 	private static Map<String, String> resultWithMessage(CreateResult result, String id, String message)

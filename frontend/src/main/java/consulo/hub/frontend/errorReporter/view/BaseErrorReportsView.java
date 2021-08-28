@@ -14,7 +14,7 @@ import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,7 +34,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	@Autowired
 	protected ErrorReporterService myErrorReportRepository;
 
-	protected final Set<ErrorReporterStatus> myFilters = new HashSet<>();
+	protected final Set<ErrorReportStatus> myFilters = new HashSet<>();
 	private int myPage = 0;
 	protected ScrollableListPanel myReportList;
 	protected Label myLabel;
@@ -47,7 +47,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 		setSizeFull();
 	}
 
-	protected abstract Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize);
+	protected abstract Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize);
 
 	@Override
 	public void enter(ViewChangeListener.ViewChangeEvent event)
@@ -72,10 +72,10 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 			filters.setSpacing(true);
 			filters.addComponent(TinyComponents.newLabel("Status: "));
 
-			for(ErrorReporterStatus status : ErrorReporterStatus.values())
+			for(ErrorReportStatus status : ErrorReportStatus.values())
 			{
 				CheckBox filterBox = TinyComponents.newCheckBox(StringUtils.capitalize(status.name().toLowerCase(Locale.US)));
-				if(status == ErrorReporterStatus.UNKNOWN)
+				if(status == ErrorReportStatus.UNKNOWN)
 				{
 					filterBox.setValue(true);
 				}
@@ -115,11 +115,11 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 		if(allowFilters())
 		{
-			myFilters.add(ErrorReporterStatus.UNKNOWN);
+			myFilters.add(ErrorReportStatus.UNKNOWN);
 		}
 		else
 		{
-			Collections.addAll(myFilters, ErrorReporterStatus.values());
+			Collections.addAll(myFilters, ErrorReportStatus.values());
 		}
 
 		rebuildList();
@@ -134,7 +134,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	{
 		myReportList.removeAll();
 
-		Page<ErrorReport> page = getReports(myPage, myFilters.toArray(new ErrorReporterStatus[myFilters.size()]), ourPageSize);
+		Page<ErrorReport> page = getReports(myPage, myFilters.toArray(new ErrorReportStatus[myFilters.size()]), ourPageSize);
 
 		myLastPageSize = page.getNumberOfElements();
 
@@ -165,7 +165,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 
 			onUpdate.add(report ->
 			{
-				for(ErrorReporterStatus status : ErrorReporterStatus.values())
+				for(ErrorReportStatus status : ErrorReportStatus.values())
 				{
 					lineLayout.removeStyleName("errorViewLineLayout" + StringUtils.capitalize(status.name().toLowerCase(Locale.US)));
 				}

@@ -3,7 +3,7 @@ package consulo.hub.frontend.errorReporter.view;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,7 +51,7 @@ public class DirectErrorReportsView extends BaseErrorReportsView
 	}
 
 	@Override
-	protected Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize)
+	protected Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize)
 	{
 		return new PageImpl<>(Arrays.asList(myErrorReport), new PageRequest(0, pageSize), 1);
 	}

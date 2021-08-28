@@ -10,7 +10,7 @@ import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.AuthUtil;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReporterStatus;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -44,8 +44,8 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 		panel.setSpacing(true);
 		rightLayout.addComponent(panel);
 
-		Map<ErrorReporterStatus, Button> adminButtons = new LinkedHashMap<>();
-		for(ErrorReporterStatus status : ErrorReporterStatus.values())
+		Map<ErrorReportStatus, Button> adminButtons = new LinkedHashMap<>();
+		for(ErrorReportStatus status : ErrorReportStatus.values())
 		{
 			String captalizedStatus = StringUtil.capitalize(status.name().toLowerCase(Locale.US));
 			Button button = TinyComponents.newButton(captalizedStatus);
@@ -72,14 +72,14 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 		{
 			panel.removeAllComponents();
 
-			for(ErrorReporterStatus errorReporterStatus : ErrorReporterStatus.values())
+			for(ErrorReportStatus errorReportStatus : ErrorReportStatus.values())
 			{
-				if(errorReporterStatus == report.getStatus())
+				if(errorReportStatus == report.getStatus())
 				{
 					continue;
 				}
 
-				Button button = adminButtons.get(errorReporterStatus);
+				Button button = adminButtons.get(errorReportStatus);
 				panel.addComponent(button);
 			}
 
@@ -95,7 +95,7 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 	}
 
 	@Override
-	protected Page<ErrorReport> getReports(int page, ErrorReporterStatus[] errorReporterStatuses, int pageSize)
+	protected Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize)
 	{
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication == null)
@@ -103,6 +103,6 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return myErrorReportRepository.findByStatusIn(errorReporterStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
+		return myErrorReportRepository.findByStatusIn(errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
 	}
 }
