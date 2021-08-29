@@ -3,7 +3,6 @@ package consulo.hub.backend.errorReporter;
 import consulo.hub.backend.errorReporter.repository.ErrorReportRepository;
 import consulo.hub.backend.repository.PluginChannelService;
 import consulo.hub.backend.repository.PluginChannelsService;
-import consulo.hub.shared.ServiceAccounts;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportAffectedPlugin;
@@ -145,17 +144,10 @@ public class ErrorReportRestController
 			}
 		}
 
-		if(account != null)
-		{
-			errorReport.setReporterEmail(account.getUsername());
-		}
-		else
-		{
-			errorReport.setReporterEmail(ServiceAccounts.HUB_ANONYMOUS);
-		}
+		errorReport.setUser(account);
 
 		// do not allow override it via post body
-		errorReport.setChangedByEmail(null);
+		errorReport.setChangedByUser(null);
 		errorReport.setId(null);
 		errorReport.setChangeTime(null);
 		errorReport.setStatus(ErrorReportStatus.UNKNOWN);

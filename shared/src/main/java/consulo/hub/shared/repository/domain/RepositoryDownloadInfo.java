@@ -14,7 +14,7 @@ import java.util.Objects;
 public class RepositoryDownloadInfo
 {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
 
 	private long time;

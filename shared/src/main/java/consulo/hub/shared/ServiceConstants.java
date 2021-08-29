@@ -6,8 +6,5 @@ package consulo.hub.shared;
  */
 public interface ServiceConstants
 {
-	public static final String ourBotEmail = "consulo.bot@gmail.com";
-
 	public static final String DEFAULT_CLIENT_ID = "consulo";
-
 }

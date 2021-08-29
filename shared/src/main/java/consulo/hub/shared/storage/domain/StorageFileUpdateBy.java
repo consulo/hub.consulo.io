@@ -2,10 +2,7 @@ package consulo.hub.shared.storage.domain;
 
 import consulo.hub.shared.base.InformationBean;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * @author VISTALL
@@ -15,8 +12,8 @@ import javax.persistence.Id;
 public class StorageFileUpdateBy extends InformationBean
 {
 	@Id
-	@GeneratedValue
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	private Long id;
 
 	@Column
 	private long time;
@@ -31,12 +28,12 @@ public class StorageFileUpdateBy extends InformationBean
 		this.time = time;
 	}
 
-	public Integer getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(Integer id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}

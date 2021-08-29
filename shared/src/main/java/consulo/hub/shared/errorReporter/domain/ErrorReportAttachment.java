@@ -2,6 +2,7 @@ package consulo.hub.shared.errorReporter.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Objects;
 
@@ -13,8 +14,8 @@ import java.util.Objects;
 public class ErrorReportAttachment
 {
 	@Id
-	@GeneratedValue
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	private Long id;
 
 	private String name;
 	private String path;
@@ -50,12 +51,12 @@ public class ErrorReportAttachment
 		this.encodedText = encodedText;
 	}
 
-	public Integer getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(Integer id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}

@@ -1,6 +1,7 @@
 package consulo.hub.shared.errorReporter.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import consulo.hub.shared.auth.domain.UserAccount;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ import java.util.Objects;
 public class ErrorReport
 {
 	@Id
-	@GeneratedValue
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	private Long id;
 
 	private String longId;
 
@@ -53,9 +54,11 @@ public class ErrorReport
 	@OrderColumn
 	private List<ErrorReportAttachment> attachments = new ArrayList<>();
 
-	private String reporterEmail;
+	@OneToOne
+	private UserAccount user;
 
-	private String changedByEmail;
+	@OneToOne
+	private UserAccount changedByUser;
 
 	private Long changeTime;
 
@@ -70,12 +73,12 @@ public class ErrorReport
 	{
 	}
 
-	public Integer getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(Integer id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}
@@ -240,24 +243,24 @@ public class ErrorReport
 		this.assigneeId = assigneeId;
 	}
 
-	public String getReporterEmail()
+	public void setUser(UserAccount user)
 	{
-		return reporterEmail;
+		this.user = user;
 	}
 
-	public void setReporterEmail(String reporterEmail)
+	public UserAccount getUser()
 	{
-		this.reporterEmail = reporterEmail;
+		return user;
 	}
 
-	public String getChangedByEmail()
+	public void setChangedByUser(UserAccount changedByUser)
 	{
-		return changedByEmail;
+		this.changedByUser = changedByUser;
 	}
 
-	public void setChangedByEmail(String changedByEmail)
+	public UserAccount getChangedByUser()
 	{
-		this.changedByEmail = changedByEmail;
+		return changedByUser;
 	}
 
 	public Long getChangeTime()
@@ -342,7 +345,7 @@ public class ErrorReport
 			return false;
 		}
 		ErrorReport that = (ErrorReport) o;
-		return id == that.id;
+		return id.equals(that.id);
 	}
 
 	@Override

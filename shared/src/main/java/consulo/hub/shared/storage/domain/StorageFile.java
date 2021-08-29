@@ -14,9 +14,9 @@ import java.util.Objects;
 public class StorageFile
 {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column
-	private Integer id;
+	private Long id;
 
 	@OneToOne
 	private UserAccount user;
@@ -43,12 +43,12 @@ public class StorageFile
 		this.updateBy = updateBy;
 	}
 
-	public Integer getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(Integer id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}

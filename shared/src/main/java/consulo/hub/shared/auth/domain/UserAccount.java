@@ -25,9 +25,9 @@ public class UserAccount implements UserDetails
 	public static final int ROLE_HUB = 1 << 3;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column
-	private Integer id;
+	private Long id;
 	@Column
 	private String username;
 	@Column
@@ -42,12 +42,12 @@ public class UserAccount implements UserDetails
 	@Column
 	private int rights;
 
-	public Integer getId()
+	public Long getId()
 	{
 		return id;
 	}
 
-	public void setId(Integer id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}

@@ -34,6 +34,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
 		http.authorizeRequests().antMatchers("/api/repository/pluginDeploy").hasAuthority(Roles.ROLE_SUPERDEPLOYER);
 
+		// TODO [VISTALL] remove it
+		http.authorizeRequests().antMatchers("/api/oauth/auth").permitAll();
+
 		// anybody can create errorReports
 		http.authorizeRequests().antMatchers("/api/errorReporter/create").permitAll();
 		// statistics can be anonymous

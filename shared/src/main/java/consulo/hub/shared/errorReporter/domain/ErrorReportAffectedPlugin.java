@@ -2,6 +2,7 @@ package consulo.hub.shared.errorReporter.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
@@ -12,8 +13,8 @@ import javax.persistence.Id;
 public class ErrorReportAffectedPlugin
 {
 	@Id
-	@GeneratedValue
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.TABLE)
+	private Long id;
 
 	private String pluginId;
 	private String pluginVersion;
@@ -38,12 +39,12 @@ public class ErrorReportAffectedPlugin
 		return pluginId;
 	}
 
-	public void setId(Integer id)
+	public void setId(Long id)
 	{
 		this.id = id;
 	}
 
-	public Integer getId()
+	public Long getId()
 	{
 		return id;
 	}
