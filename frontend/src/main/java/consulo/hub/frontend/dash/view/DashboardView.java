@@ -9,14 +9,14 @@ import com.vaadin.ui.themes.ValoTheme;
 import consulo.hub.frontend.backend.service.ErrorReporterService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.shared.auth.SecurityUtil;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.annotation.Nonnull;
 import java.util.Date;
@@ -57,9 +57,9 @@ public class DashboardView extends VerticalLayout implements View
 		return panel("Last Settings Update", verticalLayout);
 	}
 
-	private Component buildLastErrorReports(Authentication authentication)
+	private Component buildLastErrorReports(UserAccount userAccount)
 	{
-		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(authentication.getName(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
+		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(userAccount.getId(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.addStyleName("bodyMargin");
@@ -126,8 +126,8 @@ public class DashboardView extends VerticalLayout implements View
 		label.addStyleName("headerMargin");
 		addComponent(label);
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
+		UserAccount userAccount = SecurityUtil.getUserAccout();
+		if(userAccount == null)
 		{
 			return;
 		}
@@ -146,7 +146,7 @@ public class DashboardView extends VerticalLayout implements View
 		fillLayout.addComponent(lastSettingsUpdate);
 		fillLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
 
-		Component lastErrorReports = buildLastErrorReports(authentication);
+		Component lastErrorReports = buildLastErrorReports(userAccount);
 		fillLayout.addComponent(lastErrorReports);
 		fillLayout.setExpandRatio(lastErrorReports, 0.33f);
 

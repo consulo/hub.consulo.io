@@ -2,14 +2,14 @@ package consulo.hub.frontend.errorReporter.view;
 
 import com.vaadin.spring.annotation.SpringView;
 import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.shared.auth.SecurityUtil;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
 
@@ -25,13 +25,13 @@ public class ErrorReportsView extends BaseErrorReportsView
 	@Override
 	protected Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize)
 	{
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
+		UserAccount userAccout = SecurityUtil.getUserAccout();
+		if(userAccout == null)
 		{
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return myErrorReportRepository.findByReporterEmailAndStatusIn(authentication.getName(), errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC,
+		return myErrorReportRepository.findByReporterEmailAndStatusIn(userAccout.getId(), errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC,
 				ErrorReporterService.CREATE_DATE)));
 	}
 }

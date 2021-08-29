@@ -29,7 +29,10 @@ public class DirectErrorReportsView extends BaseErrorReportsView
 	@Override
 	protected boolean skipField(String name)
 	{
-		return StringUtils.containsIgnoreCase(name, "email");
+		return StringUtils.containsIgnoreCase(name, "user") ||
+				StringUtils.containsIgnoreCase(name, "changedByUser") ||
+				StringUtils.containsIgnoreCase(name, "id") ||
+				StringUtils.containsIgnoreCase(name, "changeTime");
 	}
 
 	@Override

@@ -12,17 +12,17 @@ import java.util.List;
 @Service
 public class StorageService
 {
-	public List<StorageFile> findAllByUser(int userId)
+	public List<StorageFile> findAllByUser(long userId)
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	public void wipeData(int userId)
+	public void wipeData(long userId)
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	public StorageFile findOne(int userId, int storageFileId)
+	public StorageFile findOne(long userId, long storageFileId)
 	{
 		throw new UnsupportedOperationException();
 	}

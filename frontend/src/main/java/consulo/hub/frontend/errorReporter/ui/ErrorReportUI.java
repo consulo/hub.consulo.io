@@ -31,7 +31,7 @@ public class ErrorReportUI extends BaseUI
 	{
 		String id = getPage().getUriFragment();
 
-		ErrorReport report = myErrorReportRepository.findOne(StringUtil.notNullize(id));
+		ErrorReport report = myErrorReportRepository.findByLongId(StringUtil.notNullize(id));
 		if(report == null)
 		{
 			report = new ErrorReport();
