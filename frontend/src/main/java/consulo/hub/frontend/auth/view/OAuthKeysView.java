@@ -7,7 +7,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.UserAccountService;
+import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
@@ -24,14 +24,14 @@ public class OAuthKeysView extends VerticalLayout implements View
 {
 	public static final String ID = "oauthKeys";
 
-	private final UserAccountService myUserAccountService;
+	private final BackendUserAccountService myBackendUserAccountService;
 
 	private VerticalLayout myTokenListPanel;
 
 	@Autowired
-	public OAuthKeysView(UserAccountService userAccountService)
+	public OAuthKeysView(BackendUserAccountService backendUserAccountService)
 	{
-		myUserAccountService = userAccountService;
+		myBackendUserAccountService = backendUserAccountService;
 		setMargin(false);
 		setSpacing(false);
 		setSizeFull();
@@ -70,7 +70,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 					return;
 				}
 
-				OAuthTokenInfo newToken = myUserAccountService.addOAuthToken(userAccout, value);
+				OAuthTokenInfo newToken = myBackendUserAccountService.addOAuthToken(userAccout, value);
 
 				if(newToken != null)
 				{
@@ -109,7 +109,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 		addComponent(myTokenListPanel);
 		setExpandRatio(myTokenListPanel, 1);
 
-		OAuthTokenInfo[] tokens = myUserAccountService.listOAuthTokens(userAccout);
+		OAuthTokenInfo[] tokens = myBackendUserAccountService.listOAuthTokens(userAccout);
 		for(OAuthTokenInfo token : tokens)
 		{
 			addToken(token, true);
@@ -138,7 +138,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 				return;
 			}
 
-			if(myUserAccountService.removeOAuthToken(userAccout, token.getToken()) != null)
+			if(myBackendUserAccountService.removeOAuthToken(userAccout, token.getToken()) != null)
 			{
 				myTokenListPanel.removeComponent(layout);
 			}

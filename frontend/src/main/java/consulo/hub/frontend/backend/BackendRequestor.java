@@ -1,5 +1,6 @@
 package consulo.hub.frontend.backend;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.RequestBuilder;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -25,7 +27,7 @@ public class BackendRequestor
 
 	private CloseableHttpClient myClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build()).build();
 
-	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
+	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
 	{
 		RequestBuilder builder = RequestBuilder.get("http://localhost:22333/api/private" + urlSuffix);
 		for(Map.Entry<String, String> entry : parameters.entrySet())
@@ -39,11 +41,23 @@ public class BackendRequestor
 		{
 			if(response.getStatusLine().getStatusCode() != 200)
 			{
-				throw new IOException("request failed");
+				throw new IOException("request failed. Code: " + response.getStatusLine().getStatusCode());
 			}
 
 			String json = EntityUtils.toString(response.getEntity());
 			return myObjectMapper.readValue(json, valueClazz);
+		});
+	}
+
+	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
+	{
+		return runRequest(urlSuffix, parameters, new TypeReference<T>()
+		{
+			@Override
+			public Type getType()
+			{
+				return valueClazz;
+			}
 		});
 	}
 

@@ -6,7 +6,7 @@ import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.UserAccountService;
+import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.auth.ui.LoginOrRegisterPanel;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.config.view.ConfigPanel;
@@ -31,7 +31,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 	private AuthenticationManager myAuthenticationManager;
 
 	@Autowired
-	private UserAccountService myUserAccountService;
+	private BackendUserAccountService myBackendUserAccountService;
 
 	@Autowired
 	private PropertiesService myPropertiesService;
@@ -102,7 +102,7 @@ public class AccessDeniedView extends VerticalLayout implements View
 
 	private boolean register(String username, String password)
 	{
-		if(!myUserAccountService.registerUser(username, password))
+		if(!myBackendUserAccountService.registerUser(username, password))
 		{
 			return false;
 		}

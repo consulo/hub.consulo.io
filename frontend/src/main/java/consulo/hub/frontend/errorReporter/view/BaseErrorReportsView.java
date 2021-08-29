@@ -9,7 +9,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
@@ -32,7 +32,7 @@ public abstract class BaseErrorReportsView extends VerticalLayout implements Vie
 	private static final int ourPageSize = 50;
 
 	@Autowired
-	protected ErrorReporterService myErrorReportRepository;
+	protected BackendErrorReporterService myErrorReportRepository;
 
 	protected final Set<ErrorReportStatus> myFilters = new HashSet<>();
 	private int myPage = 0;

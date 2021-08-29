@@ -1,7 +1,7 @@
 package consulo.hub.frontend.errorReporter.view;
 
 import com.vaadin.spring.annotation.SpringView;
-import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.backend.service.BackendErrorReporterService;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
@@ -31,7 +31,7 @@ public class ErrorReportsView extends BaseErrorReportsView
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return myErrorReportRepository.findByReporterEmailAndStatusIn(userAccout.getId(), errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC,
-				ErrorReporterService.CREATE_DATE)));
+		return myErrorReportRepository.findByUserAndStatuses(userAccout.getId(), errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC,
+				BackendErrorReporterService.CREATE_DATE)));
 	}
 }

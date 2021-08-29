@@ -5,7 +5,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.AuthUtil;
@@ -103,6 +103,6 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return myErrorReportRepository.findByStatusIn(errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
+		return myErrorReportRepository.findByStatuses(errorReportStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE)));
 	}
 }

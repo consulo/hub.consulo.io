@@ -17,9 +17,9 @@ import java.util.Map;
  * @since 21/08/2021
  */
 @Service
-public class UserAccountService
+public class BackendUserAccountService
 {
-	private static final Logger LOG = LoggerFactory.getLogger(UserAccountService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BackendUserAccountService.class);
 
 	@Autowired
 	private BackendRequestor myBackendRequestor;

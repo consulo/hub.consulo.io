@@ -6,7 +6,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.ErrorReporterService;
+import consulo.hub.frontend.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
@@ -28,7 +28,7 @@ public class DashboardView extends VerticalLayout implements View
 	public static final String ID = "";
 
 	@Autowired
-	protected ErrorReporterService myErrorReportRepository;
+	protected BackendErrorReporterService myErrorReportRepository;
 
 	public DashboardView()
 	{
@@ -59,7 +59,7 @@ public class DashboardView extends VerticalLayout implements View
 
 	private Component buildLastErrorReports(UserAccount userAccount)
 	{
-		Page<ErrorReport> reportList = myErrorReportRepository.findByReporterEmail(userAccount.getId(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, ErrorReporterService.CREATE_DATE)));
+		Page<ErrorReport> reportList = myErrorReportRepository.findByUser(userAccount.getId(), new PageRequest(0, 30, new Sort(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.addStyleName("bodyMargin");

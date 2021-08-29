@@ -7,7 +7,7 @@ import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.backend.service.UserAccountService;
+import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,10 +24,10 @@ public class AdminUserView extends VerticalLayout implements View
 {
 	public static final String ID = "adminUser";
 
-	private UserAccountService myUserAccountRepository;
+	private BackendUserAccountService myUserAccountRepository;
 
 	@Autowired
-	public AdminUserView(UserAccountService userAccountRepository)
+	public AdminUserView(BackendUserAccountService userAccountRepository)
 	{
 		myUserAccountRepository = userAccountRepository;
 		setSpacing(false);
