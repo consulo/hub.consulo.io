@@ -100,7 +100,14 @@ public class UserAccountService
 
 	public List<UserAccount> listAll()
 	{
-		// TODO
-		throw new UnsupportedOperationException();
+		try
+		{
+			return List.of(myBackendRequestor.runRequest("/user/list", Map.of(), UserAccount[].class));
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to list all users", e);
+			return List.of();
+		}
 	}
 }

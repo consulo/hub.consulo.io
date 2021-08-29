@@ -1,6 +1,7 @@
 package consulo.hub.backend.frontend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.auth.service.UserAccountService;
 import consulo.hub.shared.ServiceConstants;
 import consulo.hub.shared.auth.domain.UserAccount;
@@ -59,11 +60,20 @@ public class FrontendUserRestController
 	@Autowired
 	private ObjectMapper myObjectMapper;
 
+	@Autowired
+	private UserAccountRepository myUserAccountRepository;
+
 	@RequestMapping("/api/private/user/register")
 	public UserAccount registerUser(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
 	{
 		UserAccount userAccount = myUserAccountService.registerUser(email, password);
 		return Objects.requireNonNull(userAccount, "null is not allowed");
+	}
+
+	@RequestMapping("/api/private/user/list")
+	public List<UserAccount> listUsers(@AuthenticationPrincipal UserAccount hub)
+	{
+		return myUserAccountRepository.findAll();
 	}
 
 	@RequestMapping("/api/private/user/auth")
