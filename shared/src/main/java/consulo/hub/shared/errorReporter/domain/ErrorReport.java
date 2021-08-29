@@ -44,7 +44,6 @@ public class ErrorReport
 	private String previousException;
 	private String message;
 	private String description;
-	private Integer assigneeId;
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@OrderColumn
@@ -56,6 +55,9 @@ public class ErrorReport
 
 	@OneToOne
 	private UserAccount user;
+
+	@OneToOne
+	private UserAccount assignUser;
 
 	@OneToOne
 	private UserAccount changedByUser;
@@ -233,16 +235,6 @@ public class ErrorReport
 		this.description = description;
 	}
 
-	public Integer getAssigneeId()
-	{
-		return assigneeId;
-	}
-
-	public void setAssigneeId(Integer assigneeId)
-	{
-		this.assigneeId = assigneeId;
-	}
-
 	public void setUser(UserAccount user)
 	{
 		this.user = user;
@@ -331,6 +323,16 @@ public class ErrorReport
 	public void setLongId(String longId)
 	{
 		this.longId = longId;
+	}
+
+	public UserAccount getAssignUser()
+	{
+		return assignUser;
+	}
+
+	public void setAssignUser(UserAccount assignUser)
+	{
+		this.assignUser = assignUser;
 	}
 
 	@Override

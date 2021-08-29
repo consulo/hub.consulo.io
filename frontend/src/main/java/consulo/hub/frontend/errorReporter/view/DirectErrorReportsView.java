@@ -31,6 +31,7 @@ public class DirectErrorReportsView extends BaseErrorReportsView
 	{
 		return StringUtils.containsIgnoreCase(name, "user") ||
 				StringUtils.containsIgnoreCase(name, "changedByUser") ||
+				StringUtils.containsIgnoreCase(name, "assignUser") ||
 				StringUtils.containsIgnoreCase(name, "id") ||
 				StringUtils.containsIgnoreCase(name, "changeTime");
 	}

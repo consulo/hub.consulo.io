@@ -1,5 +1,6 @@
 package consulo.hub.backend.errorReporter;
 
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.errorReporter.repository.ErrorReportRepository;
 import consulo.hub.backend.repository.PluginChannelService;
 import consulo.hub.backend.repository.PluginChannelsService;
@@ -14,15 +15,13 @@ import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -33,12 +32,17 @@ public class ErrorReportRestController
 {
 	private static enum CreateResult
 	{
-		OK, PLATFORM_UPDATE_REQUIRED, PLUGIN_UPDATE_REQUIRED, BAD_REPORT
+		OK,
+		PLATFORM_UPDATE_REQUIRED,
+		PLUGIN_UPDATE_REQUIRED,
+		BAD_REPORT
 	}
 
 	private static enum OS
 	{
-		win(RepositoryUtil.ourStandardWinId), linux(RepositoryUtil.ourStandardLinuxId), mac(RepositoryUtil.ourStandardMacId);
+		win(RepositoryUtil.ourStandardWinId),
+		linux(RepositoryUtil.ourStandardLinuxId),
+		mac(RepositoryUtil.ourStandardMacId);
 
 		private String myPluginId;
 
@@ -68,10 +72,13 @@ public class ErrorReportRestController
 	private ErrorReportRepository myErrorReportRepository;
 
 	@Autowired
+	private UserAccountRepository myUserAccountRepository;
+
+	@Autowired
 	private PluginChannelsService myUserConfigurationService;
 
 	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
-	public Map<String, String> create(@AuthenticationPrincipal UserAccount account, @RequestBody ErrorReport errorReport) throws IOException
+	public Map<String, String> create(@AuthenticationPrincipal UserAccount account, @RequestParam(value = "assignUserId", required = false) long assignUserId, @RequestBody ErrorReport errorReport) throws IOException
 	{
 		String appBuild = errorReport.getAppBuild();
 		if(appBuild == null)
@@ -144,7 +151,14 @@ public class ErrorReportRestController
 			}
 		}
 
+		UserAccount assignUser = null;
+		if(assignUserId != 0)
+		{
+			assignUser = Objects.requireNonNull(myUserAccountRepository.findOne(assignUserId));
+		}
+
 		errorReport.setUser(account);
+		errorReport.setAssignUser(assignUser);
 
 		// do not allow override it via post body
 		errorReport.setChangedByUser(null);
@@ -158,7 +172,7 @@ public class ErrorReportRestController
 			attachment.setId(null);
 		}
 
-		errorReport.setLongId(RandomStringUtils.randomAlphanumeric(32));
+		errorReport.setLongId(RandomStringUtils.randomAlphanumeric(48));
 
 		errorReport = myErrorReportRepository.save(errorReport);
 
