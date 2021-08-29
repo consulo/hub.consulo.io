@@ -16,7 +16,7 @@ public class StatisticUsageGroup
 {
 	@JsonIgnore
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
 
 	@JsonProperty("id")

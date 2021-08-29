@@ -1,10 +1,12 @@
 package consulo.hub.backend.convert;
 
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.property.PropertyService;
 import consulo.hub.backend.repository.mongo.MongoPluginNodeRepository;
 import consulo.hub.backend.repository.repository.RepositoryDownloadInfoRepository;
 import consulo.hub.backend.statistics.mongo.MongoStatisticRepository;
 import consulo.hub.backend.statistics.repository.StatisticEntryRepository;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
 import consulo.hub.shared.repository.mongo.domain.MongoPluginNode;
@@ -20,7 +22,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -30,6 +34,9 @@ import java.util.List;
 public class ConvertionService
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ConvertionService.class);
+
+	@Autowired
+	private UserAccountRepository myUserAccountRepository;
 
 	@Autowired
 	private PropertyService myPropertyService;
@@ -73,6 +80,8 @@ public class ConvertionService
 
 		List<StatisticEntry> statisticEntries = new ArrayList<>(all.size());
 
+		Map<String, UserAccount> users = new HashMap<>();
+
 		for(MongoStatisticBean bean : all)
 		{
 			StatisticEntry s = new StatisticEntry();
@@ -81,7 +90,9 @@ public class ConvertionService
 			s.setKey(bean.key);
 			s.setCreateTime(bean.getCreateTime());
 			s.setInstallationID(bean.getInstallationID());
-			s.setOwnerEmail(bean.getOwnerEmail());
+
+			UserAccount userAccount = users.computeIfAbsent(bean.getOwnerEmail(), myUserAccountRepository::findByUsername);
+			s.setUser(userAccount);
 
 			for(MongoStatisticBean.UsageGroup mongoGroup : bean.getGroups())
 			{
@@ -102,6 +113,8 @@ public class ConvertionService
 		}
 
 		myStatisticEntryRepository.save(statisticEntries);
+
+		LOG.info("Finished conversion statistics. Count: " + myStatisticEntryRepository.count());
 	}
 
 	private void convertDownloads()

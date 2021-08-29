@@ -151,7 +151,7 @@ public class ErrorReportRestController
 		}
 		else
 		{
-			errorReport.setReporterEmail(ServiceAccounts.ERROR_REPORTER);
+			errorReport.setReporterEmail(ServiceAccounts.HUB_ANONYMOUS);
 		}
 
 		// do not allow override it via post body

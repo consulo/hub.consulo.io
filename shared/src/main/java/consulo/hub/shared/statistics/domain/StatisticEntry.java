@@ -1,6 +1,7 @@
 package consulo.hub.shared.statistics.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import consulo.hub.shared.auth.domain.UserAccount;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,14 +17,15 @@ import java.util.Objects;
 public class StatisticEntry
 {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
 
 	private String key;
 
 	private String installationID;
 
-	private String ownerEmail;
+	@OneToOne
+	private UserAccount user;
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@OrderColumn
@@ -61,14 +63,14 @@ public class StatisticEntry
 		this.installationID = installationID;
 	}
 
-	public String getOwnerEmail()
+	public UserAccount getUser()
 	{
-		return ownerEmail;
+		return user;
 	}
 
-	public void setOwnerEmail(String ownerEmail)
+	public void setUser(UserAccount user)
 	{
-		this.ownerEmail = ownerEmail;
+		this.user = user;
 	}
 
 	public List<StatisticUsageGroup> getGroups()
