@@ -24,6 +24,8 @@ public class UserAccount implements UserDetails
 
 	public static final int ROLE_HUB = 1 << 3;
 
+	public static final int ROLE_DEVELOPER = 1 << 4;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column
@@ -103,6 +105,11 @@ public class UserAccount implements UserDetails
 		if((rights & ROLE_SUPERDEPLOYER) == ROLE_SUPERDEPLOYER)
 		{
 			authorities.add(new SimpleGrantedAuthority(Roles.ROLE_SUPERDEPLOYER));
+		}
+
+		if((rights & ROLE_DEVELOPER) == ROLE_DEVELOPER)
+		{
+			authorities.add(new SimpleGrantedAuthority(Roles.ROLE_DEVELOPER));
 		}
 
 		authorities.add(new SimpleGrantedAuthority(Roles.ROLE_USER));
