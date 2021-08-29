@@ -10,7 +10,7 @@ import java.util.List;
  * @author VISTALL
  * @since 20/08/2021
  */
-public interface StorageFileRepository extends JpaRepository<StorageFile, Integer>
+public interface StorageFileRepository extends JpaRepository<StorageFile, Long>
 {
 	List<StorageFile> findAllByUser(UserAccount user);
 

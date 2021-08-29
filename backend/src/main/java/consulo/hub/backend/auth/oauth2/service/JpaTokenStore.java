@@ -1,6 +1,6 @@
 package consulo.hub.backend.auth.oauth2.service;
 
-import consulo.hub.shared.auth.oauth2.domain.JpaOAuthAccessToken;
+import consulo.hub.backend.auth.oauth2.domain.JpaOAuthAccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.common.util.SerializationUtils;

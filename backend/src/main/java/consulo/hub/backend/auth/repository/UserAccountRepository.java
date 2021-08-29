@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author VISTALL
  * @since 20/08/2021
  */
-public interface UserAccountRepository extends JpaRepository<UserAccount, Integer>
+public interface UserAccountRepository extends JpaRepository<UserAccount, Long>
 {
 	UserAccount findByUsername(final String username);
 }

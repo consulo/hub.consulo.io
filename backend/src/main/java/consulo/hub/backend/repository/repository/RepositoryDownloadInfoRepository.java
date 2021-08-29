@@ -9,7 +9,7 @@ import java.util.List;
  * @author VISTALL
  * @since 28/08/2021
  */
-public interface RepositoryDownloadInfoRepository extends JpaRepository<RepositoryDownloadInfo, Integer>
+public interface RepositoryDownloadInfoRepository extends JpaRepository<RepositoryDownloadInfo, Long>
 {
 	List<RepositoryDownloadInfo> findAllByPluginId(String pluginId);
 }

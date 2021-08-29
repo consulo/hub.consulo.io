@@ -7,25 +7,13 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import consulo.hub.frontend.backend.service.UserAccountService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
-import consulo.hub.shared.ServiceConstants;
+import consulo.hub.shared.auth.SecurityUtil;
+import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.AuthorizationRequest;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author VISTALL
@@ -36,24 +24,14 @@ public class OAuthKeysView extends VerticalLayout implements View
 {
 	public static final String ID = "oauthKeys";
 
-	private final DefaultTokenServices myTokenServices;
-	private final DefaultOAuth2RequestFactory myOAuth2RequestFactory;
-	private final TokenStore myTokenStore;
-	private final TaskScheduler myTaskScheduler;
+	private final UserAccountService myUserAccountService;
 
 	private VerticalLayout myTokenListPanel;
 
 	@Autowired
-	public OAuthKeysView(DefaultTokenServices defaultTokenServices,
-			DefaultOAuth2RequestFactory defaultOAuth2RequestFactory,
-						 TokenStore accessTokenRepository,
-			TaskScheduler taskScheduler)
+	public OAuthKeysView(UserAccountService userAccountService)
 	{
-		myTokenServices = defaultTokenServices;
-		myOAuth2RequestFactory = defaultOAuth2RequestFactory;
-		myTokenStore = accessTokenRepository;
-		myTaskScheduler = taskScheduler;
-
+		myUserAccountService = userAccountService;
 		setMargin(false);
 		setSpacing(false);
 		setSizeFull();
@@ -64,8 +42,8 @@ public class OAuthKeysView extends VerticalLayout implements View
 	{
 		removeAllComponents();
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
+		UserAccount userAccout = SecurityUtil.getUserAccout();
+		if(userAccout == null)
 		{
 			return;
 		}
@@ -92,22 +70,12 @@ public class OAuthKeysView extends VerticalLayout implements View
 					return;
 				}
 
-//				if(myTokenStore.findByUserNameAndName(authentication.getName(), value) != null)
-//				{
-//					Notification.show("Duplicate key", Notification.Type.ERROR_MESSAGE);
-//					return;
-//				}
+				OAuthTokenInfo newToken = myUserAccountService.addOAuthToken(userAccout, value);
 
-				AuthorizationRequest request = new AuthorizationRequest();
-				request.setExtensions(Map.of("name", value));
-				request.setScope(List.of("read"));
-				request.setClientId(ServiceConstants.DEFAULT_CLIENT_ID);
-
-				OAuth2Request oAuth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
-				OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
-				OAuth2AccessToken accessToken = myTokenServices.createAccessToken(oAuth2Authentication);
-
-				addToken(accessToken, false);
+				if(newToken != null)
+				{
+					addToken(newToken, false);
+				}
 
 				window.close();
 			});
@@ -141,14 +109,14 @@ public class OAuthKeysView extends VerticalLayout implements View
 		addComponent(myTokenListPanel);
 		setExpandRatio(myTokenListPanel, 1);
 
-		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceConstants.DEFAULT_CLIENT_ID, authentication.getName());
-		for(OAuth2AccessToken token : tokens)
+		OAuthTokenInfo[] tokens = myUserAccountService.listOAuthTokens(userAccout);
+		for(OAuthTokenInfo token : tokens)
 		{
 			addToken(token, true);
 		}
 	}
 
-	private void addToken(OAuth2AccessToken token, boolean hide)
+	private void addToken(OAuthTokenInfo token, boolean hide)
 	{
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addStyleName("errorViewLineLayout");
@@ -157,32 +125,23 @@ public class OAuthKeysView extends VerticalLayout implements View
 		layout.setWidth(100, Unit.PERCENTAGE);
 
 		layout.addComponent(TinyComponents.newLabel("Name: " + "??"));
-		String tokenId = token.getValue();
+		String tokenId = token.getToken();
 
 		Label label = TinyComponents.newLabel("Token: " + tokenId);
 		layout.addComponent(label);
-		if(!hide)
-		{
-			UI current = UI.getCurrent();
-
-			myTaskScheduler.schedule(() ->
-			{
-				try
-				{
-					current.access(() -> label.setValue("Token: " + tokenId));
-				}
-				catch(Exception e)
-				{
-					// ignored
-				}
-			}, new Date(System.currentTimeMillis() + 30000L));
-		}
 
 		Button revokeButton = new Button("Revoke", e ->
 		{
-			myTokenServices.revokeToken(tokenId);
+			UserAccount userAccout = SecurityUtil.getUserAccout();
+			if(userAccout == null)
+			{
+				return;
+			}
 
-			myTokenListPanel.removeComponent(layout);
+			if(myUserAccountService.removeOAuthToken(userAccout, token.getToken()) != null)
+			{
+				myTokenListPanel.removeComponent(layout);
+			}
 		});
 
 		revokeButton.addStyleName(ValoTheme.BUTTON_DANGER);

@@ -8,16 +8,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
+
 @Component
 public class UserAccountService
 {
 	@Autowired
-	private UserAccountRepository userRepository;
+	private UserAccountRepository myUserRepository;
 
 	@Autowired
 	private PasswordEncoder myPasswordEncoder;
 
-	public boolean registerUser(String username, String password)
+	@Nullable
+	public UserAccount findUser(long userId)
+	{
+		return myUserRepository.findOne(userId);
+	}
+
+	@Nullable
+	public UserAccount registerUser(String username, String password)
 	{
 		UserAccount user = new UserAccount();
 		user.setUsername(username);
@@ -27,11 +36,10 @@ public class UserAccountService
 
 		if(!create(user))
 		{
-			return false;
+			return null;
 		}
 
-		save(user);
-		return true;
+		return save(user);
 	}
 
 	public boolean changePassword(String username, String oldPassword, String newPassword)
@@ -48,7 +56,7 @@ public class UserAccountService
 		}
 
 		account.setPassword(myPasswordEncoder.encode(newPassword));
-		userRepository.save(account);
+		myUserRepository.save(account);
 		return true;
 	}
 
@@ -57,30 +65,30 @@ public class UserAccountService
 		Assert.isNull(user.getId(), "userId must be null");
 
 		// duplicate username
-		if(userRepository.findByUsername(user.getUsername()) != null)
+		if(myUserRepository.findByUsername(user.getUsername()) != null)
 		{
 			return false;
 		}
 
 		user.setStatus(UserAccountStatus.STATUS_APPROVED);
-		userRepository.save(user);
+		myUserRepository.save(user);
 		return true;
 	}
 
-	public void save(UserAccount user)
+	public UserAccount save(UserAccount user)
 	{
 		Assert.notNull(user.getId(), "userId must be not null");
-		userRepository.save(user);
+		return myUserRepository.save(user);
 	}
 
 	public void delete(UserAccount user)
 	{
 		Assert.notNull(user.getId(), "userId must be not null");
-		userRepository.delete(user);
+		myUserRepository.delete(user);
 	}
 
 	public UserAccount getByUsername(String username)
 	{
-		return userRepository.findByUsername(username);
+		return myUserRepository.findByUsername(username);
 	}
 }

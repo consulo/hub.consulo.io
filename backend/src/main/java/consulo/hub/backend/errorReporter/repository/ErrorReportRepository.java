@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author VISTALL
  * @since 28/08/2021
  */
-public interface ErrorReportRepository extends JpaRepository<ErrorReport, Integer>
+public interface ErrorReportRepository extends JpaRepository<ErrorReport, Long>
 {
 }

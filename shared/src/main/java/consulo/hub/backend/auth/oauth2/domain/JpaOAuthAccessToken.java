@@ -1,4 +1,4 @@
-package consulo.hub.shared.auth.oauth2.domain;
+package consulo.hub.backend.auth.oauth2.domain;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

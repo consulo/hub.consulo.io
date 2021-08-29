@@ -1,9 +1,16 @@
 package consulo.hub.frontend.backend.service;
 
+import consulo.hub.frontend.backend.BackendRequestor;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -12,10 +19,77 @@ import java.util.List;
 @Service
 public class UserAccountService
 {
+	private static final Logger LOG = LoggerFactory.getLogger(UserAccountService.class);
+
+	@Autowired
+	private BackendRequestor myBackendRequestor;
+
 	public boolean registerUser(String userName, String password)
 	{
-		// TODO
-		throw new UnsupportedOperationException();
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("email", userName);
+			map.put("password", password);
+
+			UserAccount account = myBackendRequestor.runRequest("/user/register", map, UserAccount.class);
+			return account != null;
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to register: " + userName, e);
+		}
+		return false;
+	}
+
+	public OAuthTokenInfo[] listOAuthTokens(UserAccount account)
+	{
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("userId", String.valueOf(account.getId()));
+
+			return myBackendRequestor.runRequest("/user/oauth/list", map, OAuthTokenInfo[].class);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to list tokens: " + account.getId(), e);
+		}
+		return new OAuthTokenInfo[0];
+	}
+
+	public OAuthTokenInfo addOAuthToken(UserAccount account, String name)
+	{
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("userId", String.valueOf(account.getId()));
+			map.put("name", name);
+
+			return myBackendRequestor.runRequest("/user/oauth/add", map, OAuthTokenInfo.class);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to add token: " + account.getId(), e);
+		}
+		return null;
+	}
+
+	public OAuthTokenInfo removeOAuthToken(UserAccount account, String token)
+	{
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("userId", String.valueOf(account.getId()));
+			map.put("token", token);
+
+			return myBackendRequestor.runRequest("/user/oauth/remove", map, OAuthTokenInfo.class);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to add token: " + account.getId(), e);
+		}
+		return null;
 	}
 
 	public boolean changePassword(String userName, String oldPassword, String newPassword)

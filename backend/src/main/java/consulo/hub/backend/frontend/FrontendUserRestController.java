@@ -1,14 +1,33 @@
 package consulo.hub.backend.frontend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.auth.service.UserAccountService;
+import consulo.hub.shared.ServiceConstants;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.provider.AuthorizationRequest;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
+import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -17,14 +36,127 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FrontendUserRestController
 {
+	private static final Logger LOG = LoggerFactory.getLogger(FrontendUserRestController.class);
+
 	@Autowired
 	private AuthenticationManager myAuthenticationManager;
 
+	@Autowired
+	private UserAccountService myUserAccountService;
+
+	@Autowired
+	private TokenStore myTokenStore;
+
+	@Autowired
+	private PasswordEncoder myPasswordEncoder;
+
+	@Autowired
+	private AuthorizationServerTokenServices myAuthorizationServerTokenServices;
+
+	@Autowired
+	private OAuth2RequestFactory myOAuth2RequestFactory;
+
+	@Autowired
+	private ObjectMapper myObjectMapper;
+
+	@RequestMapping("/api/private/user/register")
+	public UserAccount registerUser(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
+	{
+		UserAccount userAccount = myUserAccountService.registerUser(email, password);
+		return Objects.requireNonNull(userAccount, "null is not allowed");
+	}
+
 	@RequestMapping("/api/private/user/auth")
-	public UserAccount userAuth(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount userAccount)
+	public UserAccount userAuth(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
 	{
 		Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
 		return (UserAccount) authenticate.getPrincipal();
+	}
+
+	@RequestMapping("/api/private/user/oauth/list")
+	public List<OAuthTokenInfo> userOAuthKeys(@RequestParam("userId") long userId, @AuthenticationPrincipal UserAccount hub)
+	{
+		UserAccount user = myUserAccountService.findUser(userId);
+		if(user == null)
+		{
+			throw new IllegalArgumentException("Can't find user by id: " + userId);
+		}
+
+		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceConstants.DEFAULT_CLIENT_ID, user.getUsername());
+
+		List<OAuthTokenInfo> list = new ArrayList<>();
+		for(OAuth2AccessToken token : tokens)
+		{
+			list.add(new OAuthTokenInfo(token.getValue()));
+		}
+
+		return list;
+	}
+
+	@RequestMapping("/api/private/user/oauth/add")
+	public OAuthTokenInfo userOAuthKeyAdd(@RequestParam("userId") long userId, @RequestParam("name") String name, @AuthenticationPrincipal UserAccount hub)
+	{
+		UserAccount user = myUserAccountService.findUser(userId);
+		if(user == null)
+		{
+			throw new IllegalArgumentException("Can't find user by id: " + userId);
+		}
+
+		try
+		{
+			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, name, user.getAuthorities());
+
+			AuthorizationRequest request = new AuthorizationRequest();
+			request.setClientId(ServiceConstants.DEFAULT_CLIENT_ID);
+
+			OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
+
+			OAuth2Authentication authentication = new OAuth2Authentication(auth2Request, token);
+
+			OAuth2AccessToken accessToken = myAuthorizationServerTokenServices.createAccessToken(authentication);
+
+			myTokenStore.storeAccessToken(accessToken, authentication);
+
+			String value = accessToken.getValue();
+
+			return new OAuthTokenInfo(value);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("UserId: " + userId, e);
+			throw e;
+		}
+	}
+
+	@RequestMapping("/api/private/user/oauth/remove")
+	public OAuthTokenInfo userOAuthKeyRemove(@RequestParam("userId") long userId, @RequestParam("token") String token, @AuthenticationPrincipal UserAccount hub)
+	{
+		UserAccount user = myUserAccountService.findUser(userId);
+		if(user == null)
+		{
+			throw new IllegalArgumentException("Can't find user by id: " + userId);
+		}
+
+		try
+		{
+			OAuth2Authentication authentication = Objects.requireNonNull(myTokenStore.readAuthentication(token));
+
+			if(!Objects.equals(user, authentication.getPrincipal()))
+			{
+				throw new IllegalArgumentException("wrong user: " + user.getId() + "/" + authentication.getPrincipal());
+			}
+
+			OAuth2AccessToken accessToken = Objects.requireNonNull(myTokenStore.readAccessToken(token));
+
+			myTokenStore.removeAccessToken(accessToken);
+
+			return new OAuthTokenInfo(token);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("UserId: " + userId, e);
+			throw e;
+		}
 	}
 }

@@ -33,7 +33,7 @@ public class BackendRequestor
 			builder.addParameter(entry.getKey(), entry.getValue());
 		}
 
-		builder.addHeader("Authorization", "Bearer 94074cac-9df0-4440-9428-e03f805282f3");
+		builder.addHeader("Authorization", "Bearer 767ef5ce-a1e5-4e4e-8d3b-785cc53ced34");
 
 		return myClient.execute(builder.build(), response ->
 		{
