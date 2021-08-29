@@ -15,7 +15,7 @@ public class ErrorReporterService
 {
 	public static String CREATE_DATE = "createDate";
 
-	public ErrorReport changeStatus(int errorReportId, ErrorReportStatus status, int byUserId)
+	public ErrorReport changeStatus(long errorReportId, ErrorReportStatus status, int byUserId)
 	{
 		throw new UnsupportedOperationException();
 	}
