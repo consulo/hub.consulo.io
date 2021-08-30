@@ -16,14 +16,14 @@ import java.util.Map;
 @Service
 public class PluginChannelsService
 {
-	private Map<PluginChannel, PluginChannelService> myServices = new HashMap<>();
+	private Map<PluginChannel, BackendPluginChannelService> myServices = new HashMap<>();
 
 	@Autowired
 	private BackendRequestor myBackendRequestor;
 
-	public PluginChannelService getRepositoryByChannel(PluginChannel channel)
+	public BackendPluginChannelService getRepositoryByChannel(PluginChannel channel)
 	{
-		return myServices.computeIfAbsent(channel, (pluginChannel) -> new PluginChannelService(pluginChannel, myBackendRequestor));
+		return myServices.computeIfAbsent(channel, (pluginChannel) -> new BackendPluginChannelService(pluginChannel, myBackendRequestor));
 	}
 
 	public void iteratePlugins(@Nonnull PluginChannel from, @Nonnull PluginChannel to)

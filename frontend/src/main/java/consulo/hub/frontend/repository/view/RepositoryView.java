@@ -9,7 +9,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.backend.service.PluginChannelsService;
-import consulo.hub.frontend.backend.service.PluginStatisticsService;
+import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.repository.ui.RepositoryChannelPanel;
@@ -27,15 +27,15 @@ public class RepositoryView extends VerticalLayout implements View
 	public static final String ID = "repo";
 
 	private final PluginChannelsService myPluginChannelsService;
-	private final PluginStatisticsService myPluginStatisticsService;
+	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
 	private final PluginChannel myChannel;
 	private final PropertiesService myPropertiesService;
 
-	public RepositoryView(PropertiesService propertiesService, PluginChannelsService pluginChannelsService, PluginStatisticsService pluginStatisticsService, PluginChannel channel)
+	public RepositoryView(PropertiesService propertiesService, PluginChannelsService pluginChannelsService, BackendPluginStatisticsService backendPluginStatisticsService, PluginChannel channel)
 	{
 		myPropertiesService = propertiesService;
 		myPluginChannelsService = pluginChannelsService;
-		myPluginStatisticsService = pluginStatisticsService;
+		myBackendPluginStatisticsService = backendPluginStatisticsService;
 		myChannel = channel;
 
 		setMargin(false);
@@ -71,7 +71,7 @@ public class RepositoryView extends VerticalLayout implements View
 		channelBox.setValue(myChannel);
 
 		RepositoryChannelPanel repositoryChannelPanel;
-		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myPluginChannelsService, myPluginStatisticsService));
+		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myPluginChannelsService, myBackendPluginStatisticsService));
 
 		setExpandRatio(repositoryChannelPanel, 1);
 

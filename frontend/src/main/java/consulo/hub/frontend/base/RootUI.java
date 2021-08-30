@@ -23,7 +23,7 @@ import com.vaadin.ui.UI;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.auth.view.*;
 import consulo.hub.frontend.backend.service.PluginChannelsService;
-import consulo.hub.frontend.backend.service.PluginStatisticsService;
+import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.base.ui.event.AfterViewChangeEvent;
 import consulo.hub.frontend.config.view.AdminConfigView;
 import consulo.hub.frontend.dash.view.DashboardView;
@@ -86,7 +86,7 @@ public class RootUI extends UI
 	private PluginChannelsService myPluginChannelsService;
 
 	@Autowired
-	private PluginStatisticsService myPluginStatisticsService;
+	private BackendPluginStatisticsService myBackendPluginStatisticsService;
 
 	@Autowired
 	private ApplicationContext myApplicationContext;
@@ -197,7 +197,7 @@ public class RootUI extends UI
 				if(viewName.startsWith(RepositoryView.ID))
 				{
 					Pair<PluginChannel, String> pair = RepositoryView.parseViewParameters(viewName);
-					return myRepositoryViewCache.computeIfAbsent(pair.getFirst(), it -> new RepositoryView(myPropertiesService, myPluginChannelsService, myPluginStatisticsService, it));
+					return myRepositoryViewCache.computeIfAbsent(pair.getFirst(), it -> new RepositoryView(myPropertiesService, myPluginChannelsService, myBackendPluginStatisticsService, it));
 				}
 				return null;
 			}

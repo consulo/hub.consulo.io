@@ -14,15 +14,15 @@ import java.util.function.Consumer;
  * @author VISTALL
  * @since 21/08/2021
  */
-public class PluginChannelService
+public class BackendPluginChannelService
 {
-	private static final Logger LOG = LoggerFactory.getLogger(PluginChannelService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BackendPluginChannelService.class);
 
 	private final PluginChannel myPluginChannel;
 
 	private final BackendRequestor myBackendRequestor;
 
-	public PluginChannelService(PluginChannel pluginChannel, BackendRequestor backendRequestor)
+	public BackendPluginChannelService(PluginChannel pluginChannel, BackendRequestor backendRequestor)
 	{
 		myPluginChannel = pluginChannel;
 		myBackendRequestor = backendRequestor;

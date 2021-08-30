@@ -14,15 +14,15 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.PluginChannelService;
+import consulo.hub.frontend.backend.service.BackendPluginChannelService;
 import consulo.hub.frontend.backend.service.PluginChannelsService;
-import consulo.hub.frontend.backend.service.PluginStatisticsService;
+import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.repository.view.RepositoryView;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.hub.shared.repository.mongo.domain.MongoDownloadStat;
+import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
@@ -55,7 +55,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 	private static final Comparator<PluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
 
 	private final HorizontalSplitPanel myPanel = new HorizontalSplitPanel();
-	private final PluginStatisticsService myPluginStatisticsService;
+	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
 	private final PluginChannel myPluginChannel;
 	private final Multimap<String, PluginNode> myPluginBuilds;
 	private final ListSelect<String> myListSelect;
@@ -63,10 +63,10 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private Map<PluginNode, String> myNameToIdMap;
 
-	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull PluginChannelsService pluginChannelsService, @Nonnull PluginStatisticsService pluginStatisticsService)
+	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull PluginChannelsService pluginChannelsService, @Nonnull BackendPluginStatisticsService backendPluginStatisticsService)
 	{
 		myPluginChannel = pluginChannel;
-		myPluginStatisticsService = pluginStatisticsService;
+		myBackendPluginStatisticsService = backendPluginStatisticsService;
 
 		setSizeFull();
 
@@ -84,7 +84,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		myPanel.setSplitPosition(80, Unit.PERCENTAGE);
 		rightLayout.addComponent(myPanel);
 
-		PluginChannelService repositoryByChannel = pluginChannelsService.getRepositoryByChannel(pluginChannel);
+		BackendPluginChannelService repositoryByChannel = pluginChannelsService.getRepositoryByChannel(pluginChannel);
 
 		myPluginBuilds = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
 		repositoryByChannel.iteratePluginNodes(pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
@@ -284,10 +284,10 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			verticalLayout.addComponent(customComponent);
 		}
 
-		List<MongoDownloadStat> allDownloadStat = myPluginStatisticsService.getDownloadStat(pluginNode.id);
-		List<MongoDownloadStat> channelDownloadStat = allDownloadStat.stream().filter(it -> it.getChannel().equals(myPluginChannel.name())).collect(Collectors.toList());
+		RepositoryDownloadInfo[] allDownloadStat = myBackendPluginStatisticsService.getDownloadStat(pluginNode.id);
+		List<RepositoryDownloadInfo> channelDownloadStat = Arrays.stream(allDownloadStat).filter(it -> it.getChannel().equals(myPluginChannel.name())).collect(Collectors.toList());
 
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.size() + ")")));
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.length + ")")));
 
 		verticalLayout.addComponent(TinyComponents.newLabel("Download statistics"));
 
@@ -305,7 +305,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			month = month.with(TemporalAdjusters.lastDayOfMonth());
 			long end = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
 
-			for(MongoDownloadStat mongoDownloadStat : channelDownloadStat)
+			for(RepositoryDownloadInfo mongoDownloadStat : channelDownloadStat)
 			{
 				if(mongoDownloadStat.getTime() >= start && mongoDownloadStat.getTime() <= end)
 				{
