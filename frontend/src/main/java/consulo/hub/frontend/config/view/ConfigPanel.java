@@ -1,20 +1,23 @@
 package consulo.hub.frontend.config.view;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.vaadin.data.HasValue;
+import com.vaadin.server.Page;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.shared.github.GithubPropertyKeys;
 import consulo.hub.frontend.PropertiesService;
+import consulo.hub.frontend.backend.BackendRequestor;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.GAPropertyKeys;
 import consulo.hub.frontend.util.PropertyKeys;
 import consulo.hub.frontend.util.PropertySet;
+import consulo.hub.shared.github.GithubPropertyKeys;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -28,7 +31,7 @@ public class ConfigPanel extends VerticalLayout
 	private final List<Consumer<Properties>> myConsumers = new ArrayList<>();
 	private final PropertiesService myConfigurationService;
 
-	public ConfigPanel(PropertiesService configurationService, String buttonName, Runnable action)
+	public ConfigPanel(BackendRequestor backendRequestor, PropertiesService configurationService, String buttonName, Consumer<Properties> action)
 	{
 		myConfigurationService = configurationService;
 		setSpacing(false);
@@ -39,7 +42,7 @@ public class ConfigPanel extends VerticalLayout
 		layout.setSpacing(true);
 		layout.setSizeFull();
 
-		layout.addComponent(buildRepositoryGroup());
+		layout.addComponent(buildBackedGroup(backendRequestor));
 		layout.addComponent(buildCaptchaGroup());
 		layout.addComponent(buildGithubGroup());
 		layout.addComponent(buildGAGroup());
@@ -56,7 +59,7 @@ public class ConfigPanel extends VerticalLayout
 
 			configurationService.setProperties(properties);
 
-			action.run();
+			action.accept(properties);
 		});
 		installButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
@@ -111,19 +114,29 @@ public class ConfigPanel extends VerticalLayout
 		}
 	}
 
-	private Component buildRepositoryGroup()
+	private Component buildBackedGroup(BackendRequestor backendRequestor)
 	{
-		return buildGroup("Repository", layout ->
+		return buildGroup("Backend", layout ->
 		{
-			TextField workingDirectoryField = TinyComponents.newTextField();
-			map(String.class, workingDirectoryField, PropertyKeys.WORKING_DIRECTORY, () -> System.getProperty("user.home") + File.separatorChar + ".consuloWebservice");
+			TextField backendHost = TinyComponents.newTextField();
+			map(String.class, backendHost, PropertyKeys.BACKEND_HOST_URL_KEY, () -> "http://localhost:22333");
 
-			layout.addComponent(VaadinUIUtil.labeledFill("Working directory: ", workingDirectoryField));
+			layout.addComponent(VaadinUIUtil.labeledFill("Backend URL: ", backendHost));
 
-			TextField deployKeyField = TinyComponents.newTextField();
-			map(String.class, deployKeyField, PropertyKeys.DEPLOY_KEY, null);
+			layout.addComponent(TinyComponents.newButton("Test", clickEvent -> {
+				try
+				{
+					backendRequestor.runRequest(backendHost.getValue(), null, "/test", Map.of(), new TypeReference<Map<String, String>>()
+					{
+					});
 
-			layout.addComponent(VaadinUIUtil.labeledFill("Deploy key: ", deployKeyField));
+					new Notification("Test", "Success", Notification.Type.HUMANIZED_MESSAGE).show(Page.getCurrent());
+				}
+				catch(Exception e)
+				{
+					new Notification("Test", "Failed", Notification.Type.ERROR_MESSAGE).show(Page.getCurrent());
+				}
+			}));
 		});
 	}
 

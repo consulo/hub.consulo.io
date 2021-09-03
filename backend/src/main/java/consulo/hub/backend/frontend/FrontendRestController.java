@@ -54,6 +54,12 @@ public class FrontendRestController
 
 	private boolean myInstalled;
 
+	@RequestMapping("/api/private/test")
+	public ResponseEntity<?> test()
+	{
+		return ResponseEntity.ok(Map.of("result", "OK"));
+	}
+
 	@RequestMapping("/api/private/install")
 	public ResponseEntity<?> install()
 	{

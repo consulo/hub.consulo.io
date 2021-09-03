@@ -25,4 +25,9 @@ public class PropertySet
 		String property = myProperties.getProperty(name);
 		return Boolean.valueOf(property);
 	}
+
+	public Properties getProperties()
+	{
+		return myProperties;
+	}
 }

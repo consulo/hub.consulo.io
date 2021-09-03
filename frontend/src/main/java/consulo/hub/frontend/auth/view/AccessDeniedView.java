@@ -1,17 +1,22 @@
 package consulo.hub.frontend.auth.view;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.Page;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.BackendUserAccountService;
-import consulo.hub.frontend.auth.ui.LoginOrRegisterPanel;
 import consulo.hub.frontend.PropertiesService;
-import consulo.hub.frontend.config.view.ConfigPanel;
+import consulo.hub.frontend.auth.ui.LoginOrRegisterPanel;
+import consulo.hub.frontend.backend.BackendRequestor;
+import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.base.RootUI;
 import consulo.hub.frontend.base.ui.captcha.CaptchaFactory;
+import consulo.hub.frontend.config.view.ConfigPanel;
+import consulo.hub.frontend.util.PropertyKeys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component // No SpringView annotation because this view can not be navigated to
 @UIScope
@@ -35,6 +42,9 @@ public class AccessDeniedView extends VerticalLayout implements View
 
 	@Autowired
 	private PropertiesService myPropertiesService;
+
+	@Autowired
+	private BackendRequestor myBackendRequestor;
 
 	public AccessDeniedView()
 	{
@@ -53,7 +63,32 @@ public class AccessDeniedView extends VerticalLayout implements View
 			label.addStyleName("headerMargin");
 			addComponent(label);
 
-			ConfigPanel configPanel = new ConfigPanel(myPropertiesService, "Install", () -> getUI().getPage().reload());
+			ConfigPanel configPanel = new ConfigPanel(myBackendRequestor, myPropertiesService, "Install", (properties) ->
+			{
+				try
+				{
+					Map<String, String> map = myBackendRequestor.runRequest("/install", Map.of(), new TypeReference<Map<String, String>>()
+					{
+					});
+
+					String token = map.get("token");
+
+					properties.put(PropertyKeys.BACKEND_HOST_OAUTH_KEY, token);
+
+					myPropertiesService.setProperties(properties);
+
+					new Notification("Install", "Successful installed").show(Page.getCurrent());
+				}
+				catch(Exception e)
+				{
+					myPropertiesService.resetProperties();
+					
+					new Notification("Install", "Failed installing").show(Page.getCurrent());
+				}
+
+				getUI().getPage().reload();
+			});
+
 			configPanel.addStyleName("bodyMargin");
 			addComponent(configPanel);
 			setExpandRatio(configPanel, .9f);

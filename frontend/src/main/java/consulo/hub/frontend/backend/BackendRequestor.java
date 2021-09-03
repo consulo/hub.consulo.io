@@ -2,6 +2,9 @@ package consulo.hub.frontend.backend;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.frontend.PropertiesService;
+import consulo.hub.frontend.util.PropertyKeys;
+import consulo.hub.frontend.util.PropertySet;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -25,28 +28,24 @@ public class BackendRequestor
 	@Autowired
 	private ObjectMapper myObjectMapper;
 
+	@Autowired
+	private PropertiesService myPropertiesService;
+
 	private CloseableHttpClient myClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build()).build();
 
 	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
 	{
-		RequestBuilder builder = RequestBuilder.get("http://localhost:22333/api/private" + urlSuffix);
-		for(Map.Entry<String, String> entry : parameters.entrySet())
+		String host = "http://localhost:2233";
+		String key = null;
+
+		if(!myPropertiesService.isNotInstalled())
 		{
-			builder.addParameter(entry.getKey(), entry.getValue());
+			PropertySet propertySet = myPropertiesService.getPropertySet();
+			host = propertySet.getStringProperty(PropertyKeys.BACKEND_HOST_URL_KEY);
+			key = propertySet.getStringProperty(PropertyKeys.BACKEND_HOST_OAUTH_KEY);
 		}
 
-		builder.addHeader("Authorization", "Bearer 82d7b472-ee56-4f31-90c0-30fdab407439");
-
-		return myClient.execute(builder.build(), response ->
-		{
-			if(response.getStatusLine().getStatusCode() != 200)
-			{
-				throw new IOException("request failed. Code: " + response.getStatusLine().getStatusCode());
-			}
-
-			String json = EntityUtils.toString(response.getEntity());
-			return myObjectMapper.readValue(json, valueClazz);
-		});
+		return runRequest(host, key, urlSuffix, parameters, valueClazz);
 	}
 
 	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
@@ -58,6 +57,31 @@ public class BackendRequestor
 			{
 				return valueClazz;
 			}
+		});
+	}
+
+	public <T> T runRequest(String host, String key, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
+	{
+		RequestBuilder builder = RequestBuilder.get(host + "/api/private" + urlSuffix);
+		for(Map.Entry<String, String> entry : parameters.entrySet())
+		{
+			builder.addParameter(entry.getKey(), entry.getValue());
+		}
+
+		if(key != null)
+		{
+			builder.addHeader("Authorization", "Bearer " + key);
+		}
+
+		return myClient.execute(builder.build(), response ->
+		{
+			if(response.getStatusLine().getStatusCode() != 200)
+			{
+				throw new IOException("request failed. Code: " + response.getStatusLine().getStatusCode());
+			}
+
+			String json = EntityUtils.toString(response.getEntity());
+			return myObjectMapper.readValue(json, valueClazz);
 		});
 	}
 

@@ -51,6 +51,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
 		// private install can be access without user
 		http.authorizeRequests().antMatchers("/api/private/install").permitAll();
+		// private test can be access without user
+		http.authorizeRequests().antMatchers("/api/private/test").permitAll();
+
 		// others require hub right
 		http.authorizeRequests().antMatchers("/api/private/**").hasAuthority(Roles.ROLE_HUB);
 

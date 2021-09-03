@@ -32,13 +32,13 @@ public class PropertiesService
 	@Autowired
 	public PropertiesService()
 	{
-		this(System.getProperty("user.home"));
+		this(null);
 	}
 
 	@VisibleForTesting
-	public PropertiesService(String userHome)
+	public PropertiesService(String home)
 	{
-		myConfigDirectory = new File(userHome, ".consuloWebservice");
+		myConfigDirectory = home == null ? new File(".hub-frontend") : new File(home, ".hub-frontend");
 
 		myConfigDirectory.mkdirs();
 	}
@@ -51,6 +51,11 @@ public class PropertiesService
 	public boolean isNotInstalled()
 	{
 		return myPropertySet == null;
+	}
+
+	public void resetProperties()
+	{
+		myPropertySet = null;
 	}
 
 	public void setProperties(Properties properties)
