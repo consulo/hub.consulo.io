@@ -26,12 +26,24 @@ public class UserAccountService
 	}
 
 	@Nullable
+	public UserAccount findUser(String email)
+	{
+		return myUserRepository.findByUsername(email);
+	}
+
+	@Nullable
 	public UserAccount registerUser(String username, String password)
+	{
+		return registerUser(username, password, 0);
+	}
+
+	@Nullable
+	public UserAccount registerUser(String username, String password, int right)
 	{
 		UserAccount user = new UserAccount();
 		user.setUsername(username);
 		user.setPassword(myPasswordEncoder.encode(password));
-		user.setRights(0);
+		user.setRights(right);
 		user.setStatus(UserAccountStatus.STATUS_DISABLED);
 
 		if(!create(user))
