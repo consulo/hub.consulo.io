@@ -11,6 +11,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
@@ -71,6 +73,12 @@ public class BackendRequestor
 		if(key != null)
 		{
 			builder.addHeader("Authorization", "Bearer " + key);
+		}
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication instanceof BackendAuthenticationToken)
+		{
+			builder.addHeader("UserAuthorization", ((BackendAuthenticationToken) authentication).getToken());
 		}
 
 		return myClient.execute(builder.build(), response ->

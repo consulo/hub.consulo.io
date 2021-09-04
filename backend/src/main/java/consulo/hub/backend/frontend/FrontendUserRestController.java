@@ -6,6 +6,8 @@ import consulo.hub.backend.auth.service.UserAccountService;
 import consulo.hub.shared.ServiceConstants;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
+import consulo.hub.shared.auth.rest.UserAuthResult;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,11 +79,11 @@ public class FrontendUserRestController
 	}
 
 	@RequestMapping("/api/private/user/auth")
-	public UserAccount userAuth(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
+	public UserAuthResult userAuth(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
 	{
 		Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-		return (UserAccount) authenticate.getPrincipal();
+		return new UserAuthResult((UserAccount) authenticate.getPrincipal(), RandomStringUtils.randomAlphanumeric(32));
 	}
 
 	@RequestMapping("/api/private/user/oauth/list")

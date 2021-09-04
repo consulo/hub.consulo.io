@@ -1,6 +1,7 @@
 package consulo.hub.frontend.backend;
 
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.hub.shared.auth.rest.UserAuthResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,8 +34,11 @@ public class BackendAuthenticationProvider implements AuthenticationProvider
 			map.put("email", authentication.getName());
 			map.put("password", (String) authentication.getCredentials());
 
-			UserAccount account = myBackendRequestor.runRequest("/user/auth", map, UserAccount.class);
-			return new UsernamePasswordAuthenticationToken(account, "N/A", account.getAuthorities());
+			UserAuthResult userAuthResult = myBackendRequestor.runRequest("/user/auth", map, UserAuthResult.class);
+
+			UserAccount account = userAuthResult.getAccount();
+			String token = userAuthResult.getToken();
+			return new BackendAuthenticationToken(account, token, account.getAuthorities());
 		}
 		catch(Exception e)
 		{
