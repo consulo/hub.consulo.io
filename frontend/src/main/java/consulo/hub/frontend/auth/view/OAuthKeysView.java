@@ -1,6 +1,7 @@
 package consulo.hub.frontend.auth.view;
 
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -124,7 +125,7 @@ public class OAuthKeysView extends VerticalLayout implements View
 		layout.addStyleName(ValoTheme.LAYOUT_CARD);
 		layout.setWidth(100, Unit.PERCENTAGE);
 
-		layout.addComponent(TinyComponents.newLabel("Name: " + "??"));
+		layout.addComponent(TinyComponents.newLabel("Info: " + new Gson().toJson(token.getAdditionalInfo())));
 		String tokenId = token.getToken();
 
 		Label label = TinyComponents.newLabel("Token: " + tokenId);

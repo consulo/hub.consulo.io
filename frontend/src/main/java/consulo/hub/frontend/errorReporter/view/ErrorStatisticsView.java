@@ -33,9 +33,9 @@ public class ErrorStatisticsView extends VerticalLayout implements View
 		HorizontalLayout header = VaadinUIUtil.newHorizontalLayout();
 		header.addStyleName("headerMargin");
 		header.setWidth(100, Unit.PERCENTAGE);
-		Label myLabel = new Label("Error Report Statistics");
+		Label headerLabel = new Label("Error Report Statistics");
 
-		header.addComponent(myLabel);
+		header.addComponent(headerLabel);
 
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.addComponent(TinyComponents.newLabel("Not Implemented Yet"));

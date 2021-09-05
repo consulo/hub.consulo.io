@@ -30,6 +30,7 @@ import consulo.hub.frontend.dash.view.DashboardView;
 import consulo.hub.frontend.errorReporter.view.AdminErrorReportsView;
 import consulo.hub.frontend.errorReporter.view.ErrorReportsView;
 import consulo.hub.frontend.errorReporter.view.ErrorStatisticsView;
+import consulo.hub.frontend.linkConsulo.LinkConsuloView;
 import consulo.hub.frontend.repository.view.AdminRepositoryView;
 import consulo.hub.frontend.repository.view.RepositoryView;
 import consulo.hub.frontend.statistics.view.AdminStatisticsView;
@@ -74,7 +75,7 @@ public class RootUI extends UI
 	}
 
 	@Autowired
-	private SpringViewProvider viewProvider;
+	private SpringViewProvider myViewProvider;
 
 	@Autowired
 	private ErrorView errorView;
@@ -172,12 +173,18 @@ public class RootUI extends UI
 			}
 		});
 
-		navigator.addProvider(viewProvider);
+		navigator.addProvider(myViewProvider);
+
 		navigator.addProvider(new ViewProvider()
 		{
 			@Override
 			public String getViewName(String viewAndParameters)
 			{
+				if(viewAndParameters.startsWith(LinkConsuloView.ID))
+				{
+					return LinkConsuloView.ID;
+				}
+
 				if(viewAndParameters.startsWith(RepositoryView.ID))
 				{
 					Pair<PluginChannel, String> pair = RepositoryView.parseViewParameters(viewAndParameters);
@@ -194,6 +201,11 @@ public class RootUI extends UI
 					return myApplicationContext.getBean(AccessDeniedView.class);
 				}
 
+				if(viewName.startsWith(LinkConsuloView.ID))
+				{
+					return myViewProvider.getView(LinkConsuloView.ID);
+				}
+
 				if(viewName.startsWith(RepositoryView.ID))
 				{
 					Pair<PluginChannel, String> pair = RepositoryView.parseViewParameters(viewName);
@@ -203,7 +215,7 @@ public class RootUI extends UI
 			}
 		});
 		navigator.setErrorView(errorView);
-		viewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
+		myViewProvider.setAccessDeniedViewClass(AccessDeniedView.class);
 	}
 
 	private void updateSideMenu(Authentication authentication)

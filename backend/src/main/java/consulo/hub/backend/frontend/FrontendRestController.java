@@ -2,6 +2,7 @@ package consulo.hub.backend.frontend;
 
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.shared.ServiceAccounts;
+import consulo.hub.shared.ServiceClientId;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.domain.UserAccountStatus;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -32,8 +33,6 @@ import java.util.TreeMap;
 @RestController
 public class FrontendRestController
 {
-	public static final String HUB_CLIENT_ID = "hub";
-
 	@Autowired
 	private UserAccountRepository myUserAccountRepository;
 
@@ -72,7 +71,7 @@ public class FrontendRestController
 
 		if(account != null)
 		{
-			Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(HUB_CLIENT_ID, account.getUsername());
+			Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceClientId.HUB_CLIENT_ID, account.getUsername());
 			if(!tokens.isEmpty())
 			{
 				myInstalled = true;
@@ -97,7 +96,7 @@ public class FrontendRestController
 		Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(account.getUsername(), password));
 
 		AuthorizationRequest request = new AuthorizationRequest();
-		request.setClientId(HUB_CLIENT_ID);
+		request.setClientId(ServiceClientId.HUB_CLIENT_ID);
 
 		OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
 

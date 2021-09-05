@@ -1,5 +1,6 @@
 package consulo.hub.frontend.backend.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.hub.frontend.backend.BackendRequestor;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
@@ -40,6 +41,24 @@ public class BackendUserAccountService
 			LOG.warn("Failed to register: " + userName, e);
 		}
 		return false;
+	}
+
+	public Map<String, String> requestOAuthKey(UserAccount account, String token, String hostName)
+	{
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("userId", String.valueOf(account.getId()));
+			map.put("token", token);
+			map.put("hostName", hostName);
+
+			return myBackendRequestor.runRequest("/user/oauth/request", map, new TypeReference<Map<String, String>>() {});
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to list tokens: " + account.getId(), e);
+			return Map.of();
+		}
 	}
 
 	public OAuthTokenInfo[] listOAuthTokens(UserAccount account)

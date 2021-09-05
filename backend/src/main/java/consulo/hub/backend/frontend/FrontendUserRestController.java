@@ -1,9 +1,10 @@
 package consulo.hub.backend.frontend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.auth.oauth2.OAuthKeyRequestService;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.auth.service.UserAccountService;
-import consulo.hub.shared.ServiceConstants;
+import consulo.hub.shared.ServiceClientId;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
 import consulo.hub.shared.auth.rest.UserAuthResult;
@@ -27,10 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -65,6 +63,9 @@ public class FrontendUserRestController
 	@Autowired
 	private UserAccountRepository myUserAccountRepository;
 
+	@Autowired
+	private OAuthKeyRequestService myOAuthKeyRequestService;
+
 	@RequestMapping("/api/private/user/register")
 	public UserAccount registerUser(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
 	{
@@ -86,6 +87,13 @@ public class FrontendUserRestController
 		return new UserAuthResult((UserAccount) authenticate.getPrincipal(), RandomStringUtils.randomAlphanumeric(32));
 	}
 
+	@RequestMapping("/api/private/user/oauth/request")
+	public Map<String, String> requestKey(@RequestParam("userId") long userId, @RequestParam("token") String token, @RequestParam("hostName") String hostName)
+	{
+		myOAuthKeyRequestService.addRequest(userId, token, hostName);
+		return Map.of("token", token);
+	}
+
 	@RequestMapping("/api/private/user/oauth/list")
 	public List<OAuthTokenInfo> userOAuthKeys(@RequestParam("userId") long userId, @AuthenticationPrincipal UserAccount hub)
 	{
@@ -95,12 +103,12 @@ public class FrontendUserRestController
 			throw new IllegalArgumentException("Can't find user by id: " + userId);
 		}
 
-		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceConstants.DEFAULT_CLIENT_ID, user.getUsername());
+		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceClientId.CONSULO_CLIENT_ID, user.getUsername());
 
 		List<OAuthTokenInfo> list = new ArrayList<>();
 		for(OAuth2AccessToken token : tokens)
 		{
-			list.add(new OAuthTokenInfo(token.getValue()));
+			list.add(new OAuthTokenInfo(token.getValue(), Map.copyOf(token.getAdditionalInformation())));
 		}
 
 		return list;
@@ -120,7 +128,7 @@ public class FrontendUserRestController
 			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, name, user.getAuthorities());
 
 			AuthorizationRequest request = new AuthorizationRequest();
-			request.setClientId(ServiceConstants.DEFAULT_CLIENT_ID);
+			request.setClientId(ServiceClientId.CONSULO_CLIENT_ID);
 
 			OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
 
@@ -132,7 +140,7 @@ public class FrontendUserRestController
 
 			String value = accessToken.getValue();
 
-			return new OAuthTokenInfo(value);
+			return new OAuthTokenInfo(value, Map.copyOf(accessToken.getAdditionalInformation()));
 		}
 		catch(Exception e)
 		{
@@ -163,7 +171,7 @@ public class FrontendUserRestController
 
 			myTokenStore.removeAccessToken(accessToken);
 
-			return new OAuthTokenInfo(token);
+			return new OAuthTokenInfo(token, Map.copyOf(accessToken.getAdditionalInformation()));
 		}
 		catch(Exception e)
 		{

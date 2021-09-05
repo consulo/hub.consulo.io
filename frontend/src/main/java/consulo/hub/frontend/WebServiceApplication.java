@@ -2,16 +2,21 @@ package consulo.hub.frontend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.vaadin.spring.annotation.UIScope;
+import com.vaadin.spring.navigator.SpringViewProvider;
 import consulo.hub.frontend.auth.VaadinSessionSecurityContextHolderStrategy;
 import consulo.hub.frontend.backend.BackendAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -41,6 +46,9 @@ public class WebServiceApplication extends SpringBootServletInitializer
 	{
 		@Autowired
 		private ObjectMapper objectMapper;
+
+		private ApplicationContext applicationContext;
+		private BeanDefinitionRegistry beanDefinitionRegistry;
 
 		@Bean
 		public StandardServletMultipartResolver multipartResolver()
