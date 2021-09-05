@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.Map;
  * @author VISTALL
  * @since 28/08/2021
  */
-@Service
+//@Service
 public class ConvertionService
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ConvertionService.class);
