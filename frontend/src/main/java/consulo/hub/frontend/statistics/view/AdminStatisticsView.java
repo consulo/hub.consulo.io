@@ -6,10 +6,12 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import consulo.hub.frontend.backend.service.StatisticsService;
+import consulo.hub.frontend.backend.service.BackendStatisticsService;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
-import consulo.hub.shared.statistics.domain.MongoStatisticBean;
+import consulo.hub.shared.statistics.domain.StatisticEntry;
+import consulo.hub.shared.statistics.domain.StatisticUsageGroup;
+import consulo.hub.shared.statistics.domain.StatisticUsageGroupValue;
 import org.dussan.vaadin.dcharts.DCharts;
 import org.dussan.vaadin.dcharts.base.elements.XYaxis;
 import org.dussan.vaadin.dcharts.base.elements.XYseries;
@@ -23,7 +25,6 @@ import org.dussan.vaadin.dcharts.metadata.renderers.SeriesRenderers;
 import org.dussan.vaadin.dcharts.options.*;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,7 +39,7 @@ public class AdminStatisticsView extends VerticalLayout implements View
 	public static final String ID = "adminStatistics";
 
 	@Autowired
-	private StatisticsService myStatisticRepository;
+	private BackendStatisticsService myStatisticRepository;
 
 	public AdminStatisticsView()
 	{
@@ -60,14 +61,14 @@ public class AdminStatisticsView extends VerticalLayout implements View
 
 		addComponent(header);
 
-		List<MongoStatisticBean> all = myStatisticRepository.findAll(new Sort(Sort.Direction.ASC, "createTime"));
+		List<StatisticEntry> all = myStatisticRepository.listAll();
 
-		Map<String, MongoStatisticBean> group = new HashMap<>();
+		Map<String, StatisticEntry> group = new HashMap<>();
 
 		// TODO [VISTALL] we need it do via mongo?
-		for(MongoStatisticBean bean : all)
+		for(StatisticEntry bean : all)
 		{
-			MongoStatisticBean old = group.get(bean.getInstallationID());
+			StatisticEntry old = group.get(bean.getInstallationID());
 
 			if(old == null || old.getCreateTime() > bean.getCreateTime())
 			{
@@ -79,13 +80,13 @@ public class AdminStatisticsView extends VerticalLayout implements View
 
 		Map<String, StatisticsGroup> merged = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-		for(MongoStatisticBean bean : group.values())
+		for(StatisticEntry bean : group.values())
 		{
-			for(MongoStatisticBean.UsageGroup usageGroup : bean.getGroups())
+			for(StatisticUsageGroup usageGroup : bean.getGroups())
 			{
 				StatisticsGroup statGroup = merged.computeIfAbsent(usageGroup.getUsageGroupId(), StatisticsGroup::new);
 
-				for(MongoStatisticBean.UsageGroupValue values : usageGroup.getValues())
+				for(StatisticUsageGroupValue values : usageGroup.getValues())
 				{
 					statGroup.incData(values.getUsageGroupValueId(), values.getCount());
 				}
