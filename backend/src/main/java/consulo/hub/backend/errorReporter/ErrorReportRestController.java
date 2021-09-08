@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author VISTALL
@@ -160,6 +162,10 @@ public class ErrorReportRestController
 		errorReport.setUser(account);
 		errorReport.setAssignUser(assignUser);
 
+		// limit message+description - see jpa annotations
+		limitString(errorReport::getMessage, errorReport::setMessage, 1024);
+		limitString(errorReport::getDescription, errorReport::setDescription, 2048);
+
 		// do not allow override it via post body
 		errorReport.setChangedByUser(null);
 		errorReport.setId(null);
@@ -177,6 +183,22 @@ public class ErrorReportRestController
 		errorReport = myErrorReportRepository.save(errorReport);
 
 		return resultWithMessage(CreateResult.OK, errorReport.getLongId(), null);
+	}
+
+	private void limitString(Supplier<String> getter, Consumer<String> setter, int limit)
+	{
+		limit --; // just be sure
+
+		String value = getter.get();
+		if(value == null)
+		{
+			return;
+		}
+
+		if(value.length() > limit)
+		{
+			setter.accept(value.substring(0, limit));
+		}
 	}
 
 	private static Map<String, String> resultWithMessage(CreateResult result, String id, String message)

@@ -42,7 +42,9 @@ public class ErrorReport
 
 	private String lastAction;
 	private String previousException;
+	@Column(length = 1024)
 	private String message;
+	@Column(length = 2040)
 	private String description;
 
 	@OneToMany(cascade = CascadeType.ALL)
