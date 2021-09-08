@@ -2,6 +2,7 @@ package consulo.hub.backend.auth;
 
 import consulo.hub.backend.auth.service.UserAccountService;
 import consulo.hub.shared.ServiceAccounts;
+import consulo.hub.shared.ServiceClientId;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class SpecialAccountRegistrator
 			Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), password));
 
 			AuthorizationRequest request = new AuthorizationRequest();
-			request.setClientId("jenkins");
+			request.setClientId(ServiceClientId.JENKINS_CLIENT_ID);
 
 			OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
 

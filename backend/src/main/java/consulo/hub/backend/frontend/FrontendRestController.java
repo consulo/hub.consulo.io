@@ -59,6 +59,28 @@ public class FrontendRestController
 		return ResponseEntity.ok(Map.of("result", "OK"));
 	}
 
+	@RequestMapping("/api/private/config/jenkins")
+	public Map<String, String> jenkins()
+	{
+		UserAccount account = myUserAccountRepository.findByUsername(ServiceAccounts.JENKINS_DEPLOY);
+
+		if(account == null)
+		{
+			return Map.of();
+		}
+
+		Collection<OAuth2AccessToken> tokens = myTokenStore.findTokensByClientIdAndUserName(ServiceClientId.JENKINS_CLIENT_ID, account.getUsername());
+
+		if(tokens.isEmpty())
+		{
+			return Map.of();
+		}
+
+		OAuth2AccessToken token = tokens.iterator().next();
+
+		return Map.of(account.getUsername(), token.getValue());
+	}
+
 	@RequestMapping("/api/private/install")
 	public ResponseEntity<?> install()
 	{
@@ -111,5 +133,4 @@ public class FrontendRestController
 
 		return ResponseEntity.ok(map);
 	}
-
 }

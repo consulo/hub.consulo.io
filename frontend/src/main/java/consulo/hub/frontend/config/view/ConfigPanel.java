@@ -63,11 +63,17 @@ public class ConfigPanel extends VerticalLayout
 		});
 		installButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
+		addOthers(layout);
+
 		layout.addComponent(installButton);
 		layout.setComponentAlignment(installButton, Alignment.MIDDLE_RIGHT);
 
 		addComponent(layout);
 		setComponentAlignment(layout, Alignment.MIDDLE_CENTER);
+	}
+
+	protected void addOthers(VerticalLayout layout)
+	{
 	}
 
 	@SuppressWarnings("unchecked")
@@ -195,7 +201,7 @@ public class ConfigPanel extends VerticalLayout
 		});
 	}
 
-	private static Panel buildGroup(String title, Consumer<VerticalLayout> consumer)
+	public static Panel buildGroup(String title, Consumer<VerticalLayout> consumer)
 	{
 		Panel panel = new Panel(title);
 		panel.setSizeFull();
