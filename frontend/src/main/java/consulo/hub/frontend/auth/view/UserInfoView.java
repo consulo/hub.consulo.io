@@ -7,13 +7,13 @@ import com.vaadin.server.Page;
 import com.vaadin.shared.Position;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
-import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.auth.ui.LoginOrRegisterPanel;
+import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.shared.auth.SecurityUtil;
+import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author VISTALL
@@ -39,8 +39,8 @@ public class UserInfoView extends VerticalLayout implements View
 	{
 		removeAllComponents();
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
+		UserAccount accout = SecurityUtil.getUserAccout();
+		if(accout == null)
 		{
 			return;
 		}
@@ -66,7 +66,7 @@ public class UserInfoView extends VerticalLayout implements View
 		newPasswordField2.setId("new-password2");
 		changePasswordLayout.addComponent(VaadinUIUtil.labeledFill("New Password", newPasswordField2));
 		changePasswordLayout.addComponent(TinyComponents.newButton("Change Password", clickEvent ->
-				changePassword(authentication, oldPasswordField.getValue(), newPasswordField.getValue(), newPasswordField2.getValue())));
+				changePassword(accout, oldPasswordField.getValue(), newPasswordField.getValue(), newPasswordField2.getValue())));
 
 		verticalLayout.addComponent(panel);
 
@@ -74,7 +74,7 @@ public class UserInfoView extends VerticalLayout implements View
 		setExpandRatio(verticalLayout, 1f);
 	}
 
-	private void changePassword(Authentication authentication, String oldPassword, String newPassword, String newPassword2)
+	private void changePassword(UserAccount account, String oldPassword, String newPassword, String newPassword2)
 	{
 		ValueContext valueContext = new ValueContext();
 		if(LoginOrRegisterPanel.ourPasswordValidator.apply(oldPassword, valueContext).isError() || LoginOrRegisterPanel.ourPasswordValidator.apply(newPassword, valueContext).isError() ||
@@ -96,7 +96,7 @@ public class UserInfoView extends VerticalLayout implements View
 			return;
 		}
 
-		if(!myBackendUserAccountService.changePassword(authentication.getName(), oldPassword, newPassword))
+		if(!myBackendUserAccountService.changePassword(account.getId(), oldPassword, newPassword))
 		{
 			error("Failed to change password");
 			return;

@@ -1,5 +1,6 @@
 package consulo.hub.backend.frontend;
 
+import consulo.hub.backend.repository.PluginChannelIterationService;
 import consulo.hub.backend.repository.PluginChannelService;
 import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginStatisticsService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -26,6 +28,9 @@ public class FrontendRepositoryRestController
 
 	@Autowired
 	private PluginStatisticsService myPluginStatisticsService;
+
+	@Autowired
+	private PluginChannelIterationService myPluginChannelIterationService;
 
 	@RequestMapping("/api/private/repository/list")
 	public List<PluginNode> listPlugins(@RequestParam("channel") PluginChannel pluginChannel)
@@ -41,5 +46,12 @@ public class FrontendRepositoryRestController
 	public List<RepositoryDownloadInfo> downloadStat(@RequestParam("pluginId") String pluginId)
 	{
 		return myPluginStatisticsService.getDownloadStat(pluginId);
+	}
+
+	@RequestMapping("/api/private/repository/iterate")
+	public Map<String, String> iteratePlugins(@RequestParam("from") PluginChannel from, @RequestParam("to") PluginChannel to)
+	{
+		myPluginChannelIterationService.iterate(from, to);
+		return Map.of();
 	}
 }

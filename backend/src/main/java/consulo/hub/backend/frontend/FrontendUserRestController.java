@@ -94,6 +94,12 @@ public class FrontendUserRestController
 		return Map.of("token", token);
 	}
 
+	@RequestMapping("/api/private/user/changePassword")
+	public UserAccount userChangePassword(@RequestParam("userId") long userId, @RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword)
+	{
+		return myUserAccountService.changePassword(userId, oldPassword, newPassword);
+	}
+
 	@RequestMapping("/api/private/user/oauth/list")
 	public List<OAuthTokenInfo> userOAuthKeys(@RequestParam("userId") long userId, @AuthenticationPrincipal UserAccount hub)
 	{

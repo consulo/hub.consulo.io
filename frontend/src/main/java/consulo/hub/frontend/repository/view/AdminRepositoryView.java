@@ -7,12 +7,11 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import consulo.hub.frontend.backend.service.PluginChannelsService;
-import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.frontend.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import consulo.hub.shared.repository.PluginChannel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 
 import javax.annotation.Nonnull;
 
@@ -25,14 +24,12 @@ public class AdminRepositoryView extends VerticalLayout implements View
 {
 	public static final String ID = "adminRepository";
 
-	private TaskExecutor myTaskExecutor;
-	private PluginChannelsService myPluginChannelsService;
+	private BackendRepositoryService myBackendRepositoryService;
 
 	@Autowired
-	public AdminRepositoryView(TaskExecutor taskExecutor, PluginChannelsService pluginChannelsService)
+	public AdminRepositoryView(BackendRepositoryService backendRepositoryService)
 	{
-		myTaskExecutor = taskExecutor;
-		myPluginChannelsService = pluginChannelsService;
+		myBackendRepositoryService = backendRepositoryService;
 
 		setMargin(false);
 		setSpacing(false);
@@ -62,7 +59,7 @@ public class AdminRepositoryView extends VerticalLayout implements View
 
 	private void forceIterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
 	{
-		myTaskExecutor.execute(() -> myPluginChannelsService.iteratePlugins(from, to));
+		myBackendRepositoryService.iteratePlugins(from, to);
 	}
 
 	@Override

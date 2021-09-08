@@ -14,8 +14,7 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.BackendPluginChannelService;
-import consulo.hub.frontend.backend.service.PluginChannelsService;
+import consulo.hub.frontend.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
@@ -63,7 +62,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private Map<PluginNode, String> myNameToIdMap;
 
-	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull PluginChannelsService pluginChannelsService, @Nonnull BackendPluginStatisticsService backendPluginStatisticsService)
+	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull BackendRepositoryService backendRepositoryService, @Nonnull BackendPluginStatisticsService backendPluginStatisticsService)
 	{
 		myPluginChannel = pluginChannel;
 		myBackendPluginStatisticsService = backendPluginStatisticsService;
@@ -84,10 +83,8 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		myPanel.setSplitPosition(80, Unit.PERCENTAGE);
 		rightLayout.addComponent(myPanel);
 
-		BackendPluginChannelService repositoryByChannel = pluginChannelsService.getRepositoryByChannel(pluginChannel);
-
 		myPluginBuilds = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
-		repositoryByChannel.iteratePluginNodes(pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
+		backendRepositoryService.listAll(pluginChannel, pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
 
 		// name -> id
 		myNameToIdMap = new TreeMap<>((o1, o2) ->

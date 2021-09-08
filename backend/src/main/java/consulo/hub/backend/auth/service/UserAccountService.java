@@ -54,22 +54,21 @@ public class UserAccountService
 		return save(user);
 	}
 
-	public boolean changePassword(String username, String oldPassword, String newPassword)
+	public UserAccount changePassword(long userId, String oldPassword, String newPassword)
 	{
-		UserAccount account = getByUsername(username);
+		UserAccount account = findUser(userId);
 		if(account == null)
 		{
-			return false;
+			return null;
 		}
 
 		if(!myPasswordEncoder.matches(oldPassword, account.getPassword()))
 		{
-			return false;
+			return null;
 		}
 
 		account.setPassword(myPasswordEncoder.encode(newPassword));
-		myUserRepository.save(account);
-		return true;
+		return myUserRepository.save(account);
 	}
 
 	public boolean create(UserAccount user)

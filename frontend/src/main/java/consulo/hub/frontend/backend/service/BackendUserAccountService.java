@@ -111,10 +111,23 @@ public class BackendUserAccountService
 		return null;
 	}
 
-	public boolean changePassword(String userName, String oldPassword, String newPassword)
+	public boolean changePassword(long userId, String oldPassword, String newPassword)
 	{
-		// TODO
-		throw new UnsupportedOperationException();
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("userId", String.valueOf(userId));
+			map.put("oldPassword", oldPassword);
+			map.put("newPassword", newPassword);
+
+			UserAccount account = myBackendRequestor.runRequest("/user/changePassword", map, UserAccount.class);
+			return account != null;
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to changePassword: " + userId, e);
+			return false;
+		}
 	}
 
 	public List<UserAccount> listAll()

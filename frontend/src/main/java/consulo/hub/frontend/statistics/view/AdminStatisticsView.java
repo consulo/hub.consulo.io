@@ -65,7 +65,6 @@ public class AdminStatisticsView extends VerticalLayout implements View
 
 		Map<String, StatisticEntry> group = new HashMap<>();
 
-		// TODO [VISTALL] we need it do via mongo?
 		for(StatisticEntry bean : all)
 		{
 			StatisticEntry old = group.get(bean.getInstallationID());
