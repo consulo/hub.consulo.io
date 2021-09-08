@@ -202,7 +202,7 @@ public class PluginChannelIterationService
 				logger.info("iterate id=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", from=" + from + ", to=" + to);
 
 				// platform nodes have special logic
-				if(PluginChannelService.isPlatformNode(node.id))
+				if(RepositoryUtil.isPlatformNode(node.id))
 				{
 					// special windows archive will processed as while deploying tar.gz files
 					if(node.id.endsWith("-zip"))

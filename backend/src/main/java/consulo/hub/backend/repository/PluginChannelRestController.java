@@ -1,5 +1,6 @@
 package consulo.hub.backend.repository;
 
+import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
@@ -9,11 +10,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 
 /**
@@ -23,6 +24,11 @@ import java.io.File;
 @RestController
 public class PluginChannelRestController
 {
+	@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+	private static class NotAuthorizedException extends RuntimeException
+	{
+	}
+
 	private final PluginChannelsService myUserConfigurationService;
 	private final PluginDeployService myPluginDeployService;
 	private final PluginStatisticsService myPluginStatisticsService;
@@ -97,13 +103,10 @@ public class PluginChannelRestController
 									 @RequestParam("platformVersion") int platformVersion,
 									 @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
-//		String keyFromClient = authorization;
-//		String keyFromFs = getDeployKey();
-//		//TODO [VISTALL] removed this hack later - use oauth
-//		if(!Objects.equals(keyFromClient, keyFromFs))
-//		{
-//			throw new IOException("bad auth");
-//		}
+		if(!hasRole(userAccount, Roles.ROLE_SUPERDEPLOYER))
+		{
+			throw new NotAuthorizedException();
+		}
 
 		return myPluginDeployService.deployPlatform(channel, platformVersion, file);
 	}
@@ -113,15 +116,17 @@ public class PluginChannelRestController
 								   @RequestBody(required = true) MultipartFile file,
 								   @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
-//		String keyFromClient = authorization;
-//		String keyFromFs = getDeployKey();
-//		//TODO [VISTALL] removed this hack later - use oauth
-//		if(!Objects.equals(keyFromClient, keyFromFs))
-//		{
-//			throw new IOException("bad auth");
-//		}
+		if(!hasRole(userAccount, Roles.ROLE_SUPERDEPLOYER))
+		{
+			throw new NotAuthorizedException();
+		}
 
 		return myPluginDeployService.deployPlugin(channel, file::getInputStream);
+	}
+
+	private static boolean hasRole(UserAccount userAccount, String role)
+	{
+		return userAccount.getAuthorities().contains(new SimpleGrantedAuthority(role));
 	}
 
 	@RequestMapping("/api/repository/list")
@@ -162,12 +167,5 @@ public class PluginChannelRestController
 		}
 
 		return ResponseEntity.ok(select.clone());
-	}
-
-	@Nullable
-	private String getDeployKey()
-	{
-		// todo
-		return null;
 	}
 }

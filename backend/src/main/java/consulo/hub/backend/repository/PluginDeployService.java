@@ -99,7 +99,6 @@ public class PluginDeployService
 	}
 
 	@Nonnull
-	@Secured(Roles.ROLE_SUPERDEPLOYER)
 	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull File tempFile) throws Exception
 	{
 		File deployPlatform = myUserConfigurationService.createTempFile("deploy_platform_extract", null);
@@ -160,7 +159,6 @@ public class PluginDeployService
 		}
 	}
 
-	@Secured(Roles.ROLE_SUPERDEPLOYER)
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");
