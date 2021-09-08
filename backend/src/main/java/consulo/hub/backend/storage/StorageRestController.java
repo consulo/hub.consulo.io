@@ -8,6 +8,7 @@ import consulo.hub.backend.storage.bean.InfoAllBeanResponse;
 import consulo.hub.backend.storage.bean.PushFileBeanRequest;
 import consulo.hub.backend.storage.bean.PushFileBeanResponse;
 import consulo.hub.backend.storage.repository.StorageFileRepository;
+import consulo.hub.backend.storage.service.StorageService;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.storage.domain.StorageFile;
 import consulo.hub.shared.storage.domain.StorageFileUpdateBy;
@@ -43,6 +44,9 @@ public class StorageRestController
 
 	@Autowired
 	private UserAccountRepository myUserAccountRepository;
+
+	@Autowired
+	private StorageService myStorageService;
 
 	@RequestMapping(value = "/api/storage/infoAll", method = RequestMethod.GET)
 	public InfoAllBeanResponse infoAll(@AuthenticationPrincipal UserAccount account) throws IOException

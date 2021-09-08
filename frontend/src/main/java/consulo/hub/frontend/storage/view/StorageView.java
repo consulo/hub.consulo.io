@@ -10,7 +10,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.StorageService;
+import consulo.hub.frontend.backend.service.BackendStorageService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.util.AuthUtil;
@@ -35,7 +35,7 @@ public class StorageView extends VerticalLayout implements View
 	public static final String ID = "storage";
 
 	@Autowired
-	private StorageService myStorageService;
+	private BackendStorageService myBackendStorageService;
 
 	public StorageView()
 	{
@@ -58,12 +58,12 @@ public class StorageView extends VerticalLayout implements View
 		ListSelect<String> listSelect = TinyComponents.newListSelect();
 		VerticalLayout updateInfoPanel = new VerticalLayout();
 
-		List<StorageFile> files = myStorageService.findAllByUser(AuthUtil.getUserId());
+		List<StorageFile> files = myBackendStorageService.listAll(AuthUtil.getUserId());
 
 		Label label = new Label("Storage: ");
 
 		Button wipeDataButton = TinyComponents.newButton("Wipe All", e -> {
-			myStorageService.wipeData(AuthUtil.getUserId());
+			myBackendStorageService.deleteAll(AuthUtil.getUserId());
 
 			listSelect.setDataProvider(new ListDataProvider<>(new ArrayList<>()));
 			listSelect.setItemCaptionGenerator(s -> "");
@@ -104,7 +104,7 @@ public class StorageView extends VerticalLayout implements View
 
 		listSelect.addValueChangeListener(event1 ->
 		{
-			StorageFile file = myStorageService.findOne(AuthUtil.getUserId(), Integer.parseInt(event1.getValue().iterator().next()));
+			StorageFile file = myBackendStorageService.find(AuthUtil.getUserId(), Integer.parseInt(event1.getValue().iterator().next()));
 
 			String text = "not found";
 
