@@ -34,6 +34,7 @@ import consulo.hub.frontend.linkConsulo.LinkConsuloView;
 import consulo.hub.frontend.repository.view.AdminRepositoryView;
 import consulo.hub.frontend.repository.view.RepositoryView;
 import consulo.hub.frontend.statistics.view.AdminStatisticsView;
+import consulo.hub.frontend.statistics.view.StatisticsView;
 import consulo.hub.frontend.storage.view.StorageView;
 import consulo.hub.frontend.util.GAPropertyKeys;
 import consulo.hub.frontend.util.PropertySet;
@@ -124,6 +125,7 @@ public class RootUI extends UI
 		Pair<Component, Consumer<Integer>> dashboardItem = myNavigationMenu.addNavigationWithBadge("Dashboard", FontAwesome.HOME, DashboardView.class);
 
 		myNavigationMenu.addNavigation("Error Reports", FontAwesome.BOLT, ErrorReportsView.class);
+		myNavigationMenu.addNavigation("Statistics", FontAwesome.SIGNAL, StatisticsView.class);
 		myNavigationMenu.addNavigation("Storage", FontAwesome.FOLDER_OPEN, StorageView.class);
 		myNavigationMenu.addNavigation("OAuth Keys", FontAwesome.KEY, OAuthKeysView.class);
 		myNavigationMenu.addSeparator();

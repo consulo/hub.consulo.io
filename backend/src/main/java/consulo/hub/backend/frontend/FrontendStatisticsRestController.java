@@ -1,13 +1,17 @@
 package consulo.hub.backend.frontend;
 
+import consulo.hub.backend.auth.service.UserAccountService;
 import consulo.hub.backend.statistics.repository.StatisticEntryRepository;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -19,9 +23,18 @@ public class FrontendStatisticsRestController
 	@Autowired
 	private StatisticEntryRepository myStatisticEntryRepository;
 
+	@Autowired
+	private UserAccountService myUserAccountService;
+
 	@RequestMapping("/api/private/statistics/list")
-	public List<StatisticEntry> listStatistics()
+	public List<StatisticEntry> listStatistics(@RequestParam(value = "userId", required = false) Long userId)
 	{
-		return myStatisticEntryRepository.findAll(new Sort(Sort.Direction.ASC, "createTime"));
+		if(userId == null)
+		{
+			return myStatisticEntryRepository.findAll(new Sort(Sort.Direction.ASC, "createTime"));
+		}
+
+		UserAccount user = Objects.requireNonNull(myUserAccountService.findUser(userId));
+		return myStatisticEntryRepository.findByUser(user, new Sort(Sort.Direction.ASC, "createTime"));
 	}
 }
