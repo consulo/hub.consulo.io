@@ -14,14 +14,13 @@ import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
-import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,7 +86,10 @@ public class PluginDeployService
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
-		multipartFile.transferTo(tempFile);
+		try(OutputStream outputStream = new FileOutputStream(tempFile))
+		{
+			IOUtils.copy(multipartFile.getInputStream(), outputStream);
+		}
 
 		String pluginId = multipartFile.getOriginalFilename().replace(".tar.gz", "");
 
