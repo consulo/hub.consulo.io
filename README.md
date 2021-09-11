@@ -5,7 +5,6 @@ Channels
  * beta
  * alpha
  * nightly
- * internal
 
 Models
  * PluginNode
