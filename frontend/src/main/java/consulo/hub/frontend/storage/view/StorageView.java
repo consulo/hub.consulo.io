@@ -55,7 +55,7 @@ public class StorageView extends VerticalLayout implements View
 			return;
 		}
 
-		ListSelect<String> listSelect = TinyComponents.newListSelect();
+		ListSelect<Map.Entry<String, Long>> listSelect = TinyComponents.newListSelect();
 		VerticalLayout updateInfoPanel = new VerticalLayout();
 
 		List<StorageFile> files = myBackendStorageService.listAll(AuthUtil.getUserId());
@@ -104,7 +104,7 @@ public class StorageView extends VerticalLayout implements View
 
 		listSelect.addValueChangeListener(event1 ->
 		{
-			StorageFile file = myBackendStorageService.find(AuthUtil.getUserId(), Integer.parseInt(event1.getValue().iterator().next()));
+			StorageFile file = myBackendStorageService.find(AuthUtil.getUserId(), event1.getValue().iterator().next().getValue());
 
 			String text = "not found";
 
@@ -131,13 +131,13 @@ public class StorageView extends VerticalLayout implements View
 			textArea.setReadOnly(true);
 		});
 
-		Map<String, String> captions = new HashMap<>();
+		Map<String, Long> captions = new TreeMap<>();
 		for(StorageFile file : files)
 		{
-			captions.put(String.valueOf(file.getId()), file.getFilePath());
+			captions.put(file.getFilePath(), file.getId());
 		}
-		listSelect.setDataProvider(new ListDataProvider<>(captions.keySet()));
-		listSelect.setItemCaptionGenerator(captions::get);
+		listSelect.setDataProvider(new ListDataProvider<>(captions.entrySet()));
+		listSelect.setItemCaptionGenerator(Map.Entry::getKey);
 
 		panel.setFirstComponent(listSelect);
 
