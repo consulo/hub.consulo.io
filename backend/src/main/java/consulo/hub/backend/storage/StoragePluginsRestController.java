@@ -71,6 +71,7 @@ public class StoragePluginsRestController
 		{
 			if(pluginInfo.id == null || pluginInfo.state == null || pluginInfo.state == StoragePluginState.UNINSTALLED)
 			{
+				// we not allow set UNINSTALLED in this call
 				throw new IllegalArgumentException(pluginInfo.toString());
 			}
 
@@ -81,8 +82,39 @@ public class StoragePluginsRestController
 				storagePlugin.setUser(account);
 				storagePlugin.setPluginId(pluginInfo.id);
 			}
+			else if(storagePlugin.getPluginState() == StoragePluginState.UNINSTALLED)
+			{
+				// we not allow override UNINSTALLED plugin state - use add for it
+				continue;
+			}
 
 			storagePlugin.setPluginState(pluginInfo.state);
+
+			myStoragePluginRepository.save(storagePlugin);
+		}
+
+		return listAll(account);
+	}
+
+	@RequestMapping(value = "/api/storage/plugins/add", method = RequestMethod.POST)
+	public List<PluginInfo> pluginsAdd(@AuthenticationPrincipal UserAccount account, @RequestBody PluginInfo[] pluginInfos)
+	{
+		if(pluginInfos.length == 0)
+		{
+			throw new IllegalArgumentException("empty");
+		}
+
+		for(PluginInfo pluginInfo : pluginInfos)
+		{
+			StoragePlugin storagePlugin = myStoragePluginRepository.findByUserAndPluginId(account, pluginInfo.id);
+			if(storagePlugin == null)
+			{
+				storagePlugin = new StoragePlugin();
+				storagePlugin.setUser(account);
+				storagePlugin.setPluginId(pluginInfo.id);
+			}
+
+			storagePlugin.setPluginState(StoragePluginState.ENABLED);
 
 			myStoragePluginRepository.save(storagePlugin);
 		}
