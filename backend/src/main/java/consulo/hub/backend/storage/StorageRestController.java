@@ -102,18 +102,13 @@ public class StorageRestController
 	}
 
 	@RequestMapping(value = "/api/storage/getFile", method = RequestMethod.GET)
-	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @RequestParam("modCount") int modCount, @AuthenticationPrincipal UserAccount account)
+	public ResponseEntity<?> getFile(@RequestParam("filePath") String filePath, @AuthenticationPrincipal UserAccount account)
 	{
 		StorageFile storageFile = myStorageFileRepository.findByUserAndFilePath(account, filePath);
 
 		if(storageFile == null)
 		{
 			return ResponseEntity.notFound().build();
-		}
-
-		if(storageFile.getModCount() == modCount)
-		{
-			return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
 		}
 
 		try
