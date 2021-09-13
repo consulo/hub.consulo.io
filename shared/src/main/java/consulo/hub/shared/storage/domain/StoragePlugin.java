@@ -26,7 +26,7 @@ public class StoragePlugin
 
 	private String pluginId;
 
-	private boolean enabled;
+	private StoragePluginState pluginState = StoragePluginState.ENABLED;
 
 	public Long getId()
 	{
@@ -58,14 +58,14 @@ public class StoragePlugin
 		this.pluginId = pluginId;
 	}
 
-	public boolean isEnabled()
+	public StoragePluginState getPluginState()
 	{
-		return enabled;
+		return pluginState;
 	}
 
-	public void setEnabled(boolean enabled)
+	public void setPluginState(StoragePluginState pluginState)
 	{
-		this.enabled = enabled;
+		this.pluginState = pluginState;
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class StoragePlugin
 				"id=" + id +
 				", user=" + user +
 				", pluginId='" + pluginId + '\'' +
-				", enabled=" + enabled +
+				", pluginState=" + pluginState +
 				'}';
 	}
 }

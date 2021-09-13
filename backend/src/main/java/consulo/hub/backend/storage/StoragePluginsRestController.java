@@ -3,6 +3,7 @@ package consulo.hub.backend.storage;
 import consulo.hub.backend.storage.repository.StoragePluginRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.storage.domain.StoragePlugin;
+import consulo.hub.shared.storage.domain.StoragePluginState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,16 +27,26 @@ public class StoragePluginsRestController
 	public static class PluginInfo
 	{
 		public String id;
-		public boolean enabled;
+
+		public StoragePluginState state;
 
 		public PluginInfo()
 		{
 		}
 
-		public PluginInfo(String id, boolean enabled)
+		public PluginInfo(String id, StoragePluginState state)
 		{
 			this.id = id;
-			this.enabled = enabled;
+			this.state = state;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "PluginInfo{" +
+					"id='" + id + '\'' +
+					", state=" + state +
+					'}';
 		}
 	}
 
@@ -59,6 +69,11 @@ public class StoragePluginsRestController
 
 		for(PluginInfo pluginInfo : pluginInfos)
 		{
+			if(pluginInfo.id == null || pluginInfo.state == null || pluginInfo.state == StoragePluginState.UNINSTALLED)
+			{
+				throw new IllegalArgumentException(pluginInfo.toString());
+			}
+
 			StoragePlugin storagePlugin = myStoragePluginRepository.findByUserAndPluginId(account, pluginInfo.id);
 			if(storagePlugin == null)
 			{
@@ -67,7 +82,7 @@ public class StoragePluginsRestController
 				storagePlugin.setPluginId(pluginInfo.id);
 			}
 
-			storagePlugin.setEnabled(pluginInfo.enabled);
+			storagePlugin.setPluginState(pluginInfo.state);
 
 			myStoragePluginRepository.save(storagePlugin);
 		}
@@ -83,17 +98,20 @@ public class StoragePluginsRestController
 			throw new IllegalArgumentException("empty");
 		}
 
-		List<StoragePlugin> forDelete = new ArrayList<>();
 		for(PluginInfo pluginInfo : pluginInfos)
 		{
 			StoragePlugin storagePlugin = myStoragePluginRepository.findByUserAndPluginId(account, pluginInfo.id);
-			if(storagePlugin != null)
+			if(storagePlugin == null)
 			{
-				forDelete.add(storagePlugin);
+				storagePlugin = new StoragePlugin();
+				storagePlugin.setUser(account);
+				storagePlugin.setPluginId(pluginInfo.id);
 			}
-		}
 
-		myStoragePluginRepository.delete(forDelete);
+			storagePlugin.setPluginState(StoragePluginState.UNINSTALLED);
+
+			myStoragePluginRepository.save(storagePlugin);
+		}
 
 		return listAll(account);
 	}
@@ -101,6 +119,6 @@ public class StoragePluginsRestController
 	private List<PluginInfo> listAll(UserAccount account)
 	{
 		List<StoragePlugin> plugins = myStoragePluginRepository.findAllByUser(account);
-		return plugins.stream().map(it -> new PluginInfo(it.getPluginId(), it.isEnabled())).collect(Collectors.toList());
+		return plugins.stream().map(it -> new PluginInfo(it.getPluginId(), it.getPluginState())).collect(Collectors.toList());
 	}
 }
