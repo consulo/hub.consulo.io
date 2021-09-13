@@ -95,16 +95,16 @@ public class UserAccount implements UserDetails
 			return List.of(new SimpleGrantedAuthority(Roles.ROLE_HUB));
 		}
 
+		if((rights & ROLE_SUPERDEPLOYER) == ROLE_SUPERDEPLOYER)
+		{
+			return List.of(new SimpleGrantedAuthority(Roles.ROLE_SUPERDEPLOYER));
+		}
+
 		List<GrantedAuthority> authorities = new ArrayList<>();
 
 		if((rights & ROLE_SUPERUSER) == ROLE_SUPERUSER)
 		{
 			authorities.add(new SimpleGrantedAuthority(Roles.ROLE_SUPERUSER));
-		}
-
-		if((rights & ROLE_SUPERDEPLOYER) == ROLE_SUPERDEPLOYER)
-		{
-			authorities.add(new SimpleGrantedAuthority(Roles.ROLE_SUPERDEPLOYER));
 		}
 
 		if((rights & ROLE_DEVELOPER) == ROLE_DEVELOPER)
