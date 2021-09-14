@@ -30,11 +30,15 @@ import org.jdom.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -51,7 +55,8 @@ import java.util.zip.ZipFile;
  * @since 20-Sep-16
  */
 @Service
-public class PluginAnalyzerService
+@Order(2_000)
+public class PluginAnalyzerService implements CommandLineRunner
 {
 	private static class TreeMultiMap<K, V> extends MultiMap<K, V>
 	{
@@ -94,8 +99,6 @@ public class PluginAnalyzerService
 	private PluginChannelsService myUserConfigurationService;
 
 	private Set<String> myRequiredClasses = new LinkedHashSet<>();
-
-	private File myLibrariesTempDir;
 
 	@Autowired
 	public PluginAnalyzerService(PluginChannelsService userConfigurationService)
@@ -192,8 +195,8 @@ public class PluginAnalyzerService
 		addRequiredClass(Analyzer.class);
 	}
 
-	@PostConstruct
-	public void run() throws Exception
+	@Override
+	public void run(String[] args) throws Exception
 	{
 		URL urlLang = getJarUrlForClass(Language.class);
 
@@ -209,7 +212,7 @@ public class PluginAnalyzerService
 
 	private void prepareRunningInsideBoot() throws Exception
 	{
-		myLibrariesTempDir = myUserConfigurationService.createTempDir("plugin-analyzer-core");
+		File librariesTempDir = myUserConfigurationService.createTempDir("plugin-analyzer-core");
 
 		Map<String, ZipFile> zipFileMap = new HashMap<>();
 
@@ -248,7 +251,7 @@ public class PluginAnalyzerService
 			ZipEntry entry = zipFile.getEntry(jarEntry);
 
 			String jarName = jarEntry.substring(jarEntry.lastIndexOf("/") + 1, jarEntry.length());
-			File targetJarFile = new File(myLibrariesTempDir, jarName);
+			File targetJarFile = new File(librariesTempDir, jarName);
 			try (InputStream inputStream = zipFile.getInputStream(entry); FileOutputStream stream = new FileOutputStream(targetJarFile))
 			{
 				StreamUtil.copyStreamContent(inputStream, stream);

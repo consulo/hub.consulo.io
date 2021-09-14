@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 28-Aug-16
  */
 @Service
+@Order(1_000)
 public class PluginChannelsService implements CommandLineRunner
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerService.class);
