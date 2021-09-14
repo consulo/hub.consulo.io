@@ -2,6 +2,7 @@ package consulo.hub.backend.repository;
 
 import com.google.common.collect.Lists;
 import com.intellij.lang.Language;
+import com.intellij.openapi.util.io.StreamUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.SingleRootFileViewProvider;
 import com.intellij.util.ArrayUtil;
@@ -32,14 +33,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
-import java.io.File;
+import javax.annotation.PostConstruct;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.util.*;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
@@ -83,126 +87,230 @@ public class PluginAnalyzerService
 		public MultiMap<String, String> v2 = MultiMap.create();
 	}
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PluginAnalyzerService.class);
 
-	private final List<URL> platformClassUrls = new ArrayList<>();
+	private final List<URL> myPlatformClassUrls = new ArrayList<>();
 
 	private PluginChannelsService myUserConfigurationService;
+
+	private Set<String> myRequiredClasses = new LinkedHashSet<>();
+
+	private File myLibrariesTempDir;
 
 	@Autowired
 	public PluginAnalyzerService(PluginChannelsService userConfigurationService)
 	{
 		myUserConfigurationService = userConfigurationService;
 
-		init();
+		fillClasses();
 	}
 
-	private void init()
+	private void fillClasses()
 	{
 		// core-api
-		addUrlByClass(Language.class);
+		addRequiredClass(Language.class);
 		// core-impl
-		addUrlByClass(SingleRootFileViewProvider.class);
+		addRequiredClass(SingleRootFileViewProvider.class);
 		// ui-api
-		addUrlByClass("consulo.ui.Component");
+		addRequiredClass("consulo.ui.Component");
 		// platform-api
-		addUrlByClass("com.intellij.openapi.fileTypes.FileTypeConsumer");
+		addRequiredClass("com.intellij.openapi.fileTypes.FileTypeConsumer");
 		// platform-impl
-		addUrlByClass("com.intellij.concurrency.ApplierCompleter");
+		addRequiredClass("com.intellij.concurrency.ApplierCompleter");
 		// execution-api
-		addUrlByClass("com.intellij.execution.configurations.ConfigurationType");
+		addRequiredClass("com.intellij.execution.configurations.ConfigurationType");
 		// lang-api
-		addUrlByClass("com.intellij.lang.CompositeLanguage");
+		addRequiredClass("com.intellij.lang.CompositeLanguage");
 		// lang-impl
-		addUrlByClass("com.intellij.execution.configuration.ConfigurationFactoryEx");
+		addRequiredClass("com.intellij.execution.configuration.ConfigurationFactoryEx");
 		// compiler-api
-		addUrlByClass("com.intellij.packaging.artifacts.ArtifactType");
+		addRequiredClass("com.intellij.packaging.artifacts.ArtifactType");
 		// compiler-impl
-		addUrlByClass("com.intellij.packaging.impl.elements.ArchivePackagingElement");
+		addRequiredClass("com.intellij.packaging.impl.elements.ArchivePackagingElement");
 		// project-model-api
-		addUrlByClass("com.intellij.openapi.roots.ui.configuration.ModulesProvider");
+		addRequiredClass("com.intellij.openapi.roots.ui.configuration.ModulesProvider");
 		// project-model-impl
-		addUrlByClass("consulo.module.extension.impl.ModuleExtensionImpl");
+		addRequiredClass("consulo.module.extension.impl.ModuleExtensionImpl");
 		// external-system-api
-		addUrlByClass("com.intellij.openapi.externalSystem.model.ExternalProject");
+		addRequiredClass("com.intellij.openapi.externalSystem.model.ExternalProject");
 		// external-system-impl
-		addUrlByClass("com.intellij.openapi.externalSystem.action.AttachExternalProjectAction");
+		addRequiredClass("com.intellij.openapi.externalSystem.action.AttachExternalProjectAction");
 		// injeting-api
-		addUrlByClass("consulo.injecting.InjectingContainerOwner");
+		addRequiredClass("consulo.injecting.InjectingContainerOwner");
 		// injecting-pico-impl
-		addUrlByClass("consulo.injecting.pico.PicoInjectingContainer");
+		addRequiredClass("consulo.injecting.pico.PicoInjectingContainer");
 		// test-impl
-		addUrlByClass("consulo.test.light.LightApplicationBuilder");
+		addRequiredClass("consulo.test.light.LightApplicationBuilder");
 		// editor-ex
-		addUrlByClass("com.intellij.ide.ui.UISettings");
+		addRequiredClass("com.intellij.ide.ui.UISettings");
 		// logging-api
-		addUrlByClass("consulo.logging.Logger");
-		addUrlByClass("org.slf4j.LoggerFactory");
+		addRequiredClass("consulo.logging.Logger");
+		addRequiredClass("org.slf4j.LoggerFactory");
 		// logging-impl
-		addUrlByClass("consulo.logging.internal.LoggerFactory");
+		addRequiredClass("consulo.logging.internal.LoggerFactory");
 		// jakarta.inject
-		addUrlByClass("jakarta.inject.Inject");
+		addRequiredClass("jakarta.inject.Inject");
 		// container-api
-		addUrlByClass(PluginId.class);
+		addRequiredClass(PluginId.class);
 		// container-impl
-		addUrlByClass(PluginClassLoaderFactory.class);
+		addRequiredClass(PluginClassLoaderFactory.class);
 		// util
-		addUrlByClass(ContainerUtil.class);
+		addRequiredClass(ContainerUtil.class);
 		// util-collection
-		addUrlByClass(consulo.util.collection.ContainerUtil.class);
+		addRequiredClass(consulo.util.collection.ContainerUtil.class);
 		// util-collection-primitive
-		addUrlByClass(IntMaps.class);
+		addRequiredClass(IntMaps.class);
 		// util-collection-via-trove
-		addUrlByClass("consulo.util.collection.trove.impl.TroveCollectionFactory");
+		addRequiredClass("consulo.util.collection.trove.impl.TroveCollectionFactory");
 		// trove4j
-		addUrlByClass("gnu.trove.THashMap");
+		addRequiredClass("gnu.trove.THashMap");
 		// util-lang
-		addUrlByClass(ObjectUtil.class);
+		addRequiredClass(ObjectUtil.class);
 		// util-serializer
-		addUrlByClass("com.intellij.util.xmlb.XmlSerializerImpl");
+		addRequiredClass("com.intellij.util.xmlb.XmlSerializerImpl");
 		// icon library
-		addUrlByClass("consulo.platform.base.icon.PlatformIconGroup");
+		addRequiredClass("consulo.platform.base.icon.PlatformIconGroup");
 		// util-jdom
-		addUrlByClass("consulo.util.jdom.JDOMUtil");
+		addRequiredClass("consulo.util.jdom.JDOMUtil");
 		// util-io
-		addUrlByClass("consulo.util.io.URLUtil");
+		addRequiredClass("consulo.util.io.URLUtil");
 		// util-concurrent
-		addUrlByClass(AsyncResult.class);
+		addRequiredClass(AsyncResult.class);
 		// util-dataholder
-		addUrlByClass(UserDataHolder.class);
+		addRequiredClass(UserDataHolder.class);
 		// util-nodep
-		addUrlByClass(UrlClassLoader.class);
+		addRequiredClass(UrlClassLoader.class);
 		// disposer-api
-		addUrlByClass(Disposable.class);
+		addRequiredClass(Disposable.class);
 		// disposer-impl
-		addUrlByClass(DisposerInternalImpl.class);
+		addRequiredClass(DisposerInternalImpl.class);
 		// jdom
-		addUrlByClass(Document.class);
+		addRequiredClass(Document.class);
 		// guava
-		addUrlByClass(Lists.class);
+		addRequiredClass(Lists.class);
 		// plugin-analyzer-rt
-		addUrlByClass(Analyzer.class);
+		addRequiredClass(Analyzer.class);
 	}
 
-	private void addUrlByClass(Class<?> clazz)
+	@PostConstruct
+	public void run() throws Exception
 	{
-		addUrlByClass(clazz.getName());
+		URL urlLang = getJarUrlForClass(Language.class);
+
+		if(urlLang.toString().contains("BOOT-INF"))
+		{
+			prepareRunningInsideBoot();
+		}
+		else
+		{
+			prepareRunningOutsideBoot();
+		}
 	}
 
-	private void addUrlByClass(String clazzName)
+	private void prepareRunningInsideBoot() throws Exception
 	{
-		try
-		{
-			Class<?> clazz = Class.forName(clazzName);
+		myLibrariesTempDir = myUserConfigurationService.createTempDir("plugin-analyzer-core");
 
-			File jarPathForClass = getJarPathForClass(clazz);
+		Map<String, ZipFile> zipFileMap = new HashMap<>();
 
-			platformClassUrls.add(jarPathForClass.toURI().toURL());
-		}
-		catch(ClassNotFoundException | MalformedURLException e)
+		for(String requiredClass : myRequiredClasses)
 		{
-			LOGGER.error("Class " + clazzName + " is not found", e);
+			Class<?> clazz = Class.forName(requiredClass);
+
+			URL url = getJarUrlForClass(clazz);
+
+			//jar:file:/W:/_github.com/consulo/hub.consulo.io/backend/target/hub-backend-1.0-SNAPSHOT.jar!/BOOT-INF/lib/consulo-core-api-2-SNAPSHOT.jar!/
+
+			String urlString = url.toString();
+
+			if(urlString.endsWith("!/"))
+			{
+				urlString = urlString.substring(0, urlString.length() - 2);
+			}
+
+			int firstSeparator = urlString.indexOf("!/");
+			
+			String bootJarFile = urlString.substring(10, firstSeparator);
+
+			String jarEntry = urlString.substring(firstSeparator + 2, urlString.length());
+
+			ZipFile zipFile = zipFileMap.computeIfAbsent(bootJarFile, it -> {
+				try
+				{
+					return new ZipFile(it, StandardCharsets.UTF_8);
+				}
+				catch(IOException e)
+				{
+					throw new RuntimeException(e);
+				}
+			});
+
+			ZipEntry entry = zipFile.getEntry(jarEntry);
+
+			String jarName = jarEntry.substring(jarEntry.lastIndexOf("/") + 1, jarEntry.length());
+			File targetJarFile = new File(myLibrariesTempDir, jarName);
+			try (InputStream inputStream = zipFile.getInputStream(entry); FileOutputStream stream = new FileOutputStream(targetJarFile))
+			{
+				StreamUtil.copyStreamContent(inputStream, stream);
+			}
+
+			myPlatformClassUrls.add(targetJarFile.toURI().toURL());
 		}
+
+		for(ZipFile file : zipFileMap.values())
+		{
+			try
+			{
+				file.close();
+			}
+			catch(IOException ignored)
+			{
+			}
+		}
+	}
+
+	private void prepareRunningOutsideBoot()
+	{
+		for(String clazzName : myRequiredClasses)
+		{
+			try
+			{
+				Class<?> clazz = Class.forName(clazzName);
+
+				File jarPathForClass = getJarPathForClass(clazz);
+
+				myPlatformClassUrls.add(jarPathForClass.toURI().toURL());
+			}
+			catch(ClassNotFoundException | MalformedURLException e)
+			{
+				LOG.error("Class " + clazzName + " is not found", e);
+			}
+		}
+	}
+
+	private void addRequiredClass(Class<?> clazz)
+	{
+		addRequiredClass(clazz.getName());
+	}
+
+	private void addRequiredClass(String clazzName)
+	{
+		myRequiredClasses.add(clazzName);
+	}
+
+	@Nonnull
+	private static URL getJarUrlForClass(@Nonnull Class aClass)
+	{
+		CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+		if(codeSource != null)
+		{
+			URL location = codeSource.getLocation();
+			if(location != null)
+			{
+				return location;
+			}
+		}
+		throw new IllegalArgumentException("can't find path for class " + aClass.getName());
 	}
 
 	@Nonnull
@@ -230,7 +338,7 @@ public class PluginAnalyzerService
 		}
 
 		List<URL> urls = new ArrayList<>();
-		urls.addAll(platformClassUrls);
+		urls.addAll(myPlatformClassUrls);
 
 		File[] forRemove = new File[0];
 		for(String dependencyId : dependencies)
@@ -244,7 +352,7 @@ public class PluginAnalyzerService
 			File analyzeUnzip = myUserConfigurationService.createTempFile("analyze_unzip", "");
 			forRemove = ArrayUtil.append(forRemove, analyzeUnzip);
 
-			try(ZipFile zipFile = new ZipFile(pluginNode.targetFile))
+			try (ZipFile zipFile = new ZipFile(pluginNode.targetFile))
 			{
 				ZipUtil.extract(zipFile, analyzeUnzip);
 			}
@@ -313,7 +421,7 @@ public class PluginAnalyzerService
 						forEachQuiet(entry, element ->
 						{
 							String exts = element.getAttributeValue("extensions");
-							
+
 							List<String> extsAsList = StringUtil.split(StringUtil.notNullize(exts), ";");
 							for(String ext : extsAsList)
 							{
@@ -439,7 +547,7 @@ public class PluginAnalyzerService
 			}
 			catch(Throwable e)
 			{
-				LOGGER.info(e.getMessage(), e);
+				LOG.info(e.getMessage(), e);
 			}
 		}
 	}

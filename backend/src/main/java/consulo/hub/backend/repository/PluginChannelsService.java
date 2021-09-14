@@ -78,6 +78,20 @@ public class PluginChannelsService implements CommandLineRunner
 	}
 
 	@Nonnull
+	public File createTempDir(String prefix)
+	{
+		File file = new File(myTempUploadDirectory, prefix);
+		if(file.exists())
+		{
+			FileSystemUtils.deleteRecursively(file);
+		}
+
+		file.mkdirs();
+
+		return file;
+	}
+
+	@Nonnull
 	public File createTempFile(String prefix, @Nullable String ext)
 	{
 		long l = myTempCount.incrementAndGet();
