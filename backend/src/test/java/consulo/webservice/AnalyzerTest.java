@@ -149,6 +149,8 @@ public class AnalyzerTest extends Assert
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 
+		pluginAnalyzerService.run(new String[0]);
+		
 		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService);
 
 		userConfigurationService.run();
