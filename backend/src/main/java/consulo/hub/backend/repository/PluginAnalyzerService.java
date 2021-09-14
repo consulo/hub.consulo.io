@@ -26,6 +26,7 @@ import consulo.util.lang.ObjectUtil;
 import consulo.util.nodep.classloader.UrlClassLoader;
 import consulo.util.nodep.map.SimpleMultiMap;
 import consulo.util.nodep.xml.node.SimpleXmlElement;
+import org.apache.commons.lang3.SystemUtils;
 import org.jdom.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,8 +233,9 @@ public class PluginAnalyzerService implements CommandLineRunner
 			}
 
 			int firstSeparator = urlString.indexOf("!/");
-			
-			String bootJarFile = urlString.substring(10, firstSeparator);
+
+			// we need start slash
+			String bootJarFile = urlString.substring(SystemUtils.IS_OS_WINDOWS ? 10 : 9, firstSeparator);
 
 			String jarEntry = urlString.substring(firstSeparator + 2, urlString.length());
 
