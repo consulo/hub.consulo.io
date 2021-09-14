@@ -62,11 +62,6 @@ public class StoragePluginsRestController
 	@RequestMapping(value = "/api/storage/plugins/merge", method = RequestMethod.POST)
 	public List<PluginInfo> pluginsMerge(@AuthenticationPrincipal UserAccount account, @RequestBody PluginInfo[] pluginInfos)
 	{
-		if(pluginInfos.length == 0)
-		{
-			throw new IllegalArgumentException("empty");
-		}
-
 		for(PluginInfo pluginInfo : pluginInfos)
 		{
 			if(pluginInfo.id == null || pluginInfo.state == null || pluginInfo.state == StoragePluginState.UNINSTALLED)
