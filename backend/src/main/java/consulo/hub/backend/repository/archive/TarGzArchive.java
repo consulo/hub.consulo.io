@@ -2,7 +2,6 @@ package consulo.hub.backend.repository.archive;
 
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.io.StreamUtil;
-import com.intellij.util.io.tar.TarEntry;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -182,7 +181,7 @@ public class TarGzArchive
 
 	public void putEntry(@Nonnull String entryName, @Nonnull byte[] data, long lastModified)
 	{
-		TarGzArchiveEntry entry = new TarGzArchiveEntry(entryName, false, TarEntry.DEFAULT_FILE_MODE, lastModified, TarEntry.LF_NORMAL, null);
+		TarGzArchiveEntry entry = new TarGzArchiveEntry(entryName, false, TarArchiveEntry.DEFAULT_FILE_MODE, lastModified, TarArchiveEntry.LF_NORMAL, null);
 		entry.setExtractedData(data);
 		myEntries.put(entryName, entry);
 	}
