@@ -209,12 +209,6 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public RadioButton _Components_radioButton(String s, boolean b)
-	{
-		return null;
-	}
-
-	@Override
 	public Hyperlink _Components_hyperlink(String s)
 	{
 		return null;
