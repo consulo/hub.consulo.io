@@ -111,7 +111,7 @@ public class RootUI extends UI
 		if(!myNotificationShow)
 		{
 			myNotificationShow = true;
-			Notification notification = new Notification("Welcome", "<b>hub.consulo.io</b> in alpha stage, many features not implemented yet", Notification.Type.TRAY_NOTIFICATION);
+			Notification notification = new Notification("Welcome", "<b>hub.consulo.io</b> in beta stage, many features not implemented yet", Notification.Type.TRAY_NOTIFICATION);
 			notification.setHtmlContentAllowed(true);
 			notification.setDelayMsec((int) TimeUnit.SECONDS.toMillis(30));
 			notification.show(getPage());
