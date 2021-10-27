@@ -19,6 +19,8 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -82,8 +84,11 @@ public class OAuthKeyRequestService
 
 		Authentication authenticate = new UsernamePasswordAuthenticationToken(user, "N/A", user.getAuthorities());
 
+		Map<String, String> parameters = Map.of("hostName", tokenInfo.hostName, "time", String.valueOf(tokenInfo.time));
+		
 		AuthorizationRequest request = new AuthorizationRequest();
 		request.setClientId(ServiceClientId.CONSULO_CLIENT_ID);
+		request.setExtensions(new HashMap<>(parameters));
 
 		OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
 
@@ -91,7 +96,7 @@ public class OAuthKeyRequestService
 
 		DefaultOAuth2AccessToken accessToken = (DefaultOAuth2AccessToken) myAuthorizationServerTokenServices.createAccessToken(authentication);
 
-		accessToken.setAdditionalInformation(Map.of("hostName", tokenInfo.hostName, "time", String.valueOf(tokenInfo.time)));
+		accessToken.setAdditionalInformation(new LinkedHashMap<>(parameters));
 
 		myTokenStore.storeAccessToken(accessToken, authentication);
 

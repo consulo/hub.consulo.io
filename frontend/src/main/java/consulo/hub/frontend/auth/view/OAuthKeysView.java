@@ -1,7 +1,7 @@
 package consulo.hub.frontend.auth.view;
 
 import com.google.common.base.Strings;
-import com.google.gson.Gson;
+import com.intellij.openapi.util.text.StringUtil;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -15,6 +15,9 @@ import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -125,7 +128,33 @@ public class OAuthKeysView extends VerticalLayout implements View
 		layout.addStyleName(ValoTheme.LAYOUT_CARD);
 		layout.setWidth(100, Unit.PERCENTAGE);
 
-		layout.addComponent(TinyComponents.newLabel("Info: " + new Gson().toJson(token.getAdditionalInfo())));
+		StringBuilder infoBuilder = new StringBuilder();
+		boolean first = true;
+		for(Map.Entry<String, Object> entry : token.getAdditionalInfo().entrySet())
+		{
+			if(first)
+			{
+				first = false;
+			}
+			else
+			{
+				infoBuilder.append(", ");
+			}
+
+			infoBuilder.append(StringUtil.capitalize(entry.getKey()));
+			infoBuilder.append("=");
+			switch(entry.getKey())
+			{
+				case "time":
+					infoBuilder.append(new Date(Long.parseLong((String) entry.getValue())));
+					break;
+				default:
+					infoBuilder.append(entry.getValue());
+					break;
+			}
+		}
+
+		layout.addComponent(TinyComponents.newLabel(infoBuilder.toString()));
 		String tokenId = token.getToken();
 
 		Label label = TinyComponents.newLabel("Token: " + tokenId);

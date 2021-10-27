@@ -1,5 +1,6 @@
 package consulo.hub.backend.configuration;
 
+import consulo.hub.backend.auth.oauth2.OAuthAuthenticationKeyGenerator;
 import consulo.hub.backend.auth.oauth2.service.JpaTokenStore;
 import consulo.hub.backend.auth.oauth2.service.OAuthAccessTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.AuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 

@@ -1,12 +1,12 @@
 package consulo.hub.backend.auth.oauth2.service;
 
+import consulo.hub.backend.auth.oauth2.OAuthAuthenticationKeyGenerator;
 import consulo.hub.backend.auth.oauth2.domain.JpaOAuthAccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.common.util.SerializationUtils;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.AuthenticationKeyGenerator;
-import org.springframework.security.oauth2.provider.token.DefaultAuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import javax.transaction.Transactional;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @Transactional
 public class JpaTokenStore implements TokenStore
 {
-	private AuthenticationKeyGenerator authenticationKeyGenerator = new DefaultAuthenticationKeyGenerator();
+	private AuthenticationKeyGenerator authenticationKeyGenerator = new OAuthAuthenticationKeyGenerator();
 
 	private OAuthAccessTokenRepository myRepository;
 
