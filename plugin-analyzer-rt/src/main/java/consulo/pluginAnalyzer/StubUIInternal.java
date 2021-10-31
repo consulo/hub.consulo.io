@@ -148,18 +148,6 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public TableLayout _Layouts_table(StaticPosition staticPosition)
-	{
-		return null;
-	}
-
-	@Override
-	public ScrollableLayout _ScrollLayout_create(Component component)
-	{
-		return null;
-	}
-
-	@Override
 	public HorizontalLayout _Layouts_horizontal(int i)
 	{
 		return null;
