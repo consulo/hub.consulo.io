@@ -21,6 +21,13 @@ public class VaadinUIUtil
 		return verticalLayout;
 	}
 
+	public static HorizontalLayout newHorizontalLayout(Component component)
+	{
+		HorizontalLayout layout = newHorizontalLayout();
+		layout.addComponent(component);
+		return layout;
+	}
+
 	public static HorizontalLayout newHorizontalLayout()
 	{
 		HorizontalLayout horizontalLayout = new HorizontalLayout();

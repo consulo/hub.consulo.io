@@ -14,8 +14,8 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
+import consulo.hub.frontend.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.repository.view.RepositoryView;
@@ -256,15 +256,27 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		verticalLayout.addComponent(VaadinUIUtil.labeled("ID: ", TinyComponents.newLabel(pluginNode.id)));
 		verticalLayout.addComponent(VaadinUIUtil.labeled("Name: ", TinyComponents.newLabel(getPluginNodeName(pluginNode))));
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TinyComponents.newLabel(pluginNode.category)));
-		if(!StringUtil.isEmpty(pluginNode.vendor))
-		{
-			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TinyComponents.newLabel(pluginNode.vendor)));
-		}
-
 		if(pluginNode.experimental)
 		{
-			verticalLayout.addComponent(TinyComponents.newLabel("!!!EXPERIMENTAL!!!"));
+			Label label = TinyComponents.newLabel("EXPERIMENTAL");
+			label.addStyleName(ValoTheme.LABEL_FAILURE);
+			verticalLayout.addComponent(label);
+		}
+		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TinyComponents.newLabel(pluginNode.category)));
+		verticalLayout.addComponent(VaadinUIUtil.newHorizontalLayout(TinyComponents.newLabel("Permission:")));
+		PluginNode.Permission[] permissions = pluginNode.permissions;
+		if(permissions != null)
+		{
+			for(PluginNode.Permission permission : permissions)
+			{
+				Label label = TinyComponents.newLabel("- " + permission.type);
+				verticalLayout.addComponent(VaadinUIUtil.newHorizontalLayout(label));
+			}
+		}
+		else
+		{
+			Label label = TinyComponents.newLabel("- <no special permissions>");
+			verticalLayout.addComponent(VaadinUIUtil.newHorizontalLayout(label));
 		}
 
 		if(!StringUtil.isEmpty(pluginNode.description))
@@ -279,6 +291,11 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			customComponent.setWidth(100, Unit.PERCENTAGE);
 			customComponent.addStyleName(ValoTheme.LAYOUT_WELL);
 			verticalLayout.addComponent(customComponent);
+		}
+
+		if(!StringUtil.isEmpty(pluginNode.vendor))
+		{
+			verticalLayout.addComponent(VaadinUIUtil.labeled("Vendor: ", TinyComponents.newLabel(pluginNode.vendor)));
 		}
 
 		RepositoryDownloadInfo[] allDownloadStat = myBackendPluginStatisticsService.getDownloadStat(pluginNode.id);
