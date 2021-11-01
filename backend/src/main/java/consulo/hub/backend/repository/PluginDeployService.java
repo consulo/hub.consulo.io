@@ -12,6 +12,8 @@ import consulo.container.impl.ContainerLogger;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.PluginDescriptorLoader;
 import consulo.container.plugin.PluginId;
+import consulo.container.plugin.PluginPermissionDescriptor;
+import consulo.container.plugin.PluginPermissionType;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
@@ -216,6 +218,24 @@ public class PluginDeployService
 		pluginNode.iconBytes = iconBytes.length == 0 ? null : Base64.getEncoder().encodeToString(iconBytes);
 
 		pluginNode.optionalDependencies = Arrays.stream(pluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
+
+		List<PluginNode.Permission> permissions = new ArrayList<>();
+		for(PluginPermissionType type : PluginPermissionType.values())
+		{
+			PluginPermissionDescriptor descriptor = pluginDescriptor.getPermissionDescriptor(type);
+			if(descriptor != null)
+			{
+				PluginNode.Permission permission = new PluginNode.Permission();
+				permission.type = type.name();
+
+				Set<String> options = descriptor.getOptions();
+				permission.options = options.isEmpty() ? null : options.toArray(String[]::new);
+
+				permissions.add(permission);
+			}
+		}
+
+		pluginNode.permissions = permissions.toArray(PluginNode.Permission[]::new);
 
 		Set<PluginId> deps = new TreeSet<>();
 		Collections.addAll(deps, pluginDescriptor.getDependentPluginIds());

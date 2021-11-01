@@ -22,6 +22,15 @@ import java.io.InputStream;
 public class AnalyzerTest extends Assert
 {
 	@Test
+	public void testPermissions() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/consulo.dotnet.consulo-plugin");
+
+		assertEquals(pluginNode.permissions.length, 1);
+		assertEquals(pluginNode.permissions[0].type, "PROCESS");
+	}
+
+	@Test
 	public void testJavaPlugin() throws Exception
 	{
 		PluginNode pluginNode = loadPlugin("/consulo.java_4615.zip");

@@ -19,6 +19,13 @@ public class PluginNode implements Cloneable
 		public String[] values = ArrayUtils.EMPTY_STRING_ARRAY;
 	}
 
+	public static class Permission
+	{
+		public String type;
+
+		public String[] options;
+	}
+
 	public static class Checksum
 	{
 		public String md5;
@@ -39,7 +46,6 @@ public class PluginNode implements Cloneable
 	public Integer downloads;
 	public Long length;
 	public Long date;
-	public Integer rating;
 	public String version;
 	public String platformVersion;
 	public String[] dependencies;
@@ -49,6 +55,8 @@ public class PluginNode implements Cloneable
 
 	public Extension[] extensions;
 	public Extension[] extensionsV2;
+
+	public Permission[] permissions;
 
 	public boolean experimental;
 
