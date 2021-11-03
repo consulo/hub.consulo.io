@@ -13,6 +13,7 @@ import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.repository.ui.RepositoryChannelPanel;
+import consulo.hub.frontend.repository.ui.TagsLocalizeLoader;
 import consulo.hub.shared.repository.PluginChannel;
 
 import javax.annotation.Nonnull;
@@ -29,14 +30,20 @@ public class RepositoryView extends VerticalLayout implements View
 	private final BackendRepositoryService myBackendRepositoryService;
 	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
 	private final PluginChannel myChannel;
+	private final TagsLocalizeLoader myTagsLocalizeLoader;
 	private final PropertiesService myPropertiesService;
 
-	public RepositoryView(PropertiesService propertiesService, BackendRepositoryService backendRepositoryService, BackendPluginStatisticsService backendPluginStatisticsService, PluginChannel channel)
+	public RepositoryView(PropertiesService propertiesService,
+						  BackendRepositoryService backendRepositoryService,
+						  BackendPluginStatisticsService backendPluginStatisticsService,
+						  PluginChannel channel,
+						  TagsLocalizeLoader tagsLocalizeLoader)
 	{
 		myPropertiesService = propertiesService;
 		myBackendRepositoryService = backendRepositoryService;
 		myBackendPluginStatisticsService = backendPluginStatisticsService;
 		myChannel = channel;
+		myTagsLocalizeLoader = tagsLocalizeLoader;
 
 		setMargin(false);
 		setSpacing(false);
@@ -71,7 +78,7 @@ public class RepositoryView extends VerticalLayout implements View
 		channelBox.setValue(myChannel);
 
 		RepositoryChannelPanel repositoryChannelPanel;
-		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myBackendRepositoryService, myBackendPluginStatisticsService));
+		addComponent(repositoryChannelPanel = new RepositoryChannelPanel(myChannel, myBackendRepositoryService, myBackendPluginStatisticsService, myTagsLocalizeLoader));
 
 		setExpandRatio(repositoryChannelPanel, 1);
 

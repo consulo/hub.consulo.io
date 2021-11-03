@@ -22,8 +22,8 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.auth.view.*;
-import consulo.hub.frontend.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
+import consulo.hub.frontend.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.base.ui.event.AfterViewChangeEvent;
 import consulo.hub.frontend.config.view.AdminConfigView;
 import consulo.hub.frontend.dash.view.DashboardView;
@@ -31,6 +31,7 @@ import consulo.hub.frontend.errorReporter.view.AdminErrorReportsView;
 import consulo.hub.frontend.errorReporter.view.ErrorReportsView;
 import consulo.hub.frontend.errorReporter.view.ErrorStatisticsView;
 import consulo.hub.frontend.linkConsulo.LinkConsuloView;
+import consulo.hub.frontend.repository.ui.TagsLocalizeLoader;
 import consulo.hub.frontend.repository.view.AdminRepositoryView;
 import consulo.hub.frontend.repository.view.RepositoryView;
 import consulo.hub.frontend.statistics.view.AdminStatisticsView;
@@ -92,6 +93,9 @@ public class RootUI extends UI
 
 	@Autowired
 	private ApplicationContext myApplicationContext;
+
+	@Autowired
+	private TagsLocalizeLoader myTagsLocalizeLoader;
 
 	private final NavigationMenu myNavigationMenu = new NavigationMenu();
 
@@ -211,7 +215,8 @@ public class RootUI extends UI
 				if(viewName.startsWith(RepositoryView.ID))
 				{
 					Pair<PluginChannel, String> pair = RepositoryView.parseViewParameters(viewName);
-					return myRepositoryViewCache.computeIfAbsent(pair.getFirst(), it -> new RepositoryView(myPropertiesService, myBackendRepositoryService, myBackendPluginStatisticsService, it));
+					return myRepositoryViewCache.computeIfAbsent(pair.getFirst(), it -> new RepositoryView(myPropertiesService, myBackendRepositoryService, myBackendPluginStatisticsService, it,
+							myTagsLocalizeLoader));
 				}
 				return null;
 			}

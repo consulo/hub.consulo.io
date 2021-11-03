@@ -55,6 +55,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private final HorizontalSplitPanel myPanel = new HorizontalSplitPanel();
 	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
+	private final TagsLocalizeLoader myTagsLocalizeLoader;
 	private final PluginChannel myPluginChannel;
 	private final Multimap<String, PluginNode> myPluginBuilds;
 	private final ListSelect<String> myListSelect;
@@ -62,10 +63,14 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	private Map<PluginNode, String> myNameToIdMap;
 
-	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel, @Nonnull BackendRepositoryService backendRepositoryService, @Nonnull BackendPluginStatisticsService backendPluginStatisticsService)
+	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel,
+								  @Nonnull BackendRepositoryService backendRepositoryService,
+								  @Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
+								  @Nonnull TagsLocalizeLoader tagsLocalizeLoader)
 	{
 		myPluginChannel = pluginChannel;
 		myBackendPluginStatisticsService = backendPluginStatisticsService;
+		myTagsLocalizeLoader = tagsLocalizeLoader;
 
 		setSizeFull();
 
@@ -262,7 +267,17 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			label.addStyleName(ValoTheme.LABEL_FAILURE);
 			verticalLayout.addComponent(label);
 		}
-		verticalLayout.addComponent(VaadinUIUtil.labeled("Category: ", TinyComponents.newLabel(pluginNode.category)));
+		HorizontalLayout tagsPanel = VaadinUIUtil.newHorizontalLayout();
+		if(pluginNode.tags != null)
+		{
+			for(String tag : pluginNode.tags)
+			{
+				Label label = new Label(myTagsLocalizeLoader.getTagLocalize(tag));
+				label.addStyleName("tagLabel");
+				tagsPanel.addComponent(label);
+			}
+		}
+		verticalLayout.addComponent(tagsPanel);
 		verticalLayout.addComponent(VaadinUIUtil.newHorizontalLayout(TinyComponents.newLabel("Permission:")));
 		PluginNode.Permission[] permissions = pluginNode.permissions;
 		if(permissions != null)
