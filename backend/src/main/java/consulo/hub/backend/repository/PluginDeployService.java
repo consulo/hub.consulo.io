@@ -204,6 +204,11 @@ public class PluginDeployService
 
 		PluginDescriptorImpl pluginDescriptor = pluginDescriptors.get(0);
 
+		if(pluginDescriptor.getTags().isEmpty())
+		{
+			throw new IllegalArgumentException("Tags cannot be empty");
+		}
+
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = pluginDescriptor.getPluginId().getIdString();
 		pluginNode.version = stableVersion(pluginDescriptor.getVersion());
