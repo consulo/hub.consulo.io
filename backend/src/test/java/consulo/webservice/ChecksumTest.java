@@ -13,6 +13,7 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 
@@ -25,9 +26,9 @@ public class ChecksumTest extends Assert
 	@Test
 	public void testCheckSum() throws Exception
 	{
-		PluginNode l1 = loadPlugin("/consulo.java_4615.zip");
+		PluginNode l1 = loadPlugin("consulo.java");
 		Thread.sleep(2000L);
-		PluginNode l2 = loadPlugin("/consulo.java_4615.zip");
+		PluginNode l2 = loadPlugin("/consulo.java");
 
 		assertArrayEquals(Files.readAllBytes(l1.targetFile.toPath()), Files.readAllBytes(l2.targetFile.toPath()));
 		
@@ -38,9 +39,9 @@ public class ChecksumTest extends Assert
 		assertTrue(MessageDigest.isEqual(Hex.decodeHex(l1.checksum.sha3_256.toCharArray()), Hex.decodeHex(l2.checksum.sha3_256.toCharArray())));
 	}
 
-	private PluginNode loadPlugin(String... pluginPaths) throws Exception
+	private PluginNode loadPlugin(String... pluginIds) throws Exception
 	{
-		assertTrue(pluginPaths.length != 0);
+		assertTrue(pluginIds.length != 0);
 
 		File tempDir = FileUtil.createTempDirectory("webService", null);
 
@@ -57,9 +58,11 @@ public class ChecksumTest extends Assert
 		userConfigurationService.run();
 
 		PluginNode lastNode = null;
-		for(String pluginPath : pluginPaths)
+		for(String pluginId : pluginIds)
 		{
-			InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
+			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+
+			InputStream resourceAsStream = url.openStream();
 
 			lastNode = deploy.deployPlugin(PluginChannel.alpha, () -> resourceAsStream);
 		}

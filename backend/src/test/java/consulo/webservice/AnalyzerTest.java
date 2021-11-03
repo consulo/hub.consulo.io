@@ -2,8 +2,8 @@ package consulo.webservice;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
-import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginAnalyzerService;
+import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
@@ -14,6 +14,7 @@ import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  * @author VISTALL
@@ -24,16 +25,15 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testPermissions() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/consulo.dotnet.consulo-plugin");
+		PluginNode pluginNode = loadPlugin("consulo.dotnet");
 
-		assertEquals(pluginNode.permissions.length, 1);
-		assertEquals(pluginNode.permissions[0].type, "PROCESS");
+		assertTrue(consulo.util.collection.ArrayUtil.contains("PROCESS_CREATE", pluginNode.permissions));
 	}
 
 	@Test
 	public void testTags() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/consulo.devkit.consulo-plugin");
+		PluginNode pluginNode = loadPlugin("consulo.devkit");
 
 		assertEquals(pluginNode.tags.length, 1);
 		assertEquals(pluginNode.tags[0], "ide.framework");
@@ -42,68 +42,63 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testJavaPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/consulo.java_4615.zip");
+		PluginNode pluginNode = loadPlugin("consulo.java");
 
-		assertEquals(pluginNode.extensions.length, 4);
-		assertEquals(pluginNode.extensions[0].key, "com.intellij.configurationType");
-
-		assertEquals(pluginNode.extensions[2].values[0], "java");
+		assertEquals(pluginNode.extensionsV2.length, 4);
+		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.configurationType");
+		assertEquals(pluginNode.extensionsV2[2].values[0], "java");
 	}
 
 	@Test
 	public void testMavenPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/com.intellij.xml_108.zip", "/org.jetbrains.idea.maven_149.zip");
+		PluginNode pluginNode = loadPlugin("com.intellij.xml", "org.jetbrains.idea.maven");
 
-		assertEquals(pluginNode.extensions.length, 3);
 		assertEquals(pluginNode.extensionsV2.length, 3);
-		assertEquals(pluginNode.extensions[0].key, "com.intellij.configurationType");
 		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.configurationType");
 
-		assertTrue(ArrayUtil.contains("*.pom", pluginNode.extensions[1].values));
 		assertTrue(ArrayUtil.contains("*|pom", pluginNode.extensionsV2[1].values));
 
-		assertEquals(pluginNode.extensions[2].values[0], "maven");
+		assertEquals(pluginNode.extensionsV2[2].values[0], "maven");
 	}
 
 	@Test
 	public void testXmlPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/com.intellij.xml_108.zip");
+		PluginNode pluginNode = loadPlugin("com.intellij.xml");
 
-		assertEquals(pluginNode.extensions.length, 1);
-		assertEquals(pluginNode.extensions[0].key, "com.intellij.fileTypeFactory");
+		assertEquals(pluginNode.extensionsV2.length, 1);
+		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.fileTypeFactory");
 
-		assertTrue(ArrayUtil.contains("*.xml", pluginNode.extensions[0].values));
 		assertTrue(ArrayUtil.contains("*|xml", pluginNode.extensionsV2[0].values));
 	}
 
 	@Test
 	public void testGradlePlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/org.jetbrains.plugins.gradle_155.zip");
+		PluginNode pluginNode = loadPlugin("org.jetbrains.plugins.gradle");
 
 		assertEquals(pluginNode.id, "org.jetbrains.plugins.gradle");
-		assertNotNull(pluginNode.extensions);
-		assertEquals(pluginNode.extensions.length, 1);
-		assertEquals(pluginNode.extensions[0].values[0], "GradleRunConfiguration");
+		assertNotNull(pluginNode.extensionsV2);
+		assertEquals(pluginNode.extensionsV2.length, 3);
+		assertEquals(pluginNode.extensionsV2[0].values[0], "GradleRunConfiguration");
 	}
 
 	@Test
 	public void testDotIgnorePlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/mobi.hsz.idea.gitignore.consulo-plugin");
+		PluginNode pluginNode = loadPlugin("mobi.hsz.idea.gitignore");
 
 		assertEquals(pluginNode.id, "mobi.hsz.idea.gitignore");
-		assertNotNull(pluginNode.extensions);
-		assertEquals(pluginNode.extensions.length, 1);
-		assertEquals(pluginNode.extensions[0].values.length, 58);
+		assertNotNull(pluginNode.extensionsV2);
+		assertEquals(pluginNode.extensionsV2.length, 1);
+		assertEquals(pluginNode.extensionsV2[0].values.length, 58);
 	}
 
 	@Test
 	public void testJavaFxPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/com.intellij.xml_108.zip", "/org.jetbrains.plugins.javaFX_4413.zip");
+		PluginNode pluginNode = loadPlugin("com.intellij.xml", "org.jetbrains.plugins.javaFX");
 
 		assertEquals(pluginNode.id, "org.jetbrains.plugins.javaFX");
 
@@ -118,18 +113,18 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testGitPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/com.intellij.git_583.zip");
+		PluginNode pluginNode = loadPlugin("com.intellij.git");
 
 		assertEquals(pluginNode.id, "com.intellij.git");
-		assertNotNull(pluginNode.extensions);
-		assertEquals(pluginNode.extensions.length, 1);
-		assertEquals(pluginNode.extensions[0].values[0], "Git");
+		assertNotNull(pluginNode.extensionsV2);
+		assertEquals(pluginNode.extensionsV2.length, 1);
+		assertEquals(pluginNode.extensionsV2[0].values[0], "Git");
 	}
 
 	@Test
 	public void testFileTypeNewExtension() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/net.seesharpsoft.intellij.plugins.csv_1.zip");
+		PluginNode pluginNode = loadPlugin("net.seesharpsoft.intellij.plugins.csv");
 
 		assertEquals(pluginNode.id, "net.seesharpsoft.intellij.plugins.csv");
 		assertNotNull(pluginNode.extensionsV2);
@@ -139,7 +134,7 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testImagesPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/com.intellij.images_972.zip");
+		PluginNode pluginNode = loadPlugin("com.intellij.images");
 
 		assertEquals(pluginNode.id, "com.intellij.images");
 	}
@@ -147,15 +142,15 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testPluginIcon() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("/consulo.nodejs_3624.zip");
+		PluginNode pluginNode = loadPlugin("consulo.nodejs");
 
 		assertEquals(pluginNode.id, "consulo.nodejs");
 		assertNotNull(pluginNode.iconBytes);
 	}
 
-	private PluginNode loadPlugin(String... pluginPaths) throws Exception
+	private PluginNode loadPlugin(String... pluginIds) throws Exception
 	{
-		assertTrue(pluginPaths.length != 0);
+		assertTrue(pluginIds.length != 0);
 
 		File tempDir = FileUtil.createTempDirectory("webService", null);
 
@@ -168,15 +163,17 @@ public class AnalyzerTest extends Assert
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 
 		pluginAnalyzerService.run(new String[0]);
-		
+
 		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService);
 
 		userConfigurationService.run();
 
 		PluginNode lastNode = null;
-		for(String pluginPath : pluginPaths)
+		for(String pluginId : pluginIds)
 		{
-			InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
+			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+
+			InputStream resourceAsStream = url.openStream();
 
 			lastNode = deploy.deployPlugin(PluginChannel.alpha, () -> resourceAsStream);
 		}

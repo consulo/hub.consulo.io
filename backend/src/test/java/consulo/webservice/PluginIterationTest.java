@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -234,7 +235,7 @@ public class PluginIterationTest extends Assert
 	@Test
 	public void testPluginIteration() throws Exception
 	{
-		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "/com.intellij.xml_108.zip");
+		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "com.intellij.xml");
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
@@ -248,12 +249,14 @@ public class PluginIterationTest extends Assert
 		assertTrue(pluginNodeInAlpha.targetFile.exists());
 	}
 
-	private PluginNode deployPlugin(PluginChannel channel, String... pluginPaths) throws Exception
+	private PluginNode deployPlugin(PluginChannel channel, String... pluginIds) throws Exception
 	{
 		PluginNode lastNode = null;
-		for(String pluginPath : pluginPaths)
+		for(String pluginId : pluginIds)
 		{
-			InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
+			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+
+			InputStream resourceAsStream = url.openStream();
 
 			lastNode = myDeployService.deployPlugin(channel, () -> resourceAsStream);
 		}
