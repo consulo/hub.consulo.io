@@ -12,6 +12,7 @@ import java.io.File;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PluginNode implements Cloneable
 {
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Extension
 	{
 		public String key;
@@ -19,6 +20,7 @@ public class PluginNode implements Cloneable
 		public String[] values = ArrayUtils.EMPTY_STRING_ARRAY;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Permission
 	{
 		public String type;
@@ -26,6 +28,7 @@ public class PluginNode implements Cloneable
 		public String[] options;
 	}
 
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Checksum
 	{
 		public String md5;
