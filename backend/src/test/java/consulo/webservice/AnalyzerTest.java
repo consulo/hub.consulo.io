@@ -87,8 +87,14 @@ public class AnalyzerTest extends Assert
 
 		assertEquals(pluginNode.id, "org.jetbrains.plugins.gradle");
 		assertNotNull(pluginNode.extensionsV2);
-		assertEquals(pluginNode.extensionsV2.length, 3);
-		assertEquals(pluginNode.extensionsV2[0].values[0], "GradleRunConfiguration");
+		for(PluginNode.Extension extension : pluginNode.extensionsV2)
+		{
+			if(extension.key.equals("com.intellij.configurationType") && consulo.util.collection.ArrayUtil.contains("GradleRunConfiguration", extension.values))
+			{
+				return;
+			}
+		}
+		throw new AssertionError("not found run configuration from extension");
 	}
 
 	@Test
