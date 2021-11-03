@@ -31,6 +31,15 @@ public class AnalyzerTest extends Assert
 	}
 
 	@Test
+	public void testTags() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("/consulo.devkit.consulo-plugin");
+
+		assertEquals(pluginNode.tags.length, 1);
+		assertEquals(pluginNode.tags[0], "ide.framework");
+	}
+
+	@Test
 	public void testJavaPlugin() throws Exception
 	{
 		PluginNode pluginNode = loadPlugin("/consulo.java_4615.zip");

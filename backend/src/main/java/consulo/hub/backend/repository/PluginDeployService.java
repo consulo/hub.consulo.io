@@ -237,6 +237,8 @@ public class PluginDeployService
 
 		pluginNode.permissions = permissions.toArray(PluginNode.Permission[]::new);
 
+		pluginNode.tags = pluginDescriptor.getTags().toArray(String[]::new);
+
 		Set<PluginId> deps = new TreeSet<>();
 		Collections.addAll(deps, pluginDescriptor.getDependentPluginIds());
 

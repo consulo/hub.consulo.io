@@ -58,6 +58,8 @@ public class PluginNode implements Cloneable
 
 	public Permission[] permissions;
 
+	public String[] tags;
+
 	public boolean experimental;
 
 	public transient File targetFile;
@@ -80,6 +82,16 @@ public class PluginNode implements Cloneable
 		if(incompatibleWiths != null && incompatibleWiths.length == 0)
 		{
 			incompatibleWiths = null;
+		}
+
+		if(permissions != null && permissions.length == 0)
+		{
+			permissions = null;
+		}
+
+		if(tags != null && tags.length == 0)
+		{
+			tags = null;
 		}
 	}
 
