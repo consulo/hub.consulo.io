@@ -28,7 +28,7 @@ public class ChecksumTest extends Assert
 	{
 		PluginNode l1 = loadPlugin("consulo.java");
 		Thread.sleep(2000L);
-		PluginNode l2 = loadPlugin("/consulo.java");
+		PluginNode l2 = loadPlugin("consulo.java");
 
 		assertArrayEquals(Files.readAllBytes(l1.targetFile.toPath()), Files.readAllBytes(l2.targetFile.toPath()));
 		
