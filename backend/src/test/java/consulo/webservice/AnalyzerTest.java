@@ -27,7 +27,14 @@ public class AnalyzerTest extends Assert
 	{
 		PluginNode pluginNode = loadPlugin("consulo.dotnet");
 
-		assertTrue(consulo.util.collection.ArrayUtil.contains("PROCESS_CREATE", pluginNode.permissions));
+		for(PluginNode.Permission permission : pluginNode.permissions)
+		{
+			if(permission.type.equals("PROCESS_CREATE"))
+			{
+				return;
+			}
+		}
+		throw new AssertionError("PROCESS_CREATE permission not found");
 	}
 
 	@Test
