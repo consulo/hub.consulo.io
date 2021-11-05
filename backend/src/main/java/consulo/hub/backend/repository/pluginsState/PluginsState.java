@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
@@ -109,6 +110,17 @@ public class PluginsState
 				list.addAll(pluginNodes);
 			}
 			return list;
+		}
+	}
+
+	public void forEach(@Nonnull Consumer<PluginNode> consumer)
+	{
+		try (AccessToken ignored = readLock())
+		{
+			for(NavigableSet<PluginNode> pluginNodes : myPluginsByPlatformVersion.values())
+			{
+				pluginNodes.forEach(consumer);
+			}
 		}
 	}
 

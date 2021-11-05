@@ -44,6 +44,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 		http.authorizeRequests().antMatchers("/api/repository/info").permitAll();
 		// anybody can download plugins
 		http.authorizeRequests().antMatchers("/api/repository/download").permitAll();
+		// anybody can get history of plugin
+		http.authorizeRequests().antMatchers("/api/repository/history/listByVersion").permitAll();
+		http.authorizeRequests().antMatchers("/api/repository/history/listByVersionRange").permitAll();
 		// storage api - only authorized users
 		http.authorizeRequests().antMatchers("/api/storage/**").hasAuthority(Roles.ROLE_USER);
 		// only user can call validate

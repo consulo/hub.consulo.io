@@ -1,5 +1,6 @@
 package consulo.webservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
 import consulo.hub.backend.repository.PluginAnalyzerService;
@@ -177,7 +178,7 @@ public class AnalyzerTest extends Assert
 
 		pluginAnalyzerService.run(new String[0]);
 
-		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService);
+		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl());
 
 		userConfigurationService.run();
 

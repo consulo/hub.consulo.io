@@ -30,14 +30,14 @@ public class PluginChannelIterationService
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
-	private final PluginChannelsService myUserConfigurationService;
+	private final PluginChannelsService myPluginChannelsService;
 
 	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	public PluginChannelIterationService(PluginChannelsService userConfigurationService, PluginDeployService pluginDeployService)
+	public PluginChannelIterationService(PluginChannelsService pluginChannelsService, PluginDeployService pluginDeployService)
 	{
-		myUserConfigurationService = userConfigurationService;
+		myPluginChannelsService = pluginChannelsService;
 		myPluginDeployService = pluginDeployService;
 	}
 
@@ -50,7 +50,7 @@ public class PluginChannelIterationService
 	@VisibleForTesting
 	public void cleanup(PluginChannel pluginChannel)
 	{
-		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
 		if(pluginChannelService.isLoading())
 		{
 			return;
@@ -182,8 +182,8 @@ public class PluginChannelIterationService
 
 	public void iterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
 	{
-		PluginChannelService fromChannel = myUserConfigurationService.getRepositoryByChannel(from);
-		PluginChannelService toChannel = myUserConfigurationService.getRepositoryByChannel(to);
+		PluginChannelService fromChannel = myPluginChannelsService.getRepositoryByChannel(from);
+		PluginChannelService toChannel = myPluginChannelsService.getRepositoryByChannel(to);
 
 		fromChannel.iteratePluginNodes(originalNode ->
 		{

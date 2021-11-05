@@ -1,5 +1,6 @@
 package consulo.webservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.io.FileUtil;
 import consulo.hub.backend.repository.*;
@@ -46,7 +47,7 @@ public class PluginIterationTest extends Assert
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(myPluginChannelsService);
 
-		myDeployService = new PluginDeployService(myPluginChannelsService, pluginAnalyzerService);
+		myDeployService = new PluginDeployService(myPluginChannelsService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl());
 
 		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 

@@ -58,6 +58,12 @@ public class PluginChannelService
 		return state != null && state.isInRepository(version, platformVersion);
 	}
 
+	@Nullable
+	public PluginsState getState(String pluginId)
+	{
+		return myPlugins.get(pluginId);
+	}
+
 	public void remove(String pluginId, String version, String platformVersion)
 	{
 		PluginsState state = myPlugins.get(pluginId);

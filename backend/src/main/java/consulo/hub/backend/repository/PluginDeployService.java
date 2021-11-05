@@ -1,5 +1,6 @@
 package consulo.hub.backend.repository;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
@@ -72,15 +73,21 @@ public class PluginDeployService
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginDeployService.class);
 
-	private PluginChannelsService myUserConfigurationService;
+	private final PluginChannelsService myUserConfigurationService;
 
-	private PluginAnalyzerService myPluginAnalyzerService;
+	private final PluginAnalyzerService myPluginAnalyzerService;
+
+	private final ObjectMapper myObjectMapper;
+
+	private final PluginHistoryService myPluginHistoryService;
 
 	@Autowired
-	public PluginDeployService(PluginChannelsService userConfigurationService, PluginAnalyzerService pluginAnalyzerService)
+	public PluginDeployService(PluginChannelsService userConfigurationService, PluginAnalyzerService pluginAnalyzerService, ObjectMapper objectMapper, PluginHistoryService pluginHistoryService)
 	{
 		myUserConfigurationService = userConfigurationService;
 		myPluginAnalyzerService = pluginAnalyzerService;
+		myObjectMapper = objectMapper;
+		myPluginHistoryService = pluginHistoryService;
 	}
 
 	@Nonnull
@@ -88,7 +95,7 @@ public class PluginDeployService
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
-		try(OutputStream outputStream = new FileOutputStream(tempFile))
+		try (OutputStream outputStream = new FileOutputStream(tempFile))
 		{
 			IOUtils.copy(multipartFile.getInputStream(), outputStream);
 		}
@@ -165,6 +172,13 @@ public class PluginDeployService
 
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
 	{
+		return deployPlugin(channel, () -> null, streamSupplier);
+	}
+
+	public PluginNode deployPlugin(PluginChannel channel,
+								   ThrowableComputable<InputStream, IOException> historyStreamSupplier,
+								   ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
+	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");
 
 		try (InputStream inputStream = streamSupplier.compute())
@@ -179,12 +193,43 @@ public class PluginDeployService
 
 		FileUtilRt.createDirectory(deployUnzip);
 
-		try(ZipFile zipFile = new ZipFile(tempFile))
+		try (ZipFile zipFile = new ZipFile(tempFile))
 		{
 			ZipUtil.extract(zipFile, deployUnzip);
 		}
 
+		RestPluginHistoryEntry[] historyEntries = null;
+		InputStream historyJsonStream = historyStreamSupplier.compute();
+		if(historyJsonStream != null)
+		{
+			try
+			{
+				historyEntries = myObjectMapper.readValue(historyJsonStream, RestPluginHistoryEntry[].class);
+				for(RestPluginHistoryEntry historyEntry : historyEntries)
+				{
+					if(historyEntry == null || historyEntry.isEmpty())
+					{
+						throw new IllegalArgumentException("History can't not be empty");
+					}
+				}
+
+				if(historyEntries.length > 1024)
+				{
+					throw new IllegalArgumentException("Too big history");
+				}
+			}
+			finally
+			{
+				IOUtils.close(historyJsonStream);
+			}
+		}
+
 		PluginNode pluginNode = loadPlugin(myUserConfigurationService, channel, deployUnzip);
+
+		if(historyEntries != null)
+		{
+			myPluginHistoryService.insert(historyEntries, pluginNode);
+		}
 
 		myUserConfigurationService.asyncDelete(tempFile);
 		myUserConfigurationService.asyncDelete(deployUnzip);

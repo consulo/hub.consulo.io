@@ -113,7 +113,8 @@ public class PluginChannelRestController
 
 	@RequestMapping(value = "/api/repository/pluginDeploy", method = RequestMethod.POST)
 	public PluginNode pluginDeploy(@RequestParam("channel") PluginChannel channel,
-								   @RequestBody(required = true) MultipartFile file,
+								   @RequestParam("file") MultipartFile file,
+								   @RequestParam(value = "history", required = false) MultipartFile history,
 								   @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
 		if(!hasRole(userAccount, Roles.ROLE_SUPERDEPLOYER))
@@ -121,7 +122,7 @@ public class PluginChannelRestController
 			throw new NotAuthorizedException();
 		}
 
-		return myPluginDeployService.deployPlugin(channel, file::getInputStream);
+		return myPluginDeployService.deployPlugin(channel, () -> history == null ? null : history.getInputStream(), file::getInputStream);
 	}
 
 	private static boolean hasRole(UserAccount userAccount, String role)

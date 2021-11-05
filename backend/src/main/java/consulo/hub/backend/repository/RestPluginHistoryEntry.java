@@ -1,10 +1,9 @@
-package consulo.hub.shared.repository;
+package consulo.hub.backend.repository;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import consulo.hub.shared.auth.domain.UserAccount;
-
-import javax.persistence.*;
+import consulo.util.lang.StringUtil;
 
 /**
  * @author VISTALL
@@ -12,40 +11,26 @@ import javax.persistence.*;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties
-@Entity
-@Table(indexes = {
-		@Index(columnList = "pluginId, pluginVersion")
-})
-public class PluginHistoryEntry
+public class RestPluginHistoryEntry
 {
-	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
-	private Long id;
-
-	@Column(nullable = false)
-	private String pluginId;
-
-	@Column(nullable = false)
 	private String pluginVersion;
 
 	private String repoUrl;
+
+	//private String commitUrl;
 	private String commitHash;
-	@Column(length = 1024)
 	private String commitMessage;
 	private long commitTimestamp;
 	private String commitAuthor;
 
-	@OneToOne
-	private UserAccount deployUser;
-
-	public Long getId()
+	@JsonIgnore
+	public boolean isEmpty()
 	{
-		return id;
-	}
-
-	public void setId(Long id)
-	{
-		this.id = id;
+		if(!StringUtil.isEmptyOrSpaces(commitMessage) && commitTimestamp > 0)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	public String getRepoUrl()
@@ -106,25 +91,5 @@ public class PluginHistoryEntry
 	public void setPluginVersion(String pluginVersion)
 	{
 		this.pluginVersion = pluginVersion;
-	}
-
-	public String getPluginId()
-	{
-		return pluginId;
-	}
-
-	public void setPluginId(String pluginId)
-	{
-		this.pluginId = pluginId;
-	}
-
-	public UserAccount getDeployUser()
-	{
-		return deployUser;
-	}
-
-	public void setDeployUser(UserAccount deployUser)
-	{
-		this.deployUser = deployUser;
 	}
 }

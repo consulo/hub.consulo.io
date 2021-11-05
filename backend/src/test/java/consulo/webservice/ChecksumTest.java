@@ -1,5 +1,6 @@
 package consulo.webservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.util.io.FileUtil;
 import consulo.hub.backend.repository.PluginAnalyzerService;
 import consulo.hub.backend.repository.PluginChannelsService;
@@ -53,7 +54,7 @@ public class ChecksumTest extends Assert
 
 		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
 
-		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService);
+		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl());
 
 		userConfigurationService.run();
 
