@@ -9,6 +9,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.containers.MultiMap;
+import com.intellij.util.io.UnsyncByteArrayInputStream;
 import consulo.container.impl.ContainerLogger;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.PluginDescriptorLoader;
@@ -21,6 +22,13 @@ import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.IOUtils;
+import org.jdom.Comment;
+import org.jdom.Content;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -264,8 +272,8 @@ public class PluginDeployService
 		pluginNode.description = pluginDescriptor.getDescription();
 		pluginNode.vendor = pluginDescriptor.getVendor();
 		pluginNode.experimental = pluginDescriptor.isExperimental();
-		byte[] iconBytes = pluginDescriptor.getIconBytes();
-		pluginNode.iconBytes = iconBytes.length == 0 ? null : Base64.getEncoder().encodeToString(iconBytes);
+		pluginNode.iconBytes = prepareSVG(pluginDescriptor.getIconBytes(false));
+		pluginNode.iconDarkBytes = prepareSVG(pluginDescriptor.getIconBytes(true));
 
 		pluginNode.optionalDependencies = Arrays.stream(pluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
 
@@ -352,6 +360,59 @@ public class PluginDeployService
 		});
 
 		return pluginNode;
+	}
+
+	private static String prepareSVG(@Nullable byte[] iconBytes) throws Exception
+	{
+		if(iconBytes == null || iconBytes.length == 0)
+		{
+			return null;
+		}
+
+		try
+		{
+			SAXBuilder saxBuilder = new SAXBuilder();
+			saxBuilder.setValidation(false);
+
+			Document document = saxBuilder.build(new UnsyncByteArrayInputStream(iconBytes));
+
+			removeComments(document.getRootElement());
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+			XMLOutputter writer = new XMLOutputter(Format.getCompactFormat());
+			writer.output(document, out);
+
+			out.close();
+
+			byte[] bytes = out.toByteArray();
+			return Base64.getEncoder().encodeToString(bytes);
+		}
+		catch(Throwable e)
+		{
+			throw new IllegalArgumentException("Failed to analyze icon", e);
+		}
+	}
+
+	private static void removeComments(Element element)
+	{
+		List<Content> toRemove = new ArrayList<>();
+		for(Content content : element.getContent())
+		{
+			if(content instanceof Comment)
+			{
+				toRemove.add(content);
+			}
+			else if(content instanceof Element)
+			{
+				removeComments((Element) content);
+			}
+		}
+
+		for(Content content : toRemove)
+		{
+			element.removeContent(content);
+		}
 	}
 
 	public static void loadDescriptors(@Nonnull File pluginsHome, @Nonnull List<PluginDescriptorImpl> result)

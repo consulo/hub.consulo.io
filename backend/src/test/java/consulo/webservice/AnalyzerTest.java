@@ -162,6 +162,15 @@ public class AnalyzerTest extends Assert
 		assertNotNull(pluginNode.iconBytes);
 	}
 
+	@Test
+	public void testDarkIconBytes() throws Exception
+	{
+		PluginNode pluginNode = loadPlugin("consulo.unity3d");
+
+		assertEquals(pluginNode.id, "consulo.unity3d");
+		assertNotNull(pluginNode.iconDarkBytes);
+	}
+
 	private PluginNode loadPlugin(String... pluginIds) throws Exception
 	{
 		assertTrue(pluginIds.length != 0);

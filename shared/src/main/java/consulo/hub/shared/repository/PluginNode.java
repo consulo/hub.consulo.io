@@ -55,6 +55,7 @@ public class PluginNode implements Cloneable
 	public String[] optionalDependencies;
 	public String[] incompatibleWiths;
 	public String iconBytes;
+	public String iconDarkBytes;
 
 	@Deprecated(forRemoval = true)
 	public Extension[] extensions;
