@@ -272,8 +272,13 @@ public class PluginDeployService
 		pluginNode.description = pluginDescriptor.getDescription();
 		pluginNode.vendor = pluginDescriptor.getVendor();
 		pluginNode.experimental = pluginDescriptor.isExperimental();
-		pluginNode.iconBytes = prepareSVG(pluginDescriptor.getIconBytes(false));
-		pluginNode.iconDarkBytes = prepareSVG(pluginDescriptor.getIconBytes(true));
+		byte[] lightIconBytes = pluginDescriptor.getIconBytes(false);
+		byte[] darkIconBytes = pluginDescriptor.getIconBytes(true);
+		pluginNode.iconBytes = prepareSVG(lightIconBytes);
+		if(lightIconBytes != darkIconBytes)
+		{
+			pluginNode.iconDarkBytes = prepareSVG(darkIconBytes);
+		}
 
 		pluginNode.optionalDependencies = Arrays.stream(pluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
 
