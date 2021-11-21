@@ -46,7 +46,7 @@ public class PluginHistoryRestController
 	public List<RestPluginHistoryEntry> lustPluginHistoryByRange(@RequestParam("id") String pluginId,
 																 @RequestParam("fromVersion") String fromVer,
 																 @RequestParam("toVersion") String toVer,
-																 @RequestParam(value = "includeFromVersion", defaultValue = "true") boolean includeFromVersion)
+																 @RequestParam(value = "includeFromVersion", required = false, defaultValue = "true") boolean includeFromVersion)
 	{
 		Set<String> allVersions = new TreeSet<>(VersionComparatorUtil::compare);
 
