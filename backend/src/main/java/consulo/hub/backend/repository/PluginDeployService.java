@@ -99,18 +99,25 @@ public class PluginDeployService
 	}
 
 	@Nonnull
-	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull MultipartFile multipartFile) throws Exception
+	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull MultipartFile platformFile, @Nullable MultipartFile history) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
 
 		try (OutputStream outputStream = new FileOutputStream(tempFile))
 		{
-			IOUtils.copy(multipartFile.getInputStream(), outputStream);
+			IOUtils.copy(platformFile.getInputStream(), outputStream);
 		}
 
-		String pluginId = multipartFile.getOriginalFilename().replace(".tar.gz", "");
+		String pluginId = platformFile.getOriginalFilename().replace(".tar.gz", "");
+
+		RestPluginHistoryEntry[] historyEntries = processPluginHistory(() -> history == null ? null : history.getInputStream());
 
 		PluginNode pluginNode = deployPlatform(channel, platformVersion, pluginId, tempFile);
+
+		if(historyEntries != null)
+		{
+			myPluginHistoryService.insert(historyEntries, pluginNode);
+		}
 
 		myUserConfigurationService.asyncDelete(tempFile);
 
@@ -206,6 +213,23 @@ public class PluginDeployService
 			ZipUtil.extract(zipFile, deployUnzip);
 		}
 
+		RestPluginHistoryEntry[] historyEntries = processPluginHistory(historyStreamSupplier);
+
+		PluginNode pluginNode = loadPlugin(myUserConfigurationService, channel, deployUnzip);
+
+		if(historyEntries != null)
+		{
+			myPluginHistoryService.insert(historyEntries, pluginNode);
+		}
+
+		myUserConfigurationService.asyncDelete(tempFile);
+		myUserConfigurationService.asyncDelete(deployUnzip);
+		return pluginNode;
+	}
+
+	@Nullable
+	private RestPluginHistoryEntry[] processPluginHistory(@Nonnull ThrowableComputable<InputStream, IOException> historyStreamSupplier) throws IOException
+	{
 		RestPluginHistoryEntry[] historyEntries = null;
 		InputStream historyJsonStream = historyStreamSupplier.compute();
 		if(historyJsonStream != null)
@@ -232,16 +256,7 @@ public class PluginDeployService
 			}
 		}
 
-		PluginNode pluginNode = loadPlugin(myUserConfigurationService, channel, deployUnzip);
-
-		if(historyEntries != null)
-		{
-			myPluginHistoryService.insert(historyEntries, pluginNode);
-		}
-
-		myUserConfigurationService.asyncDelete(tempFile);
-		myUserConfigurationService.asyncDelete(deployUnzip);
-		return pluginNode;
+		return historyEntries;
 	}
 
 	private PluginNode loadPlugin(PluginChannelsService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception

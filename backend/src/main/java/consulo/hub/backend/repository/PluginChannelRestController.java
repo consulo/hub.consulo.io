@@ -99,7 +99,8 @@ public class PluginChannelRestController
 
 	@RequestMapping(value = "/api/repository/platformDeploy", method = RequestMethod.POST)
 	public PluginNode platformDeploy(@RequestParam("channel") PluginChannel channel,
-									 @RequestBody(required = true) MultipartFile file,
+									 @RequestParam("file") MultipartFile file,
+									 @RequestParam(value = "history", required = false) MultipartFile history,
 									 @RequestParam("platformVersion") int platformVersion,
 									 @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
@@ -108,7 +109,7 @@ public class PluginChannelRestController
 			throw new NotAuthorizedException();
 		}
 
-		return myPluginDeployService.deployPlatform(channel, platformVersion, file);
+		return myPluginDeployService.deployPlatform(channel, platformVersion, file, history);
 	}
 
 	@RequestMapping(value = "/api/repository/pluginDeploy", method = RequestMethod.POST)
