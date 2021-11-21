@@ -43,7 +43,10 @@ public class PluginHistoryRestController
 	}
 
 	@RequestMapping("/api/repository/history/listByVersionRange")
-	public List<RestPluginHistoryEntry> lustPluginHistoryByRange(@RequestParam("id") String pluginId, @RequestParam("fromVersion") String fromVer, @RequestParam("toVersion") String toVer)
+	public List<RestPluginHistoryEntry> lustPluginHistoryByRange(@RequestParam("id") String pluginId,
+																 @RequestParam("fromVersion") String fromVer,
+																 @RequestParam("toVersion") String toVer,
+																 @RequestParam(value = "includeFromVersion", defaultValue = "true") boolean includeFromVersion)
 	{
 		Set<String> allVersions = new TreeSet<>(VersionComparatorUtil::compare);
 
@@ -81,11 +84,16 @@ public class PluginHistoryRestController
 			String tempVer = verArray[i];
 
 			targetVersions.add(tempVer);
-			
+
 			if(tempVer.equals(fromVer))
 			{
 				break;
 			}
+		}
+
+		if(!includeFromVersion)
+		{
+			targetVersions.remove(fromVer);
 		}
 
 		List<PluginHistoryEntry> entryList = myPluginHistoryEntryRepository.findAllByPluginIdAndPluginVersionIn(pluginId, targetVersions);
