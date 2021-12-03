@@ -45,6 +45,9 @@ public class PluginNode implements Cloneable
 	public String description;
 	public String category;
 	public String vendor;
+	public String vendorUrl;
+	public String vendorEmail;
+	public String url;
 	public Checksum checksum = new Checksum();
 	public Integer downloads;
 	public Long length;

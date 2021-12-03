@@ -284,8 +284,11 @@ public class PluginDeployService
 
 		pluginNode.name = pluginDescriptor.getName();
 		pluginNode.category = pluginDescriptor.getCategory();
+		pluginNode.url = pluginDescriptor.getUrl();
 		pluginNode.description = pluginDescriptor.getDescription();
 		pluginNode.vendor = pluginDescriptor.getVendor();
+		pluginNode.vendorUrl = pluginDescriptor.getVendorUrl();
+		pluginNode.vendorEmail = pluginDescriptor.getVendorEmail();
 		pluginNode.experimental = pluginDescriptor.isExperimental();
 		byte[] lightIconBytes = pluginDescriptor.getIconBytes(false);
 		byte[] darkIconBytes = pluginDescriptor.getIconBytes(true);
