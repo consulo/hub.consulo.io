@@ -1,5 +1,6 @@
 package consulo.hub.backend.errorReporter;
 
+import com.google.gson.Gson;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.errorReporter.repository.ErrorReportRepository;
 import consulo.hub.backend.repository.PluginChannelService;
@@ -13,6 +14,8 @@ import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +35,8 @@ import java.util.function.Supplier;
 @RestController
 public class ErrorReportRestController
 {
+	private static final Logger LOG = LoggerFactory.getLogger(ErrorReportRestController.class);
+
 	private static enum CreateResult
 	{
 		OK,
@@ -180,7 +185,15 @@ public class ErrorReportRestController
 
 		errorReport.setLongId(RandomStringUtils.randomAlphanumeric(48));
 
-		errorReport = myErrorReportRepository.save(errorReport);
+		try
+		{
+			errorReport = myErrorReportRepository.save(errorReport);
+		}
+		catch(Exception e)
+		{
+			LOG.error("Fail to report " + new Gson().toJson(errorReport), e);
+			return resultWithMessage(CreateResult.BAD_REPORT, null, null);
+		}
 
 		return resultWithMessage(CreateResult.OK, errorReport.getLongId(), null);
 	}
