@@ -11,5 +11,6 @@ public enum PluginChannel
 	alpha,   // every day
 	nightly, // every commit
 
-	// obsolete internal
+	// consulo 3 branch
+	valhalla
 }
