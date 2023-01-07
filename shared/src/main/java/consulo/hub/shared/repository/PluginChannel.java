@@ -10,7 +10,4 @@ public enum PluginChannel
 	beta,    // every week
 	alpha,   // every day
 	nightly, // every commit
-
-	// consulo 3 branch
-	valhalla
 }
