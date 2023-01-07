@@ -79,6 +79,8 @@ public class PluginDeployService
 		}
 	}
 
+	public static final int LAST_V2_BUILD = 3115;
+
 	private static final Logger logger = LoggerFactory.getLogger(PluginDeployService.class);
 
 	private final PluginChannelsService myUserConfigurationService;
@@ -281,6 +283,12 @@ public class PluginDeployService
 		pluginNode.id = pluginDescriptor.getPluginId().getIdString();
 		pluginNode.version = stableVersion(pluginDescriptor.getVersion());
 		pluginNode.platformVersion = stableVersion(pluginDescriptor.getPlatformVersion());
+
+		int platformVersion = Integer.parseInt(stableVersion(pluginDescriptor.getPlatformVersion()));
+		if (platformVersion <= LAST_V2_BUILD)
+		{
+			throw new IOException("Impossible deploy plugins for V2 Consulo");
+		}
 
 		pluginNode.name = pluginDescriptor.getName();
 		pluginNode.category = pluginDescriptor.getCategory();
