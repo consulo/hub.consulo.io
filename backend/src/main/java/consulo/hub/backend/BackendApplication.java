@@ -7,9 +7,7 @@ import consulo.hub.backend.auth.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,9 +29,7 @@ import javax.servlet.MultipartConfigElement;
 @EnableScheduling
 @EnableJpaRepositories
 @SpringBootApplication(exclude = {
-		WebSocketAutoConfiguration.class,
-		MongoAutoConfiguration.class,
-		MongoDataAutoConfiguration.class
+		WebSocketAutoConfiguration.class
 })
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @EntityScan({
