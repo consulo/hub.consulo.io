@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * @author VISTALL
@@ -39,6 +40,12 @@ public class BackendRequestor
 	@Nullable
 	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
 	{
+		return runRequest(urlSuffix, parameters, valueClazz, () -> null);
+	}
+
+	@Nullable
+	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
+	{
 		String host = "http://localhost:2233";
 		String key = null;
 
@@ -49,10 +56,15 @@ public class BackendRequestor
 			key = propertySet.getStringProperty(PropertyKeys.BACKEND_HOST_OAUTH_KEY);
 		}
 
-		return runRequest(host, key, urlSuffix, parameters, valueClazz);
+		return runRequest(host, key, urlSuffix, parameters, valueClazz, defaultValueGetter);
 	}
 
 	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
+	{
+		return runRequest(urlSuffix, parameters, valueClazz, () -> null);
+	}
+
+	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
 	{
 		return runRequest(urlSuffix, parameters, new TypeReference<T>()
 		{
@@ -61,10 +73,15 @@ public class BackendRequestor
 			{
 				return valueClazz;
 			}
-		});
+		}, defaultValueGetter);
 	}
 
 	public <T> T runRequest(String host, String key, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
+	{
+		return runRequest(host, key, urlSuffix, parameters, valueClazz, () -> null);
+	}
+
+	public <T> T runRequest(String host, String key, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
 	{
 		RequestBuilder builder = RequestBuilder.get(host + "/api/private" + urlSuffix);
 		for(Map.Entry<String, String> entry : parameters.entrySet())
@@ -85,7 +102,7 @@ public class BackendRequestor
 
 		try
 		{
-			return myClient.execute(builder.build(), response ->
+			T value = myClient.execute(builder.build(), response ->
 			{
 				if(response.getStatusLine().getStatusCode() != 200)
 				{
@@ -95,10 +112,11 @@ public class BackendRequestor
 				String json = EntityUtils.toString(response.getEntity());
 				return myObjectMapper.readValue(json, valueClazz);
 			});
+			return value == null ? defaultValueGetter.get() : value;
 		}
 		catch(IOException ignored)
 		{
-			return null;
+			return defaultValueGetter.get();
 		}
 	}
 

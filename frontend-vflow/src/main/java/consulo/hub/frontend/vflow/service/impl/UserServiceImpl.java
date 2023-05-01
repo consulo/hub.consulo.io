@@ -1,8 +1,10 @@
 package consulo.hub.frontend.vflow.service.impl;
 
+import com.vaadin.flow.server.VaadinServletRequest;
 import consulo.hub.frontend.vflow.service.UserService;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,11 +21,5 @@ public class UserServiceImpl implements UserService
 	{
 		UserAccount userAccout = SecurityUtil.getUserAccout();
 		return Optional.ofNullable(userAccout);
-	}
-
-	@Override
-	public void logout()
-	{
-		// TODO
 	}
 }

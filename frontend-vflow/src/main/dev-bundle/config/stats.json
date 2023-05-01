@@ -238,6 +238,7 @@
   "@vaadin/time-picker/theme/lumo/vaadin-time-picker.js",
   "@vaadin/upload/theme/lumo/vaadin-upload.js",
   "@vaadin/vaadin-lumo-styles/color.js",
+  "@vaadin/vaadin-lumo-styles/presets/compact.js",
   "@vaadin/vaadin-lumo-styles/sizing.js",
   "@vaadin/vaadin-lumo-styles/spacing.js",
   "@vaadin/vaadin-lumo-styles/style.js",
@@ -270,6 +271,8 @@
   "Frontend/generated/jar-resources/virtualListConnector.js"
  ],
  "frontendHashes": {
+  "themes/vflow/components/vaadin-app-layout.css": "777a42764b995a913667bbfd395d638ccf43790bbc9413ae6d36558110423a7b",
+  "themes/vflow/components/vaadin-list-box.css": "1cb20fc750dd161626e1546847631bfd093dd063cc0774c42a4d9d475cb0585c",
   "themes/vflow/components/vaadin-password-field.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
   "themes/vflow/components/vaadin-text-area.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
   "themes/vflow/components/vaadin-text-field.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
@@ -299,10 +302,10 @@
   "virtualListConnector.js": "e89f6bc6f5cd4765c863ae12721371ebff9079d163679e3989368fb7f74e5e61"
  },
  "themeJsonContents": {
-  "vflow": "{\n  \"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
+  "vflow": "{\n\t\"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-1061343e.js"
+  "VAADIN/build/indexhtml-b8ac44bf.js"
  ],
  "webComponents": [],
  "packageJsonHash": "522c1cafb3fdf910385b647d3ecef452fd3b9cfc01ad88aadfdf03b384161f3d"

@@ -1,8 +1,14 @@
 @import url('./main-layout.css');
 @import url('./scrollbar.css');
 
-html {
-  --lumo-border-radius-s: calc(var(--lumo-size-m) / 6);
-  --lumo-border-radius-m: calc(var(--lumo-size-m) / 2);
-  --lumo-border-radius-l: var(--lumo-size-m);
+html
+{
+	--lumo-border-radius-s: calc(var(--lumo-size-m) / 6);
+	--lumo-border-radius-m: calc(var(--lumo-size-m) / 4);
+	--lumo-border-radius-l: calc(var(--lumo-size-m) / 3);
+
+	--safe-area-inset-top: var(--lumo-space-s);
+	--safe-area-inset-bottom: var(--lumo-space-s);
+	--safe-area-inset-left: var(--lumo-space-s);
+	--safe-area-inset-right: var(--lumo-space-s);
 }

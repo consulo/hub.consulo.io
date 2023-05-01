@@ -3,6 +3,7 @@ package consulo.hub.frontend.vflow.base.appnav;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.internal.StateTree;
 import com.vaadin.flow.router.RouteConfiguration;
@@ -83,6 +84,12 @@ public class AppNavItem extends Component
 		setPath(view);
 		setLabel(label);
 		setIcon(icon);
+	}
+
+	public AppNavItem addItem(String label, Class<? extends Component> view, IconFactory icon)
+	{
+		addItem(new AppNavItem(label, view, icon.create()));
+		return this;
 	}
 
 	/**

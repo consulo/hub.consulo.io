@@ -57,12 +57,6 @@ public class AppNav extends Component implements HasSize, HasStyle
 		getElement().appendChild(new Hr().getElement());
 	}
 
-	public void addSeparator(String text)
-	{
-		// TODO not supported for now
-		addSeparator();
-	}
-
 	/**
 	 * Adds menu item(s) to the menu.
 	 *

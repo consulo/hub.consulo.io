@@ -37,7 +37,7 @@ import java.util.*;
  * @since 19-Feb-17
  */
 @PageTitle("Storage")
-@Route(value = "storage", layout = MainLayout.class)
+@Route(value = "user/storage", layout = MainLayout.class)
 @PermitAll
 public class StorageView extends VChildLayout
 {

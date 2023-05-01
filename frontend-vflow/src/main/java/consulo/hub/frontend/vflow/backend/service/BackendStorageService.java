@@ -3,6 +3,7 @@ package consulo.hub.frontend.vflow.backend.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.hub.frontend.vflow.backend.BackendRequestor;
 import consulo.hub.shared.storage.domain.StorageFile;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +24,14 @@ public class BackendStorageService
 	@Autowired
 	private BackendRequestor myBackendRequestor;
 
+	@Nonnull
 	public List<StorageFile> listAll(long userId)
 	{
 		try
 		{
 			return myBackendRequestor.runRequest("/storage/list", Map.of("userId", String.valueOf(userId)), new TypeReference<List<StorageFile>>()
 			{
-			});
+			}, List::of);
 		}
 		catch(Exception e)
 		{

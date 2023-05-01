@@ -1,26 +1,24 @@
 package consulo.hub.frontend.vflow.login;
 
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.theme.lumo.Lumo;
+import consulo.hub.frontend.vflow.base.MainLayout;
+import consulo.hub.frontend.vflow.base.VChildLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author VISTALL
  * @since 30/04/2023
  */
-@Route("login")
-@RouteAlias("logout")
+@Route(value = "login", layout = MainLayout.class)
+@RouteAlias(value = "logout", layout = MainLayout.class)
 @AnonymousAllowed
-public class LoginView extends VerticalLayout implements BeforeEnterObserver
+public class LoginView extends VChildLayout implements BeforeEnterObserver
 {
 	private LoginForm login;
 
@@ -40,16 +38,16 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver
 
 		login.setAction("login");
 
-		add(new H1("Test"), login);
+		add(login);
 	}
 
-	@Override
-	protected void onAttach(AttachEvent attachEvent)
-	{
-		getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
-			ui.getElement().getThemeList().add(Lumo.DARK);
-		}));
-	}
+//	@Override
+//	protected void onAttach(AttachEvent attachEvent)
+//	{
+//		getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
+//			ui.getElement().getThemeList().add(Lumo.DARK);
+//		}));
+//	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent beforeEnterEvent)

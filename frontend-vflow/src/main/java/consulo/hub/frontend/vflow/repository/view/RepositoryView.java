@@ -5,6 +5,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.hub.frontend.vflow.PropertiesService;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
@@ -15,7 +16,6 @@ import consulo.hub.frontend.vflow.repository.ui.RepositoryChannelPanel;
 import consulo.hub.frontend.vflow.repository.ui.TagsLocalizeLoader;
 import consulo.hub.frontend.vflow.util.RouterUtil;
 import consulo.hub.shared.repository.PluginChannel;
-import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
@@ -24,11 +24,13 @@ import java.util.Map;
  * @author VISTALL
  * @since 12-Mar-17
  */
-@Route(value = "repo/:channel?/:id?", layout = MainLayout.class)
+@Route(value = "repository/:channel?/:id?", layout = MainLayout.class)
 @PageTitle("Repository")
-@PermitAll
+@AnonymousAllowed
 public class RepositoryView extends VChildLayout
 {
+	public static final PluginChannel DEFAULT_CHANNEL = PluginChannel.release;
+
 	public static final String CHANNEL = "channel";
 	public static final String ID = "id";
 
@@ -91,7 +93,7 @@ public class RepositoryView extends VChildLayout
 			return;
 		}
 
-		String channelStr = myRouteParameters.get(CHANNEL).orElse(PluginChannel.nightly.name());
+		String channelStr = myRouteParameters.get(CHANNEL).orElse(DEFAULT_CHANNEL.name());
 		String id = myRouteParameters.get(ID).orElse(null);
 
 		PluginChannel pluginChannel = null;
@@ -101,7 +103,7 @@ public class RepositoryView extends VChildLayout
 		}
 		catch(IllegalArgumentException e)
 		{
-			pluginChannel = PluginChannel.nightly;
+			pluginChannel = DEFAULT_CHANNEL;
 		}
 
 		isRendering = true;

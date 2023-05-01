@@ -17,12 +17,14 @@ vaadin-scroller[slot="drawer"] {
 
 vcf-nav-item
 {
-	font-size: var(--lumo-font-size-s);
+	font-size: var(--lumo-font-size-m);
+	padding-top: var(--lumo-space-s);
+	padding-bottom: var(--lumo-space-s);
 }
 
 vcf-nav-item vaadin-icon
 {
-	font-size: var(--lumo-font-size-s);
+	font-size: var(--lumo-font-size-m);
 }
 
 vaadin-menu-bar-item

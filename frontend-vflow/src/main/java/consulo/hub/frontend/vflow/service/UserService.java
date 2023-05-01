@@ -13,6 +13,4 @@ public interface UserService
 {
 	@NonNull
 	Optional<UserAccount> getCurrentUser();
-
-	void logout();
 }

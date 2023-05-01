@@ -25,7 +25,7 @@ import org.springframework.data.domain.Sort;
 import javax.annotation.Nonnull;
 
 @PageTitle("Dashboard")
-@Route(value = "dashboard", layout = MainLayout.class)
+@Route(value = "user/dashboard", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 @PermitAll
 public class DashboardView extends VChildLayout

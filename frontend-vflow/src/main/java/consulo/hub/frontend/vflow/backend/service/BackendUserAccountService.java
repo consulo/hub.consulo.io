@@ -52,7 +52,9 @@ public class BackendUserAccountService
 			map.put("token", token);
 			map.put("hostName", hostName);
 
-			return myBackendRequestor.runRequest("/user/oauth/request", map, new TypeReference<Map<String, String>>() {});
+			return myBackendRequestor.runRequest("/user/oauth/request", map, new TypeReference<Map<String, String>>()
+			{
+			});
 		}
 		catch(Exception e)
 		{
@@ -68,7 +70,16 @@ public class BackendUserAccountService
 			Map<String, String> map = new HashMap<>();
 			map.put("userId", String.valueOf(account.getId()));
 
-			return myBackendRequestor.runRequest("/user/oauth/list", map, OAuthTokenInfo[].class);
+			OAuthTokenInfo[] oAuthTokenInfos = myBackendRequestor.runRequest("/user/oauth/list", map, OAuthTokenInfo[].class);
+			if(oAuthTokenInfos == null)
+			{
+				OAuthTokenInfo oAuthTokenInfo = new OAuthTokenInfo();
+				oAuthTokenInfo.setToken("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+				oAuthTokenInfos = new OAuthTokenInfo[]{
+						oAuthTokenInfo
+				};
+			}
+			return oAuthTokenInfos;
 		}
 		catch(Exception e)
 		{
@@ -134,7 +145,7 @@ public class BackendUserAccountService
 	{
 		try
 		{
-			return List.of(myBackendRequestor.runRequest("/user/list", Map.of(), UserAccount[].class));
+			return List.of(myBackendRequestor.runRequest("/user/list", Map.of(), UserAccount[].class, () -> new UserAccount[0]));
 		}
 		catch(Exception e)
 		{

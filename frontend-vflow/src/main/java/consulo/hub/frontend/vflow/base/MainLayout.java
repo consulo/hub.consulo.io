@@ -6,24 +6,35 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.StubView;
+import consulo.hub.frontend.vflow.auth.view.AdminUserView;
+import consulo.hub.frontend.vflow.auth.view.OAuthKeysView;
 import consulo.hub.frontend.vflow.base.appnav.AppNav;
+import consulo.hub.frontend.vflow.base.appnav.AppNavItem;
+import consulo.hub.frontend.vflow.config.view.AdminConfigView;
 import consulo.hub.frontend.vflow.dash.ui.DashboardView;
+import consulo.hub.frontend.vflow.errorReporter.view.AdminErrorReportsView;
+import consulo.hub.frontend.vflow.errorReporter.view.ErrorReportsView;
+import consulo.hub.frontend.vflow.repository.view.AdminRepositoryView;
 import consulo.hub.frontend.vflow.repository.view.RepositoryView;
 import consulo.hub.frontend.vflow.service.UserService;
 import consulo.hub.frontend.vflow.storage.view.StorageView;
+import consulo.hub.shared.auth.Roles;
+import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import java.util.Optional;
 
@@ -31,6 +42,7 @@ import java.util.Optional;
 @Uses(FontAwesome.Regular.Icon.class)
 @Uses(FontAwesome.Solid.Icon.class)
 @Uses(FontAwesome.Brands.Icon.class)
+@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class MainLayout extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver
 {
 	private H2 myViewTitle;
@@ -85,16 +97,35 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 	{
 		AppNav nav = new AppNav();
 
-		nav.addItem("Dashboard", DashboardView.class, VaadinIcon.HOME);
-		nav.addItem("Error Reports", StubView.class, FontAwesome.Solid.BOLT);
-		nav.addItem("Statistics", StubView.class, FontAwesome.Solid.SIGNAL);
-		nav.addItem("Storage", StorageView.class, FontAwesome.Solid.FOLDER_OPEN);
-		nav.addItem("OAuth Keys", StubView.class, FontAwesome.Solid.KEY);
-		nav.addSeparator();
 		nav.addItem("Repository", RepositoryView.class, FontAwesome.Solid.PLUG);
-		nav.addSeparator("statistics");
-		nav.addItem("Error Reports", StubView.class, FontAwesome.Solid.BOLT);
 
+		if(SecurityUtil.isLoggedIn())
+		{
+			AppNavItem homeGroup = new AppNavItem("User");
+			homeGroup.setExpanded(true);
+			nav.addItem(homeGroup);
+
+			homeGroup.addItem("Dashboard", DashboardView.class, FontAwesome.Solid.CHART_BAR);
+			homeGroup.addItem("Error Reports", ErrorReportsView.class, FontAwesome.Solid.BOLT);
+			homeGroup.addItem("Statistics", StubView.class, FontAwesome.Solid.SIGNAL);
+			homeGroup.addItem("Storage", StorageView.class, FontAwesome.Solid.FOLDER_OPEN);
+			homeGroup.addItem("OAuth Keys", OAuthKeysView.class, FontAwesome.Solid.KEY);
+		}
+
+		//nav.addItem("Error Reports", StubView.class, FontAwesome.Solid.BOLT);
+
+		if(SecurityUtil.hasRole(Roles.ROLE_SUPERUSER))
+		{
+			AppNavItem adminGroup = new AppNavItem("Administration");
+			adminGroup.setExpanded(true);
+			nav.addItem(adminGroup);
+			adminGroup.addItem("Users", AdminUserView.class, FontAwesome.Solid.USERS);
+			adminGroup.addItem("Error Reports", AdminErrorReportsView.class, FontAwesome.Solid.BOLT);
+			adminGroup.addItem("Statistics", StubView.class, FontAwesome.Solid.SIGNAL);
+			adminGroup.addItem("Repository", AdminRepositoryView.class, FontAwesome.Solid.PLUG);
+			adminGroup.addItem("Config", AdminConfigView.class, FontAwesome.Solid.WRENCH);
+		}
+		
 		return nav;
 	}
 
@@ -123,7 +154,12 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 			div.getElement().getStyle().set("align-items", "center");
 			div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
 			userName.add(div);
-			userName.getSubMenu().addItem("Sign out", e -> myUserService.logout());
+			userName.getSubMenu().addItem("Sign out", e ->
+			{
+				getUI().get().getPage().setLocation("/logout");
+				SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+				logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
+			});
 
 			layout.add(userMenu);
 		}

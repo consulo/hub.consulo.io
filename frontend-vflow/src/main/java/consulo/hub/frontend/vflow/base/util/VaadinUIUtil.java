@@ -1,6 +1,7 @@
 package consulo.hub.frontend.vflow.base.util;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -34,18 +35,20 @@ public class VaadinUIUtil
 		return horizontalLayout;
 	}
 
-//	public static Component labeledFill(String name, Component component)
-//	{
-//		GridLayout gridLayout = new GridLayout(2, 1);
-//		gridLayout.setMargin(false);
-//		gridLayout.setSpacing(false);
-//		gridLayout.setWidth(100, Sizeable.Unit.PERCENTAGE);
-//		component.setWidth(100, Sizeable.Unit.PERCENTAGE);
-//		gridLayout.addComponent(TinyComponents.newLabel(name), 0, 0);
-//		gridLayout.addComponent(component, 1, 0);
-//		return gridLayout;
-//	}
-//
+	public static Component labeledFill(String name, Component component)
+	{
+		HorizontalLayout layout = newHorizontalLayout();
+		layout.setWidthFull();
+		layout.add(TinyComponents.newLabel(name));
+		layout.add(component);
+		layout.setFlexGrow(1, component);
+		if(component instanceof HasSize)
+		{
+			((HasSize) component).setWidthFull();
+		}
+		return layout;
+	}
+
 	public static Component labeled(String name, Component component)
 	{
 		HorizontalLayout horizontalLayout = VaadinUIUtil.newHorizontalLayout();
