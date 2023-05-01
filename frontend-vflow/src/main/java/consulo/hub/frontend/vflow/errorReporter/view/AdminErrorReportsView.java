@@ -35,67 +35,75 @@ import java.util.function.Consumer;
 public class AdminErrorReportsView extends BaseErrorReportsView
 {
 	@Override
-	protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
+	protected ErrorReportComponent createErrorReportComponent(ErrorReport errorReport)
 	{
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
+		return new ErrorReportComponent(errorReport)
 		{
-			super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
-			return;
-		}
-
-		HorizontalLayout panel = VaadinUIUtil.newHorizontalLayout();
-		panel.setSpacing(true);
-		rightLayout.add(panel);
-
-		Map<ErrorReportStatus, Button> adminButtons = new LinkedHashMap<>();
-		for(ErrorReportStatus status : ErrorReportStatus.values())
-		{
-			String captalizedStatus = StringUtil.capitalize(status.name().toLowerCase(Locale.US));
-			Button button = TinyComponents.newButton(captalizedStatus);
-			//button.addStyleName("errorViewButton" + captalizedStatus);
-
-			adminButtons.put(status, button);
-
-			button.addClickListener(e ->
+			@Override
+			protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 			{
-				if(errorReport.getStatus() != status)
+				Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+				if(authentication == null)
 				{
-					fireChanged(onUpdate, errorReport);
+					super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
+					return;
+				}
 
-					ErrorReport updated = myErrorReportRepository.changeStatus(errorReport.getId(), status, AuthUtil.getUserId());
-					if(updated != null)
+				HorizontalLayout panel = VaadinUIUtil.newHorizontalLayout();
+				panel.setSpacing(true);
+				rightLayout.add(panel);
+
+				Map<ErrorReportStatus, Button> adminButtons = new LinkedHashMap<>();
+				for(ErrorReportStatus status : ErrorReportStatus.values())
+				{
+					String captalizedStatus = StringUtil.capitalize(status.name().toLowerCase(Locale.US));
+					Button button = TinyComponents.newButton(captalizedStatus);
+					//button.addStyleName("errorViewButton" + captalizedStatus);
+
+					adminButtons.put(status, button);
+
+					button.addClickListener(e ->
 					{
-						fireChanged(onUpdate, updated);
-					}
+						if(errorReport.getStatus() != status)
+						{
+							fireChanged(onUpdate, errorReport);
+
+							ErrorReport updated = myErrorReportRepository.changeStatus(errorReport.getId(), status, AuthUtil.getUserId());
+							if(updated != null)
+							{
+								fireChanged(onUpdate, updated);
+							}
+						}
+					});
 				}
-			});
-		}
 
-		onUpdate.add(report ->
-		{
-			panel.removeAll();
-
-			for(ErrorReportStatus errorReportStatus : ErrorReportStatus.values())
-			{
-				if(errorReportStatus == report.getStatus())
+				onUpdate.add(report ->
 				{
-					continue;
-				}
+					panel.removeAll();
 
-				Button button = adminButtons.get(errorReportStatus);
-				panel.add(button);
-			}
+					for(ErrorReportStatus errorReportStatus : ErrorReportStatus.values())
+					{
+						if(errorReportStatus == report.getStatus())
+						{
+							continue;
+						}
 
-			// hide from view
-			if(!myFilters.contains(report.getStatus()))
-			{
-				myReportList.removeItem(lineLayout);
-				myLastPageSize--;
-				updateHeader();
+						Button button = adminButtons.get(errorReportStatus);
+						panel.add(button);
+					}
+
+					// hide from view
+					if(!myFilters.contains(report.getStatus()))
+					{
+						myReportList.removeItem(lineLayout);
+						myLastPageSize--;
+						updateHeader();
+					}
+				});
+
+				super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
 			}
-		});
-		super.addRightButtons(errorReport, lineLayout, rightLayout, onUpdate);
+		};
 	}
 
 	@Override

@@ -2,18 +2,18 @@ package consulo.hub.frontend.vflow.errorReporter.view;
 
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.vflow.base.MainLayout;
+import consulo.hub.frontend.vflow.base.VChildLayout;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
+import consulo.util.lang.StringUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -21,46 +21,53 @@ import java.util.function.Consumer;
  * @author VISTALL
  * @since 11-Mar-17
  */
-public class DirectErrorReportsView extends BaseErrorReportsView
+@PageTitle("Error Report")
+@Route(value = "public/errorReport/:longId", layout = MainLayout.class)
+@AnonymousAllowed
+public class DirectErrorReportsView extends VChildLayout
 {
-	private ErrorReport myErrorReport;
+	public static final String LONG_ID = "longId";
 
-	public DirectErrorReportsView(ErrorReport errorReport)
+	@Autowired
+	private final BackendErrorReporterService myErrorReportRepository;
+
+	public DirectErrorReportsView(BackendErrorReporterService errorReportRepository)
 	{
-		myErrorReport = errorReport;
+		myErrorReportRepository = errorReportRepository;
 	}
 
 	@Override
-	protected boolean skipField(String name)
+	public void viewReady(AfterNavigationEvent afterNavigationEvent)
 	{
-		return StringUtils.containsIgnoreCase(name, "user") ||
-				StringUtils.containsIgnoreCase(name, "changedByUser") ||
-				StringUtils.containsIgnoreCase(name, "assignUser") ||
-				StringUtils.containsIgnoreCase(name, "id") ||
-				StringUtils.containsIgnoreCase(name, "changeTime");
-	}
+		String id = myRouteParameters.get(LONG_ID).get();
 
-	@Override
-	protected void updateHeader()
-	{
-		//myLabel.setValue("Error Report");
-	}
+		ErrorReport report = myErrorReportRepository.findByLongId(StringUtil.notNullize(id));
+		if(report == null)
+		{
+			report = new ErrorReport();
+		}
 
-	@Override
-	protected boolean allowFilters()
-	{
-		return false;
-	}
+		ErrorReportComponent component = new ErrorReportComponent(report)
+		{
+			@Override
+			protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
+			{
+				openOrCloseDetails(errorReport, lineLayout, onUpdate);
+			}
 
-	@Override
-	protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
-	{
-		openOrCloseDetails(errorReport, lineLayout, onUpdate);
-	}
+			@Override
+			protected boolean skipField(String name)
+			{
+				return StringUtils.containsIgnoreCase(name, "user") ||
+						StringUtils.containsIgnoreCase(name, "changedByUser") ||
+						StringUtils.containsIgnoreCase(name, "assignUser") ||
+						StringUtils.containsIgnoreCase(name, "id") ||
+						StringUtils.containsIgnoreCase(name, "changeTime");
+			}
+		};
 
-	@Override
-	protected Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize)
-	{
-		return new PageImpl<>(Arrays.asList(myErrorReport), PageRequest.of(0, pageSize), 1);
+		component.setWidthFull();
+		add(component);
+		setFlexGrow(1, component);
 	}
 }

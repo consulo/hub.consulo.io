@@ -1,12 +1,15 @@
 package consulo.hub.frontend.vflow.dash.ui;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.vflow.base.LabeledLayout;
 import consulo.hub.frontend.vflow.base.MainLayout;
@@ -16,6 +19,8 @@ import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
+import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
+import consulo.util.lang.StringUtil;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +28,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import javax.annotation.Nonnull;
+import java.util.Date;
+import java.util.Locale;
 
 @PageTitle("Dashboard")
 @Route(value = "user/dashboard", layout = MainLayout.class)
@@ -64,47 +71,47 @@ public class DashboardView extends VChildLayout
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.addClassName("bodyMargin");
 
-		//		HorizontalLayout legendLayout = VaadinUIUtil.newHorizontalLayout();
-		//		legendLayout.setWidth(100, Unit.PERCENTAGE);
-		//		legendLayout.setSpacing(true);
-		//
-		//		for(ErrorReportStatus reporterStatus : ErrorReportStatus.values())
-		//		{
-		//			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
-		//
-		//			Label label = TinyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
-		//			label.addStyleName(ValoTheme.LABEL_BOLD);
-		//			lineLayout.addComponent(label);
-		//			lineLayout.addStyleName("errorViewLineLayout");
-		//			lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
-		//			legendLayout.addComponent(lineLayout);
-		//		}
-		//		verticalLayout.addComponent(legendLayout);
-		//
-		//		for(ErrorReport errorReport : reportList)
-		//		{
-		//			HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
-		//			shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-		//			shortLine.setWidth(100, Unit.PERCENTAGE);
-		//
-		//			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
-		//			lineLayout.setWidth(100, Unit.PERCENTAGE);
-		//			lineLayout.addComponent(shortLine);
-		//			lineLayout.addStyleName("errorViewLineLayout");
-		//
-		//			lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
-		//
-		//			HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
-		//			leftLayout.setWidth(100, Unit.PERCENTAGE);
-		//			leftLayout.setSpacing(true);
-		//			leftLayout.addComponent(TinyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
-		//			leftLayout.addComponent(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
-		//
-		//			shortLine.addComponent(leftLayout);
-		//			shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
-		//
-		//			verticalLayout.addComponent(lineLayout);
-		//		}
+		HorizontalLayout legendLayout = VaadinUIUtil.newHorizontalLayout();
+		legendLayout.setWidth(100, Unit.PERCENTAGE);
+		legendLayout.setSpacing(true);
+
+		for(ErrorReportStatus reporterStatus : ErrorReportStatus.values())
+		{
+			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
+
+			Label label = TinyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+			label.addClassName(LumoUtility.FontWeight.BOLD);
+			lineLayout.add(label);
+			//lineLayout.addStyleName("errorViewLineLayout");
+			//lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+			legendLayout.add(lineLayout);
+		}
+		verticalLayout.add(legendLayout);
+
+		for(ErrorReport errorReport : reportList)
+		{
+			HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
+			//shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+			shortLine.setWidth(100, Unit.PERCENTAGE);
+
+			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
+			lineLayout.setWidth(100, Unit.PERCENTAGE);
+			lineLayout.add(shortLine);
+			//lineLayout.addStyleName("errorViewLineLayout");
+
+			//lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
+
+			HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
+			leftLayout.setWidth(100, Unit.PERCENTAGE);
+			leftLayout.setSpacing(true);
+			leftLayout.add(TinyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+			leftLayout.add(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+
+			shortLine.add(leftLayout);
+			//shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
+
+			verticalLayout.add(lineLayout);
+		}
 
 		return panel("Last Error Reports", verticalLayout);
 	}
