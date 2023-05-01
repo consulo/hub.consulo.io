@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import consulo.hub.backend.auth.oauth2.service.UserAccountDetailsService;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
@@ -17,21 +18,16 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.MultipartConfigElement;
-
 @EnableScheduling
 @EnableJpaRepositories
-@SpringBootApplication(exclude = {
-		WebSocketAutoConfiguration.class
-})
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@SpringBootApplication
+@EnableMethodSecurity(securedEnabled = true)
 @EntityScan({
 		"consulo.hub.shared.*",
 		"consulo.hub.backend.*"

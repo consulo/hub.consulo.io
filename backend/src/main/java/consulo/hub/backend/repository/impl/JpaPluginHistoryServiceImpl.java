@@ -57,6 +57,6 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 				}
 		).collect(Collectors.toList());
 
-		myPluginHistoryEntryRepository.save(history);
+		myPluginHistoryEntryRepository.saveAll(history);
 	}
 }

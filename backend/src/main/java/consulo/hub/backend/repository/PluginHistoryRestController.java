@@ -1,11 +1,11 @@
 package consulo.hub.backend.repository;
 
-import com.intellij.util.text.VersionComparatorUtil;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.backend.repository.repository.PluginHistoryEntryRepository;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginHistoryEntry;
 import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.VersionComparatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

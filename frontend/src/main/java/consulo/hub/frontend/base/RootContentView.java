@@ -1,26 +1,18 @@
 package consulo.hub.frontend.base;
 
-import java.time.LocalDate;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 
 import javax.annotation.Nonnull;
-
-import com.vaadin.server.ExternalResource;
-import com.vaadin.server.FontAwesome;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.ComponentContainer;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
-import com.vaadin.ui.themes.ValoTheme;
-import consulo.hub.frontend.base.NavigationMenu;
-import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import java.awt.*;
+import java.time.LocalDate;
 
 /**
  * @author VISTALL
  * @since 18-Apr-17
  */
+@Deprecated
 public class RootContentView extends HorizontalLayout
 {
 	private final ComponentContainer myComponentContainer;

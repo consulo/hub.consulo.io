@@ -17,42 +17,21 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
-			<artifactId>consulo-annotations</artifactId>
+			<artifactId>consulo-annotation</artifactId>
 			<version>${consulo.version}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
 			<groupId>consulo</groupId>
-			<artifactId>consulo-core-api</artifactId>
+			<artifactId>consulo-application-api</artifactId>
 			<version>${consulo.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-core-impl</artifactId>
-			<version>${consulo.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-platform-api</artifactId>
-			<version>${consulo.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-test-impl</artifactId>
-			<version>${consulo.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-platform-impl</artifactId>
-			<version>${consulo.version}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
@@ -62,8 +41,9 @@
 
 		<dependency>
 			<groupId>consulo</groupId>
-			<artifactId>consulo-util</artifactId>
+			<artifactId>consulo-util-lang</artifactId>
 			<version>${consulo.version}</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 </project>

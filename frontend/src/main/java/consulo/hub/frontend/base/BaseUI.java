@@ -1,15 +1,15 @@
 package consulo.hub.frontend.base;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.server.VaadinRequest;
 import consulo.hub.frontend.PropertiesService;
+import org.springframework.beans.factory.annotation.Autowired;
+import sun.jvm.hotspot.debugger.Page;
 
 /**
  * @author VISTALL
  * @since 09-Nov-16
  */
+@Deprecated
 public abstract class BaseUI extends UI
 {
 	@Autowired

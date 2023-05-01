@@ -3,23 +3,15 @@ package consulo.hub.frontend.base;
 import com.google.common.eventbus.EventBus;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
-import com.vaadin.annotations.Push;
-import com.vaadin.annotations.StyleSheet;
-import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Widgetset;
-import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.navigator.ViewProvider;
-import com.vaadin.server.*;
-import com.vaadin.shared.communication.PushMode;
-import com.vaadin.shared.ui.ui.Transport;
-import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.spring.navigator.SpringViewProvider;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.UI;
+import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.server.DefaultErrorHandler;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.shared.communication.PushMode;
+import com.vaadin.flow.shared.ui.Transport;
+import com.vaadin.flow.theme.Theme;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.auth.view.*;
 import consulo.hub.frontend.backend.service.BackendPluginStatisticsService;
@@ -279,7 +271,7 @@ public class RootUI extends UI
 		Throwable t = DefaultErrorHandler.findRelevantThrowable(event.getThrowable());
 		if(t instanceof AccessDeniedException)
 		{
-			Notification.show("You do not have permission to perform this operation", Notification.Type.WARNING_MESSAGE);
+			Notification.show("You do not have permission to perform this operation", NotificationType.WARNING_MESSAGE);
 		}
 		else
 		{

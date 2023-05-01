@@ -1,13 +1,14 @@
 package consulo.hub.backend.repository;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.util.ArrayUtil;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.io.FilePermissionCopier;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,7 +215,7 @@ public class PluginChannelIterationService
 				}
 				else
 				{
-					toChannel.push(node, "zip", file -> FileUtilRt.copy(targetFile, file));
+					toChannel.push(node, "zip", file -> FileUtil.copy(targetFile, file, FilePermissionCopier.BY_NIO2));
 				}
 			}
 			catch(Exception e)

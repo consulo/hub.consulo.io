@@ -1,7 +1,7 @@
 package consulo.hub.backend.repository.archive;
 
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.openapi.util.io.StreamUtil;
+import consulo.util.io.FileUtil;
+import consulo.util.io.StreamUtil;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -32,7 +32,7 @@ public class TarGzArchive
 	public void extract(@Nonnull File from, @Nonnull File targetDirectory) throws IOException
 	{
 		FileSystemUtils.deleteRecursively(targetDirectory);
-		FileUtilRt.createDirectory(targetDirectory);
+		FileUtil.createDirectory(targetDirectory);
 
 		try (TarArchiveInputStream ais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(from))))
 		{
@@ -63,11 +63,11 @@ public class TarGzArchive
 				TarGzArchiveEntry value = new TarGzArchiveEntry(name, tempEntry.isDirectory(), tempEntry.getMode(), tempEntry.getLastModifiedDate().getTime(), flags, tempEntry.getLinkName());
 				if(tempEntry.isDirectory())
 				{
-					FileUtilRt.createDirectory(targetFile);
+					FileUtil.createDirectory(targetFile);
 				}
 				else
 				{
-					FileUtilRt.createParentDirs(targetFile);
+					FileUtil.createParentDirs(targetFile);
 
 					try (OutputStream stream = new FileOutputStream(targetFile))
 					{

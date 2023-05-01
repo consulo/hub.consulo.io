@@ -1,6 +1,5 @@
 package consulo.hub.frontend.statistics.view;
 
-import com.vaadin.spring.annotation.SpringView;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
 

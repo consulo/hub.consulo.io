@@ -1,8 +1,8 @@
 package consulo.hub.shared.storage.domain;
 
 import consulo.hub.shared.auth.domain.UserAccount;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.util.Objects;
 
 /**

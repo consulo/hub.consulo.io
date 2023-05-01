@@ -15,11 +15,10 @@
  */
 package consulo.externalStorage.storage;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.StreamUtil;
-import com.intellij.util.io.DataOutputStream;
-import com.intellij.util.io.UnsyncByteArrayInputStream;
-import com.intellij.util.io.UnsyncByteArrayOutputStream;
+import consulo.util.io.StreamUtil;
+import consulo.util.io.UnsyncByteArrayInputStream;
+import consulo.util.io.UnsyncByteArrayOutputStream;
+import consulo.util.lang.Pair;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.iq80.snappy.SnappyInputStream;
@@ -27,6 +26,7 @@ import org.iq80.snappy.SnappyOutputStream;
 
 import javax.annotation.Nonnull;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 

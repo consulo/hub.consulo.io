@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>consulo</groupId>
+	<groupId>consulo.hub</groupId>
 	<artifactId>webservice-api-root</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0-SNAPSHOT</version>
@@ -20,7 +20,8 @@
 	</dependencyManagement>
 
 	<properties>
-		<consulo.version>2-SNAPSHOT</consulo.version>
+		<consulo.version>3-SNAPSHOT</consulo.version>
+		<spring.boot.version>3.0.6</spring.boot.version>
 	</properties>
 
 	<repositories>
@@ -28,7 +29,7 @@
 			<id>consulo</id>
 			<url>https://maven.consulo.io/repository/snapshots/</url>
 			<snapshots>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>interval:60</updatePolicy>
 			</snapshots>
 		</repository>
 	</repositories>
@@ -38,7 +39,7 @@
 			<id>consulo-plugin</id>
 			<url>https://maven.consulo.io/repository/snapshots/</url>
 			<snapshots>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>interval:60</updatePolicy>
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
@@ -58,8 +59,9 @@
 	</build>
 
 	<modules>
-		<module>plugin-analyzer-rt</module>
-		<module>frontend</module>
+		<!--<module>plugin-analyzer-rt</module>-->
+		<!--<module>frontend</module>-->
+		<module>frontend-vflow</module>
 		<module>backend</module>
 		<module>shared</module>
 	</modules>

@@ -2,8 +2,8 @@ package consulo.hub.shared.statistics.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import consulo.hub.shared.auth.domain.UserAccount;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

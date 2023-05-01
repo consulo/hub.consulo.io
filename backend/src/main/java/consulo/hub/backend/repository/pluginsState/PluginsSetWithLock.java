@@ -1,8 +1,8 @@
 package consulo.hub.backend.repository.pluginsState;
 
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.util.io.FileUtilRt;
+import consulo.hub.backend.util.AccessToken;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.util.io.FileUtil;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -40,7 +40,7 @@ public class PluginsSetWithLock extends PluginsState
 	{
 		super(rootDir, pluginId);
 
-		FileUtilRt.createParentDirs(myPluginDirectory);
+		FileUtil.createParentDirs(myPluginDirectory);
 	}
 
 	@Nonnull

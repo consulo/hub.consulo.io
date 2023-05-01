@@ -1,7 +1,7 @@
 package consulo.hub.backend.github;
 
-import com.intellij.openapi.util.text.StringUtil;
 import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.util.lang.StringUtil;
 import org.kohsuke.github.GitHub;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -161,7 +160,7 @@ public class ErrorReportRestController
 		UserAccount assignUser = null;
 		if(assignUserId != 0)
 		{
-			assignUser = Objects.requireNonNull(myUserAccountRepository.findOne(assignUserId));
+			assignUser = myUserAccountRepository.findById(assignUserId).get();
 		}
 
 		errorReport.setUser(account);

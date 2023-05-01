@@ -4,6 +4,7 @@ import consulo.hub.backend.storage.repository.StoragePluginRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.storage.domain.StoragePlugin;
 import consulo.hub.shared.storage.domain.StoragePluginState;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;

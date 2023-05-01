@@ -3,8 +3,7 @@ package consulo.hub.shared.repository;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import consulo.hub.shared.auth.domain.UserAccount;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author VISTALL

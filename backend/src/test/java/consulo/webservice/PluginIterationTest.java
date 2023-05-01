@@ -1,14 +1,14 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intellij.openapi.util.Couple;
-import com.intellij.openapi.util.io.FileUtil;
 import consulo.hub.backend.repository.*;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Couple;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,9 +1,9 @@
 package consulo.hub.frontend.statistics.view;
 
 import com.ejt.vaadin.sizereporter.SizeReporter;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.*;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import consulo.hub.frontend.backend.service.BackendStatisticsService;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.errorReporter.ui.ScrollableListPanel;
@@ -25,7 +25,10 @@ import org.dussan.vaadin.dcharts.metadata.renderers.SeriesRenderers;
 import org.dussan.vaadin.dcharts.options.*;
 import org.dussan.vaadin.dcharts.renderers.tick.AxisTickRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
+import sun.java2d.loops.CustomComponent;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 

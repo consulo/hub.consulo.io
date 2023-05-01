@@ -31,10 +31,10 @@ public class FrontendStatisticsRestController
 	{
 		if(userId == null)
 		{
-			return myStatisticEntryRepository.findAll(new Sort(Sort.Direction.ASC, "createTime"));
+			return myStatisticEntryRepository.findAll(Sort.by(Sort.Direction.ASC, "createTime"));
 		}
 
 		UserAccount user = Objects.requireNonNull(myUserAccountService.findUser(userId));
-		return myStatisticEntryRepository.findByUser(user, new Sort(Sort.Direction.ASC, "createTime"));
+		return myStatisticEntryRepository.findByUser(user, Sort.by(Sort.Direction.ASC, "createTime"));
 	}
 }

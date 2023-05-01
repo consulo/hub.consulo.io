@@ -1,6 +1,6 @@
 package consulo.hub.backend.util;
 
-import com.intellij.openapi.util.io.FileUtil;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.ObjectUtil;
 
 import javax.annotation.Nonnull;

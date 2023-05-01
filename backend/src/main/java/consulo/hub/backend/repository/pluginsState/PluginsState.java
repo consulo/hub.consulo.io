@@ -1,19 +1,18 @@
 package consulo.hub.backend.repository.pluginsState;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.ThrowableNotNullFunction;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.util.ThrowableConsumer;
-import com.intellij.util.text.VersionComparatorUtil;
-import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.backend.repository.PluginChannelService;
-import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.backend.repository.PluginStatisticsService;
+import consulo.hub.backend.util.AccessToken;
 import consulo.hub.backend.util.GsonUtil;
+import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.PluginNode;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Comparing;
+import consulo.util.lang.Pair;
+import consulo.util.lang.VersionComparatorUtil;
+import consulo.util.lang.function.ThrowableConsumer;
+import consulo.util.lang.function.ThrowableFunction;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -129,7 +128,7 @@ public class PluginsState
 	{
 		String fileName = myPluginId + "_" + version + "." + ext;
 		File artifactFile = new File(myPluginDirectory, fileName);
-		FileUtilRt.createParentDirs(artifactFile);
+		FileUtil.createParentDirs(artifactFile);
 		if(artifactFile.exists())
 		{
 			File jsonFile = new File(myPluginDirectory, fileName + ".json");
@@ -290,11 +289,11 @@ public class PluginsState
 		}
 	}
 
-	private String calculateChecksum(File input, ThrowableNotNullFunction<InputStream, String, Exception> digFunc)
+	private String calculateChecksum(File input, ThrowableFunction<InputStream, String, Exception> digFunc)
 	{
 		try(FileInputStream in = new FileInputStream(input))
 		{
-			return digFunc.fun(in).toUpperCase(Locale.ROOT);
+			return digFunc.apply(in).toUpperCase(Locale.ROOT);
 		}
 		catch(Exception e)
 		{

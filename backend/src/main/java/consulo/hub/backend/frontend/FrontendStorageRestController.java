@@ -50,7 +50,7 @@ public class FrontendStorageRestController
 			throw new IllegalArgumentException();
 		}
 
-		return myStorageFileRepository.findOne(fileId);
+		return myStorageFileRepository.findById(fileId).get();
 	}
 
 	@RequestMapping("/api/private/storage/deleteAll")

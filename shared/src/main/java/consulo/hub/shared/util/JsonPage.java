@@ -14,7 +14,7 @@ public class JsonPage<T>
 {
 	public static <K> Page<K> from(JsonPage<K> jsonPage, int pageSize)
 	{
-		return new PageImpl<>(jsonPage.getItems(), new PageRequest(jsonPage.getPage(), pageSize), jsonPage.getTotalElements());
+		return new PageImpl<>(jsonPage.getItems(), PageRequest.of(jsonPage.getPage(), pageSize), jsonPage.getTotalElements());
 	}
 
 	private int totalPages;

@@ -40,9 +40,9 @@ public class FrontendErrorReporterRestController
 	@RequestMapping("/api/private/errorReport/changeStatus")
 	public ErrorReport errorReportChangeStatus(@RequestParam("id") long errorReportId, @RequestParam(value = "userId") long userId, @RequestParam("status") ErrorReportStatus status)
 	{
-		UserAccount reportUser = Objects.requireNonNull(myUserAccountRepository.findOne(userId));
+		UserAccount reportUser = myUserAccountRepository.findById(userId).get();
 
-		ErrorReport errorReport = Objects.requireNonNull(myErrorReportRepository.findOne(errorReportId));
+		ErrorReport errorReport = myErrorReportRepository.findById(errorReportId).get();
 
 		errorReport.setStatus(status);
 		errorReport.setChangedByUser(reportUser);
@@ -60,7 +60,7 @@ public class FrontendErrorReporterRestController
 		UserAccount reportUser = null;
 		if(userId != 0)
 		{
-			reportUser = Objects.requireNonNull(myUserAccountRepository.findOne(userId));
+			reportUser = myUserAccountRepository.findById(userId).get();
 		}
 
 		ErrorReportStatus[] selectStatuses = ErrorReportStatus.values();
@@ -74,11 +74,11 @@ public class FrontendErrorReporterRestController
 
 		if(reportUser != null)
 		{
-			reports = myErrorReportRepository.findByUserAndStatusIn(reportUser, selectStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.ASC, "createDate")));
+			reports = myErrorReportRepository.findByUserAndStatusIn(reportUser, selectStatuses, PageRequest.of(page, pageSize, Sort.by(Sort.Direction.ASC, "createDate")));
 		}
 		else
 		{
-			reports = myErrorReportRepository.findByStatusIn(selectStatuses, new PageRequest(page, pageSize, new Sort(Sort.Direction.ASC, "createDate")));
+			reports = myErrorReportRepository.findByStatusIn(selectStatuses, PageRequest.of(page, pageSize, Sort.by(Sort.Direction.ASC, "createDate")));
 		}
 
 		return new JsonPage<>(reports);

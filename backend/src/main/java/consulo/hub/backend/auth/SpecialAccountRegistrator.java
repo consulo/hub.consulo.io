@@ -4,6 +4,7 @@ import consulo.hub.backend.auth.service.UserAccountService;
 import consulo.hub.shared.ServiceAccounts;
 import consulo.hub.shared.ServiceClientId;
 import consulo.hub.shared.auth.domain.UserAccount;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,8 +18,6 @@ import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author VISTALL

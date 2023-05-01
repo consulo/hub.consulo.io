@@ -1,10 +1,8 @@
 package consulo.hub.frontend.config.view;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.vaadin.data.HasValue;
-import com.vaadin.server.Page;
-import com.vaadin.ui.*;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.backend.BackendRequestor;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
@@ -14,7 +12,9 @@ import consulo.hub.frontend.util.PropertyKeys;
 import consulo.hub.frontend.util.PropertySet;
 import consulo.hub.shared.github.GithubPropertyKeys;
 import org.apache.commons.lang3.StringUtils;
+import sun.jvm.hotspot.debugger.Page;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

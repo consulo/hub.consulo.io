@@ -1,16 +1,16 @@
 package consulo.hub.backend.repository;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.ThrowableConsumer;
-import com.intellij.util.containers.ContainerUtil;
 import consulo.hub.backend.repository.pluginsState.PluginsSetWithLock;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.util.collection.Lists;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.function.ThrowableConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,7 +201,7 @@ public class PluginChannelService
 			return;
 		}
 
-		List<Pair<PluginNode, File>> list = map.computeIfAbsent(pluginNode.id, it -> ContainerUtil.createConcurrentList());
+		List<Pair<PluginNode, File>> list = map.computeIfAbsent(pluginNode.id, it -> Lists.newLockFreeCopyOnWriteList());
 		list.add(Pair.create(pluginNode, targetArchive));
 	}
 

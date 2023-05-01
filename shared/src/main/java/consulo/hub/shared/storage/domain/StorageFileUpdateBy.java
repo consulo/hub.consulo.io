@@ -1,8 +1,7 @@
 package consulo.hub.shared.storage.domain;
 
 import consulo.hub.shared.base.InformationBean;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author VISTALL

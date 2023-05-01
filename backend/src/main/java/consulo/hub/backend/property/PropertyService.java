@@ -22,7 +22,7 @@ public class PropertyService
 
 	public boolean getValue(String name)
 	{
-		Property property = myPropertyRepository.findOne(name);
+		Property property = myPropertyRepository.findById(name).orElse(null);
 		if(property != null)
 		{
 			return Boolean.valueOf(property.getValue());
@@ -32,7 +32,7 @@ public class PropertyService
 
 	public void setValue(String name, boolean value)
 	{
-		Property property = myPropertyRepository.findOne(name);
+		Property property = myPropertyRepository.findById(name).orElse(null);
 		if(property == null)
 		{
 			property = new Property();

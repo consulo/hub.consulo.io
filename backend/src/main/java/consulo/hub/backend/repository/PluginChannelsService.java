@@ -1,9 +1,9 @@
 package consulo.hub.backend.repository;
 
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.openapi.util.text.StringUtil;
 import consulo.hub.backend.util.ConsuloHelper;
 import consulo.hub.shared.repository.PluginChannel;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,14 +136,14 @@ public class PluginChannelsService implements CommandLineRunner
 		}
 
 		File workingDirectory = new File(workDirValue);
-		FileUtilRt.createDirectory(workingDirectory);
+		FileUtil.createDirectory(workingDirectory);
 
 		myTempUploadDirectory = new File(workingDirectory, "tempUpload");
 		FileSystemUtils.deleteRecursively(myTempUploadDirectory);
-		FileUtilRt.createDirectory(myTempUploadDirectory);
+		FileUtil.createDirectory(myTempUploadDirectory);
 
 		File pluginChannelDir = new File(workingDirectory, "plugin");
-		FileUtilRt.createDirectory(pluginChannelDir);
+		FileUtil.createDirectory(pluginChannelDir);
 
 		myTaskExecutor.execute(() ->
 		{

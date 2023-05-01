@@ -1,31 +1,24 @@
 package consulo.hub.frontend.base;
 
-import java.lang.reflect.Field;
-import java.util.function.Consumer;
-
-import javax.annotation.Nonnull;
-
 import com.google.common.eventbus.Subscribe;
 import com.intellij.openapi.util.Pair;
-import com.vaadin.navigator.View;
-import com.vaadin.server.Resource;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import consulo.hub.frontend.base.ui.event.AfterViewChangeEvent;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
+import sun.java2d.loops.CustomComponent;
+
+import javax.annotation.Nonnull;
+import javax.swing.text.View;
+import java.awt.*;
+import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
  * @since 18-Apr-17
  */
+@Deprecated
 public class NavigationMenu extends CustomComponent
 {
 	public static final class ValoMenuItemButton extends Button

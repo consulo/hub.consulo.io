@@ -1,11 +1,8 @@
 package consulo.hub.frontend.linkConsulo;
 
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.Page;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.*;
-import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import consulo.hub.frontend.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.base.ui.util.TinyComponents;
 import consulo.hub.frontend.base.ui.util.VaadinUIUtil;
@@ -13,6 +10,10 @@ import consulo.hub.frontend.dash.view.DashboardView;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
+import sun.jvm.hotspot.debugger.Page;
+
+import javax.swing.text.View;
+import java.awt.*;
 
 /**
  * @author VISTALL

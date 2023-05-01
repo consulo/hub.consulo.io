@@ -1,11 +1,7 @@
 package consulo.hub.frontend.config.view;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.spring.annotation.SpringView;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import consulo.hub.frontend.PropertiesService;
 import consulo.hub.frontend.backend.BackendRequestor;
 import consulo.hub.frontend.base.ui.util.TinyComponents;

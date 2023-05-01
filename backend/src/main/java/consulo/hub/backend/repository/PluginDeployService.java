@@ -2,24 +2,16 @@ package consulo.hub.backend.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
-import com.intellij.openapi.util.ThrowableComputable;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.CommonProcessors;
-import com.intellij.util.containers.MultiMap;
-import com.intellij.util.io.UnsyncByteArrayInputStream;
-import consulo.container.impl.ContainerLogger;
-import consulo.container.impl.PluginDescriptorImpl;
-import consulo.container.impl.PluginDescriptorLoader;
-import consulo.container.plugin.PluginId;
-import consulo.container.plugin.PluginPermissionDescriptor;
-import consulo.container.plugin.PluginPermissionType;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.collection.MultiMap;
+import consulo.util.io.FileUtil;
+import consulo.util.io.UnsyncByteArrayInputStream;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.ThrowableSupplier;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Comment;
@@ -187,18 +179,18 @@ public class PluginDeployService
 		}
 	}
 
-	public PluginNode deployPlugin(PluginChannel channel, ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
+	public PluginNode deployPlugin(PluginChannel channel, ThrowableSupplier<InputStream, IOException> streamSupplier) throws Exception
 	{
 		return deployPlugin(channel, () -> null, streamSupplier);
 	}
 
 	public PluginNode deployPlugin(PluginChannel channel,
-								   ThrowableComputable<InputStream, IOException> historyStreamSupplier,
-								   ThrowableComputable<InputStream, IOException> streamSupplier) throws Exception
+								   ThrowableSupplier<InputStream, IOException> historyStreamSupplier,
+								   ThrowableSupplier<InputStream, IOException> streamSupplier) throws Exception
 	{
 		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");
 
-		try (InputStream inputStream = streamSupplier.compute())
+		try (InputStream inputStream = streamSupplier.get())
 		{
 			try (OutputStream output = new FileOutputStream(tempFile))
 			{
@@ -208,7 +200,7 @@ public class PluginDeployService
 
 		File deployUnzip = myUserConfigurationService.createTempFile("deploy_unzip", "");
 
-		FileUtilRt.createDirectory(deployUnzip);
+		FileUtil.createDirectory(deployUnzip);
 
 		try (ZipFile zipFile = new ZipFile(tempFile))
 		{
@@ -230,10 +222,10 @@ public class PluginDeployService
 	}
 
 	@Nullable
-	private RestPluginHistoryEntry[] processPluginHistory(@Nonnull ThrowableComputable<InputStream, IOException> historyStreamSupplier) throws IOException
+	private RestPluginHistoryEntry[] processPluginHistory(@Nonnull ThrowableSupplier<InputStream, IOException> historyStreamSupplier) throws IOException
 	{
 		RestPluginHistoryEntry[] historyEntries = null;
-		InputStream historyJsonStream = historyStreamSupplier.compute();
+		InputStream historyJsonStream = historyStreamSupplier.get();
 		if(historyJsonStream != null)
 		{
 			try
