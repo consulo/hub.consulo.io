@@ -58,7 +58,7 @@ public class PluginChannelsService implements CommandLineRunner
 	private final TaskExecutor myTaskExecutor;
 
 	@Autowired
-	public PluginChannelsService(@Value("${working.directory}") String workingDirectoryPath, TaskExecutor taskExecutor)
+	public PluginChannelsService(@Value("${working.directory:hub-workdir}") String workingDirectoryPath, TaskExecutor taskExecutor)
 	{
 		myWorkingDirectoryPath = workingDirectoryPath;
 		myTaskExecutor = taskExecutor;

@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Route(value = "admin/config", layout = MainLayout.class)
 @RolesAllowed(Roles.ROLE_SUPERUSER)
-@PageTitle("Config")
+@PageTitle("Admin/Config")
 public class AdminConfigView extends VChildLayout
 {
 	@Autowired

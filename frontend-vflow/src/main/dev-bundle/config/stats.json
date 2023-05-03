@@ -167,6 +167,7 @@
  },
  "bundleImports": [
   "@vaadin/vaadin-themable-mixin",
+  "Frontend/generated/jar-resources/addons-styles/toggle-button-group.css",
   "Frontend/generated/jar-resources/grid-tree-toggle-adjust.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
@@ -276,6 +277,7 @@
   "themes/vflow/components/vaadin-password-field.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
   "themes/vflow/components/vaadin-text-area.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
   "themes/vflow/components/vaadin-text-field.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
+  "addons-styles/toggle-button-group.css": "215efc5865f6e26daa9651e46febcba5ac4668cc2d521467def02aff9c1facb0",
   "grid-tree-toggle-adjust.css": "a6cad36136feb6cb2b414d0ec79a83c120997311298510c0e21716a3fbddc3f8",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
@@ -305,7 +307,7 @@
   "vflow": "{\n\t\"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-b8ac44bf.js"
+  "VAADIN/build/indexhtml-90d06f01.js"
  ],
  "webComponents": [],
  "packageJsonHash": "522c1cafb3fdf910385b647d3ecef452fd3b9cfc01ad88aadfdf03b384161f3d"

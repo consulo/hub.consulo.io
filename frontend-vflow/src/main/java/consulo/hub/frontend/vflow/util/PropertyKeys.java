@@ -11,5 +11,5 @@ public interface PropertyKeys
 	String CAPTCHA_PRIVATE_KEY = "captcha.private.key";
 
 	String BACKEND_HOST_URL_KEY = "backend.host.key";
-	String BACKEND_HOST_OAUTH_KEY = "backend.host.oauth.key";
+	String BACKEND_HOST_PASSWORD = "backend.host.password";
 }

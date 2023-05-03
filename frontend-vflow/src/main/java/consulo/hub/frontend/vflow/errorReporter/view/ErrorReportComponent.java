@@ -5,6 +5,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -12,20 +15,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouteParameters;
+import consulo.hub.frontend.vflow.base.Badge;
 import consulo.hub.frontend.vflow.base.util.TinyComponents;
 import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
-import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.util.lang.StringUtil;
 import org.vaadin.stefan.table.Table;
 import org.vaadin.stefan.table.TableDataCell;
 import org.vaadin.stefan.table.TableRow;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -34,13 +34,18 @@ import java.util.function.Consumer;
  */
 public class ErrorReportComponent extends VerticalLayout
 {
+	private Div myBadgeHolder;
+
 	public ErrorReportComponent(ErrorReport errorReport)
 	{
-		HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
-		this.add(shortLine);
-		//this.addStyleName("errorViewLineLayout");
+		myBadgeHolder = new Div();
 
-		//shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+		HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
+
+		add(shortLine);
+
+		shortLine.add(myBadgeHolder);
+
 		shortLine.setWidth(100, Unit.PERCENTAGE);
 
 		HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
@@ -56,12 +61,12 @@ public class ErrorReportComponent extends VerticalLayout
 
 		onUpdate.add(report ->
 		{
-			for(ErrorReportStatus status : ErrorReportStatus.values())
-			{
-				//this.removeStyleName("errorViewLineLayout" + StringUtils.capitalize(status.name().toLowerCase(Locale.US)));
-			}
+			String status = errorReport.getStatus().name().toLowerCase(Locale.US);
 
-			//this.addStyleName("errorViewLineLayout" + StringUtils.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
+			myBadgeHolder.removeAll();
+			Badge badge = new Badge(status);
+			badge.addClassName("badge-" + status);
+			myBadgeHolder.add(badge);
 		});
 		addRightButtons(errorReport, this, rightLayout, onUpdate);
 
@@ -76,7 +81,7 @@ public class ErrorReportComponent extends VerticalLayout
 
 	protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
-		Button externalLink = new Button("External Link", FontAwesome.Solid.CHAIN.create());
+		Button externalLink = new Button("External Link", new Icon(VaadinIcon.EXTERNAL_LINK));
 
 		externalLink.addClickListener((e) ->
 		{
@@ -98,11 +103,11 @@ public class ErrorReportComponent extends VerticalLayout
 
 	protected void openOrCloseDetails(ErrorReport errorReport, VerticalLayout lineLayout, List<Consumer<ErrorReport>> onUpdate)
 	{
-		int componentCount = this.getComponentCount();
+		int componentCount = getComponentCount();
 		if(componentCount == 2)
 		{
-			Component component = this.getComponentAt(1);
-			this.remove(component);
+			Component component = getComponentAt(1);
+			remove(component);
 		}
 		else
 		{
@@ -125,7 +130,7 @@ public class ErrorReportComponent extends VerticalLayout
 			Table layout = new Table();
 			layout.setWidth(100, Unit.PERCENTAGE);
 
-			this.add(layout);
+			add(layout);
 
 			fill(layout, errorReport, rows, onUpdate);
 		}

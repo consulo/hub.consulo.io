@@ -5,6 +5,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouteParameters;
 
+import java.util.Optional;
+
 /**
  * @author VISTALL
  * @since 30/04/2023

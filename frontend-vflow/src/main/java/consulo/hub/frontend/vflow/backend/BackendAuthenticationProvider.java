@@ -1,7 +1,6 @@
 package consulo.hub.frontend.vflow.backend;
 
 import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.hub.shared.auth.domain.UserAccountStatus;
 import consulo.hub.shared.auth.rest.UserAuthResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -36,6 +35,10 @@ public class BackendAuthenticationProvider implements AuthenticationProvider
 			map.put("password", (String) authentication.getCredentials());
 
 			UserAuthResult userAuthResult = myBackendRequestor.runRequest("/user/auth", map, UserAuthResult.class);
+			if(userAuthResult == null)
+			{
+				throw new BadCredentialsException("connection problem");
+			}
 
 			UserAccount account = userAuthResult.getAccount();
 			String token = userAuthResult.getToken();

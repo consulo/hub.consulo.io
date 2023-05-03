@@ -2,6 +2,8 @@ package consulo.hub.frontend.vflow.base.captcha;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import consulo.hub.frontend.vflow.PropertiesService;
 import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
@@ -68,10 +70,13 @@ public class CaptchaFactory
 		{
 			return new Captcha()
 			{
+				private final Checkbox captchaBox = new Checkbox("Captcha");
+
 				@Override
 				public Component getComponent()
 				{
-					HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
+					HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout(captchaBox);
+					layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 					layout.setHeight(30, Unit.PIXELS);
 					layout.setWidth(100, Unit.PERCENTAGE);
 					return layout;
@@ -80,7 +85,7 @@ public class CaptchaFactory
 				@Override
 				public boolean isValid()
 				{
-					return true;
+					return captchaBox.getValue();
 				}
 
 				@Override

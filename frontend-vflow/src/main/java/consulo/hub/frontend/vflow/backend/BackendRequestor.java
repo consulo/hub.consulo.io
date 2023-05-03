@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import consulo.hub.frontend.vflow.PropertiesService;
 import consulo.hub.frontend.vflow.util.PropertyKeys;
 import consulo.hub.frontend.vflow.util.PropertySet;
+import consulo.hub.shared.ServiceAccounts;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
 import org.apache.http.client.config.RequestConfig;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -53,7 +56,7 @@ public class BackendRequestor
 		{
 			PropertySet propertySet = myPropertiesService.getPropertySet();
 			host = propertySet.getStringProperty(PropertyKeys.BACKEND_HOST_URL_KEY);
-			key = propertySet.getStringProperty(PropertyKeys.BACKEND_HOST_OAUTH_KEY);
+			key = propertySet.getStringProperty(PropertyKeys.BACKEND_HOST_PASSWORD);
 		}
 
 		return runRequest(host, key, urlSuffix, parameters, valueClazz, defaultValueGetter);
@@ -81,17 +84,20 @@ public class BackendRequestor
 		return runRequest(host, key, urlSuffix, parameters, valueClazz, () -> null);
 	}
 
-	public <T> T runRequest(String host, String key, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
+	public <T> T runRequest(String host, String password, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
 	{
 		RequestBuilder builder = RequestBuilder.get(host + "/api/private" + urlSuffix);
+		builder.addHeader("Content-Type", "application/json");
+
 		for(Map.Entry<String, String> entry : parameters.entrySet())
 		{
 			builder.addParameter(entry.getKey(), entry.getValue());
 		}
 
-		if(key != null)
+		if(password != null)
 		{
-			builder.addHeader("Authorization", "Bearer " + key);
+			String basicAuth = Base64.getEncoder().encodeToString((ServiceAccounts.HUB + ":" + password).getBytes(StandardCharsets.UTF_8));
+			builder.addHeader("Authorization", "Basic " + basicAuth);
 		}
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

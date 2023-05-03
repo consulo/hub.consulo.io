@@ -20,6 +20,8 @@ import java.util.Objects;
 )
 public class ErrorReport
 {
+	public static final int MAX_STACKTRACE_LENGHT = 51200;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
@@ -68,7 +70,7 @@ public class ErrorReport
 
 	private ErrorReportStatus status = ErrorReportStatus.UNKNOWN;
 
-	@Column(length = 51200)
+	@Column(length = MAX_STACKTRACE_LENGHT)
 	private String stackTrace;
 
 	private long createDate;

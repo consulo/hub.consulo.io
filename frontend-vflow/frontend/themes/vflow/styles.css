@@ -12,3 +12,27 @@ html
 	--safe-area-inset-left: var(--lumo-space-s);
 	--safe-area-inset-right: var(--lumo-space-s);
 }
+
+.badge-unknown
+{
+	background: tomato;
+	color: var(--lumo-base-color)
+}
+
+.badge-fixed
+{
+	background: limegreen;
+	color: var(--lumo-base-color)
+}
+
+.badge-duplicate
+{
+	background: gray;
+	color: var(--lumo-base-color)
+}
+
+.badge-obsolete
+{
+	background: lightgray;
+	color: var(--lumo-base-color)
+}

@@ -1,7 +1,8 @@
 package consulo.hub.frontend.vflow.errorReporter.view;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
@@ -12,13 +13,11 @@ import consulo.hub.frontend.vflow.errorReporter.ui.ScrollableListPanel;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import jakarta.annotation.Nonnull;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -36,12 +35,28 @@ public abstract class BaseErrorReportsView extends VChildLayout
 	private int myPage = 0;
 	protected ScrollableListPanel myReportList;
 	protected int myLastPageSize;
+	private final MultiSelectComboBox<ErrorReportStatus> myFilterBox;
 
 	public BaseErrorReportsView()
 	{
-		setMargin(false);
-		setSpacing(false);
-		setSizeFull();
+		myFilterBox = new MultiSelectComboBox<>(null, ErrorReportStatus.values());
+
+		myFilterBox.addValueChangeListener(e ->
+		{
+			Set<ErrorReportStatus> value = e.getValue();
+
+			myFilters.clear();
+
+			myFilters.addAll(value);
+
+			rebuildList();
+		});
+	}
+
+	@Override
+	public Component getHeaderRightComponent()
+	{
+		return allowFilters() ? myFilterBox : null;
 	}
 
 	protected abstract Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize);
@@ -52,52 +67,11 @@ public abstract class BaseErrorReportsView extends VChildLayout
 		removeAll();
 
 		myReportList = new ScrollableListPanel();
-		//myReportList.addStyleName("bodyMargin");
 
 		if(allowFilters())
 		{
-			HorizontalLayout filters = VaadinUIUtil.newHorizontalLayout();
-			filters.setHeight(100, Unit.PERCENTAGE);
-			//filters.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-			filters.setSpacing(true);
-			filters.add(TinyComponents.newLabel("Status: "));
-
-			for(ErrorReportStatus status : ErrorReportStatus.values())
-			{
-				Checkbox filterBox = TinyComponents.newCheckBox(StringUtils.capitalize(status.name().toLowerCase(Locale.US)));
-				if(status == ErrorReportStatus.UNKNOWN)
-				{
-					filterBox.setValue(true);
-				}
-
-				filterBox.addValueChangeListener(e ->
-				{
-					if(e.getValue())
-					{
-						myFilters.add(status);
-					}
-					else
-					{
-						myFilters.remove(status);
-					}
-
-					rebuildList();
-				});
-
-				HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
-				//layout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-				layout.setHeight(2, Unit.EM);
-				//layout.addStyleName("errorViewLineLayoutBox");
-				//layout.addStyleName("errorViewLineLayout" + StringUtils.capitalize(status.name().toLowerCase(Locale.US)));
-
-				layout.add(filterBox);
-
-				filters.add(layout);
-			}
-			//header.addComponent(filters);
+			myFilterBox.setValue(ErrorReportStatus.UNKNOWN);
 		}
-
-		//addComponent(header);
 
 		add(myReportList);
 

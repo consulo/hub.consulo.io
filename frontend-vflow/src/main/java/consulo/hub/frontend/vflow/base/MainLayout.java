@@ -2,6 +2,7 @@ package consulo.hub.frontend.vflow.base;
 
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
@@ -53,11 +55,19 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 	private final AccessAnnotationChecker myAccessAnnotationChecker;
 	private final UserService myUserService;
 
+	private final Footer myFooter;
+	private final AppNav myAppNav;
+
 	public MainLayout(AccessAnnotationChecker accessAnnotationChecker, UserService userService)
 	{
 		myAccessAnnotationChecker = accessAnnotationChecker;
 		myUserService = userService;
+
 		setPrimarySection(Section.DRAWER);
+
+		myFooter = new Footer();
+		myAppNav = new AppNav();
+
 		addDrawerContent();
 		addHeaderContent();
 	}
@@ -85,25 +95,30 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 	private void addDrawerContent()
 	{
 		H1 appName = new H1("hub.consulo.io");
-		appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-		Header header = new Header(appName);
+		appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.AUTO);
 
-		Scroller scroller = new Scroller(createNavigation());
+		HorizontalLayout layout = new HorizontalLayout(appName);
+		layout.setWidthFull();
+		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		addToDrawer(header, scroller, createFooter());
+		Header header = new Header(layout);
+
+		Scroller scroller = new Scroller(myAppNav);
+
+		addToDrawer(header, scroller, myFooter);
 	}
 
-	private AppNav createNavigation()
+	private void updateMenuItems()
 	{
-		AppNav nav = new AppNav();
+		myAppNav.removeAllItems();
 
-		nav.addItem("Repository", RepositoryView.class, FontAwesome.Solid.PLUG);
+		myAppNav.addItem("Repository", RepositoryView.class, FontAwesome.Solid.PLUG);
 
 		if(SecurityUtil.isLoggedIn())
 		{
 			AppNavItem homeGroup = new AppNavItem("User");
 			homeGroup.setExpanded(true);
-			nav.addItem(homeGroup);
+			myAppNav.addItem(homeGroup);
 
 			homeGroup.addItem("Dashboard", DashboardView.class, FontAwesome.Solid.CHART_BAR);
 			homeGroup.addItem("Error Reports", ErrorReportsView.class, FontAwesome.Solid.BOLT);
@@ -118,20 +133,18 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 		{
 			AppNavItem adminGroup = new AppNavItem("Administration");
 			adminGroup.setExpanded(true);
-			nav.addItem(adminGroup);
+			myAppNav.addItem(adminGroup);
 			adminGroup.addItem("Users", AdminUserView.class, FontAwesome.Solid.USERS);
 			adminGroup.addItem("Error Reports", AdminErrorReportsView.class, FontAwesome.Solid.BOLT);
 			adminGroup.addItem("Statistics", StubView.class, FontAwesome.Solid.SIGNAL);
 			adminGroup.addItem("Repository", AdminRepositoryView.class, FontAwesome.Solid.PLUG);
 			adminGroup.addItem("Config", AdminConfigView.class, FontAwesome.Solid.WRENCH);
 		}
-		
-		return nav;
 	}
 
-	private Footer createFooter()
+	private void updateLoginInfo()
 	{
-		Footer layout = new Footer();
+		myFooter.removeAll();
 
 		Optional<UserAccount> maybeUser = myUserService.getCurrentUser();
 		if(maybeUser.isPresent())
@@ -154,22 +167,35 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 			div.getElement().getStyle().set("align-items", "center");
 			div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
 			userName.add(div);
-			userName.getSubMenu().addItem("Sign out", e ->
+
+			userName.getSubMenu().addItem("Toggle Theme", e ->
+			{
+				UI ui = UI.getCurrent();
+				ThemeList themeList = ui.getElement().getThemeList();
+				if(themeList.contains("dark"))
+				{
+					themeList.remove("dark");
+				}
+				else
+				{
+					themeList.add("dark");
+				}
+			});
+
+			userName.getSubMenu().addItem("Sign Out", e ->
 			{
 				getUI().get().getPage().setLocation("/logout");
 				SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 				logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
 			});
 
-			layout.add(userMenu);
+			myFooter.add(userMenu);
 		}
 		else
 		{
 			Anchor loginLink = new Anchor("login", "Sign in");
-			layout.add(loginLink);
+			myFooter.add(loginLink);
 		}
-
-		return layout;
 	}
 
 	@Override
@@ -188,6 +214,10 @@ public class MainLayout extends AppLayout implements AfterNavigationObserver, Be
 	@Override
 	public void beforeEnter(BeforeEnterEvent event)
 	{
+		updateMenuItems();
+
+		updateLoginInfo();
+
 		myCustomizedTopLayout.removeAll();
 	}
 

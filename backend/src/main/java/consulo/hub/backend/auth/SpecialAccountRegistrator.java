@@ -1,23 +1,16 @@
 package consulo.hub.backend.auth;
 
-import consulo.hub.backend.auth.service.UserAccountService;
 import consulo.hub.shared.ServiceAccounts;
-import consulo.hub.shared.ServiceClientId;
 import consulo.hub.shared.auth.domain.UserAccount;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.provider.AuthorizationRequest;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 /**
  * @author VISTALL
@@ -29,42 +22,39 @@ public class SpecialAccountRegistrator
 	@Autowired
 	private UserAccountService myUserAccountService;
 
-	@Autowired
-	private AuthenticationManager myAuthenticationManager;
+//	@Autowired
+//	private AuthenticationManager myAuthenticationManager;
 
-	@Autowired
-	private TokenStore myTokenStore;
-
-	@Autowired
-	private OAuth2RequestFactory myOAuth2RequestFactory;
-
-	@Autowired
-	private AuthorizationServerTokenServices myAuthorizationServerTokenServices;
+//	@Autowired
+//	private TokenStore myTokenStore;
+//
+//	@Autowired
+//	private OAuth2RequestFactory myOAuth2RequestFactory;
+//
+//	@Autowired
+//	private AuthorizationServerTokenServices myAuthorizationServerTokenServices;
 
 	@PostConstruct
-	public void check()
+	public void check() throws IOException
 	{
-		UserAccount user = myUserAccountService.findUser(ServiceAccounts.JENKINS_DEPLOY);
+		registerUserIfNeed(ServiceAccounts.JENKINS_DEPLOY, UserAccount.ROLE_SUPERDEPLOYER);
+		registerUserIfNeed(ServiceAccounts.HUB, UserAccount.ROLE_HUB);
+	}
+
+	private void registerUserIfNeed(String email, int rights) throws IOException
+	{
+		UserAccount user = myUserAccountService.findUser(email);
 		if(user == null)
 		{
 			String password = RandomStringUtils.randomAlphanumeric(32);
 
-			user = myUserAccountService.registerUser(ServiceAccounts.JENKINS_DEPLOY, password, UserAccount.ROLE_SUPERDEPLOYER);
+			myUserAccountService.registerUser(email, password, rights);
 
-			assert user != null;
-			
-			Authentication authenticate = myAuthenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), password));
+			Path path = Path.of(email.replace("@", "__").replace(".", "_") + ".txt");
 
-			AuthorizationRequest request = new AuthorizationRequest();
-			request.setClientId(ServiceClientId.JENKINS_CLIENT_ID);
+			Files.deleteIfExists(path);
 
-			OAuth2Request auth2Request = myOAuth2RequestFactory.createOAuth2Request(request);
-
-			OAuth2Authentication authentication = new OAuth2Authentication(auth2Request, authenticate);
-
-			OAuth2AccessToken accessToken = myAuthorizationServerTokenServices.createAccessToken(authentication);
-
-			myTokenStore.storeAccessToken(accessToken, authentication);
+			Files.write(path, List.of(password));
 		}
 	}
 }

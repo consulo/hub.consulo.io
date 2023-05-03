@@ -104,6 +104,11 @@ public class ErrorReportRestController
 			return resultWithMessage(CreateResult.BAD_REPORT, null, "'stackTrace' required");
 		}
 
+		if(stackTrace.length() > ErrorReport.MAX_STACKTRACE_LENGHT)
+		{
+			errorReport.setStackTrace(stackTrace.substring(0, ErrorReport.MAX_STACKTRACE_LENGHT));
+		}
+
 		PluginChannel pluginChannel = PluginChannel.valueOf(appUpdateChannel);
 
 		PluginChannelService repository = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
@@ -143,18 +148,18 @@ public class ErrorReportRestController
 
 			int pluginVersion = Integer.parseInt(entry.getPluginVersion());
 
-			PluginNode pluginNode = repository.select(appBuild, entry.getPluginId(), null, false);
-			// if we don't have plugin at our repository - skip it
-			if(pluginNode == null)
-			{
-				continue;
-			}
-
-			int lastPluginVersion = Integer.parseInt(pluginNode.version);
-			if(pluginVersion < lastPluginVersion)
-			{
-				return resultWithMessage(CreateResult.PLUGIN_UPDATE_REQUIRED, null, entry.getPluginId());
-			}
+//			PluginNode pluginNode = repository.select(appBuild, entry.getPluginId(), null, false);
+//			// if we don't have plugin at our repository - skip it
+//			if(pluginNode == null)
+//			{
+//				continue;
+//			}
+//
+//			int lastPluginVersion = Integer.parseInt(pluginNode.version);
+//			if(pluginVersion < lastPluginVersion)
+//			{
+//				return resultWithMessage(CreateResult.PLUGIN_UPDATE_REQUIRED, null, entry.getPluginId());
+//			}
 		}
 
 		UserAccount assignUser = null;

@@ -1,6 +1,6 @@
 package consulo.hub.backend.frontend;
 
-import consulo.hub.backend.auth.service.UserAccountService;
+import consulo.hub.backend.auth.UserAccountService;
 import consulo.hub.backend.statistics.repository.StatisticEntryRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
