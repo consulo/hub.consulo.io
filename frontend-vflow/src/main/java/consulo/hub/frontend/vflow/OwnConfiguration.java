@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.boot.autoconfigure.websocket.servlet.TomcatWebSocketServletWebServerCustomizer;
+import org.springframework.boot.autoconfigure.websocket.servlet.JettyWebSocketServletWebServerCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,9 +40,9 @@ public class OwnConfiguration
 	}
 
 	@Bean
-	public TomcatWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer()
+	public JettyWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer()
 	{
-		return new TomcatWebSocketServletWebServerCustomizer();
+		return new JettyWebSocketServletWebServerCustomizer();
 	}
 
 	@Bean
