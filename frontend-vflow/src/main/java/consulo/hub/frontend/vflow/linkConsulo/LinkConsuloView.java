@@ -29,7 +29,7 @@ import java.util.List;
  */
 @PageTitle("Linking Consulo")
 @PermitAll
-@Route(value = "linkConsulo", layout = MainLayout.class)
+@Route(value = "link", layout = MainLayout.class)
 public class LinkConsuloView extends VChildLayout
 {
 	@Autowired
