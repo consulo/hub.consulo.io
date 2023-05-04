@@ -31,45 +31,17 @@ public class CaptchaFactory
 		PropertySet propertySet = myConfigurationService.getPropertySet();
 
 		boolean enabled = propertySet.getBoolProperty(CaptchaKeys.CAPTCHA_ENABLED_KEY);
-		// TODO [VISTALL] not supported
-//		if(enabled)
-//		{
-//			ReCaptchaOptions reCaptchaOptions = new ReCaptchaOptions();
-//			reCaptchaOptions.type = "image";
-//			reCaptchaOptions.theme = "light";
-//			reCaptchaOptions.sitekey = propertySet.getStringProperty(PropertyKeys.CAPTCHA_SITE_KEY);
-//
-//			ReCaptcha reCaptcha = new ReCaptcha(propertySet.getStringProperty(PropertyKeys.CAPTCHA_PRIVATE_KEY), reCaptchaOptions);
-//
-//			return new Captcha()
-//			{
-//				@Override
-//				public Component getComponent()
-//				{
-//					return reCaptcha;
-//				}
-//
-//				@Override
-//				public boolean isValid()
-//				{
-//					return reCaptcha.validate();
-//				}
-//
-//				@Override
-//				public void refresh()
-//				{
-//					if(!reCaptcha.isEmpty())
-//					{
-//						reCaptcha.reload();
-//					}
-//				}
-//			};
-//		}
-//		else
+		if(enabled)
+		{
+			String siteKey = propertySet.getStringProperty(CaptchaKeys.CAPTCHA_SITE_KEY);
+			String privateKey = propertySet.getStringProperty(CaptchaKeys.CAPTCHA_PRIVATE_KEY);
+			return new ReCaptcha(siteKey, privateKey);
+		}
+		else
 		{
 			return new Captcha()
 			{
-				private final Checkbox captchaBox = new Checkbox("Captcha");
+				private final Checkbox captchaBox = new Checkbox("I'm not robot");
 
 				@Override
 				public Component getComponent()
