@@ -63,6 +63,11 @@ public class UserAccountHandlerMethodArgumentResolver implements HandlerMethodAr
 				return account;
 			}
 		}
+
+		if(principal instanceof UserAccount)
+		{
+			return principal;
+		}
 		return null;
 	}
 

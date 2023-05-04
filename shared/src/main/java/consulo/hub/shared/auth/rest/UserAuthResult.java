@@ -2,6 +2,8 @@ package consulo.hub.shared.auth.rest;
 
 import consulo.hub.shared.auth.domain.UserAccount;
 
+import java.util.Map;
+
 /**
  * @author VISTALL
  * @since 04/09/2021

@@ -16,7 +16,6 @@ open module consulo.hub.shared
 	exports consulo.hub.shared.auth.oauth2.domain;
 	exports consulo.hub.shared.base;
 	exports consulo.hub.shared.errorReporter.domain;
-	exports consulo.hub.shared.github;
 	exports consulo.hub.shared.repository;
 	exports consulo.hub.shared.repository.util;
 	exports consulo.hub.shared.statistics.domain;

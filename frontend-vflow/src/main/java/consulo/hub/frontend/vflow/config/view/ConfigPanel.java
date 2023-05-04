@@ -18,7 +18,7 @@ import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.util.GAPropertyKeys;
 import consulo.hub.frontend.vflow.util.PropertyKeys;
 import consulo.procoeton.core.util.PropertySet;
-import consulo.hub.shared.github.GithubPropertyKeys;
+import consulo.procoeton.core.github.GithubPropertyKeys;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -138,7 +138,7 @@ public class ConfigPanel extends VerticalLayout
 			layout.add(TinyComponents.newButton("Test", clickEvent -> {
 				try
 				{
-					apiBackendRequestor.runRequest(backendHost.getValue(), null, "/test", Map.of(), new TypeReference<Map<String, String>>()
+					apiBackendRequestor.runRequest(backendHost.getValue(), "/test", Map.of(), new TypeReference<Map<String, String>>()
 					{
 					});
 

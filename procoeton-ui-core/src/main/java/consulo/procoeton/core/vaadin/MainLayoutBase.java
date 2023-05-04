@@ -18,15 +18,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.service.UserService;
+import consulo.procoeton.core.util.AuthUtil;
 import consulo.procoeton.core.vaadin.ui.ChildLayout;
 import consulo.procoeton.core.vaadin.ui.appnav.AppNav;
 import consulo.procoeton.core.vaadin.view.login.LoginView;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import java.util.Optional;
 
@@ -157,12 +156,7 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 				}
 			});
 
-			userNameItem.getSubMenu().addItem("Sign Out", e ->
-			{
-				getUI().get().getPage().setLocation("/logout");
-				SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-				logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
-			});
+			userNameItem.getSubMenu().addItem("Sign Out", e -> AuthUtil.forceLogout(UI.getCurrent()));
 
 			myFooter.add(userMenu);
 		}

@@ -1,4 +1,4 @@
-package consulo.hub.shared.github;
+package consulo.procoeton.core.github;
 
 /**
  * @author VISTALL

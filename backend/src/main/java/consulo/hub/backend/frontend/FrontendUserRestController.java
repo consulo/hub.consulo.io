@@ -6,14 +6,10 @@ import consulo.hub.backend.auth.UserAccountService;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
-import consulo.hub.shared.auth.rest.UserAuthResult;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,9 +53,6 @@ public class FrontendUserRestController
 	@Autowired
 	private UserAccountRepository myUserAccountRepository;
 
-//	@Autowired
-//	private OAuthKeyRequestService myOAuthKeyRequestService;
-
 	@RequestMapping("/api/private/user/register")
 	public UserAccount registerUser(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
 	{
@@ -68,17 +61,9 @@ public class FrontendUserRestController
 	}
 
 	@RequestMapping("/api/private/user/list")
-	public List<UserAccount> listUsers(@AuthenticationPrincipal UserAccount hub)
+	public List<UserAccount> listUsers(@AuthenticationPrincipal UserAccount adminUser)
 	{
 		return myUserAccountRepository.findAll();
-	}
-
-	@RequestMapping("/api/private/user/auth")
-	public UserAuthResult userAuth(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
-	{
-		UserDetails userDetails = myLocalAuthenticationProvider.retrieveUser(email, new UsernamePasswordAuthenticationToken(email, password));
-
-		return new UserAuthResult((UserAccount) userDetails, RandomStringUtils.randomAlphanumeric(32));
 	}
 
 	@RequestMapping("/api/private/user/oauth/request")

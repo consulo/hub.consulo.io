@@ -144,6 +144,8 @@ public class BackendSecurity
 		http.authorizeHttpRequests().requestMatchers("/api/repository/history/listByVersionRange").permitAll();
 		// storage api - only authorized users
 		http.authorizeHttpRequests().requestMatchers("/api/storage/**").hasAuthority(Roles.ROLE_USER);
+		// user api - only registered users
+		http.authorizeHttpRequests().requestMatchers("/api/user/**").hasAuthority(Roles.ROLE_USER);
 		// only user can call validate
 		http.authorizeHttpRequests().requestMatchers("/api/oauth/validate").hasAuthority(Roles.ROLE_USER);
 		// anybody can request key by token
@@ -156,10 +158,13 @@ public class BackendSecurity
 		// private test can be access without user
 		http.authorizeHttpRequests().requestMatchers("/api/private/test").permitAll();
 
-		// others require hub right
-		http.authorizeHttpRequests().requestMatchers("/api/private/**").hasAuthority(Roles.ROLE_HUB);
+		// others require hub right - user must be admin
+		http.authorizeHttpRequests().requestMatchers("/api/private/register").hasAuthority(Roles.ROLE_HUB);
 
-		http.authorizeHttpRequests().requestMatchers("/oauth2/**").authenticated();
+		// register allowed only to hub
+		http.authorizeHttpRequests().requestMatchers("/api/private/**").hasAuthority(Roles.ROLE_SUPERUSER);
+
+		http.authorizeHttpRequests().requestMatchers("/api/oauth2/**").authenticated();
 
 		http.authorizeHttpRequests().requestMatchers("/error").permitAll();
 
@@ -173,7 +178,9 @@ public class BackendSecurity
 	@Bean
 	public AuthorizationServerSettings authorizationServerSettings()
 	{
-		return AuthorizationServerSettings.builder().build();
+		AuthorizationServerSettings.Builder builder = AuthorizationServerSettings.builder();
+		builder.tokenEndpoint("/api/oauth2/token");
+		return builder.build();
 	}
 
 	@Bean

@@ -1,0 +1,106 @@
+package consulo.procoeton.core.backend;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.router.QueryParameters;
+import consulo.procoeton.core.ProPropertiesService;
+import consulo.procoeton.core.util.AuthUtil;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * @author VISTALL
+ * @since 04/05/2023
+ */
+public class BackendRequest<T>
+{
+	private final BackendRequestTarget<T> myTarget;
+	private final CloseableHttpClient myClient;
+	private final ObjectMapper myObjectMapper;
+	private final ProPropertiesService myPropertiesService;
+
+	private final Map<String, String> myHeaders = new LinkedHashMap<>();
+	private final Map<String, String> myParameters = new LinkedHashMap<>();
+
+	protected BackendRequest(BackendRequestTarget<T> target, CloseableHttpClient client, ObjectMapper objectMapper, ProPropertiesService propertiesService)
+	{
+		myTarget = target;
+		myClient = client;
+		myObjectMapper = objectMapper;
+		myPropertiesService = propertiesService;
+	}
+
+	public BackendRequest authorizationHeader(String value)
+	{
+		return header("Authorization", value);
+	}
+
+	public BackendRequest header(String key, String value)
+	{
+		myHeaders.put(key, value);
+		return this;
+	}
+
+	public BackendRequest parameter(String key, String value)
+	{
+		myParameters.put(key, value);
+		return this;
+	}
+
+	public T execute()
+	{
+		String host = myTarget.getHost(myPropertiesService);
+
+		HttpRequestBase request;
+		switch(myTarget.getMethod())
+		{
+			case "GET":
+				request = new HttpGet(myTarget.buildUrl(host) + (myParameters.isEmpty() ? "" : "?" + QueryParameters.simple(myParameters).getQueryString()));
+				break;
+			case "POST":
+				request = new HttpPost(myTarget.buildUrl(host) + (myParameters.isEmpty() ? "" : "?" + QueryParameters.simple(myParameters).getQueryString()));
+				break;
+			default:
+				throw new UnsupportedOperationException(myTarget.getMethod());
+		}
+
+		request.addHeader("Content-Type", "application/json");
+
+		for(Map.Entry<String, String> entry : myHeaders.entrySet())
+		{
+			request.addHeader(entry.getKey(), entry.getValue());
+		}
+
+		try
+		{
+			T value = myClient.execute(request, response ->
+			{
+				int statusCode = response.getStatusLine().getStatusCode();
+				if(statusCode == 401 || statusCode == 403)
+				{
+					AuthUtil.forceLogout(UI.getCurrent());
+				}
+
+				if(statusCode != 200)
+				{
+					throw new IOException("request failed. Code: " + statusCode);
+				}
+
+				String json = EntityUtils.toString(response.getEntity());
+				return myObjectMapper.readValue(json, myTarget.getType());
+			});
+			return value == null ? myTarget.getDefaultValue() : value;
+		}
+		catch(IOException ignored)
+		{
+			return myTarget.getDefaultValue();
+		}
+	}
+}

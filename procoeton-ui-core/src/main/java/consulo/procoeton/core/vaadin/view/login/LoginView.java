@@ -17,7 +17,13 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.auth.backend.BackendAuthenticationProvider;
+import consulo.procoeton.core.auth.backend.BackendAuthenticationToken;
+import consulo.procoeton.core.auth.backend.target.BackendAuthTokenTarget;
+import consulo.procoeton.core.auth.backend.target.BackendUserInfoTarget;
+import consulo.procoeton.core.backend.BackendRequest;
+import consulo.procoeton.core.backend.BackendRequestFactory;
 import consulo.procoeton.core.vaadin.captcha.Captcha;
 import consulo.procoeton.core.vaadin.captcha.CaptchaFactory;
 import consulo.procoeton.core.vaadin.view.CenteredView;
@@ -25,14 +31,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -46,12 +54,14 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 {
 	private final CaptchaFactory myCaptchaFactory;
 	private final BackendAuthenticationProvider myAuthenticationProvider;
+	private final BackendRequestFactory myBackendRequestFactory;
 
 	@Autowired
-	public LoginView(CaptchaFactory captchaFactory, BackendAuthenticationProvider authenticationProvider)
+	public LoginView(CaptchaFactory captchaFactory, BackendAuthenticationProvider authenticationProvider, BackendRequestFactory backendRequestFactory)
 	{
 		myCaptchaFactory = captchaFactory;
 		myAuthenticationProvider = authenticationProvider;
+		myBackendRequestFactory = backendRequestFactory;
 	}
 
 	@Override
@@ -95,12 +105,33 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 					return;
 				}
 
-				Authentication authenticate = myAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+				BackendRequest<Map<String, Object>> newRequest = myBackendRequestFactory.newRequest(BackendAuthTokenTarget.INSTANCE);
+				newRequest.parameter("grant_type", "client_credentials");
+				newRequest.authorizationHeader("Basic " + Base64.getEncoder().encodeToString((request.getEmail() + ":" + request.getPassword()).getBytes(StandardCharsets.UTF_8)));
+
+				Map<String, Object> token = newRequest.execute();
+				if(token == null)
+				{
+					throw new BadCredentialsException("");
+				}
+
+				String accessToken = (String) token.get("access_token");
+				if(accessToken == null)
+				{
+					throw new BadCredentialsException("");
+				}
+
+				BackendRequest<UserAccount> getAccountRequest = myBackendRequestFactory.newRequest(BackendUserInfoTarget.INSTANCE);
+				getAccountRequest.authorizationHeader("Bearer " + accessToken);
+
+				UserAccount userAccount = getAccountRequest.execute();
+
+				BackendAuthenticationToken authToken = new BackendAuthenticationToken(userAccount, accessToken, userAccount.getAuthorities());
 
 				SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
 				SecurityContext newContext = securityContextHolderStrategy.createEmptyContext();
-				newContext.setAuthentication(authenticate);
+				newContext.setAuthentication(authToken);
 				securityContextHolderStrategy.setContext(newContext);
 
 				VaadinServletRequest vaadinRequest = VaadinServletRequest.getCurrent();
