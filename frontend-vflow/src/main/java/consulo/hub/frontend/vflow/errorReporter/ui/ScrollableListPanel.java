@@ -4,7 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 
 /**
  * @author VISTALL

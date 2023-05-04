@@ -1,7 +1,8 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import consulo.hub.frontend.vflow.backend.BackendRequestor;
+import consulo.procoeton.core.auth.backend.BackendUserAccountServiceCore;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
 import org.slf4j.Logger;
@@ -18,30 +19,12 @@ import java.util.Map;
  * @since 21/08/2021
  */
 @Service
-public class BackendUserAccountService
+public class BackendUserAccountService extends BackendUserAccountServiceCore
 {
 	private static final Logger LOG = LoggerFactory.getLogger(BackendUserAccountService.class);
 
 	@Autowired
-	private BackendRequestor myBackendRequestor;
-
-	public boolean registerUser(String userName, String password)
-	{
-		try
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put("email", userName);
-			map.put("password", password);
-
-			UserAccount account = myBackendRequestor.runRequest("/user/register", map, UserAccount.class);
-			return account != null;
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to register: " + userName, e);
-		}
-		return false;
-	}
+	private ApiBackendRequestor myApiBackendRequestor;
 
 	public Map<String, String> requestOAuthKey(UserAccount account, String token, String hostName)
 	{
@@ -52,7 +35,7 @@ public class BackendUserAccountService
 			map.put("token", token);
 			map.put("hostName", hostName);
 
-			return myBackendRequestor.runRequest("/user/oauth/request", map, new TypeReference<Map<String, String>>()
+			return myApiBackendRequestor.runRequest("/user/oauth/request", map, new TypeReference<Map<String, String>>()
 			{
 			});
 		}
@@ -70,7 +53,7 @@ public class BackendUserAccountService
 			Map<String, String> map = new HashMap<>();
 			map.put("userId", String.valueOf(account.getId()));
 
-			OAuthTokenInfo[] oAuthTokenInfos = myBackendRequestor.runRequest("/user/oauth/list", map, OAuthTokenInfo[].class);
+			OAuthTokenInfo[] oAuthTokenInfos = myApiBackendRequestor.runRequest("/user/oauth/list", map, OAuthTokenInfo[].class);
 			if(oAuthTokenInfos == null)
 			{
 				OAuthTokenInfo oAuthTokenInfo = new OAuthTokenInfo();
@@ -96,7 +79,7 @@ public class BackendUserAccountService
 			map.put("userId", String.valueOf(account.getId()));
 			map.put("name", name);
 
-			return myBackendRequestor.runRequest("/user/oauth/add", map, OAuthTokenInfo.class);
+			return myApiBackendRequestor.runRequest("/user/oauth/add", map, OAuthTokenInfo.class);
 		}
 		catch(Exception e)
 		{
@@ -113,7 +96,7 @@ public class BackendUserAccountService
 			map.put("userId", String.valueOf(account.getId()));
 			map.put("token", token);
 
-			return myBackendRequestor.runRequest("/user/oauth/remove", map, OAuthTokenInfo.class);
+			return myApiBackendRequestor.runRequest("/user/oauth/remove", map, OAuthTokenInfo.class);
 		}
 		catch(Exception e)
 		{
@@ -122,30 +105,11 @@ public class BackendUserAccountService
 		return null;
 	}
 
-	public boolean changePassword(long userId, String oldPassword, String newPassword)
-	{
-		try
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put("userId", String.valueOf(userId));
-			map.put("oldPassword", oldPassword);
-			map.put("newPassword", newPassword);
-
-			UserAccount account = myBackendRequestor.runRequest("/user/changePassword", map, UserAccount.class);
-			return account != null;
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to changePassword: " + userId, e);
-			return false;
-		}
-	}
-
 	public List<UserAccount> listAll()
 	{
 		try
 		{
-			return List.of(myBackendRequestor.runRequest("/user/list", Map.of(), UserAccount[].class, () -> new UserAccount[0]));
+			return List.of(myApiBackendRequestor.runRequest("/user/list", Map.of(), UserAccount[].class, () -> new UserAccount[0]));
 		}
 		catch(Exception e)
 		{

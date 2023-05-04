@@ -1,7 +1,7 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import consulo.hub.frontend.vflow.backend.BackendRequestor;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.hub.shared.util.JsonPage;
@@ -25,7 +25,7 @@ public class BackendErrorReporterService
 	public static String CREATE_DATE = "createDate";
 
 	@Autowired
-	private BackendRequestor myBackendRequestor;
+	private ApiBackendRequestor myApiBackendRequestor;
 
 	public ErrorReport changeStatus(long errorReportId, ErrorReportStatus status, long byUserId)
 	{
@@ -36,7 +36,7 @@ public class BackendErrorReporterService
 			params.put("status", status.name());
 			params.put("id", String.valueOf(errorReportId));
 
-			return myBackendRequestor.runRequest("/errorReport/changeStatus", params, ErrorReport.class);
+			return myApiBackendRequestor.runRequest("/errorReport/changeStatus", params, ErrorReport.class);
 		}
 		catch(Exception e)
 		{
@@ -77,7 +77,7 @@ public class BackendErrorReporterService
 
 		try
 		{
-			JsonPage<ErrorReport> jsonPage = myBackendRequestor.runRequest("/errorReport/list", params, new TypeReference<JsonPage<ErrorReport>>()
+			JsonPage<ErrorReport> jsonPage = myApiBackendRequestor.runRequest("/errorReport/list", params, new TypeReference<JsonPage<ErrorReport>>()
 			{
 			});
 
@@ -98,7 +98,7 @@ public class BackendErrorReporterService
 	{
 		try
 		{
-			return myBackendRequestor.runRequest("/errorReport/info", Map.<String, String>of("longId", errorReportId), ErrorReport.class);
+			return myApiBackendRequestor.runRequest("/errorReport/info", Map.<String, String>of("longId", errorReportId), ErrorReport.class);
 		}
 		catch(Exception e)
 		{

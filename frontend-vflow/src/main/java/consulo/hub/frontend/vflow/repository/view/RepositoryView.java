@@ -6,15 +6,15 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import consulo.hub.frontend.vflow.PropertiesService;
+import consulo.hub.frontend.vflow.PropertiesServiceImpl;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
-import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.ui.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.vflow.repository.ui.RepositoryChannelPanel;
 import consulo.hub.frontend.vflow.repository.ui.TagsLocalizeLoader;
-import consulo.hub.frontend.vflow.util.RouterUtil;
+import consulo.procoeton.core.vaadin.util.RouterUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,7 +37,7 @@ public class RepositoryView extends VChildLayout
 	private final BackendRepositoryService myBackendRepositoryService;
 	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
 	private final TagsLocalizeLoader myTagsLocalizeLoader;
-	private final PropertiesService myPropertiesService;
+	private final PropertiesServiceImpl myPropertiesService;
 
 	private Component myLastRepositoryView;
 
@@ -48,7 +48,7 @@ public class RepositoryView extends VChildLayout
 	private boolean isRendering;
 
 	@Autowired
-	public RepositoryView(PropertiesService propertiesService,
+	public RepositoryView(PropertiesServiceImpl propertiesService,
 						  BackendRepositoryService backendRepositoryService,
 						  BackendPluginStatisticsService backendPluginStatisticsService,
 						  TagsLocalizeLoader tagsLocalizeLoader)

@@ -7,19 +7,14 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import consulo.hub.frontend.vflow.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
-import consulo.hub.frontend.vflow.base.util.TinyComponents;
-import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.procoeton.core.vaadin.view.CenteredView;
 import jakarta.annotation.security.PermitAll;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -30,39 +25,34 @@ import java.util.List;
 @PageTitle("Linking Consulo")
 @PermitAll
 @Route(value = "link", layout = MainLayout.class)
-public class LinkConsuloView extends VChildLayout
+public class LinkConsuloView extends CenteredView
 {
-	@Autowired
-	private BackendUserAccountService myUserAccountService;
+	private final BackendUserAccountService myUserAccountService;
 
-	public LinkConsuloView()
+	public LinkConsuloView(BackendUserAccountService userAccountService)
 	{
-		setMargin(false);
-		setSpacing(false);
-		setSizeFull();
+		myUserAccountService = userAccountService;
 	}
 
 	@Override
-	public void viewReady(AfterNavigationEvent event)
+	protected String getHeaderText()
 	{
-		removeAll();
+		return "Linking";
+	}
 
+	@Override
+	protected void fill(VerticalLayout layout, Location location)
+	{
 		UserAccount userAccout = SecurityUtil.getUserAccout();
 		if(userAccout == null)
 		{
 			return;
 		}
 
-		VerticalLayout list = VaadinUIUtil.newVerticalLayout();
-		list.setSpacing(true);
-		//list.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		//list.addStyleName("bodyMargin");
-
-		add(list);
-		//setExpandRatio(list, 1);
+		layout.add(new Label("Do you want link Consulo to this account?"));
 
 		Button yes = TinyComponents.newButton("Yes", clickEvent -> {
-			QueryParameters queryParameters = event.getLocation().getQueryParameters();
+			QueryParameters queryParameters = location.getQueryParameters();
 
 			String redirect = getFirstParameter(queryParameters, "redirect");
 			String token = getFirstParameter(queryParameters, "token");
@@ -84,8 +74,7 @@ public class LinkConsuloView extends VChildLayout
 		HorizontalLayout buttonsLine = new HorizontalLayout();
 		buttonsLine.add(yes, no);
 
-		list.add(new Label("Do you want link Consulo to this account?"));
-		list.add(buttonsLine);
+		layout.add(buttonsLine);
 	}
 
 	private String getFirstParameter(QueryParameters queryParameters, String name)

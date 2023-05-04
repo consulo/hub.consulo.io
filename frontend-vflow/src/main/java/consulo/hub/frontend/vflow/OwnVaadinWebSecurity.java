@@ -1,7 +1,7 @@
 package consulo.hub.frontend.vflow;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import consulo.hub.frontend.vflow.login.LoginView;
+import consulo.procoeton.core.vaadin.view.login.LoginView;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;

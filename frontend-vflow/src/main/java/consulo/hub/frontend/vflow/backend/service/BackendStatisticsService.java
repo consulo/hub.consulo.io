@@ -1,7 +1,7 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import consulo.hub.frontend.vflow.backend.BackendRequestor;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class BackendStatisticsService
 	private static final Logger LOG = LoggerFactory.getLogger(BackendStatisticsService.class);
 
 	@Autowired
-	private BackendRequestor myBackendRequestor;
+	private ApiBackendRequestor myApiBackendRequestor;
 
 	public List<StatisticEntry> listAll(long userId)
 	{
@@ -32,7 +32,7 @@ public class BackendStatisticsService
 			{
 				args = Map.of("userId", String.valueOf(userId));
 			}
-			return myBackendRequestor.runRequest("/statistics/list", args, new TypeReference<List<StatisticEntry>>()
+			return myApiBackendRequestor.runRequest("/statistics/list", args, new TypeReference<List<StatisticEntry>>()
 			{
 			});
 		}

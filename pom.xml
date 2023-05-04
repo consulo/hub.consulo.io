@@ -22,6 +22,8 @@
 	<properties>
 		<consulo.version>3-SNAPSHOT</consulo.version>
 		<spring.boot.version>3.0.6</spring.boot.version>
+		<vaadin.version>24.0.5</vaadin.version>
+		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 	</properties>
 
 	<repositories>
@@ -61,6 +63,7 @@
 	<modules>
 		<!--<module>plugin-analyzer-rt</module>-->
 		<!--<module>frontend</module>-->
+		<module>procoeton-ui-core</module>
 		<module>frontend-vflow</module>
 		<module>backend</module>
 		<module>shared</module>

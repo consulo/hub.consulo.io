@@ -2,7 +2,7 @@ package consulo.hub.frontend.vflow;
 
 import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import jakarta.annotation.security.PermitAll;
 
 /**

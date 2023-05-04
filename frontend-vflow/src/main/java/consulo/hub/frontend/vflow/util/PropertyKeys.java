@@ -1,15 +1,24 @@
 package consulo.hub.frontend.vflow.util;
 
+import consulo.procoeton.core.backend.ApiBackendKeys;
+import consulo.procoeton.core.vaadin.captcha.CaptchaKeys;
+
 /**
  * @author VISTALL
  * @since 09-Nov-16
  */
+@Deprecated
 public interface PropertyKeys
 {
-	String CAPTCHA_ENABLED_KEY = "captcha.enabled";
-	String CAPTCHA_SITE_KEY = "captcha.site.key";
-	String CAPTCHA_PRIVATE_KEY = "captcha.private.key";
+	@Deprecated
+	String CAPTCHA_ENABLED_KEY = CaptchaKeys.CAPTCHA_ENABLED_KEY;
+	@Deprecated
+	String CAPTCHA_SITE_KEY = CaptchaKeys.CAPTCHA_SITE_KEY;
+	@Deprecated
+	String CAPTCHA_PRIVATE_KEY = CaptchaKeys.CAPTCHA_PRIVATE_KEY;
 
-	String BACKEND_HOST_URL_KEY = "backend.host.key";
-	String BACKEND_HOST_PASSWORD = "backend.host.password";
+	@Deprecated
+	String BACKEND_HOST_URL_KEY = ApiBackendKeys.BACKEND_HOST_URL_KEY;
+	@Deprecated
+	String BACKEND_HOST_PASSWORD = ApiBackendKeys.BACKEND_HOST_PASSWORD;
 }

@@ -1,7 +1,7 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import consulo.hub.frontend.vflow.backend.BackendRequestor;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.slf4j.Logger;
@@ -23,13 +23,13 @@ public class BackendRepositoryService
 	private static final Logger LOG = LoggerFactory.getLogger(BackendRepositoryService.class);
 
 	@Autowired
-	private BackendRequestor myBackendRequestor;
+	private ApiBackendRequestor myApiBackendRequestor;
 
 	public void listAll(PluginChannel pluginChannel, @Nonnull Consumer<PluginNode> consumer)
 	{
 		try
 		{
-			PluginNode[] nodes = myBackendRequestor.runRequest("/repository/list", Map.of("channel", pluginChannel.name()), PluginNode[].class);
+			PluginNode[] nodes = myApiBackendRequestor.runRequest("/repository/list", Map.of("channel", pluginChannel.name()), PluginNode[].class);
 			if(nodes == null)
 			{
 				nodes = new PluginNode[0];
@@ -50,7 +50,7 @@ public class BackendRepositoryService
 	{
 		try
 		{
-			myBackendRequestor.runRequest("/repository/iterate", Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>()
+			myApiBackendRequestor.runRequest("/repository/iterate", Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>()
 			{
 			});
 		}

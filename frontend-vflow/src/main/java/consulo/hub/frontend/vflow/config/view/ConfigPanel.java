@@ -10,14 +10,14 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import consulo.hub.frontend.vflow.PropertiesService;
-import consulo.hub.frontend.vflow.backend.BackendRequestor;
-import consulo.hub.frontend.vflow.base.LabeledLayout;
-import consulo.hub.frontend.vflow.base.util.TinyComponents;
-import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
-import consulo.hub.frontend.vflow.util.GAPropertyKeys;
+import consulo.hub.frontend.vflow.PropertiesServiceImpl;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
+import consulo.procoeton.core.vaadin.ui.LabeledLayout;
+import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.util.GAPropertyKeys;
 import consulo.hub.frontend.vflow.util.PropertyKeys;
-import consulo.hub.frontend.vflow.util.PropertySet;
+import consulo.procoeton.core.util.PropertySet;
 import consulo.hub.shared.github.GithubPropertyKeys;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,9 +35,9 @@ import java.util.function.Supplier;
 public class ConfigPanel extends VerticalLayout
 {
 	private final List<Consumer<Properties>> myConsumers = new ArrayList<>();
-	private final PropertiesService myConfigurationService;
+	private final PropertiesServiceImpl myConfigurationService;
 
-	public ConfigPanel(BackendRequestor backendRequestor, PropertiesService configurationService, String buttonName, Consumer<Properties> action)
+	public ConfigPanel(ApiBackendRequestor apiBackendRequestor, PropertiesServiceImpl configurationService, String buttonName, Consumer<Properties> action)
 	{
 		myConfigurationService = configurationService;
 		setSpacing(false);
@@ -48,7 +48,7 @@ public class ConfigPanel extends VerticalLayout
 		layout.setSpacing(true);
 		layout.setSizeFull();
 
-		layout.add(buildBackedGroup(backendRequestor));
+		layout.add(buildBackedGroup(apiBackendRequestor));
 		layout.add(buildCaptchaGroup());
 		layout.add(buildGithubGroup());
 		layout.add(buildGAGroup());
@@ -126,7 +126,7 @@ public class ConfigPanel extends VerticalLayout
 		}
 	}
 
-	private Component buildBackedGroup(BackendRequestor backendRequestor)
+	private Component buildBackedGroup(ApiBackendRequestor apiBackendRequestor)
 	{
 		return buildGroup("Backend", layout ->
 		{
@@ -138,7 +138,7 @@ public class ConfigPanel extends VerticalLayout
 			layout.add(TinyComponents.newButton("Test", clickEvent -> {
 				try
 				{
-					backendRequestor.runRequest(backendHost.getValue(), null, "/test", Map.of(), new TypeReference<Map<String, String>>()
+					apiBackendRequestor.runRequest(backendHost.getValue(), null, "/test", Map.of(), new TypeReference<Map<String, String>>()
 					{
 					});
 

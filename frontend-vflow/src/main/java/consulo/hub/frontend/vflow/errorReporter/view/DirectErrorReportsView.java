@@ -8,7 +8,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.util.lang.StringUtil;
 import org.apache.commons.lang3.StringUtils;

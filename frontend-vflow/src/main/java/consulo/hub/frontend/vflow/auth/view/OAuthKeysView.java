@@ -1,25 +1,18 @@
 package consulo.hub.frontend.vflow.auth.view;
 
-import com.google.common.base.Strings;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
-import consulo.hub.frontend.vflow.base.util.TinyComponents;
-import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.ui.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
@@ -45,8 +38,6 @@ public class OAuthKeysView extends VChildLayout
 
 	private VerticalLayout myTokenListPanel;
 
-	private final Button myCreateButton;
-
 	@Autowired
 	public OAuthKeysView(BackendUserAccountService backendUserAccountService)
 	{
@@ -54,61 +45,6 @@ public class OAuthKeysView extends VChildLayout
 		setMargin(false);
 		setSpacing(false);
 		setSizeFull();
-
-		myCreateButton = TinyComponents.newButton("Add Key", event ->
-		{
-			Dialog window = new Dialog();
-			window.setHeaderTitle("Enter Name");
-
-			TextField textField = TinyComponents.newTextField();
-
-			//textField.addStyleName(ValoTheme.TEXTFIELD_TINY);
-
-			Button okButton = new Button("OK", e ->
-			{
-				UserAccount userAccout = SecurityUtil.getUserAccout();
-				if(userAccout == null)
-				{
-					return;
-				}
-
-				String value = textField.getValue();
-				if(Strings.isNullOrEmpty(value) || value.length() >= 255)
-				{
-					Notification.show("Bad name");
-					return;
-				}
-
-				OAuthTokenInfo newToken = myBackendUserAccountService.addOAuthToken(userAccout, value);
-
-				if(newToken != null)
-				{
-					addToken(newToken, false);
-				}
-
-				window.close();
-			});
-			okButton.addClickShortcut(Key.ENTER);
-			okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-			HorizontalLayout content = new HorizontalLayout(TinyComponents.newLabel("Name: "), textField, okButton);
-			content.setMargin(true);
-			content.setSpacing(true);
-
-			window.add(content);
-			window.setModal(true);
-			window.setResizable(false);
-
-			window.open();
-
-			textField.focus();
-		});
-	}
-
-	@Override
-	public Component getHeaderRightComponent()
-	{
-		return myCreateButton;
 	}
 
 	@Override
@@ -131,17 +67,15 @@ public class OAuthKeysView extends VChildLayout
 		OAuthTokenInfo[] tokens = myBackendUserAccountService.listOAuthTokens(userAccout);
 		for(OAuthTokenInfo token : tokens)
 		{
-			addToken(token, true);
+			addToken(token);
 		}
 	}
 
-	private void addToken(OAuthTokenInfo token, boolean hide)
+	private void addToken(OAuthTokenInfo token)
 	{
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
-		//		layout.addStyleName("errorViewLineLayout");
-		//		layout.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-		//		layout.addStyleName(ValoTheme.LAYOUT_CARD);
-		layout.setWidth(100, Unit.PERCENTAGE);
+		layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+		layout.setWidthFull();
 
 		StringBuilder infoBuilder = new StringBuilder();
 		boolean first = true;

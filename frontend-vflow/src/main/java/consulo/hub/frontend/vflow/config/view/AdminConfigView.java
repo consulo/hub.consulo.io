@@ -5,12 +5,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import consulo.hub.frontend.vflow.PropertiesService;
-import consulo.hub.frontend.vflow.backend.BackendRequestor;
+import consulo.hub.frontend.vflow.PropertiesServiceImpl;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
-import consulo.hub.frontend.vflow.base.util.TinyComponents;
-import consulo.hub.frontend.vflow.base.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.ui.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.Roles;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,10 @@ import java.util.Map;
 public class AdminConfigView extends VChildLayout
 {
 	@Autowired
-	private PropertiesService myPropertiesService;
+	private PropertiesServiceImpl myPropertiesService;
 
 	@Autowired
-	private BackendRequestor myBackendRequestor;
+	private ApiBackendRequestor myApiBackendRequestor;
 
 	public AdminConfigView()
 	{
@@ -41,7 +41,7 @@ public class AdminConfigView extends VChildLayout
 	{
 		removeAll();
 
-		ConfigPanel configPanel = new ConfigPanel(myBackendRequestor, myPropertiesService, "Apply", (properties) -> {})
+		ConfigPanel configPanel = new ConfigPanel(myApiBackendRequestor, myPropertiesService, "Apply", (properties) -> {})
 		{
 			@Override
 			protected void addOthers(VerticalLayout t)
@@ -50,7 +50,7 @@ public class AdminConfigView extends VChildLayout
 				{
 					try
 					{
-						Map<String, String> map = myBackendRequestor.runRequest("/config/jenkins", Map.of(), new TypeReference<Map<String, String>>()
+						Map<String, String> map = myApiBackendRequestor.runRequest("/config/jenkins", Map.of(), new TypeReference<Map<String, String>>()
 						{
 						});
 

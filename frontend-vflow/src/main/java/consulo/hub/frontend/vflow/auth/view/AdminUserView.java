@@ -7,7 +7,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.hub.frontend.vflow.base.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.auth.domain.UserAccount;
 import jakarta.annotation.security.RolesAllowed;
