@@ -9,6 +9,7 @@ import consulo.procoeton.core.ProCore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,7 +23,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @EnableScheduling
 @EnableWebSocket
 @SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class
+		DataSourceAutoConfiguration.class,
+		UserDetailsServiceAutoConfiguration.class
 })
 @EnableVaadin({"consulo.hub.frontend.vflow", "consulo.procoeton.core", "consulo.procoeton.hub"})
 @ComponentScan(basePackageClasses = {ProCore.class, Application.class}, basePackages = "consulo.hub.frontend.vflow")

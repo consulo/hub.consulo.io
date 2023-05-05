@@ -229,7 +229,7 @@ public class RepositoryItemComponent extends VerticalLayout
 		return accordion;
 	}
 
-	private static <T> List<T> reverse(Collection<T> collection)
+	public static <T> List<T> reverse(Collection<T> collection)
 	{
 		List<T> newList = new ArrayList<T>(collection);
 		Collections.reverse(newList);

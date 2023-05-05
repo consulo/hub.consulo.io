@@ -9,7 +9,7 @@ import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
-import consulo.hub.frontend.vflow.errorReporter.ui.ScrollableListPanel;
+import consulo.procoeton.core.vaadin.ui.ScrollableLayout;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import jakarta.annotation.Nonnull;
@@ -33,7 +33,7 @@ public abstract class BaseErrorReportsView extends VChildLayout
 
 	protected final Set<ErrorReportStatus> myFilters = new HashSet<>();
 	private int myPage = 0;
-	protected ScrollableListPanel myReportList;
+	protected ScrollableLayout myReportList;
 	protected int myLastPageSize;
 	private final MultiSelectComboBox<ErrorReportStatus> myFilterBox;
 
@@ -66,7 +66,7 @@ public abstract class BaseErrorReportsView extends VChildLayout
 	{
 		removeAll();
 
-		myReportList = new ScrollableListPanel();
+		myReportList = new ScrollableLayout();
 
 		if(allowFilters())
 		{
@@ -133,7 +133,7 @@ public abstract class BaseErrorReportsView extends VChildLayout
 					rebuildList();
 				}));
 			}
-			myReportList.addItem(pageLayout, Alignment.CENTER);
+			myReportList.addItem(pageLayout);
 		}
 	}
 

@@ -1,7 +1,10 @@
-package consulo.hub.frontend.statistics.view;
+package consulo.hub.frontend.vflow.statistics.view;
 
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
+import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
 
@@ -9,11 +12,11 @@ import java.util.List;
  * @author VISTALL
  * @since 09/09/2021
  */
-@SpringView(name = StatisticsView.ID)
+@PermitAll
+@PageTitle("Statistics")
+@Route("user/statistics")
 public class StatisticsView extends BaseStatisticsView
 {
-	public static final String ID = "statistics";
-
 	@Override
 	protected List<StatisticEntry> getStatistics()
 	{

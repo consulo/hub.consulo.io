@@ -2,16 +2,12 @@ package consulo.procoeton.core.vaadin.view.login;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.PageTitle;
@@ -20,6 +16,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.procoeton.core.auth.backend.BackendUserAccountServiceCore;
 import consulo.procoeton.core.vaadin.captcha.Captcha;
 import consulo.procoeton.core.vaadin.captcha.CaptchaFactory;
+import consulo.procoeton.core.vaadin.util.Notifications;
 import consulo.procoeton.core.vaadin.view.CenteredView;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -66,11 +63,11 @@ public class RegistrationView extends CenteredView implements BeforeEnterObserve
 
 		Binder<AuthRequest> binder = new Binder<>();
 		binder.forField(emailField)
-				.withValidator(new EmailValidator("Wrong email"))
+				.withValidator(AuthValidators.newEmailValidator())
 				.asRequired()
 				.bind(AuthRequest::getEmail, AuthRequest::setEmail);
 		binder.forField(passwordField)
-				.withValidator(new StringLengthValidator("Wrong password", 4, 48))
+				.withValidator(AuthValidators.newPasswordValidator())
 				.asRequired()
 				.bind(AuthRequest::getPassword, AuthRequest::setPassword);
 
@@ -82,18 +79,14 @@ public class RegistrationView extends CenteredView implements BeforeEnterObserve
 
 				if(!captcha.isValid())
 				{
-					Notification notification = new Notification("Captcha failed", 10_000, Notification.Position.TOP_CENTER);
-					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notification.open();
+					Notifications.error("Captcha failed");
 					return;
 				}
 
 				boolean b = myUserAccountServiceCore.registerUser(request.getEmail(), request.getPassword());
 				if(!b)
 				{
-					Notification notification = new Notification("Failed to register user", 10_000, Notification.Position.TOP_CENTER);
-					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notification.open();
+					Notifications.error("Failed to register user");
 				}
 				else
 				{

@@ -3,7 +3,6 @@ package consulo.procoeton.core.util;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import consulo.hub.shared.auth.SecurityUtil;
-import consulo.procoeton.core.vaadin.view.login.LoginView;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import java.util.Objects;
@@ -23,7 +22,5 @@ public class AuthUtil
 	{
 		SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
 		logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
-
-		ui.navigate(LoginView.class);
 	}
 }

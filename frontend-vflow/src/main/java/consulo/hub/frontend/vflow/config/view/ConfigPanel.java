@@ -6,19 +6,18 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.PropertiesServiceImpl;
+import consulo.hub.frontend.vflow.util.PropertyKeys;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
+import consulo.procoeton.core.github.GithubPropertyKeys;
+import consulo.procoeton.core.util.GAPropertyKeys;
+import consulo.procoeton.core.util.PropertySet;
 import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
-import consulo.procoeton.core.util.GAPropertyKeys;
-import consulo.hub.frontend.vflow.util.PropertyKeys;
-import consulo.procoeton.core.util.PropertySet;
-import consulo.procoeton.core.github.GithubPropertyKeys;
+import consulo.procoeton.core.vaadin.util.Notifications;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -142,13 +141,11 @@ public class ConfigPanel extends VerticalLayout
 					{
 					});
 
-					new Notification("Success").open();
+					Notifications.info("Success");
 				}
 				catch(Exception e)
 				{
-					Notification notification = new Notification("Failed");
-					notification.addClassName(LumoUtility.Background.ERROR);
-					notification.open();
+					Notifications.error("Failed");
 				}
 			}));
 		});

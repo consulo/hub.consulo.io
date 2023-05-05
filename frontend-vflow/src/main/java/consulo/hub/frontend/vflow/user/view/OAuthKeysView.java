@@ -1,4 +1,4 @@
-package consulo.hub.frontend.vflow.auth.view;
+package consulo.hub.frontend.vflow.user.view;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

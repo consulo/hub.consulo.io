@@ -1,4 +1,4 @@
-package consulo.hub.frontend.vflow.errorReporter.ui;
+package consulo.procoeton.core.vaadin.ui;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -10,17 +10,14 @@ import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
  * @author VISTALL
  * @since 25-Apr-17
  */
-public class ScrollableListPanel extends Scroller
+public class ScrollableLayout extends Scroller
 {
 	private final VerticalLayout myVerticalLayout = VaadinUIUtil.newVerticalLayout();
 
-	public ScrollableListPanel()
+	public ScrollableLayout()
 	{
 		setContent(myVerticalLayout);
-		//addStyleName("v-scrollable");
 		setSizeFull();
-		//setDefaultComponentAlignment(Alignment.TOP_LEFT);
-		//setCompositionRoot(myListLayout);
 	}
 
 	public void removeItem(Component component)
@@ -36,11 +33,5 @@ public class ScrollableListPanel extends Scroller
 	public void addItem(Component component)
 	{
 		myVerticalLayout.add(component);
-	}
-
-	public void addItem(Component component, FlexComponent.Alignment alignment)
-	{
-		addItem(component);
-		//setComponentAlignment(component, alignment);
 	}
 }

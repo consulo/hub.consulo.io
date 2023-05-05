@@ -1,4 +1,4 @@
-package consulo.hub.frontend.statistics.view;
+package consulo.hub.frontend.vflow.statistics.view;
 
 import java.util.HashMap;
 import java.util.Map;

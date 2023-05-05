@@ -3,22 +3,17 @@ package consulo.procoeton.core.vaadin.view.login;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.procoeton.core.auth.backend.BackendAuthenticationProvider;
 import consulo.procoeton.core.auth.backend.BackendAuthenticationToken;
 import consulo.procoeton.core.auth.backend.target.BackendAuthTokenTarget;
 import consulo.procoeton.core.auth.backend.target.BackendUserInfoTarget;
@@ -26,6 +21,7 @@ import consulo.procoeton.core.backend.BackendRequest;
 import consulo.procoeton.core.backend.BackendRequestFactory;
 import consulo.procoeton.core.vaadin.captcha.Captcha;
 import consulo.procoeton.core.vaadin.captcha.CaptchaFactory;
+import consulo.procoeton.core.vaadin.util.Notifications;
 import consulo.procoeton.core.vaadin.view.CenteredView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -53,14 +49,12 @@ import java.util.Map;
 public class LoginView extends CenteredView implements BeforeEnterObserver
 {
 	private final CaptchaFactory myCaptchaFactory;
-	private final BackendAuthenticationProvider myAuthenticationProvider;
 	private final BackendRequestFactory myBackendRequestFactory;
 
 	@Autowired
-	public LoginView(CaptchaFactory captchaFactory, BackendAuthenticationProvider authenticationProvider, BackendRequestFactory backendRequestFactory)
+	public LoginView(CaptchaFactory captchaFactory, BackendRequestFactory backendRequestFactory)
 	{
 		myCaptchaFactory = captchaFactory;
-		myAuthenticationProvider = authenticationProvider;
 		myBackendRequestFactory = backendRequestFactory;
 	}
 
@@ -82,11 +76,11 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 
 		Binder<AuthRequest> binder = new Binder<>();
 		binder.forField(emailField)
-				.withValidator(new EmailValidator("Wrong email"))
+				.withValidator(AuthValidators.newEmailValidator())
 				.asRequired()
 				.bind(AuthRequest::getEmail, AuthRequest::setEmail);
 		binder.forField(passwordField)
-				.withValidator(new StringLengthValidator("Wrong password", 4, 48))
+				.withValidator(AuthValidators.newPasswordValidator())
 				.asRequired()
 				.bind(AuthRequest::getPassword, AuthRequest::setPassword);
 
@@ -99,9 +93,7 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 
 				if(!captcha.isValid())
 				{
-					Notification notification = new Notification("Captcha failed", 10_000, Notification.Position.TOP_CENTER);
-					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notification.open();
+					Notifications.error("Captcha failed");
 					return;
 				}
 
@@ -161,9 +153,7 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 			}
 			catch(BadCredentialsException e)
 			{
-				Notification notification = new Notification("Invalid user or password", 10_000, Notification.Position.TOP_CENTER);
-				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				notification.open();
+				Notifications.error("Invalid user or password");
 			}
 			catch(ValidationException ignored)
 			{
@@ -185,10 +175,10 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 	}
 
 	//	@Override
-//	protected void onAttach(AttachEvent attachEvent)
-//	{
-//		getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
-//			ui.getElement().getThemeList().add(Lumo.DARK);
-//		}));
-//	}
+	//	protected void onAttach(AttachEvent attachEvent)
+	//	{
+	//		getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
+	//			ui.getElement().getThemeList().add(Lumo.DARK);
+	//		}));
+	//	}
 }
