@@ -36,7 +36,8 @@ public class ErrorReportsView extends BaseErrorReportsView
 			return new PageImpl<>(Collections.emptyList());
 		}
 
-		return myErrorReportRepository.findByUserAndStatuses(userAccout.getId(), errorReportStatuses, PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC,
+		// -1 - invoke public api
+		return myErrorReportRepository.findByUserAndStatuses(-1, errorReportStatuses, PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC,
 				BackendErrorReporterService.CREATE_DATE)));
 	}
 }

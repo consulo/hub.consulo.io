@@ -3,6 +3,7 @@ package consulo.hub.frontend.vflow.backend.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.storage.domain.StorageFile;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class BackendStorageService
 	{
 		try
 		{
-			return myApiBackendRequestor.runRequest("/storage/list", Map.of("userId", String.valueOf(userId)), new TypeReference<List<StorageFile>>()
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/list"), Map.of("userId", String.valueOf(userId)), new TypeReference<List<StorageFile>>()
 			{
 			}, List::of);
 		}
@@ -44,7 +45,7 @@ public class BackendStorageService
 	{
 		try
 		{
-			return myApiBackendRequestor.runRequest("/storage/deleteAll", Map.of("userId", String.valueOf(userId)), new TypeReference<Map<String, String>>()
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/deleteAll"), Map.of("userId", String.valueOf(userId)), new TypeReference<Map<String, String>>()
 			{
 			});
 		}
@@ -59,7 +60,7 @@ public class BackendStorageService
 	{
 		try
 		{
-			return myApiBackendRequestor.runRequest("/storage/get", Map.of("userId", String.valueOf(userId), "fileId", String.valueOf(storageFileId)), StorageFile.class);
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/get"), Map.of("userId", String.valueOf(userId), "fileId", String.valueOf(storageFileId)), StorageFile.class);
 		}
 		catch(Exception e)
 		{

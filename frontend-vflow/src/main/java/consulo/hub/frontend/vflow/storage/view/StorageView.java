@@ -2,6 +2,7 @@ package consulo.hub.frontend.vflow.storage.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -55,7 +56,7 @@ public class StorageView extends VChildLayout
 	public StorageView(BackendStorageService backendStorageService)
 	{
 		myBackendStorageService = backendStorageService;
-		myItems = TinyComponents.newListSelect();
+		myItems = new ListBox<>();
 		myUpdateInfoPanel = new VerticalLayout();
 		myWipeDataButton = new Button("Wipe All");
 		
@@ -170,7 +171,7 @@ public class StorageView extends VChildLayout
 			layout.setWidthFull();
 
 			verticalLayout.add(layout);
-			layout.add(TinyComponents.newLabel(name + ": "));
+			layout.add(new Label(name + ": "));
 			try
 			{
 				Object fieldValue = declaredField.get(value);

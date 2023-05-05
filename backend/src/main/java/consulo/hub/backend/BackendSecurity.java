@@ -131,6 +131,8 @@ public class BackendSecurity
 
 		// anybody can create errorReports
 		http.authorizeHttpRequests().requestMatchers("/api/errorReporter/create").permitAll();
+		// only auth user can view self reporters
+		http.authorizeHttpRequests().requestMatchers("/api/errorReporter/list").hasAuthority(Roles.ROLE_USER);
 		// statistics can be anonymous
 		http.authorizeHttpRequests().requestMatchers("/api/statistics/push").permitAll();
 		// anybody can list plugins
@@ -158,13 +160,14 @@ public class BackendSecurity
 		// private test can be access without user
 		http.authorizeHttpRequests().requestMatchers("/api/private/test").permitAll();
 
-		// region any user can view statistics for plugins
+		// region any user can view statistics of plugins, and direct error view
 		http.authorizeHttpRequests().requestMatchers("/api/private/repository/list").permitAll();
 		http.authorizeHttpRequests().requestMatchers("/api/private/repository/downloadStat").permitAll();
+		http.authorizeHttpRequests().requestMatchers("/api/private/errorReporter/info").permitAll();
 		// endregion
 
 		// others require hub right - user must be admin
-		http.authorizeHttpRequests().requestMatchers("/api/private/register").hasAuthority(Roles.ROLE_HUB);
+		http.authorizeHttpRequests().requestMatchers("/api/private/user/register").hasAuthority(Roles.ROLE_HUB);
 
 		// register allowed only to hub
 		http.authorizeHttpRequests().requestMatchers("/api/private/**").hasAuthority(Roles.ROLE_SUPERUSER);

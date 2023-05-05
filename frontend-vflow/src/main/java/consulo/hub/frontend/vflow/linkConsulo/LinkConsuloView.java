@@ -1,5 +1,7 @@
 package consulo.hub.frontend.vflow.linkConsulo;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -10,7 +12,6 @@ import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.*;
 import consulo.hub.frontend.vflow.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.vaadin.view.CenteredView;
@@ -51,7 +52,7 @@ public class LinkConsuloView extends CenteredView
 
 		layout.add(new Label("Do you want link Consulo to this account?"));
 
-		Button yes = TinyComponents.newButton("Yes", clickEvent -> {
+		ComponentEventListener<ClickEvent<Button>> listener1 = clickEvent -> {
 			QueryParameters queryParameters = location.getQueryParameters();
 
 			String redirect = getFirstParameter(queryParameters, "redirect");
@@ -64,12 +65,14 @@ public class LinkConsuloView extends CenteredView
 			current.open(redirect + "?token=" + token, "Redirect");
 
 			//FIXME ?? current.setUriFragment(DashboardView.ID);
-		});
+		};
+		Button yes = new Button("Yes", listener1);
 		yes.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-		Button no = TinyComponents.newButton("No", clickEvent -> {
+		ComponentEventListener<ClickEvent<Button>> listener = clickEvent -> {
 			UI.getCurrent().getPage().executeJs("window.close()");
-		});
+		};
+		Button no = new Button("No", listener);
 
 		HorizontalLayout buttonsLine = new HorizontalLayout();
 		buttonsLine.add(yes, no);

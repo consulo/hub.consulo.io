@@ -14,7 +14,6 @@ import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.hub.frontend.vflow.base.MainLayout;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
@@ -49,7 +48,7 @@ public class DashboardView extends VChildLayout
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setSizeFull();
 		//verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.add(TinyComponents.newLabel("Not Implemented Yet"));
+		verticalLayout.add(new Label("Not Implemented Yet"));
 
 		return panel("Last Plugin Comments", verticalLayout);
 	}
@@ -59,14 +58,14 @@ public class DashboardView extends VChildLayout
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setSizeFull();
 		//verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.add(TinyComponents.newLabel("Not Implemented Yet"));
+		verticalLayout.add(new Label("Not Implemented Yet"));
 
 		return panel("Last Settings Update", verticalLayout);
 	}
 
-	private Component buildLastErrorReports(UserAccount userAccount)
+	private Component buildLastErrorReports()
 	{
-		Page<ErrorReport> reportList = myErrorReportRepository.findByUser(userAccount.getId(), PageRequest.of(0, 30, Sort.by(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE)));
+		Page<ErrorReport> reportList = myErrorReportRepository.findByUser(-1, PageRequest.of(0, 30, Sort.by(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE)));
 
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.addClassName("bodyMargin");
@@ -79,7 +78,7 @@ public class DashboardView extends VChildLayout
 		{
 			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
 
-			Label label = TinyComponents.newLabel(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+			Label label = new Label(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
 			label.addClassName(LumoUtility.FontWeight.BOLD);
 			lineLayout.add(label);
 			//lineLayout.addStyleName("errorViewLineLayout");
@@ -104,8 +103,8 @@ public class DashboardView extends VChildLayout
 			HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
 			leftLayout.setWidth(100, Unit.PERCENTAGE);
 			leftLayout.setSpacing(true);
-			leftLayout.add(TinyComponents.newLabel("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
-			leftLayout.add(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+			leftLayout.add(new Label("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+			leftLayout.add(new Label("At: " + new Date(errorReport.getCreateDate())));
 
 			shortLine.add(leftLayout);
 			//shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
@@ -149,7 +148,7 @@ public class DashboardView extends VChildLayout
 		fillLayout.add(lastSettingsUpdate);
 		//fillLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
 
-		Component lastErrorReports = buildLastErrorReports(userAccount);
+		Component lastErrorReports = buildLastErrorReports();
 		fillLayout.add(lastErrorReports);
 		//fillLayout.setExpandRatio(lastErrorReports, 0.33f);
 

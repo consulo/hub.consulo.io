@@ -8,4 +8,5 @@ public interface ApiBackendKeys
 {
 	String BACKEND_HOST_URL_KEY = "backend.host.key";
 	String BACKEND_HOST_PASSWORD = "backend.host.password";
+	String BACKEND_SECURE_KEY = "backend.secure.key";
 }

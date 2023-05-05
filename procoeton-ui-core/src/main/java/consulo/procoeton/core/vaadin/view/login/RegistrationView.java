@@ -13,7 +13,10 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import consulo.procoeton.core.auth.backend.BackendUserAccountServiceCore;
+import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.procoeton.core.auth.backend.target.BackendUserRegisterTarget;
+import consulo.procoeton.core.backend.BackendRequest;
+import consulo.procoeton.core.backend.BackendRequestFactory;
 import consulo.procoeton.core.vaadin.captcha.Captcha;
 import consulo.procoeton.core.vaadin.captcha.CaptchaFactory;
 import consulo.procoeton.core.vaadin.util.Notifications;
@@ -30,13 +33,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class RegistrationView extends CenteredView implements BeforeEnterObserver
 {
 	private final CaptchaFactory myCaptchaFactory;
-	private final BackendUserAccountServiceCore myUserAccountServiceCore;
+	private final BackendRequestFactory myBackendRequestFactory;
 
 	@Autowired
-	public RegistrationView(CaptchaFactory captchaFactory, BackendUserAccountServiceCore userAccountServiceCore)
+	public RegistrationView(CaptchaFactory captchaFactory, BackendRequestFactory backendRequestFactory)
 	{
 		myCaptchaFactory = captchaFactory;
-		myUserAccountServiceCore = userAccountServiceCore;
+		myBackendRequestFactory = backendRequestFactory;
 	}
 
 	@Override
@@ -83,8 +86,12 @@ public class RegistrationView extends CenteredView implements BeforeEnterObserve
 					return;
 				}
 
-				boolean b = myUserAccountServiceCore.registerUser(request.getEmail(), request.getPassword());
-				if(!b)
+				BackendRequest<UserAccount> newRequest = myBackendRequestFactory.newRequest(BackendUserRegisterTarget.INSTANCE);
+				newRequest.parameter("email", request.getEmail());
+				newRequest.parameter("password", request.getPassword());
+
+				UserAccount newAccount = newRequest.execute();
+				if(newAccount == null)
 				{
 					Notifications.error("Failed to register user");
 				}

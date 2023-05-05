@@ -7,7 +7,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.util.AuthUtil;
 import consulo.hub.shared.auth.Roles;
@@ -57,7 +56,7 @@ public class AdminErrorReportsView extends BaseErrorReportsView
 				for(ErrorReportStatus status : ErrorReportStatus.values())
 				{
 					String captalizedStatus = StringUtil.capitalize(status.name().toLowerCase(Locale.US));
-					Button button = TinyComponents.newButton(captalizedStatus);
+					Button button = new Button(captalizedStatus);
 					//button.addStyleName("errorViewButton" + captalizedStatus);
 
 					adminButtons.put(status, button);

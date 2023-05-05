@@ -2,6 +2,7 @@ package consulo.hub.frontend.vflow.backend.service;
 
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class BackendPluginStatisticsService
 	{
 		try
 		{
-			RepositoryDownloadInfo[] pluginIds = myApiBackendRequestor.runRequest("/repository/downloadStat", Map.of("pluginId", pluginId), RepositoryDownloadInfo[].class);
+			RepositoryDownloadInfo[] pluginIds = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/downloadStat"), Map.of("pluginId", pluginId), RepositoryDownloadInfo[].class);
 			if(pluginIds == null)
 			{
 				pluginIds = new RepositoryDownloadInfo[0];

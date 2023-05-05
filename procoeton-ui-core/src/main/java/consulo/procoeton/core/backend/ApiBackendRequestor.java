@@ -15,6 +15,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,13 +43,13 @@ public class ApiBackendRequestor
 	private final String myHostKey = ApiBackendKeys.BACKEND_HOST_URL_KEY;
 
 	@Nullable
-	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
+	public <T> T runRequest(BackendApiUrl urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
 	{
 		return runRequest(urlSuffix, parameters, valueClazz, () -> null);
 	}
 
 	@Nullable
-	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
+	public <T> T runRequest(BackendApiUrl urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
 	{
 		String host = "http://localhost:2233";
 
@@ -61,12 +62,12 @@ public class ApiBackendRequestor
 		return runRequest(host, urlSuffix, parameters, valueClazz, defaultValueGetter);
 	}
 
-	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
+	public <T> T runRequest(BackendApiUrl urlSuffix, Map<String, String> parameters, Class<T> valueClazz) throws Exception
 	{
 		return runRequest(urlSuffix, parameters, valueClazz, () -> null);
 	}
 
-	public <T> T runRequest(String urlSuffix, Map<String, String> parameters, Class<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
+	public <T> T runRequest(BackendApiUrl urlSuffix, Map<String, String> parameters, Class<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
 	{
 		return runRequest(urlSuffix, parameters, new TypeReference<T>()
 		{
@@ -78,14 +79,14 @@ public class ApiBackendRequestor
 		}, defaultValueGetter);
 	}
 
-	public <T> T runRequest(String host, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
+	public <T> T runRequest(String host, BackendApiUrl urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
 	{
 		return runRequest(host, urlSuffix, parameters, valueClazz, () -> null);
 	}
 
-	public <T> T runRequest(String host, String urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
+	public <T> T runRequest(String host, BackendApiUrl url, Map<String, String> parameters, TypeReference<T> valueClazz, Supplier<T> defaultValueGetter) throws Exception
 	{
-		RequestBuilder builder = RequestBuilder.get(host + "/api/private" + urlSuffix);
+		RequestBuilder builder = RequestBuilder.get(url.build(host));
 		builder.addHeader("Content-Type", "application/json");
 
 		for(Map.Entry<String, String> entry : parameters.entrySet())
@@ -96,7 +97,12 @@ public class ApiBackendRequestor
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication instanceof BackendAuthenticationToken)
 		{
-			builder.addHeader("Authorization", "Bearer " + ((BackendAuthenticationToken) authentication).getToken());
+			builder.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + ((BackendAuthenticationToken) authentication).getToken());
+		}
+
+		if(myPropertiesService.isInstalled() && url.isPrivate())
+		{
+			builder.addHeader("BackendSecureKey", myPropertiesService.getPropertySet().getStringProperty(ApiBackendKeys.BACKEND_SECURE_KEY, ""));
 		}
 
 		try

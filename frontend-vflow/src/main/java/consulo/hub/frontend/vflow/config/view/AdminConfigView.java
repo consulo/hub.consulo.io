@@ -8,6 +8,7 @@ import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.PropertiesServiceImpl;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.frontend.vflow.base.MainLayout;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
@@ -50,7 +51,7 @@ public class AdminConfigView extends VChildLayout
 				{
 					try
 					{
-						Map<String, String> map = myApiBackendRequestor.runRequest("/config/jenkins", Map.of(), new TypeReference<Map<String, String>>()
+						Map<String, String> map = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/config/jenkins"), Map.of(), new TypeReference<Map<String, String>>()
 						{
 						});
 

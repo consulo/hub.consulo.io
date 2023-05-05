@@ -3,6 +3,7 @@ package consulo.hub.frontend.vflow.backend.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class BackendStatisticsService
 			{
 				args = Map.of("userId", String.valueOf(userId));
 			}
-			return myApiBackendRequestor.runRequest("/statistics/list", args, new TypeReference<List<StatisticEntry>>()
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/statistics/list"), args, new TypeReference<List<StatisticEntry>>()
 			{
 			});
 		}

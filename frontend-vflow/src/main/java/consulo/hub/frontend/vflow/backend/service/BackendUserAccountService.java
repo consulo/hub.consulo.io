@@ -5,6 +5,7 @@ import consulo.procoeton.core.auth.backend.BackendUserAccountServiceCore;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class BackendUserAccountService extends BackendUserAccountServiceCore
 			map.put("token", token);
 			map.put("hostName", hostName);
 
-			return myApiBackendRequestor.runRequest("/user/oauth/request", map, new TypeReference<Map<String, String>>()
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/request"), map, new TypeReference<Map<String, String>>()
 			{
 			});
 		}
@@ -53,39 +54,13 @@ public class BackendUserAccountService extends BackendUserAccountServiceCore
 			Map<String, String> map = new HashMap<>();
 			map.put("userId", String.valueOf(account.getId()));
 
-			OAuthTokenInfo[] oAuthTokenInfos = myApiBackendRequestor.runRequest("/user/oauth/list", map, OAuthTokenInfo[].class);
-			if(oAuthTokenInfos == null)
-			{
-				OAuthTokenInfo oAuthTokenInfo = new OAuthTokenInfo();
-				oAuthTokenInfo.setToken("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-				oAuthTokenInfos = new OAuthTokenInfo[]{
-						oAuthTokenInfo
-				};
-			}
-			return oAuthTokenInfos;
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/list"), map, OAuthTokenInfo[].class);
 		}
 		catch(Exception e)
 		{
 			LOG.warn("Failed to list tokens: " + account.getId(), e);
 		}
 		return new OAuthTokenInfo[0];
-	}
-
-	public OAuthTokenInfo addOAuthToken(UserAccount account, String name)
-	{
-		try
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put("userId", String.valueOf(account.getId()));
-			map.put("name", name);
-
-			return myApiBackendRequestor.runRequest("/user/oauth/add", map, OAuthTokenInfo.class);
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to add token: " + account.getId(), e);
-		}
-		return null;
 	}
 
 	public OAuthTokenInfo removeOAuthToken(UserAccount account, String token)
@@ -96,7 +71,7 @@ public class BackendUserAccountService extends BackendUserAccountServiceCore
 			map.put("userId", String.valueOf(account.getId()));
 			map.put("token", token);
 
-			return myApiBackendRequestor.runRequest("/user/oauth/remove", map, OAuthTokenInfo.class);
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/remove"), map, OAuthTokenInfo.class);
 		}
 		catch(Exception e)
 		{
@@ -109,7 +84,7 @@ public class BackendUserAccountService extends BackendUserAccountServiceCore
 	{
 		try
 		{
-			return List.of(myApiBackendRequestor.runRequest("/user/list", Map.of(), UserAccount[].class, () -> new UserAccount[0]));
+			return List.of(myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/list"), Map.of(), UserAccount[].class, () -> new UserAccount[0]));
 		}
 		catch(Exception e)
 		{

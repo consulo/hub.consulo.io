@@ -1,12 +1,14 @@
 package consulo.hub.frontend.vflow.repository.view;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.vflow.base.MainLayout;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.repository.PluginChannel;
@@ -38,9 +40,12 @@ public class AdminRepositoryView extends VChildLayout
 
 		HorizontalLayout layout = VaadinUIUtil.newHorizontalLayout();
 		layout.setSpacing(true);
-		layout.add(TinyComponents.newButton("nightly " + rightArrow() + " alpha", event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha)));
-		layout.add(TinyComponents.newButton("alpha " + rightArrow() + " beta", event -> forceIterate(PluginChannel.alpha, PluginChannel.beta)));
-		layout.add(TinyComponents.newButton("beta " + rightArrow() + " release", event -> forceIterate(PluginChannel.beta, PluginChannel.release)));
+		ComponentEventListener<ClickEvent<Button>> listener2 = event -> forceIterate(PluginChannel.nightly, PluginChannel.alpha);
+		layout.add(new Button("nightly " + rightArrow() + " alpha", listener2));
+		ComponentEventListener<ClickEvent<Button>> listener1 = event -> forceIterate(PluginChannel.alpha, PluginChannel.beta);
+		layout.add(new Button("alpha " + rightArrow() + " beta", listener1));
+		ComponentEventListener<ClickEvent<Button>> listener = event -> forceIterate(PluginChannel.beta, PluginChannel.release);
+		layout.add(new Button("beta " + rightArrow() + " release", listener));
 
 		add(layout);
 	}

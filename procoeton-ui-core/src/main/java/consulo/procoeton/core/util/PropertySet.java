@@ -20,6 +20,11 @@ public class PropertySet
 		return myProperties.getProperty(name);
 	}
 
+	public String getStringProperty(String name, String defaultValue)
+	{
+		return myProperties.getProperty(name, defaultValue);
+	}
+
 	public boolean getBoolProperty(String name)
 	{
 		String property = myProperties.getProperty(name);

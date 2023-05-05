@@ -1,5 +1,8 @@
 package consulo.hub.frontend.vflow.user.view;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -14,7 +17,6 @@ import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.vaadin.util.Notifications;
 import consulo.procoeton.core.vaadin.view.login.AuthValidators;
@@ -61,8 +63,9 @@ public class UserInfoView extends VChildLayout
 		newPasswordField.setAutocomplete(Autocomplete.NEW_PASSWORD);
 		changePasswordLayout.add(VaadinUIUtil.labeledFill("New Password", newPasswordField));
 
-		changePasswordLayout.add(TinyComponents.newButton("Change Password", clickEvent ->
-				changePassword(accout, oldPasswordField, newPasswordField)));
+		ComponentEventListener<ClickEvent<Button>> listener = clickEvent ->
+				changePassword(accout, oldPasswordField, newPasswordField);
+		changePasswordLayout.add(new Button("Change Password", listener));
 
 		add(panel);
 	}

@@ -14,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -104,7 +105,7 @@ public abstract class BackendRequestor
 		if(password != null)
 		{
 			String basicAuth = Base64.getEncoder().encodeToString((ServiceAccounts.HUB + ":" + password).getBytes(StandardCharsets.UTF_8));
-			builder.addHeader("Authorization", "Basic " + basicAuth);
+			builder.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth);
 		}
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -1,7 +1,9 @@
 package consulo.hub.frontend.vflow.config.view;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -11,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import consulo.hub.frontend.vflow.PropertiesServiceImpl;
 import consulo.hub.frontend.vflow.util.PropertyKeys;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import consulo.procoeton.core.github.GithubPropertyKeys;
 import consulo.procoeton.core.util.GAPropertyKeys;
 import consulo.procoeton.core.util.PropertySet;
@@ -52,7 +55,7 @@ public class ConfigPanel extends VerticalLayout
 		layout.add(buildGithubGroup());
 		layout.add(buildGAGroup());
 
-		Button installButton = TinyComponents.newButton(buttonName);
+		Button installButton = new Button(buttonName);
 		installButton.addClickListener(event ->
 		{
 			Properties properties = new Properties();
@@ -134,10 +137,10 @@ public class ConfigPanel extends VerticalLayout
 
 			layout.add(VaadinUIUtil.labeledFill("Backend URL: ", backendHost));
 
-			layout.add(TinyComponents.newButton("Test", clickEvent -> {
+			ComponentEventListener<ClickEvent<Button>> listener = clickEvent -> {
 				try
 				{
-					apiBackendRequestor.runRequest(backendHost.getValue(), "/test", Map.of(), new TypeReference<Map<String, String>>()
+					apiBackendRequestor.runRequest(backendHost.getValue(), BackendApiUrl.toPrivate("/test"), Map.of(), new TypeReference<Map<String, String>>()
 					{
 					});
 
@@ -147,7 +150,8 @@ public class ConfigPanel extends VerticalLayout
 				{
 					Notifications.error("Failed");
 				}
-			}));
+			};
+			layout.add(new Button("Test", listener));
 		});
 	}
 
@@ -155,7 +159,7 @@ public class ConfigPanel extends VerticalLayout
 	{
 		return buildGroup("Captcha", layout ->
 		{
-			Checkbox enabledCaptcha = TinyComponents.newCheckBox("Enable captcha?");
+			Checkbox enabledCaptcha = new Checkbox("Enable captcha?");
 			map(Boolean.class, enabledCaptcha, PropertyKeys.CAPTCHA_ENABLED_KEY, () -> false);
 			layout.add(enabledCaptcha);
 

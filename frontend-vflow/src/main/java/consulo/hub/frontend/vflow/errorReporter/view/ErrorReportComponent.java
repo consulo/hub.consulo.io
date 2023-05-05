@@ -6,6 +6,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,7 +17,6 @@ import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouteParameters;
 import consulo.procoeton.core.vaadin.ui.Badge;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.util.lang.StringUtil;
@@ -51,8 +51,8 @@ public class ErrorReportComponent extends VerticalLayout
 		HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
 		leftLayout.setWidth(100, Unit.PERCENTAGE);
 		leftLayout.setSpacing(true);
-		leftLayout.add(TinyComponents.newLabel("Message: " + errorReport.getMessage()));
-		leftLayout.add(TinyComponents.newLabel("At: " + new Date(errorReport.getCreateDate())));
+		leftLayout.add(new Label("Message: " + errorReport.getMessage()));
+		leftLayout.add(new Label("At: " + new Date(errorReport.getCreateDate())));
 
 		HorizontalLayout rightLayout = VaadinUIUtil.newHorizontalLayout();
 		rightLayout.setSpacing(true);
@@ -92,7 +92,7 @@ public class ErrorReportComponent extends VerticalLayout
 			ui.getPage().open(url, "_blank");
 		});
 
-		Button detailsButton = TinyComponents.newButton("Details");
+		Button detailsButton = new Button("Details");
 		detailsButton.setIcon(FontAwesome.Solid.LIST.create());
 
 		detailsButton.addClickListener(e -> openOrCloseDetails(errorReport, lineLayout, onUpdate));
@@ -149,7 +149,7 @@ public class ErrorReportComponent extends VerticalLayout
 			TableDataCell labelRow = tableRow.addDataCell();
 			TableDataCell valueRow = tableRow.addDataCell();
 
-			labelRow.add(TinyComponents.newLabel(field.getName() + ":"));
+			labelRow.add(new Label(field.getName() + ":"));
 
 			Object rawValue = null;
 			try

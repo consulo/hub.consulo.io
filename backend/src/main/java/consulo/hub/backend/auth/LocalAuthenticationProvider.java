@@ -55,7 +55,7 @@ public class LocalAuthenticationProvider extends AbstractUserDetailsAuthenticati
 		if(!encoder.matches(password, user.getPassword()))
 		{
 			logger.warn("Username {} password {}: invalid password", username, password);
-			throw new BadCredentialsException("Invalid Login");
+			throw new BadCredentialsException("Invalid Password");
 		}
 
 		if(user.getStatus() != UserAccountStatus.STATUS_APPROVED)

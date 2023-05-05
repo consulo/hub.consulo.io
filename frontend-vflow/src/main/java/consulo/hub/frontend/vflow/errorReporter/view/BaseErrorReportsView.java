@@ -1,13 +1,15 @@
 package consulo.hub.frontend.vflow.errorReporter.view;
 
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.vaadin.ui.ScrollableLayout;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
@@ -119,19 +121,21 @@ public abstract class BaseErrorReportsView extends VChildLayout
 			pageLayout.setSpacing(true);
 			if(page.hasPrevious())
 			{
-				pageLayout.add(TinyComponents.newButton("Prev", event ->
+				ComponentEventListener<ClickEvent<Button>> listener = event ->
 				{
 					myPage--;
 					rebuildList();
-				}));
+				};
+				pageLayout.add(new Button("Prev", listener));
 			}
 			if(page.hasNext())
 			{
-				pageLayout.add(TinyComponents.newButton("Next", event ->
+				ComponentEventListener<ClickEvent<Button>> listener = event ->
 				{
 					myPage++;
 					rebuildList();
-				}));
+				};
+				pageLayout.add(new Button("Next", listener));
 			}
 			myReportList.addItem(pageLayout);
 		}

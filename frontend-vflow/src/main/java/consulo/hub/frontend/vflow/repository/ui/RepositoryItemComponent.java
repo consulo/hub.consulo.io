@@ -32,7 +32,6 @@ import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
@@ -86,19 +85,19 @@ public class RepositoryItemComponent extends VerticalLayout
 			add(tagsPanel);
 		}
 
-		add(VaadinUIUtil.newHorizontalLayout(TinyComponents.newLabel("Permission:")));
+		add(VaadinUIUtil.newHorizontalLayout(new Label("Permission:")));
 		PluginNode.Permission[] permissions = pluginNode.permissions;
 		if(permissions != null)
 		{
 			for(PluginNode.Permission permission : permissions)
 			{
-				Label label = TinyComponents.newLabel("- " + permission.type);
+				Label label = new Label("- " + permission.type);
 				add(VaadinUIUtil.newHorizontalLayout(label));
 			}
 		}
 		else
 		{
-			Label label = TinyComponents.newLabel("- <no special permissions>");
+			Label label = new Label("- <no special permissions>");
 			add(VaadinUIUtil.newHorizontalLayout(label));
 		}
 
@@ -118,10 +117,10 @@ public class RepositoryItemComponent extends VerticalLayout
 
 		if(!StringUtils.isEmpty(pluginNode.vendor))
 		{
-			add(VaadinUIUtil.labeled("Vendor: ", TinyComponents.newLabel(pluginNode.vendor)));
+			add(VaadinUIUtil.labeled("Vendor: ", new Label(pluginNode.vendor)));
 		}
 
-		add(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(pluginNode.downloads + " (all: " + pluginNode.downloadsAll + ")")));
+		add(VaadinUIUtil.labeled("Downloads: ", new Label(pluginNode.downloads + " (all: " + pluginNode.downloadsAll + ")")));
 
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.setWidthFull();

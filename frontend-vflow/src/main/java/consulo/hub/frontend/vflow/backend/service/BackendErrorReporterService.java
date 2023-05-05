@@ -1,10 +1,11 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.hub.shared.util.JsonPage;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +37,7 @@ public class BackendErrorReporterService
 			params.put("status", status.name());
 			params.put("id", String.valueOf(errorReportId));
 
-			return myApiBackendRequestor.runRequest("/errorReport/changeStatus", params, ErrorReport.class);
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/errorReporter/changeStatus"), params, ErrorReport.class);
 		}
 		catch(Exception e)
 		{
@@ -62,7 +63,7 @@ public class BackendErrorReporterService
 	private Page<ErrorReport> findAll(long userId, ErrorReportStatus[] errorReportStatuses, PageRequest pageRequest)
 	{
 		Map<String, String> params = new HashMap<>();
-		if(userId != 0)
+		if(userId > 0)
 		{
 			params.put("userId", String.valueOf(userId));
 		}
@@ -77,7 +78,18 @@ public class BackendErrorReporterService
 
 		try
 		{
-			JsonPage<ErrorReport> jsonPage = myApiBackendRequestor.runRequest("/errorReport/list", params, new TypeReference<JsonPage<ErrorReport>>()
+			String api = "/errorReporter/list";
+			BackendApiUrl backendApiUrl;
+			if(userId == -1)
+			{
+				backendApiUrl = BackendApiUrl.toPublic(api);
+			}
+			else
+			{
+				backendApiUrl = BackendApiUrl.toPrivate(api);
+			}
+
+			JsonPage<ErrorReport> jsonPage = myApiBackendRequestor.runRequest(backendApiUrl, params, new TypeReference<JsonPage<ErrorReport>>()
 			{
 			});
 
@@ -98,7 +110,7 @@ public class BackendErrorReporterService
 	{
 		try
 		{
-			return myApiBackendRequestor.runRequest("/errorReport/info", Map.<String, String>of("longId", errorReportId), ErrorReport.class);
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/errorReporter/info"), Map.<String, String>of("longId", errorReportId), ErrorReport.class);
 		}
 		catch(Exception e)
 		{

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.procoeton.core.backend.BackendApiUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class BackendRepositoryService
 	{
 		try
 		{
-			PluginNode[] nodes = myApiBackendRequestor.runRequest("/repository/list", Map.of("channel", pluginChannel.name()), PluginNode[].class);
+			PluginNode[] nodes = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of("channel", pluginChannel.name()), PluginNode[].class);
 			if(nodes == null)
 			{
 				nodes = new PluginNode[0];
@@ -50,7 +51,7 @@ public class BackendRepositoryService
 	{
 		try
 		{
-			myApiBackendRequestor.runRequest("/repository/iterate", Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>()
+			myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/iterate"), Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>()
 			{
 			});
 		}

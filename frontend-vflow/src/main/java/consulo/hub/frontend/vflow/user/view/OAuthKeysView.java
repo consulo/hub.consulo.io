@@ -11,7 +11,6 @@ import com.vaadin.flow.router.Route;
 import consulo.hub.frontend.vflow.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.vflow.base.MainLayout;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
@@ -109,10 +108,10 @@ public class OAuthKeysView extends VChildLayout
 			}
 		}
 
-		layout.add(TinyComponents.newLabel(infoBuilder.toString()));
+		layout.add(new Label(infoBuilder.toString()));
 		String tokenId = token.getToken();
 
-		Label label = TinyComponents.newLabel("Token: " + tokenId);
+		Label label = new Label("Token: " + tokenId);
 		layout.add(label);
 
 		Button revokeButton = new Button("Revoke", e ->

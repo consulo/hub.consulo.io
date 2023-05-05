@@ -31,13 +31,13 @@ public class FrontendErrorReporterRestController
 	@Autowired
 	private UserAccountRepository myUserAccountRepository;
 
-	@RequestMapping("/api/private/errorReport/info")
+	@RequestMapping("/api/private/errorReporter/info")
 	public ErrorReport errorReportDirect(@RequestParam("longId") String longId)
 	{
 		return Objects.requireNonNull(myErrorReportRepository.findByLongId(longId));
 	}
 
-	@RequestMapping("/api/private/errorReport/changeStatus")
+	@RequestMapping("/api/private/errorReporter/changeStatus")
 	public ErrorReport errorReportChangeStatus(@RequestParam("id") long errorReportId, @RequestParam(value = "userId") long userId, @RequestParam("status") ErrorReportStatus status)
 	{
 		UserAccount reportUser = myUserAccountRepository.findById(userId).get();
@@ -51,7 +51,7 @@ public class FrontendErrorReporterRestController
 		return myErrorReportRepository.save(errorReport);
 	}
 
-	@RequestMapping("/api/private/errorReport/list")
+	@RequestMapping("/api/private/errorReporter/list")
 	public JsonPage<ErrorReport> listErrorReports(@RequestParam(value = "userId", defaultValue = "0", required = false) long userId,
 												  @RequestParam(value = "statuses", required = false) String statuses,
 												  @RequestParam("pageSize") int pageSize,

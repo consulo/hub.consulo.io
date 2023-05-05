@@ -78,6 +78,8 @@ public class BackendRequest<T>
 			request.addHeader(entry.getKey(), entry.getValue());
 		}
 
+		myTarget.addHeaders(myPropertiesService, request);
+
 		try
 		{
 			T value = myClient.execute(request, response ->

@@ -1,10 +1,12 @@
 package consulo.hub.backend.auth;
 
+import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.shared.ServiceAccounts;
 import consulo.hub.shared.auth.domain.UserAccount;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,17 +24,11 @@ public class SpecialAccountRegistrator
 	@Autowired
 	private UserAccountService myUserAccountService;
 
-//	@Autowired
-//	private AuthenticationManager myAuthenticationManager;
+	@Autowired
+	private UserAccountRepository myUserRepository;
 
-//	@Autowired
-//	private TokenStore myTokenStore;
-//
-//	@Autowired
-//	private OAuth2RequestFactory myOAuth2RequestFactory;
-//
-//	@Autowired
-//	private AuthorizationServerTokenServices myAuthorizationServerTokenServices;
+	@Autowired
+	private PasswordEncoder myPasswordEncoder;
 
 	@PostConstruct
 	public void check() throws IOException
@@ -46,15 +42,30 @@ public class SpecialAccountRegistrator
 		UserAccount user = myUserAccountService.findUser(email);
 		if(user == null)
 		{
-			String password = RandomStringUtils.randomAlphanumeric(32);
+			String password = savePassword(email);
 
 			myUserAccountService.registerUser(email, password, rights);
-
-			Path path = Path.of(email.replace("@", "__").replace(".", "_") + ".txt");
-
-			Files.deleteIfExists(path);
-
-			Files.write(path, List.of(password));
 		}
+		else if(user.getPassword() == null)
+		{
+			String newPassword = savePassword(email);
+
+			user.setPassword(myPasswordEncoder.encode(newPassword));
+
+			myUserRepository.saveAndFlush(user);
+		}
+	}
+
+	private String savePassword(String email) throws IOException
+	{
+		String password = RandomStringUtils.randomAlphanumeric(32);
+
+		Path path = Path.of(email.replace("@", "__").replace(".", "_") + ".txt");
+
+		Files.deleteIfExists(path);
+
+		Files.write(path, List.of(password));
+
+		return password;
 	}
 }
