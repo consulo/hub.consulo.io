@@ -16,15 +16,17 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.theme.lumo.LumoUtility;
+import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
-import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.util.lang.StringUtil;
 import org.vaadin.stefan.table.Table;
 import org.vaadin.stefan.table.TableDataCell;
 import org.vaadin.stefan.table.TableRow;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -40,7 +42,8 @@ public class ErrorReportComponent extends VerticalLayout
 	{
 		myBadgeHolder = new Div();
 
-		HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
+		HorizontalLayout shortLine = new HorizontalLayout();
+		shortLine.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 
 		add(shortLine);
 
@@ -49,10 +52,14 @@ public class ErrorReportComponent extends VerticalLayout
 		shortLine.setWidth(100, Unit.PERCENTAGE);
 
 		HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
+		leftLayout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
 		leftLayout.setWidth(100, Unit.PERCENTAGE);
 		leftLayout.setSpacing(true);
-		leftLayout.add(new Label("Message: " + errorReport.getMessage()));
-		leftLayout.add(new Label("At: " + new Date(errorReport.getCreateDate())));
+		SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm");
+		Label label = new Label(format.format(new Date(errorReport.getCreateDate())));
+		label.addClassName(LumoUtility.Whitespace.NOWRAP);
+		leftLayout.add(label);
+		leftLayout.add(new Label(StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 128, 3)));
 
 		HorizontalLayout rightLayout = VaadinUIUtil.newHorizontalLayout();
 		rightLayout.setSpacing(true);
