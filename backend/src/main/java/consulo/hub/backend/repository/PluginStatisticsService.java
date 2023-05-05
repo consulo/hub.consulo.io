@@ -59,7 +59,13 @@ public class PluginStatisticsService
 
 			try
 			{
-				PluginChannel pluginChannel = PluginChannel.valueOf(stat.getChannel());
+				String channel = stat.getChannel();
+				if (channel.equals("valhalla"))
+				{
+					continue;
+				}
+
+				PluginChannel pluginChannel = PluginChannel.valueOf(channel);
 
 				statistics.byChannel[pluginChannel.ordinal()]++;
 			}
@@ -89,6 +95,22 @@ public class PluginStatisticsService
 			return 0;
 		}
 		return statistics.byChannel[pluginChannel.ordinal()];
+	}
+
+	public int getDownloadStatCountAll(@Nonnull String pluginId)
+	{
+		DownloadPluginStatistics statistics = myStatistics.get(pluginId);
+		if(statistics == null)
+		{
+			return 0;
+		}
+		int count = 0;
+
+		for(PluginChannel channel : PluginChannel.values())
+		{
+			count += statistics.byChannel[channel.ordinal()];
+		}
+		return count;
 	}
 
 	@Nonnull

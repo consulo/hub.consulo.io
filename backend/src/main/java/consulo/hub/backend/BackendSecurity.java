@@ -158,6 +158,11 @@ public class BackendSecurity
 		// private test can be access without user
 		http.authorizeHttpRequests().requestMatchers("/api/private/test").permitAll();
 
+		// region any user can view statistics for plugins
+		http.authorizeHttpRequests().requestMatchers("/api/private/repository/list").permitAll();
+		http.authorizeHttpRequests().requestMatchers("/api/private/repository/downloadStat").permitAll();
+		// endregion
+
 		// others require hub right - user must be admin
 		http.authorizeHttpRequests().requestMatchers("/api/private/register").hasAuthority(Roles.ROLE_HUB);
 

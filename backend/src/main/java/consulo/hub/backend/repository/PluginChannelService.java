@@ -113,8 +113,7 @@ public class PluginChannelService
 	{
 		for(PluginsState pluginsState : myPlugins.values())
 		{
-			List<PluginNode> nodes = pluginsState.getAll();
-			nodes.forEach(consumer);
+			pluginsState.forEach(consumer);
 		}
 	}
 

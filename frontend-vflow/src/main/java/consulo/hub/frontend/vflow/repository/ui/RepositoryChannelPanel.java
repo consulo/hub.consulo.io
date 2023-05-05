@@ -162,62 +162,12 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
 
-		Map<String, PluginNode> downloadInfo = new HashMap<>();
-
-		Map<String, String> captions = new HashMap<>();
-
 		for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
 		{
-			captions.put(entry.getKey(), "Consulo #" + entry.getKey());
-
-			if(lastPluginNodeByVersion == null)
-			{
-				lastPluginNodeByVersion = entry.getValue().iterator().next();
-			}
-
-			if(!RepositoryUtil.isPlatformNode(lastPluginNodeByVersion.id))
-			{
-				for(PluginNode node : entry.getValue())
-				{
-					UUID uuid = UUID.randomUUID();
-
-					String key = uuid.toString();
-
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTimeInMillis(node.date);
-					captions.put(key, "build #" + node.version + " at " + calendar.toInstant());
-
-					downloadInfo.put(key, node);
-				}
-			}
-			else
-			{
-				downloadInfo.put(entry.getKey(), entry.getValue().iterator().next());
-			}
+			lastPluginNodeByVersion = entry.getValue().iterator().next();
+			break;
 		}
 
-
-		//tree.setItemCaptionGenerator(captions::get);
-		//
-		//		tree.addItemClickListener(e ->
-		//		{
-		//			String id = e.getItem();
-		//
-		//			PluginNode pluginNode = downloadInfo.get(id);
-		//			if(pluginNode != null)
-		//			{
-		//				StringBuilder builder = new StringBuilder("/api/repository/download?");
-		//				builder.append("channel=").append(myPluginChannel.name()).append("&");
-		//				builder.append("platformVersion=").append(pluginNode.platformVersion).append("&");
-		//				builder.append("id=").append(pluginNode.id).append("&");
-		//				builder.append("version=").append(pluginNode.version).append("&");
-		//				builder.append("platformBuildSelect=").append("true");
-		//
-		//				getUI().getPage().open(builder.toString(), "");
-		//			}
-		//		});
-		//
-		//		assert lastPluginNodeByVersion != null;
 		if(lastPluginNodeByVersion != null)
 		{
 			return new RepositoryItemComponent(lastPluginNodeByVersion, myPluginChannel, myTagsLocalizeLoader, myBackendPluginStatisticsService, sorted);

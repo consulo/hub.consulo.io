@@ -72,9 +72,11 @@
   "@vaadin/vaadin-usage-statistics": "2.1.2",
   "@vaadin/vertical-layout": "24.0.3",
   "@vaadin/virtual-list": "24.0.3",
+  "apexcharts": "3.35.0",
   "construct-style-sheets-polyfill": "3.1.0",
   "date-fns": "2.29.3",
   "lit": "2.6.1",
+  "onecolor": "3.1.0",
   "proj4": "2.8.1"
  },
  "npmModules": {
@@ -151,6 +153,7 @@
   "@vaadin/vertical-layout": "24.0.3",
   "@vaadin/virtual-list": "24.0.3",
   "@webcomponents/shadycss": "1.11.2",
+  "apexcharts": "3.35.0",
   "construct-style-sheets-polyfill": "3.1.0",
   "cookieconsent": "3.1.1",
   "date-fns": "2.29.3",
@@ -159,6 +162,7 @@
   "lit-html": "2.7.3",
   "mgrs": "1.0.0",
   "ol": "6.13.0",
+  "onecolor": "3.1.0",
   "proj4": "2.8.1",
   "quickselect": "2.0.0",
   "rbush": "3.0.1",
@@ -167,7 +171,7 @@
  },
  "bundleImports": [
   "@vaadin/vaadin-themable-mixin",
-  "Frontend/generated/jar-resources/addons-styles/toggle-button-group.css",
+  "Frontend/generated/jar-resources/com/github/appreciated/apexcharts/apexcharts-wrapper-styles.css",
   "Frontend/generated/jar-resources/grid-tree-toggle-adjust.css",
   "@vaadin/grid/theme/lumo/vaadin-grid.js",
   "@vaadin/tooltip/theme/lumo/vaadin-tooltip.js",
@@ -247,12 +251,14 @@
   "@vaadin/vaadin-lumo-styles/vaadin-iconset.js",
   "@vaadin/vertical-layout/theme/lumo/vaadin-vertical-layout.js",
   "@vaadin/virtual-list/vaadin-virtual-list.js",
+  "Frontend/generated/jar-resources/com/github/appreciated/apexcharts/apexcharts-wrapper.ts",
   "Frontend/generated/jar-resources/comboBoxConnector.js",
   "Frontend/generated/jar-resources/contextMenuConnector.js",
   "Frontend/generated/jar-resources/contextMenuTargetConnector.js",
   "Frontend/generated/jar-resources/cookieConsentConnector.js",
   "Frontend/generated/jar-resources/datepickerConnector.js",
   "Frontend/generated/jar-resources/dndConnector-es6.js",
+  "Frontend/generated/jar-resources/file-download-wrapper.js",
   "Frontend/generated/jar-resources/flow-component-renderer.js",
   "Frontend/generated/jar-resources/font-awesome-iron-iconset/fab.js",
   "Frontend/generated/jar-resources/font-awesome-iron-iconset/far.js",
@@ -277,14 +283,16 @@
   "themes/vflow/components/vaadin-password-field.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
   "themes/vflow/components/vaadin-text-area.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
   "themes/vflow/components/vaadin-text-field.css": "0a7d91732f86b30fef5de7bcdb0f83539fea9a0e7d84c7e623f8f0f73afbfd8c",
-  "addons-styles/toggle-button-group.css": "215efc5865f6e26daa9651e46febcba5ac4668cc2d521467def02aff9c1facb0",
+  "com/github/appreciated/apexcharts/apexcharts-wrapper-styles.css": "d837b7f39ff5cac62b2e0d4a48bb9a2c9c073451ee5c96ca4ba9394e7f91a542",
   "grid-tree-toggle-adjust.css": "a6cad36136feb6cb2b414d0ec79a83c120997311298510c0e21716a3fbddc3f8",
+  "com/github/appreciated/apexcharts/apexcharts-wrapper.ts": "a7651281f94f4d2ec2eef5ce5dbe70985f2005212f4141f1ddcacefda799edff",
   "comboBoxConnector.js": "1d004c3dae9c76f8bcc68678abe1b8f7bdc8b456f5c9c4c7f190df8ed25d66cd",
   "contextMenuConnector.js": "25a200f8086461635ddd92316ebeb5a868294c8650a190efbae120edb1088f4f",
   "contextMenuTargetConnector.js": "870f67643988dd5618c247bd3c28d843f70aa026ee89f44c3c7556b5e70856af",
   "cookieConsentConnector.js": "cc362ee370ce0a48d6c0f6882a5faf7fefbda89ea7ac9f483b7b4d65eab9cdf5",
   "datepickerConnector.js": "84d25236e1e478c2e181a7881464ad75228a30ccd99d60f78186f0804b6a4a37",
   "dndConnector-es6.js": "d1923b7ec5655346bc130c7ce477d69eb3776417ddc942dd7f69fee1188e0ddf",
+  "file-download-wrapper.js": "fcecf1df113b66ad87767587f0049d1b16c42ca9216e5d7cb7efce58b96b058b",
   "flow-component-renderer.js": "f45de3d78e4719c2eb7aa09b48ec758e1e44e171cd4ad545ac9e33c3623dcfb1",
   "font-awesome-iron-iconset/fab.js": "d6f106dafa645db5f1a5ffb4cf90dbe6394c4265ed9775552cf09172b7b54da4",
   "font-awesome-iron-iconset/far.js": "9b638b8cdb41d7ec0099130fffa08a03052d836f147b36cb3de9d172f49cec38",
@@ -307,8 +315,8 @@
   "vflow": "{\n\t\"lumoImports\" : [ \"typography\", \"color\", \"spacing\", \"badge\", \"utility\" ]\n}"
  },
  "entryScripts": [
-  "VAADIN/build/indexhtml-90d06f01.js"
+  "VAADIN/build/indexhtml-45381f4a.js"
  ],
  "webComponents": [],
- "packageJsonHash": "522c1cafb3fdf910385b647d3ecef452fd3b9cfc01ad88aadfdf03b384161f3d"
+ "packageJsonHash": "eb2f6f840ae63a2666a4d20713bac3e8f22904a6dfb4ac924b605fd5b4055ed7"
 }

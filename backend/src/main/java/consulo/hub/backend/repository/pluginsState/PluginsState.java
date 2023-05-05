@@ -254,6 +254,7 @@ public class PluginsState
 
 			PluginNode lastCloned = last.clone();
 			lastCloned.downloads = statisticsService.getDownloadStatCount(last.id, channel);
+			lastCloned.downloadsAll = statisticsService.getDownloadStatCountAll(last.id);
 			list.add(lastCloned);
 		}
 	}

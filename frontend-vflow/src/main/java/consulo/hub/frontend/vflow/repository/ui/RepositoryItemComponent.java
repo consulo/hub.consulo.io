@@ -1,25 +1,40 @@
 package consulo.hub.frontend.vflow.repository.ui;
 
+import com.github.appreciated.apexcharts.ApexCharts;
+import com.github.appreciated.apexcharts.ApexChartsBuilder;
+import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
+import com.github.appreciated.apexcharts.config.builder.DataLabelsBuilder;
+import com.github.appreciated.apexcharts.config.builder.PlotOptionsBuilder;
+import com.github.appreciated.apexcharts.config.builder.XAxisBuilder;
+import com.github.appreciated.apexcharts.config.chart.Type;
+import com.github.appreciated.apexcharts.config.plotoptions.builder.BarBuilder;
+import com.github.appreciated.apexcharts.config.series.SeriesType;
+import com.github.appreciated.apexcharts.helper.Series;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
-import consulo.procoeton.core.vaadin.ui.Badge;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
-import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.procoeton.core.vaadin.ui.Badge;
+import consulo.procoeton.core.vaadin.ui.LazyComponent;
+import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import jakarta.annotation.Nonnull;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -35,38 +50,42 @@ import java.util.stream.Collectors;
  */
 public class RepositoryItemComponent extends VerticalLayout
 {
+	private final PluginChannel myPluginChannel;
+
 	RepositoryItemComponent(@Nonnull PluginNode pluginNode,
 							@Nonnull PluginChannel pluginChannel,
 							@Nonnull TagsLocalizeLoader tagsLocalizeLoader,
 							@Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
 							@Nonnull Map<String, Collection<PluginNode>> versions)
 	{
+		myPluginChannel = pluginChannel;
 		setSizeFull();
 		setPadding(false);
 		setMargin(false);
 
-		add(VaadinUIUtil.labeled("ID: ", TinyComponents.newLabel(pluginNode.id)));
-		add(VaadinUIUtil.labeled("Name: ", TinyComponents.newLabel(getPluginNodeName(pluginNode))));
-		if(pluginNode.experimental)
+		H3 header = new H3(getPluginNodeName(pluginNode));
+		Tooltip.forComponent(header).withText(pluginNode.id);
+		add(header);
+
+		if(pluginNode.tags != null && pluginNode.tags.length > 0 || pluginNode.experimental)
 		{
-			Label label = TinyComponents.newLabel("EXPERIMENTAL");
-			label.addClassName(LumoUtility.BorderColor.ERROR);
-			label.addClassName(LumoUtility.Border.ALL);
-			label.addClassName(LumoUtility.BorderRadius.MEDIUM);
-			label.addClassName(LumoUtility.TextColor.ERROR);
-			label.addClassName(LumoUtility.Padding.SMALL);
-			add(label);
-		}
-		HorizontalLayout tagsPanel = new HorizontalLayout();
-		if(pluginNode.tags != null)
-		{
-			for(String tag : pluginNode.tags)
+			HorizontalLayout tagsPanel = new HorizontalLayout();
+			if(pluginNode.experimental)
 			{
-				Badge label = new Badge(tagsLocalizeLoader.getTagLocalize(tag));
-				tagsPanel.add(label);
+				tagsPanel.add(new Badge("EXPERIMENTAL", "error"));
 			}
+
+			if(pluginNode.tags != null)
+			{
+				for(String tag : pluginNode.tags)
+				{
+					Badge label = new Badge(tagsLocalizeLoader.getTagLocalize(tag));
+					tagsPanel.add(label);
+				}
+			}
+			add(tagsPanel);
 		}
-		add(tagsPanel);
+
 		add(VaadinUIUtil.newHorizontalLayout(TinyComponents.newLabel("Permission:")));
 		PluginNode.Permission[] permissions = pluginNode.permissions;
 		if(permissions != null)
@@ -102,75 +121,68 @@ public class RepositoryItemComponent extends VerticalLayout
 			add(VaadinUIUtil.labeled("Vendor: ", TinyComponents.newLabel(pluginNode.vendor)));
 		}
 
-		RepositoryDownloadInfo[] allDownloadStat = backendPluginStatisticsService.getDownloadStat(pluginNode.id);
-		List<RepositoryDownloadInfo> channelDownloadStat = Arrays.stream(allDownloadStat).filter(it -> it.getChannel().equals(pluginChannel.name())).collect(Collectors.toList());
-
-		add(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(channelDownloadStat.size() + " (all: " + allDownloadStat.length + ")")));
-
-		add(TinyComponents.newLabel("Download statistics"));
-
-		LocalDate now = LocalDate.now();
-
-		Map<String, Long> data = new LinkedHashMap<>();
-		for(int i = 0; i < 12; i++)
-		{
-			LocalDate month = now.minusMonths(i);
-			month = month.with(TemporalAdjusters.firstDayOfMonth());
-
-			long downloads = 0;
-			long start = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
-
-			month = month.with(TemporalAdjusters.lastDayOfMonth());
-			long end = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
-
-			for(RepositoryDownloadInfo mongoDownloadStat : channelDownloadStat)
-			{
-				if(mongoDownloadStat.getTime() >= start && mongoDownloadStat.getTime() <= end)
-				{
-					downloads++;
-				}
-			}
-
-			String format = month.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-			data.put(format, downloads);
-		}
-
-		// TODO charts
-		//		DataSeries dataSeries = new DataSeries().add(reverse(data.values()));
-		//
-		//		SeriesDefaults seriesDefaults = new SeriesDefaults().setFillToZero(true).setRenderer(SeriesRenderers.BAR);
-		//		Series series = new Series().addSeries(new XYseries().setLabel("Downloads"));
-		//		Axes axes = new Axes().addAxis(new XYaxis().setRenderer(AxisRenderers.CATEGORY).setTicks(new Ticks().add(reverse(data.keySet())))).addAxis(new XYaxis(XYaxes.Y).setTickOptions(new
-		//				AxisTickRenderer().setFormatString("%d")));
-		//
-		//		Highlighter highlighter = new Highlighter().setShow(true).setShowTooltip(true).setTooltipAlwaysVisible(true).setKeepTooltipInsideChart(true).setTooltipLocation(TooltipLocations.NORTH)
-		//				.setTooltipAxes(TooltipAxes.XY_BAR);
-		//
-		//		Options options = new Options().setHighlighter(highlighter).setSeriesDefaults(seriesDefaults).setSeries(series).setAxes(axes);
-		//		DCharts chart = new DCharts().setDataSeries(dataSeries).setOptions(options).show();
-		//		// show component on first resize
-		//		chart.setVisible(false);
-		//		chart.setHeight(20, Unit.EM);
-		//
-		//		CustomComponent customComponent = new CustomComponent(chart);
-		//		customComponent.setSizeFull();
-		//
-		//		SizeReporter sizeReporter = new SizeReporter(customComponent);
-		//		sizeReporter.addResizeListener(componentResizeEvent ->
-		//		{
-		//			chart.setVisible(true);
-		//			chart.setWidth(componentResizeEvent.getWidth(), Unit.PIXELS);
-		//		});
-		//
-		//		verticalLayout.addComponent(customComponent);
-		//		verticalLayout.setExpandRatio(customComponent, 1.f);
+		add(VaadinUIUtil.labeled("Downloads: ", TinyComponents.newLabel(pluginNode.downloads + " (all: " + pluginNode.downloadsAll + ")")));
 
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.setWidthFull();
 		add(tabSheet);
 
 		tabSheet.add("Versions", buildVersion(versions));
+		tabSheet.add("Download Statistcs", downloadStatistics(pluginNode, pluginChannel, backendPluginStatisticsService));
 		tabSheet.add("Comments", new VerticalLayout());
+	}
+
+	private Component downloadStatistics(PluginNode pluginNode, PluginChannel pluginChannel, BackendPluginStatisticsService backendPluginStatisticsService)
+	{
+		LazyComponent lazyComponent = new LazyComponent(() ->
+		{
+			RepositoryDownloadInfo[] allDownloadStat = backendPluginStatisticsService.getDownloadStat(pluginNode.id);
+			List<RepositoryDownloadInfo> channelDownloadStat = Arrays.stream(allDownloadStat).filter(it -> it.getChannel().equals(pluginChannel.name())).collect(Collectors.toList());
+
+			LocalDate now = LocalDate.now();
+
+			Map<String, Long> data = new LinkedHashMap<>();
+			for(int i = 0; i < 12; i++)
+			{
+				LocalDate month = now.minusMonths(i);
+				month = month.with(TemporalAdjusters.firstDayOfMonth());
+
+				long downloads = 0;
+				long start = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+				month = month.with(TemporalAdjusters.lastDayOfMonth());
+				long end = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+				for(RepositoryDownloadInfo downloadInfo : channelDownloadStat)
+				{
+					if(downloadInfo.getTime() >= start && downloadInfo.getTime() <= end)
+					{
+						downloads++;
+					}
+				}
+
+				String format = month.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+				data.put(format, downloads);
+			}
+
+			ApexChartsBuilder builder = new ApexChartsBuilder();
+			builder.withChart(ChartBuilder.get()
+					.withType(Type.BAR)
+					.build())
+					.withPlotOptions(PlotOptionsBuilder.get()
+							.withBar(BarBuilder.get().withHorizontal(false).build())
+							.build())
+					.withDataLabels(DataLabelsBuilder.get()
+							.withEnabled(false).build())
+					.withSeries(new Series<>("Downloads", SeriesType.COLUMN, reverse(data.values()).toArray()))
+					.withXaxis(XAxisBuilder.get().withCategories(reverse(data.keySet())).build());
+
+			ApexCharts charts = builder.build();
+			charts.setWidthFull();
+			return charts;
+		});
+		lazyComponent.setWidthFull();
+		return lazyComponent;
 	}
 
 	private Component buildVersion(Map<String, Collection<PluginNode>> versions)
@@ -184,15 +196,29 @@ public class RepositoryItemComponent extends VerticalLayout
 			Collection<PluginNode> value = entry.getValue();
 
 			VerticalLayout layout = VaadinUIUtil.newVerticalLayout();
+			layout.setWidthFull();
 
 			for(PluginNode node : value)
 			{
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTimeInMillis(node.date);
+				HorizontalLayout row = new HorizontalLayout();
+				row.setWidthFull();
+				row.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+				row.add("build #" + node.version + " at " + new Date(node.date));
+				Button downloadButton = new Button("Download #" + node.version, new Icon(VaadinIcon.DOWNLOAD));
+				downloadButton.addClickListener(event ->
+				{
+					StringBuilder builder = new StringBuilder("/api/repository/download?");
+					builder.append("channel=").append(myPluginChannel.name()).append("&");
+					builder.append("platformVersion=").append(node.platformVersion).append("&");
+					builder.append("id=").append(node.id).append("&");
+					builder.append("version=").append(node.version).append("&");
+					builder.append("platformBuildSelect=").append("true");
 
-				HorizontalLayout row = VaadinUIUtil.newHorizontalLayout();
-				row.add("build #" + node.version + " at " + calendar.toInstant());
-				row.add(new Button("Download"));
+					UI.getCurrent().getPage().open(builder.toString(), "");
+				});
+				downloadButton.addClassName(LumoUtility.Margin.Left.AUTO);
+				row.add(downloadButton);
+				row.setAlignSelf(Alignment.END, downloadButton);
 
 				layout.add(row);
 			}
@@ -203,11 +229,11 @@ public class RepositoryItemComponent extends VerticalLayout
 		return accordion;
 	}
 
-	private static Object[] reverse(Collection<?> collection)
+	private static <T> List<T> reverse(Collection<T> collection)
 	{
-		Object[] objects = collection.toArray();
-		ArrayUtils.reverse(objects);
-		return objects;
+		List<T> newList = new ArrayList<T>(collection);
+		Collections.reverse(newList);
+		return newList;
 	}
 
 	public static String getPluginNodeName(PluginNode pluginNode)

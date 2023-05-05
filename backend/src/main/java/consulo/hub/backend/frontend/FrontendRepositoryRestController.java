@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,19 @@ public class FrontendRepositoryRestController
 
 		List<PluginNode> pluginNodes = new ArrayList<>();
 		service.iteratePluginNodes(pluginNodes::add);
+		Map<String, int[]> downloadStat = new HashMap<>();
+		for(PluginNode node : pluginNodes)
+		{
+			int[] counts = downloadStat.computeIfAbsent(node.id, id ->
+			{
+				int count = myPluginStatisticsService.getDownloadStatCount(id, pluginChannel);
+				int countAll = myPluginStatisticsService.getDownloadStatCountAll(id);
+				return new int[] {count, countAll};
+			});
+
+			node.downloads = counts[0];
+			node.downloadsAll = counts[1];
+		}
 		return pluginNodes;
 	}
 
