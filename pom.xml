@@ -62,10 +62,10 @@
 
 	<modules>
 		<module>procoeton-ui-core</module>
-		<module>frontend-vflow</module>
+		<module>hub-shared</module>
+		<module>hub-backend</module>
+		<module>hub-frontend</module>
 		<module>hub-plugin-analyzer-rt</module>
 		<module>hub-plugin-analyzer-container-rt</module>
-		<module>backend</module>
-		<module>shared</module>
 	</modules>
 </project>
