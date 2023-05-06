@@ -61,10 +61,10 @@
 	</build>
 
 	<modules>
-		<!--<module>plugin-analyzer-rt</module>-->
-		<!--<module>frontend</module>-->
 		<module>procoeton-ui-core</module>
 		<module>frontend-vflow</module>
+		<module>hub-plugin-analyzer-rt</module>
+		<module>hub-plugin-analyzer-container-rt</module>
 		<module>backend</module>
 		<module>shared</module>
 	</modules>

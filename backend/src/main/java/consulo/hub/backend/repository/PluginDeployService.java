@@ -2,12 +2,19 @@ package consulo.hub.backend.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
+import consulo.application.util.function.CommonProcessors;
+import consulo.container.impl.ContainerLogger;
+import consulo.container.impl.PluginDescriptorImpl;
+import consulo.container.impl.PluginDescriptorLoader;
+import consulo.container.plugin.PluginId;
+import consulo.container.plugin.PluginPermissionDescriptor;
+import consulo.container.plugin.PluginPermissionType;
+import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.util.collection.ArrayUtil;
-import consulo.util.collection.MultiMap;
 import consulo.util.io.FileUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
 import consulo.util.lang.StringUtil;
@@ -31,7 +38,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author VISTALL
@@ -40,40 +49,40 @@ import java.util.zip.ZipFile;
 @Service
 public class PluginDeployService
 {
-//	private static class OwnContainerLogger implements ContainerLogger
-//	{
-//		private static final OwnContainerLogger ourInstance = new OwnContainerLogger();
-//
-//		@Override
-//		public void info(String message)
-//		{
-//			logger.info(message);
-//		}
-//
-//		@Override
-//		public void warn(String message)
-//		{
-//			logger.warn(message);
-//		}
-//
-//		@Override
-//		public void info(String message, Throwable throwable)
-//		{
-//			logger.info(message, throwable);
-//		}
-//
-//		@Override
-//		public void error(String message, Throwable throwable)
-//		{
-//			logger.error(message, throwable);
-//		}
-//	}
+	private static class OwnContainerLogger implements ContainerLogger
+	{
+		private static final OwnContainerLogger ourInstance = new OwnContainerLogger();
+
+		@Override
+		public void info(String message)
+		{
+			logger.info(message);
+		}
+
+		@Override
+		public void warn(String message)
+		{
+			logger.warn(message);
+		}
+
+		@Override
+		public void info(String message, Throwable throwable)
+		{
+			logger.info(message, throwable);
+		}
+
+		@Override
+		public void error(String message, Throwable throwable)
+		{
+			logger.error(message, throwable);
+		}
+	}
 
 	public static final int LAST_V2_BUILD = 3115;
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginDeployService.class);
 
-	private final PluginChannelsService myUserConfigurationService;
+	private final TempFileService myTempFileService;
 
 	private final PluginAnalyzerService myPluginAnalyzerService;
 
@@ -81,19 +90,26 @@ public class PluginDeployService
 
 	private final PluginHistoryService myPluginHistoryService;
 
+	private final PluginChannelsService myPluginChannelsService;
+
 	@Autowired
-	public PluginDeployService(PluginChannelsService userConfigurationService, PluginAnalyzerService pluginAnalyzerService, ObjectMapper objectMapper, PluginHistoryService pluginHistoryService)
+	public PluginDeployService(TempFileService tempFileService,
+							   PluginAnalyzerService pluginAnalyzerService,
+							   ObjectMapper objectMapper,
+							   PluginHistoryService pluginHistoryService,
+							   PluginChannelsService pluginChannelsService)
 	{
-		myUserConfigurationService = userConfigurationService;
+		myTempFileService = tempFileService;
 		myPluginAnalyzerService = pluginAnalyzerService;
 		myObjectMapper = objectMapper;
 		myPluginHistoryService = pluginHistoryService;
+		myPluginChannelsService = pluginChannelsService;
 	}
 
 	@Nonnull
 	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull MultipartFile platformFile, @Nullable MultipartFile history) throws Exception
 	{
-		File tempFile = myUserConfigurationService.createTempFile("deploy", "tar.gz");
+		File tempFile = myTempFileService.createTempFile("deploy", "tar.gz");
 
 		try (OutputStream outputStream = new FileOutputStream(tempFile))
 		{
@@ -111,7 +127,7 @@ public class PluginDeployService
 			myPluginHistoryService.insert(historyEntries, pluginNode);
 		}
 
-		myUserConfigurationService.asyncDelete(tempFile);
+		myTempFileService.asyncDelete(tempFile);
 
 		return pluginNode;
 	}
@@ -119,7 +135,7 @@ public class PluginDeployService
 	@Nonnull
 	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull File tempFile) throws Exception
 	{
-		File deployPlatform = myUserConfigurationService.createTempFile("deploy_platform_extract", null);
+		File deployPlatform = myTempFileService.createTempFile("deploy_platform_extract", null);
 
 		TarGzArchive archive = new TarGzArchive();
 
@@ -133,7 +149,7 @@ public class PluginDeployService
 			deployPlatformImpl(channel, pluginId + "-zip", platformVersion, archive, "zip");
 		}
 
-		myUserConfigurationService.asyncDelete(deployPlatform);
+		myTempFileService.asyncDelete(deployPlatform);
 
 		return pluginNode;
 	}
@@ -155,7 +171,7 @@ public class PluginDeployService
 
 		archive.putEntry(makePluginChannelFileName(pluginId, channel), ArrayUtil.EMPTY_BYTE_ARRAY, System.currentTimeMillis());
 
-		PluginChannelService pluginChannelService = myUserConfigurationService.getRepositoryByChannel(channel);
+		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		String type = ext.equals("zip") ? ArchiveStreamFactory.ZIP : ArchiveStreamFactory.TAR;
 
@@ -186,7 +202,7 @@ public class PluginDeployService
 								   ThrowableSupplier<InputStream, IOException> historyStreamSupplier,
 								   ThrowableSupplier<InputStream, IOException> streamSupplier) throws Exception
 	{
-		File tempFile = myUserConfigurationService.createTempFile("deploy", "zip");
+		File tempFile = myTempFileService.createTempFile("deploy", "zip");
 
 		try (InputStream inputStream = streamSupplier.get())
 		{
@@ -196,7 +212,7 @@ public class PluginDeployService
 			}
 		}
 
-		File deployUnzip = myUserConfigurationService.createTempFile("deploy_unzip", "");
+		File deployUnzip = myTempFileService.createTempFile("deploy_unzip", "");
 
 		FileUtil.createDirectory(deployUnzip);
 
@@ -207,15 +223,15 @@ public class PluginDeployService
 
 		RestPluginHistoryEntry[] historyEntries = processPluginHistory(historyStreamSupplier);
 
-		PluginNode pluginNode = loadPlugin(myUserConfigurationService, channel, deployUnzip);
+		PluginNode pluginNode = loadPlugin(channel, deployUnzip);
 
 		if(historyEntries != null)
 		{
 			myPluginHistoryService.insert(historyEntries, pluginNode);
 		}
 
-		myUserConfigurationService.asyncDelete(tempFile);
-		myUserConfigurationService.asyncDelete(deployUnzip);
+		myTempFileService.asyncDelete(tempFile);
+		myTempFileService.asyncDelete(deployUnzip);
 		return pluginNode;
 	}
 
@@ -251,134 +267,132 @@ public class PluginDeployService
 		return historyEntries;
 	}
 
-	private PluginNode loadPlugin(PluginChannelsService userConfigurationService, PluginChannel channel, File deployUnzip) throws Exception
+	private PluginNode loadPlugin(PluginChannel channel, File deployUnzip) throws Exception
 	{
-//		List<PluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
-//
-//		loadDescriptors(deployUnzip, pluginDescriptors);
-//
-//		if(pluginDescriptors.size() != 1)
-//		{
-//			throw new IllegalArgumentException("Bad plugin [" + pluginDescriptors.size() + "]");
-//		}
-//
-//		PluginDescriptorImpl pluginDescriptor = pluginDescriptors.get(0);
-//
-//		if(pluginDescriptor.getTags().isEmpty())
-//		{
-//			throw new IllegalArgumentException("Tags cannot be empty");
-//		}
-//
+		List<PluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
+
+		loadDescriptors(deployUnzip, pluginDescriptors);
+
+		if(pluginDescriptors.size() != 1)
+		{
+			throw new IllegalArgumentException("Bad plugin [" + pluginDescriptors.size() + "]");
+		}
+
+		PluginDescriptorImpl pluginDescriptor = pluginDescriptors.get(0);
+
+		if(pluginDescriptor.getTags().isEmpty())
+		{
+			throw new IllegalArgumentException("Tags cannot be empty");
+		}
+
 		PluginNode pluginNode = new PluginNode();
-//		pluginNode.id = pluginDescriptor.getPluginId().getIdString();
-//		pluginNode.version = stableVersion(pluginDescriptor.getVersion());
-//		pluginNode.platformVersion = stableVersion(pluginDescriptor.getPlatformVersion());
-//
-//		int platformVersion = Integer.parseInt(stableVersion(pluginDescriptor.getPlatformVersion()));
-//		if (platformVersion <= LAST_V2_BUILD)
-//		{
-//			throw new IOException("Impossible deploy plugins for V2 Consulo");
-//		}
-//
-//		pluginNode.name = pluginDescriptor.getName();
-//		pluginNode.category = pluginDescriptor.getCategory();
-//		pluginNode.url = pluginDescriptor.getUrl();
-//		pluginNode.description = pluginDescriptor.getDescription();
-//		pluginNode.vendor = pluginDescriptor.getVendor();
-//		pluginNode.vendorUrl = pluginDescriptor.getVendorUrl();
-//		pluginNode.vendorEmail = pluginDescriptor.getVendorEmail();
-//		pluginNode.experimental = pluginDescriptor.isExperimental();
-//		byte[] lightIconBytes = pluginDescriptor.getIconBytes(false);
-//		byte[] darkIconBytes = pluginDescriptor.getIconBytes(true);
-//		pluginNode.iconBytes = prepareSVG(lightIconBytes);
-//		if(lightIconBytes != darkIconBytes)
-//		{
-//			pluginNode.iconDarkBytes = prepareSVG(darkIconBytes);
-//		}
-//
-//		pluginNode.optionalDependencies = Arrays.stream(pluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
-//
-//		List<PluginNode.Permission> permissions = new ArrayList<>();
-//		for(PluginPermissionType type : PluginPermissionType.values())
-//		{
-//			PluginPermissionDescriptor descriptor = pluginDescriptor.getPermissionDescriptor(type);
-//			if(descriptor != null)
-//			{
-//				PluginNode.Permission permission = new PluginNode.Permission();
-//				permission.type = type.name();
-//
-//				Set<String> options = descriptor.getOptions();
-//				permission.options = options.isEmpty() ? null : options.toArray(String[]::new);
-//
-//				permissions.add(permission);
-//			}
-//		}
-//
-//		pluginNode.permissions = permissions.toArray(PluginNode.Permission[]::new);
-//
-//		pluginNode.tags = pluginDescriptor.getTags().toArray(String[]::new);
-//
-//		Set<PluginId> deps = new TreeSet<>();
-//		Collections.addAll(deps, pluginDescriptor.getDependentPluginIds());
-//
-//		for(PluginId pluginId : pluginDescriptor.getOptionalDependentPluginIds())
-//		{
-//			deps.remove(pluginId);
-//		}
-//
-//		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
-//		pluginNode.incompatibleWiths = Arrays.stream(pluginDescriptor.getIncompatibleWithPlugindIds()).map(PluginId::getIdString).toArray(String[]::new);
-//
-//		PluginChannelService pluginChannelService = userConfigurationService.getRepositoryByChannel(channel);
-//
-//		try
-//		{
-//			PluginAnalyzerService.ExtensionsResult result = myPluginAnalyzerService.analyze(pluginDescriptor, pluginChannelService, pluginNode.dependencies);
-//
-//			pluginNode.extensions = convert(result.v1);
-//			pluginNode.extensionsV2 = convert(result.v2);
-//		}
-//		catch(Exception e)
-//		{
-//			logger.info(e.getMessage(), e);
-//		}
-//
-//		pluginChannelService.push(pluginNode, "zip", f -> {
-//			try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(f)))
-//			{
-//				CommonProcessors.CollectProcessor<File> fileCollectProcessor = new CommonProcessors.CollectProcessor<>();
-//				File ideaPluginDescriptorPath = pluginDescriptor.getPath();
-//				assert ideaPluginDescriptorPath != null;
-//				FileUtil.visitFiles(ideaPluginDescriptorPath, fileCollectProcessor);
-//
-//				for(File child : fileCollectProcessor.getResults())
-//				{
-//					if(child.isDirectory())
-//					{
-//						continue;
-//					}
-//
-//					String relativePath = FileUtilRt.getRelativePath(ideaPluginDescriptorPath, child);
-//
-//					ZipEntry zipEntry = new ZipEntry(pluginNode.id + "/" + relativePath);
-//					//BasicFileAttributes attr = Files.readAttributes(child.toPath(), BasicFileAttributes.class);
-//
-//					zipEntry.setTime(child.lastModified());
-//					//zipEntry.setCreationTime(attr.creationTime());
-//					//zipEntry.setLastAccessTime(attr.lastAccessTime());
-//					//zipEntry.setLastModifiedTime(attr.lastModifiedTime());
-//
-//					zipOutputStream.putNextEntry(zipEntry);
-//
-//					try (FileInputStream fileOutputStream = new FileInputStream(child))
-//					{
-//						ByteStreams.copy(fileOutputStream, zipOutputStream);
-//					}
-//
-//					zipOutputStream.closeEntry();
-//				}
-//			}
-//		});
+		pluginNode.id = pluginDescriptor.getPluginId().getIdString();
+		pluginNode.version = stableVersion(pluginDescriptor.getVersion());
+		pluginNode.platformVersion = stableVersion(pluginDescriptor.getPlatformVersion());
+
+		int platformVersion = Integer.parseInt(stableVersion(pluginDescriptor.getPlatformVersion()));
+		if (platformVersion <= LAST_V2_BUILD)
+		{
+			throw new IOException("Impossible deploy plugins for V2 Consulo");
+		}
+
+		pluginNode.name = pluginDescriptor.getName();
+		pluginNode.category = pluginDescriptor.getCategory();
+		pluginNode.url = pluginDescriptor.getUrl();
+		pluginNode.description = pluginDescriptor.getDescription();
+		pluginNode.vendor = pluginDescriptor.getVendor();
+		pluginNode.vendorUrl = pluginDescriptor.getVendorUrl();
+		pluginNode.vendorEmail = pluginDescriptor.getVendorEmail();
+		pluginNode.experimental = pluginDescriptor.isExperimental();
+		byte[] lightIconBytes = pluginDescriptor.getIconBytes(false);
+		byte[] darkIconBytes = pluginDescriptor.getIconBytes(true);
+		pluginNode.iconBytes = prepareSVG(lightIconBytes);
+		if(lightIconBytes != darkIconBytes)
+		{
+			pluginNode.iconDarkBytes = prepareSVG(darkIconBytes);
+		}
+
+		pluginNode.optionalDependencies = Arrays.stream(pluginDescriptor.getOptionalDependentPluginIds()).sorted().map(PluginId::getIdString).toArray(String[]::new);
+
+		List<PluginNode.Permission> permissions = new ArrayList<>();
+		for(PluginPermissionType type : PluginPermissionType.values())
+		{
+			PluginPermissionDescriptor descriptor = pluginDescriptor.getPermissionDescriptor(type);
+			if(descriptor != null)
+			{
+				PluginNode.Permission permission = new PluginNode.Permission();
+				permission.type = type.name();
+
+				Set<String> options = descriptor.getOptions();
+				permission.options = options.isEmpty() ? null : options.toArray(String[]::new);
+
+				permissions.add(permission);
+			}
+		}
+
+		pluginNode.permissions = permissions.toArray(PluginNode.Permission[]::new);
+
+		pluginNode.tags = pluginDescriptor.getTags().toArray(String[]::new);
+
+		Set<PluginId> deps = new TreeSet<>();
+		Collections.addAll(deps, pluginDescriptor.getDependentPluginIds());
+
+		for(PluginId pluginId : pluginDescriptor.getOptionalDependentPluginIds())
+		{
+			deps.remove(pluginId);
+		}
+
+		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
+		pluginNode.incompatibleWiths = Arrays.stream(pluginDescriptor.getIncompatibleWithPlugindIds()).map(PluginId::getIdString).toArray(String[]::new);
+
+		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(channel);
+
+		try
+		{
+			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip, pluginDescriptor, pluginChannelService, pluginNode.dependencies);
+		}
+		catch(Throwable e)
+		{
+			logger.info(e.getMessage(), e);
+		}
+
+		pluginChannelService.push(pluginNode, "zip", f ->
+		{
+			try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(f)))
+			{
+				CommonProcessors.CollectProcessor<File> fileCollectProcessor = new CommonProcessors.CollectProcessor<>();
+				File ideaPluginDescriptorPath = pluginDescriptor.getPath();
+				assert ideaPluginDescriptorPath != null;
+				FileUtil.visitFiles(ideaPluginDescriptorPath, fileCollectProcessor);
+
+				for(File child : fileCollectProcessor.getResults())
+				{
+					if(child.isDirectory())
+					{
+						continue;
+					}
+
+					String relativePath = FileUtil.getRelativePath(ideaPluginDescriptorPath, child);
+
+					ZipEntry zipEntry = new ZipEntry(pluginNode.id + "/" + relativePath);
+					//BasicFileAttributes attr = Files.readAttributes(child.toPath(), BasicFileAttributes.class);
+
+					zipEntry.setTime(child.lastModified());
+					//zipEntry.setCreationTime(attr.creationTime());
+					//zipEntry.setLastAccessTime(attr.lastAccessTime());
+					//zipEntry.setLastModifiedTime(attr.lastModifiedTime());
+
+					zipOutputStream.putNextEntry(zipEntry);
+
+					try (FileInputStream fileOutputStream = new FileInputStream(child))
+					{
+						ByteStreams.copy(fileOutputStream, zipOutputStream);
+					}
+
+					zipOutputStream.closeEntry();
+				}
+			}
+		});
 
 		return pluginNode;
 	}
@@ -436,39 +450,22 @@ public class PluginDeployService
 		}
 	}
 
-//	public static void loadDescriptors(@Nonnull File pluginsHome, @Nonnull List<PluginDescriptorImpl> result)
-//	{
-//		final File[] files = pluginsHome.listFiles();
-//		if(files != null)
-//		{
-//			for(File file : files)
-//			{
-//				final PluginDescriptorImpl descriptor = PluginDescriptorLoader.loadDescriptor(file, true, false, OwnContainerLogger.ourInstance);
-//				if(descriptor == null)
-//				{
-//					continue;
-//				}
-//
-//				result.add(descriptor);
-//			}
-//		}
-//	}
-
-	@Nullable
-	private static PluginNode.Extension[] convert(MultiMap<String, String> extensions)
+	public static void loadDescriptors(@Nonnull File pluginsHome, @Nonnull List<PluginDescriptorImpl> result)
 	{
-		PluginNode.Extension[] extensionsV1 = new PluginNode.Extension[0];
-
-		for(Map.Entry<String, Collection<String>> entry : extensions.entrySet())
+		final File[] files = pluginsHome.listFiles();
+		if(files != null)
 		{
-			PluginNode.Extension extension = new PluginNode.Extension();
-			extension.key = entry.getKey();
-			extension.values = ArrayUtil.toStringArray(entry.getValue());
+			for(File file : files)
+			{
+				final PluginDescriptorImpl descriptor = PluginDescriptorLoader.loadDescriptor(file, false, OwnContainerLogger.ourInstance);
+				if(descriptor == null)
+				{
+					continue;
+				}
 
-			extensionsV1 = ArrayUtil.append(extensionsV1, extension);
+				result.add(descriptor);
+			}
 		}
-
-		return extensionsV1.length == 0 ? null : extensionsV1;
 	}
 
 	private static String stableVersion(String value)

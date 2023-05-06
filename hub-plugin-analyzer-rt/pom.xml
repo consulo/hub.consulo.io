@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>consulo.hub</groupId>
+		<artifactId>webservice-api-root</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>hub-plugin-analyzer-rt</artifactId>
+	<packaging>jar</packaging>
+	<version>1.0-SNAPSHOT</version>
+	<name>Plugin Analyzer Runtime</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-annotation</artifactId>
+			<version>${consulo.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-application-api</artifactId>
+			<version>${consulo.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-application-impl</artifactId>
+			<version>${consulo.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-container-impl</artifactId>
+			<version>${consulo.version}</version>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
+</project>

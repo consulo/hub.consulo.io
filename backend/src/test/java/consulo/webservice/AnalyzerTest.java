@@ -3,7 +3,7 @@ package consulo.webservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.ArrayUtil;
-import consulo.hub.backend.repository.PluginAnalyzerService;
+import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.util.GsonUtil;
@@ -181,13 +181,13 @@ public class AnalyzerTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath, Runnable::run);
+		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath, fileService, Runnable::run);
 
-		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(userConfigurationService);
+		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(userConfigurationService, fileService);
 
 		pluginAnalyzerService.run(new String[0]);
 
-		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl());
+		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl(), pluginChannelsService);
 
 		userConfigurationService.run();
 

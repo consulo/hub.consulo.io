@@ -1,7 +1,12 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.backend.repository.*;
+import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.repository.PluginChannelIterationService;
+import consulo.hub.backend.repository.PluginChannelService;
+import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.PluginDeployService;
+import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
@@ -20,6 +25,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -31,23 +38,29 @@ public class PluginIterationTest extends Assert
 	private PluginDeployService myDeployService;
 	private PluginChannelIterationService myPluginChannelIterationService;
 	private PluginChannelsService myPluginChannelsService;
+	private TempFileServiceImpl myFileService;
 
 	private File myTempDir;
 
 	@Before
 	public void before() throws Exception
 	{
-		myTempDir = FileUtil.createTempDirectory("webService", null);
+		Path tempDir = Files.createTempDirectory("webService");
+
+		myTempDir = tempDir.toFile();
 
 		FileSystemUtils.deleteRecursively(myTempDir);
 
 		String canonicalPath = myTempDir.getCanonicalPath();
 
-		myPluginChannelsService = new PluginChannelsService(canonicalPath, Runnable::run);
+		myFileService = new TempFileServiceImpl();
+		myFileService.setTempDirectory(myTempDir);
 
-		PluginAnalyzerService pluginAnalyzerService = new PluginAnalyzerService(myPluginChannelsService);
+		myPluginChannelsService = new PluginChannelsService(canonicalPath, myFileService, Runnable::run);
 
-		myDeployService = new PluginDeployService(myPluginChannelsService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl());
+		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, objectMapper);
+
+		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl(), myPluginChannelsService);
 
 		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 
@@ -211,7 +224,7 @@ public class PluginIterationTest extends Assert
 
 		TarGzArchive archive = new TarGzArchive();
 
-		File testDir = myPluginChannelsService.createTempFile("test_extract_iter", null);
+		File testDir = myFileService.createTempFile("test_extract_iter", null);
 
 		archive.extract(pluginNodeInAlpha.targetFile, testDir);
 
@@ -224,7 +237,7 @@ public class PluginIterationTest extends Assert
 	{
 		InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
 
-		File tempFile = myPluginChannelsService.createTempFile("platformTemp", ".tar.gz");
+		File tempFile = myFileService.createTempFile("platformTemp", ".tar.gz");
 		try (FileOutputStream outputStream = new FileOutputStream(tempFile))
 		{
 			FileUtil.copy(resourceAsStream, outputStream);

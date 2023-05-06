@@ -1,4 +1,4 @@
-package consulo.pluginAnalyzer;
+package consulo.hub.pluginAnalyzer;
 
 import consulo.localize.LocalizeValue;
 import consulo.ui.*;

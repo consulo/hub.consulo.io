@@ -1,9 +1,10 @@
 package consulo.hub.backend.repository;
 
+import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.backend.util.ConsuloHelper;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.util.io.FileUtil;
-import consulo.util.lang.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author VISTALL
@@ -30,37 +26,18 @@ import java.util.concurrent.atomic.AtomicLong;
 @Order(1_000)
 public class PluginChannelsService implements CommandLineRunner
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PluginAnalyzerServiceImpl.class);
 
 	private final PluginChannelService[] myPluginChannelServices;
 	private final String myWorkingDirectoryPath;
-
-	private File myTempUploadDirectory;
-
-	private AtomicLong myTempCount = new AtomicLong();
-
-	private Executor myExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory()
-	{
-		private final ThreadGroup myGroup = new ThreadGroup("async delete");
-
-		{
-			myGroup.setMaxPriority(Thread.MIN_PRIORITY);
-		}
-
-		@Nonnull
-		@Override
-		public Thread newThread(@Nonnull Runnable r)
-		{
-			return new Thread(myGroup, r);
-		}
-	});
-
+	private final TempFileServiceImpl myFileService;
 	private final TaskExecutor myTaskExecutor;
 
 	@Autowired
-	public PluginChannelsService(@Value("${working.directory:hub-workdir}") String workingDirectoryPath, TaskExecutor taskExecutor)
+	public PluginChannelsService(@Value("${working.directory:hub-workdir}") String workingDirectoryPath, TempFileServiceImpl fileService, TaskExecutor taskExecutor)
 	{
 		myWorkingDirectoryPath = workingDirectoryPath;
+		myFileService = fileService;
 		myTaskExecutor = taskExecutor;
 
 		ConsuloHelper.init();
@@ -79,49 +56,6 @@ public class PluginChannelsService implements CommandLineRunner
 		return myPluginChannelServices[channel.ordinal()];
 	}
 
-	@Nonnull
-	public File createTempDir(String prefix)
-	{
-		File file = new File(myTempUploadDirectory, prefix);
-		if(file.exists())
-		{
-			FileSystemUtils.deleteRecursively(file);
-		}
-
-		file.mkdirs();
-
-		return file;
-	}
-
-	@Nonnull
-	public File createTempFile(String prefix, @Nullable String ext)
-	{
-		long l = myTempCount.incrementAndGet();
-
-		File file = new File(myTempUploadDirectory, StringUtil.isEmpty(ext) ? prefix + "_" + l : prefix + "_" + l + "." + ext);
-		if(file.exists())
-		{
-			FileSystemUtils.deleteRecursively(file);
-		}
-
-		return file;
-	}
-
-	public void asyncDelete(File... files)
-	{
-		if(files.length == 0)
-		{
-			return;
-		}
-		myExecutor.execute(() ->
-		{
-			for(File file : files)
-			{
-				FileSystemUtils.deleteRecursively(file);
-			}
-		});
-	}
-
 	@Override
 	public void run(String... args) throws Exception
 	{
@@ -138,9 +72,11 @@ public class PluginChannelsService implements CommandLineRunner
 		File workingDirectory = new File(workDirValue);
 		FileUtil.createDirectory(workingDirectory);
 
-		myTempUploadDirectory = new File(workingDirectory, "tempUpload");
-		FileSystemUtils.deleteRecursively(myTempUploadDirectory);
-		FileUtil.createDirectory(myTempUploadDirectory);
+		File tempUpload = new File(workingDirectory, "temp");
+		FileSystemUtils.deleteRecursively(tempUpload);
+		FileUtil.createDirectory(tempUpload);
+
+		myFileService.setTempDirectory(tempUpload);
 
 		File pluginChannelDir = new File(workingDirectory, "plugin");
 		FileUtil.createDirectory(pluginChannelDir);

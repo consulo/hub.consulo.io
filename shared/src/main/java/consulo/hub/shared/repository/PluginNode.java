@@ -1,5 +1,6 @@
 package consulo.hub.shared.repository;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -13,11 +14,25 @@ import java.io.File;
 public class PluginNode implements Cloneable
 {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Extension
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public static class ExtensionPreview
 	{
-		public String key;
+		public String apiPluginId;
+		public String apiClassName;
 
-		public String[] values = ArrayUtils.EMPTY_STRING_ARRAY;
+		public String implId;
+		//public String implPluginId;
+
+		@Override
+		public String toString()
+		{
+			final StringBuilder sb = new StringBuilder("ExtensionPreview{");
+			sb.append("apiPluginId='").append(apiPluginId).append('\'');
+			sb.append(", apiClassName='").append(apiClassName).append('\'');
+			sb.append(", implId='").append(implId).append('\'');
+			sb.append('}');
+			return sb.toString();
+		}
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -61,9 +76,7 @@ public class PluginNode implements Cloneable
 	public String iconBytes;
 	public String iconDarkBytes;
 
-	@Deprecated(forRemoval = true)
-	public Extension[] extensions;
-	public Extension[] extensionsV2;
+	public ExtensionPreview[] extensionPreviews;
 
 	public Permission[] permissions;
 
