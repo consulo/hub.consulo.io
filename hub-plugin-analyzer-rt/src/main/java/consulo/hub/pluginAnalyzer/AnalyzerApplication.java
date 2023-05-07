@@ -12,12 +12,14 @@ import consulo.component.impl.internal.BaseComponentManager;
 import consulo.component.internal.inject.InjectingContainer;
 import consulo.component.internal.inject.InjectingContainerBuilder;
 import consulo.disposer.Disposable;
+import consulo.project.ProjectManager;
 import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.util.collection.MultiMap;
 import consulo.util.lang.function.ThrowableSupplier;
 import consulo.virtualFileSystem.VirtualFileManager;
+import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -62,6 +64,8 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
 		builder.bind(Application.class).to(this);
 		// this fix for ArchiveFileType which require ArchiveFileType VirtualFileManager inside contructor
 		builder.bind(VirtualFileManager.class).to(new StubVirtualFileManager());
+		builder.bind(FileNameMatcherFactory.class).to(new FileNameMatcherFactoryImpl());
+		builder.bind(ProjectManager.class).to(new StubProjectManager(this));
 	}
 
 	@Override

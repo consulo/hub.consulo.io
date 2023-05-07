@@ -53,14 +53,15 @@ public class PluginIterationTest extends Assert
 
 		String canonicalPath = myTempDir.getCanonicalPath();
 
-		myFileService = new TempFileServiceImpl();
-		myFileService.setTempDirectory(myTempDir);
+		myFileService = new TempFileServiceImpl(myTempDir);
 
 		myPluginChannelsService = new PluginChannelsService(canonicalPath, myFileService, Runnable::run);
 
+		ObjectMapper objectMapper = new ObjectMapper();
+
 		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, objectMapper);
 
-		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl(), myPluginChannelsService);
+		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService);
 
 		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 

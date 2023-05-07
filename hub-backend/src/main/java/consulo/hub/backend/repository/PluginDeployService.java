@@ -349,7 +349,7 @@ public class PluginDeployService
 
 		try
 		{
-			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip, pluginDescriptor, pluginChannelService, pluginNode.dependencies);
+			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip, pluginDescriptor, pluginChannelService);
 		}
 		catch(Throwable e)
 		{

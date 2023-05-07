@@ -1,12 +1,12 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
+import consulo.hub.backend.impl.TempFileServiceImpl;
 import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
+import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.util.io.FileUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,9 +32,9 @@ public class ChecksumTest extends Assert
 		PluginNode l2 = loadPlugin("consulo.java");
 
 		assertArrayEquals(Files.readAllBytes(l1.targetFile.toPath()), Files.readAllBytes(l2.targetFile.toPath()));
-		
+
 		assertTrue(MessageDigest.isEqual(Hex.decodeHex(l1.checksum.md5.toCharArray()), Hex.decodeHex(l2.checksum.md5.toCharArray())));
-		
+
 		assertTrue(MessageDigest.isEqual(Hex.decodeHex(l1.checksum.sha_256.toCharArray()), Hex.decodeHex(l2.checksum.sha_256.toCharArray())));
 
 		assertTrue(MessageDigest.isEqual(Hex.decodeHex(l1.checksum.sha3_256.toCharArray()), Hex.decodeHex(l2.checksum.sha3_256.toCharArray())));
@@ -44,19 +44,23 @@ public class ChecksumTest extends Assert
 	{
 		assertTrue(pluginIds.length != 0);
 
-		File tempDir = FileUtil.createTempDirectory("webService", null);
+		File tempDir = Files.createTempDirectory("checksum-test").toFile();
+
+		TempFileServiceImpl tempFileService = new TempFileServiceImpl(tempDir);
 
 		FileSystemUtils.deleteRecursively(tempDir);
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath, fileService, Runnable::run);
+		PluginChannelsService pluginChannelsService = new PluginChannelsService(canonicalPath, tempFileService, Runnable::run);
 
-		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(userConfigurationService, fileService);
+		ObjectMapper objectMapper = new ObjectMapper();
 
-		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl(), pluginChannelsService);
+		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(tempFileService, objectMapper);
 
-		userConfigurationService.run();
+		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), pluginChannelsService);
+
+		pluginChannelsService.run();
 
 		PluginNode lastNode = null;
 		for(String pluginId : pluginIds)

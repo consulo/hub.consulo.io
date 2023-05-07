@@ -13,5 +13,5 @@ import java.io.File;
 public interface PluginAnalyzerService
 {
 	@Nonnull
-	PluginNode.ExtensionPreview[] analyze(File deployHome, PluginDescriptorImpl descriptor, PluginChannelService channelService, String[] dependencies) throws Exception;
+	PluginNode.ExtensionPreview[] analyze(File deployHome, PluginDescriptorImpl descriptor, PluginChannelService channelService) throws Exception;
 }

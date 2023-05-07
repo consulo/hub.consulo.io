@@ -119,7 +119,7 @@ public class PluginChannelService
 
 	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<File, Exception> writeConsumer) throws Exception
 	{
-		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsSetWithLock(myPluginChannelDirectory, pluginNode.id));
+		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginNode.id, id -> new PluginsSetWithLock(getPluginChannelDirectory(), pluginNode.id));
 
 		pluginsState.push(pluginNode, ext, writeConsumer);
 	}
@@ -127,7 +127,7 @@ public class PluginChannelService
 	@VisibleForTesting
 	public void _add(PluginNode node) throws Exception
 	{
-		PluginsState pluginsState = myPlugins.computeIfAbsent(node.id, id -> new PluginsSetWithLock(myPluginChannelDirectory, node.id));
+		PluginsState pluginsState = myPlugins.computeIfAbsent(node.id, id -> new PluginsSetWithLock(getPluginChannelDirectory(), node.id));
 
 		pluginsState._add(node);
 	}
@@ -208,8 +208,14 @@ public class PluginChannelService
 	{
 		String pluginId = entry.getKey();
 
-		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginId, id -> new PluginsSetWithLock(myPluginChannelDirectory, pluginId));
+		PluginsState pluginsState = myPlugins.computeIfAbsent(pluginId, id -> new PluginsSetWithLock(getPluginChannelDirectory(), pluginId));
 
 		pluginsState.processEntry(entry);
+	}
+
+	@Nonnull
+	private File getPluginChannelDirectory()
+	{
+		return Objects.requireNonNull(myPluginChannelDirectory);
 	}
 }

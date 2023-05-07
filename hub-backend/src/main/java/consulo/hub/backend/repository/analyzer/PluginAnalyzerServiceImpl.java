@@ -2,6 +2,7 @@ package consulo.hub.backend.repository.analyzer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import consulo.container.impl.PluginDescriptorImpl;
+import consulo.container.plugin.PluginId;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.repository.PluginAnalyzerService;
 import consulo.hub.backend.repository.PluginChannelService;
@@ -17,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipFile;
 
 /**
@@ -53,13 +53,17 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 
 	@Override
 	@Nonnull
-	public PluginNode.ExtensionPreview[] analyze(File deployHome, PluginDescriptorImpl descriptor, PluginChannelService channelService, String[] dependencies) throws Exception
+	public PluginNode.ExtensionPreview[] analyze(File deployHome, PluginDescriptorImpl descriptor, PluginChannelService channelService) throws Exception
 	{
 		File[] forRemove = new File[0];
 
 		List<File> pluginDirs = new ArrayList<>();
 
-		if(dependencies.length > 0)
+		Set<String> dependencies = new HashSet<>();
+		collectAllDependencies(descriptor.getPluginId().getIdString(), Arrays.stream(descriptor.getDependentPluginIds()).map(PluginId::getIdString).toArray(String[]::new), channelService,
+				dependencies, new HashSet<>());
+
+		if(!dependencies.isEmpty())
 		{
 			File analyzeUnzip = myTempFileService.createTempFile("plugin_deps_" + descriptor.getPluginId(), "");
 			forRemove = ArrayUtil.append(forRemove, analyzeUnzip);
@@ -92,6 +96,27 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 		finally
 		{
 			myTempFileService.asyncDelete(forRemove);
+		}
+	}
+
+	private void collectAllDependencies(String pluginId, String[] dependencies, PluginChannelService channelService, Set<String> processed, Set<String> result)
+	{
+		if(!processed.add(pluginId))
+		{
+			return;
+		}
+
+		for(String dependencyId : dependencies)
+		{
+			PluginNode dependPlugin = channelService.select(PluginChannelService.SNAPSHOT, dependencyId, null, false);
+			if(dependPlugin == null)
+			{
+				continue;
+			}
+
+			result.add(dependencyId);
+
+			collectAllDependencies(dependPlugin.id, dependPlugin.dependencies, channelService, processed, result);
 		}
 	}
 }

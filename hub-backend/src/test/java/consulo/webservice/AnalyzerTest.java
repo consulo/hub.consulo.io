@@ -1,21 +1,27 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.ArrayUtil;
-import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
+import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.repository.PluginChannelService;
 import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
-import consulo.hub.backend.util.GsonUtil;
+import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
+import consulo.hub.backend.repository.pluginsState.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author VISTALL
@@ -23,10 +29,72 @@ import java.net.URL;
  */
 public class AnalyzerTest extends Assert
 {
+	private static final String[] DOWNLOAD_PLUGINS =
+			{
+					"com.intellij.xml",
+					"com.intellij.properties",
+					"consulo.java",
+					"consulo.devkit",
+					"consulo.dotnet",
+					"consulo.unity3d",
+					"consulo.nodejs",
+					"com.intellij.images",
+					"org.intellij.groovy",
+					"org.jetbrains.plugins.gradle",
+					"com.intellij.git",
+					"mobi.hsz.idea.gitignore",
+					"org.jetbrains.idea.maven",
+					"org.jetbrains.plugins.javaFX"
+			};
+
+	private static File ourTempDir;
+	private static PluginChannelsService ourPluginChannelsService;
+
+	@BeforeClass
+	public static void before() throws Exception
+	{
+		ourTempDir = Files.createTempDirectory("webService").toFile();
+
+		FileSystemUtils.deleteRecursively(ourTempDir);
+
+		String canonicalPath = ourTempDir.getCanonicalPath();
+
+		TempFileServiceImpl tempFileService = new TempFileServiceImpl(ourTempDir);
+
+		ourPluginChannelsService = new PluginChannelsService(canonicalPath, tempFileService, Runnable::run);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(tempFileService, objectMapper);
+
+		pluginAnalyzerService.run(new String[0]);
+
+		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), ourPluginChannelsService);
+
+		ourPluginChannelsService.run();
+
+		for(String pluginId : DOWNLOAD_PLUGINS)
+		{
+			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+
+			System.out.println("Downloading " + url);
+
+			InputStream resourceAsStream = url.openStream();
+
+			deploy.deployPlugin(PluginChannel.nightly, () -> resourceAsStream);
+		}
+	}
+
+	@AfterClass
+	public static void after()
+	{
+		FileSystemUtils.deleteRecursively(ourTempDir);
+	}
+
 	@Test
 	public void testPermissions() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("consulo.dotnet");
+		PluginNode pluginNode = findPlugin("consulo.dotnet");
 
 		for(PluginNode.Permission permission : pluginNode.permissions)
 		{
@@ -41,7 +109,7 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testTags() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("consulo.devkit");
+		PluginNode pluginNode = findPlugin("consulo.devkit");
 
 		assertEquals(pluginNode.tags.length, 1);
 		assertEquals(pluginNode.tags[0], "ide.framework");
@@ -50,105 +118,62 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testJavaPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("consulo.java");
-
-		assertEquals(pluginNode.extensionsV2.length, 4);
-		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.configurationType");
-		assertEquals(pluginNode.extensionsV2[2].values[0], "java");
+		assetExtensionPreview("consulo.java", "consulo.module.content.layer.ModuleExtensionProvider", "java");
+		assetExtensionPreview("consulo.java", "consulo.execution.configuration.ConfigurationType", "JavaApplication");
 	}
 
 	@Test
 	public void testMavenPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("com.intellij.xml", "org.jetbrains.idea.maven");
+		assetExtensionPreview("org.jetbrains.idea.maven", "consulo.virtualFileSystem.fileType.FileTypeFactory", "*|pom");
 
-		assertEquals(pluginNode.extensionsV2.length, 3);
-		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.configurationType");
+		assetExtensionPreview("org.jetbrains.idea.maven", "consulo.execution.configuration.ConfigurationType", "MavenRunConfiguration");
 
-		assertTrue(ArrayUtil.contains("*|pom", pluginNode.extensionsV2[1].values));
-
-		assertEquals(pluginNode.extensionsV2[2].values[0], "maven");
+		assetExtensionPreview("org.jetbrains.idea.maven", "consulo.module.content.layer.ModuleExtensionProvider", "maven");
 	}
 
 	@Test
 	public void testXmlPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("com.intellij.xml");
-
-		assertEquals(pluginNode.extensionsV2.length, 1);
-		assertEquals(pluginNode.extensionsV2[0].key, "com.intellij.fileTypeFactory");
-
-		assertTrue(ArrayUtil.contains("*|xml", pluginNode.extensionsV2[0].values));
+		assetExtensionPreview("com.intellij.xml", "consulo.virtualFileSystem.fileType.FileTypeFactory", "*|xml");
 	}
 
 	@Test
 	public void testGradlePlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("org.jetbrains.plugins.gradle");
-
-		assertEquals(pluginNode.id, "org.jetbrains.plugins.gradle");
-		assertNotNull(pluginNode.extensionsV2);
-		for(PluginNode.Extension extension : pluginNode.extensionsV2)
-		{
-			if(extension.key.equals("com.intellij.configurationType") && consulo.util.collection.ArrayUtil.contains("GradleRunConfiguration", extension.values))
-			{
-				return;
-			}
-		}
-		throw new AssertionError("not found run configuration from extension");
+		assetExtensionPreview("org.jetbrains.plugins.gradle", "consulo.execution.configuration.ConfigurationType", "GradleRunConfiguration");
 	}
 
 	@Test
 	public void testDotIgnorePlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("mobi.hsz.idea.gitignore");
+		PluginNode pluginNode = findPlugin("mobi.hsz.idea.gitignore");
 
 		assertEquals(pluginNode.id, "mobi.hsz.idea.gitignore");
-		assertNotNull(pluginNode.extensionsV2);
-		assertEquals(pluginNode.extensionsV2.length, 1);
-		assertEquals(pluginNode.extensionsV2[0].values.length, 58);
+		assertNotNull(pluginNode.extensionPreviews);
+		assertEquals(pluginNode.extensionPreviews.length, 58);
 	}
 
 	@Test
 	public void testJavaFxPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("com.intellij.xml", "org.jetbrains.plugins.javaFX");
-
-		assertEquals(pluginNode.id, "org.jetbrains.plugins.javaFX");
-
-		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2.length, 2);
-
-		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[0].key, "com.intellij.fileTypeFactory");
-		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[0].values[0], "*|fxml");
-
-		assertEquals(GsonUtil.prettyGet().toJson(pluginNode), pluginNode.extensionsV2[1].key, "com.intellij.packaging.artifactType");
+		assetExtensionPreview("org.jetbrains.plugins.javaFX", "consulo.compiler.artifact.ArtifactType", "javafx");
+		assetExtensionPreview("org.jetbrains.plugins.javaFX", "consulo.virtualFileSystem.fileType.FileTypeFactory", "*|fxml");
 	}
 
 	@Test
 	public void testGitPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("com.intellij.git");
+		PluginNode pluginNode = findPlugin("com.intellij.git");
 
 		assertEquals(pluginNode.id, "com.intellij.git");
-		assertNotNull(pluginNode.extensionsV2);
-		assertEquals(pluginNode.extensionsV2.length, 1);
-		assertEquals(pluginNode.extensionsV2[0].values[0], "Git");
-	}
-
-	@Test
-	public void testFileTypeNewExtension() throws Exception
-	{
-		PluginNode pluginNode = loadPlugin("net.seesharpsoft.intellij.plugins.csv");
-
-		assertEquals(pluginNode.id, "net.seesharpsoft.intellij.plugins.csv");
-		assertNotNull(pluginNode.extensionsV2);
-		assertNotNull(pluginNode.extensionsV2[0].values[0], "*|csv");
+		assetExtensionPreview("com.intellij.git", "consulo.versionControlSystem.VcsFactory", "Git");
 	}
 
 	@Test
 	public void testImagesPlugin() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("com.intellij.images");
+		PluginNode pluginNode = findPlugin("com.intellij.images");
 
 		assertEquals(pluginNode.id, "com.intellij.images");
 	}
@@ -156,7 +181,7 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testPluginIcon() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("consulo.nodejs");
+		PluginNode pluginNode = findPlugin("consulo.nodejs");
 
 		assertEquals(pluginNode.id, "consulo.nodejs");
 		assertNotNull(pluginNode.iconBytes);
@@ -165,43 +190,38 @@ public class AnalyzerTest extends Assert
 	@Test
 	public void testDarkIconBytes() throws Exception
 	{
-		PluginNode pluginNode = loadPlugin("consulo.unity3d");
+		PluginNode pluginNode = findPlugin("consulo.unity3d");
 
 		assertEquals(pluginNode.id, "consulo.unity3d");
 		assertNotNull(pluginNode.iconDarkBytes);
 	}
 
-	private PluginNode loadPlugin(String... pluginIds) throws Exception
+	private void assetExtensionPreview(String pluginId, String apiClass, String... requiredValues) throws Exception
 	{
-		assertTrue(pluginIds.length != 0);
-
-		File tempDir = FileUtil.createTempDirectory("webService", null);
-
-		FileSystemUtils.deleteRecursively(tempDir);
-
-		String canonicalPath = tempDir.getCanonicalPath();
-
-		PluginChannelsService userConfigurationService = new PluginChannelsService(canonicalPath, fileService, Runnable::run);
-
-		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(userConfigurationService, fileService);
-
-		pluginAnalyzerService.run(new String[0]);
-
-		PluginDeployService deploy = new PluginDeployService(userConfigurationService, pluginAnalyzerService, new ObjectMapper(), new EmptyPluginHistoryServiceImpl(), pluginChannelsService);
-
-		userConfigurationService.run();
-
-		PluginNode lastNode = null;
-		for(String pluginId : pluginIds)
+		if(requiredValues.length == 0)
 		{
-			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
-
-			InputStream resourceAsStream = url.openStream();
-
-			lastNode = deploy.deployPlugin(PluginChannel.alpha, () -> resourceAsStream);
+			throw new IllegalArgumentException();
 		}
 
-		FileSystemUtils.deleteRecursively(tempDir);
-		return lastNode;
+		Set<String> requiredClasses = new HashSet<>(Set.of(requiredValues));
+		PluginNode plugin = findPlugin(pluginId);
+
+		for(PluginNode.ExtensionPreview extensionPreview : plugin.extensionPreviews)
+		{
+			if(extensionPreview.apiClassName.equals(apiClass))
+			{
+				requiredClasses.remove(extensionPreview.implId);
+			}
+		}
+
+		assertTrue("Missed extensions for " + apiClass + " = " + requiredClasses, requiredClasses.isEmpty());
+	}
+
+	private PluginNode findPlugin(String pluginId) throws Exception
+	{
+		PluginChannelService channelService = ourPluginChannelsService.getRepositoryByChannel(PluginChannel.nightly);
+
+		PluginsState state = Objects.requireNonNull(channelService.getState(pluginId), "plugin: " + pluginId + " not found");
+		return state.select("SNAPSHOT", "SNAPSHOT", false);
 	}
 }

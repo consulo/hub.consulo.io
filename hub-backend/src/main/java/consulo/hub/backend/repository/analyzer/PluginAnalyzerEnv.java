@@ -13,8 +13,11 @@ import consulo.container.plugin.PluginDescriptor;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.disposer.Disposer;
 import consulo.disposer.internal.impl.DisposerInternalImpl;
+import consulo.document.FileDocumentManager;
 import consulo.execution.configuration.ConfigurationType;
+import consulo.execution.coverage.BaseCoverageAnnotator;
 import consulo.extensionPreviewRecorder.impl.ModuleExtensionPreviewRecorder;
+import consulo.externalSystem.setting.AbstractExternalSystemSettings;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileEditor.FileEditorProvider;
 import consulo.hub.backend.TempFileService;
@@ -25,6 +28,7 @@ import consulo.language.file.LanguageFileType;
 import consulo.localize.LocalizeKey;
 import consulo.module.content.layer.ModuleExtensionProvider;
 import consulo.module.extension.MutableModuleExtension;
+import consulo.navigation.NavigationItem;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.platform.base.localize.IdeLocalize;
 import consulo.process.ExecutionException;
@@ -39,6 +43,8 @@ import consulo.util.lang.ObjectUtil;
 import consulo.util.nodep.ArrayUtilRt;
 import consulo.util.xml.serializer.XmlSerializerUtil;
 import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.VcsFactory;
+import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
 import consulo.virtualFileSystem.internal.VirtualFileTracker;
 import gnu.trove.TIntIntHashMap;
 import jakarta.inject.Provider;
@@ -151,6 +157,18 @@ public class PluginAnalyzerEnv
 		myPlatformClassGroup.requireClass(ExecutionException.class);
 		// file editor api
 		myPlatformClassGroup.requireClass(FileEditorProvider.class);
+		// navigation api
+		myPlatformClassGroup.requireClass(NavigationItem.class);
+		// document api
+		myPlatformClassGroup.requireClass(FileDocumentManager.class);
+		// vcs api
+		myPlatformClassGroup.requireClass(VcsFactory.class);
+		// dvcs-api
+		myPlatformClassGroup.requireClass(DvcsSyncSettings.class);
+		// execution coverage
+		myPlatformClassGroup.requireClass(BaseCoverageAnnotator.class);
+		// external-system-api
+		myPlatformClassGroup.requireClass(AbstractExternalSystemSettings.class);
 
 		// recorders impl
 		myAnalyzerClassGroup.requireClass(ModuleExtensionPreviewRecorder.class);
