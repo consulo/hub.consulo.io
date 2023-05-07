@@ -14,7 +14,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.procoeton.core.auth.backend.target.BackendUserRegisterTarget;
+import consulo.procoeton.core.auth.backend.BackendUserRegisterTarget;
 import consulo.procoeton.core.backend.BackendRequest;
 import consulo.procoeton.core.backend.BackendRequestFactory;
 import consulo.procoeton.core.vaadin.captcha.Captcha;
