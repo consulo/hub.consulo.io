@@ -1,8 +1,8 @@
 package consulo.procoeton.core.service.impl;
 
-import consulo.procoeton.core.service.UserService;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.procoeton.core.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

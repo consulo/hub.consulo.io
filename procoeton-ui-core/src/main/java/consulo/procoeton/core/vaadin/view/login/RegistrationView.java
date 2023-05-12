@@ -1,5 +1,6 @@
 package consulo.procoeton.core.vaadin.view.login;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -74,7 +75,8 @@ public class RegistrationView extends CenteredView implements BeforeEnterObserve
 				.asRequired()
 				.bind(AuthRequest::getPassword, AuthRequest::setPassword);
 
-		Button registerButton = new Button("Register", event -> {
+		Button registerButton = new Button("Register", event ->
+		{
 			try
 			{
 				AuthRequest request = new AuthRequest();
@@ -90,15 +92,17 @@ public class RegistrationView extends CenteredView implements BeforeEnterObserve
 				newRequest.parameter("email", request.getEmail());
 				newRequest.parameter("password", request.getPassword());
 
-				UserAccount newAccount = newRequest.execute();
-				if(newAccount == null)
+				newRequest.execute(UI.getCurrent(), (ui, newAccount) ->
 				{
-					Notifications.error("Failed to register user");
-				}
-				else
-				{
-					getUI().ifPresent(ui -> ui.navigate(LoginView.class));
-				}
+					if(newAccount == null)
+					{
+						Notifications.error("Failed to register user");
+					}
+					else
+					{
+						ui.navigate(LoginView.class);
+					}
+				});
 			}
 			catch(ValidationException ignored)
 			{

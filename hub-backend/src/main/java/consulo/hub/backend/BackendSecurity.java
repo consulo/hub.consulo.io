@@ -1,44 +1,60 @@
 package consulo.hub.backend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import consulo.hub.backend.auth.UserAccountDetailsService;
+import consulo.hub.backend.auth.oauth2.*;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
+import consulo.hub.backend.auth.rsa.RSAKeyJson;
+import consulo.hub.shared.auth.HubClaimNames;
 import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.auth.domain.UserAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationGrantAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientCredentialsAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
+import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author VISTALL
@@ -50,6 +66,12 @@ public class BackendSecurity
 {
 	@Autowired
 	public UserAccountRepository myUserAccountRepository;
+
+	@Autowired
+	private ObjectMapper myObjectMapper;
+
+	@Autowired
+	private UserAccountAuthorizationRepository myUserAccountAuthorizationRepository;
 
 	@Bean
 	public PasswordEncoder passwordEncoder()
@@ -64,15 +86,34 @@ public class BackendSecurity
 	}
 
 	@Bean
-	public JWKSource<SecurityContext> jwkSource()
+	public JWKSource<SecurityContext> jwkSource() throws Exception
 	{
-		KeyPair keyPair = generateRsaKey();
-		RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-		RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+		RSAPublicKey publicKey;
+		RSAPrivateKey privateKey;
+
+		Path keyPath = Path.of("jwk_keys.json");
+		if(Files.exists(keyPath))
+		{
+			RSAKeyJson keyJson = myObjectMapper.readValue(keyPath.toFile(), RSAKeyJson.class);
+
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			privateKey = (RSAPrivateKey) keyFactory.generatePrivate(keyJson.privateKey.toSpec());
+			publicKey = (RSAPublicKey) keyFactory.generatePublic(keyJson.publicKey.toSpec());
+		}
+		else
+		{
+			KeyPair keyPair = generateRsaKey();
+			publicKey = (RSAPublicKey) keyPair.getPublic();
+			privateKey = (RSAPrivateKey) keyPair.getPrivate();
+			RSAKeyJson json = new RSAKeyJson(publicKey, privateKey);
+			Files.writeString(keyPath, myObjectMapper.writeValueAsString(json));
+		}
+
 		RSAKey rsaKey = new RSAKey.Builder(publicKey)
 				.privateKey(privateKey)
-				.keyID(UUID.randomUUID().toString())
+				.keyID("hub-oauth2-keys")
 				.build();
+
 		JWKSet jwkSet = new JWKSet(rsaKey);
 		return new ImmutableJWKSet<>(jwkSet);
 	}
@@ -100,13 +141,52 @@ public class BackendSecurity
 	}
 
 	@Bean
+	public OAuth2TokenCustomizer<JwtEncodingContext> jwtEncodingContextOAuth2TokenCustomizer()
+	{
+		return context ->
+		{
+			Object o = context.get("org.springframework.security.core.Authentication.AUTHORIZATION_GRANT");
+			if(!(o instanceof OAuth2AuthorizationGrantAuthenticationToken))
+			{
+				return;
+			}
+
+			Object details = ((OAuth2AuthorizationGrantAuthenticationToken) o).getDetails();
+			if(!(details instanceof OAuth2AuthenticationDetails))
+			{
+				return;
+			}
+
+			context.getClaims().claim(HubClaimNames.CLIENT_NAME, ((OAuth2AuthenticationDetails) details).getClientName());
+			context.getClaims().claim(HubClaimNames.SUB_CLIENT_NAME, ((OAuth2AuthenticationDetails) details).getSubClientName());
+			context.getClaims().claim(HubClaimNames.REMOTE_ADDRESS, ((OAuth2AuthenticationDetails) details).getRemoteAddress());
+		};
+	}
+
+	@Bean
 	@Order(1)
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception
 	{
 		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = http.apply(new OAuth2AuthorizationServerConfigurer());
 
 		authorizationServerConfigurer.authorizationEndpoint(Customizer.withDefaults());
-		authorizationServerConfigurer.tokenEndpoint(Customizer.withDefaults());
+		authorizationServerConfigurer.tokenEndpoint(Customizer.withDefaults()).withObjectPostProcessor(new ObjectPostProcessor<OAuth2TokenEndpointFilter>()
+		{
+			@Override
+			public OAuth2TokenEndpointFilter postProcess(OAuth2TokenEndpointFilter object)
+			{
+				object.setAuthenticationDetailsSource(new OAuth2AuthenticationDetailsSource());
+				return object;
+			}
+		}).withObjectPostProcessor(new ObjectPostProcessor<OAuth2ClientCredentialsAuthenticationProvider>()
+		{
+			@Override
+			public OAuth2ClientCredentialsAuthenticationProvider postProcess(OAuth2ClientCredentialsAuthenticationProvider object)
+			{
+				return object;
+			}
+		});
+
 		authorizationServerConfigurer.tokenIntrospectionEndpoint(Customizer.withDefaults());
 		authorizationServerConfigurer.tokenRevocationEndpoint(Customizer.withDefaults());
 
@@ -121,6 +201,23 @@ public class BackendSecurity
 			if(account != null)
 			{
 				authorities = account.getAuthorities();
+			}
+			else
+			{
+				throw new UsernameNotFoundException(principalClaimValue);
+			}
+
+			Optional<UserAccountAuthorization> optional = myUserAccountAuthorizationRepository
+					.findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValue(jwt.getTokenValue());
+			if(!optional.isPresent())
+			{
+				throw new AuthenticationCredentialsNotFoundException(jwt.getTokenValue() + " not found");
+			}
+
+			UserAccountAuthorization authorization = optional.get();
+			if(!Objects.equals(authorization.getPrincipalName(), account.getUsername()))
+			{
+				throw new BadCredentialsException("Token %s, user %s, expected user %s".formatted(jwt.getTokenValue(), account.getUsername(), authorization.getPrincipalName()));
 			}
 			return new JwtAuthenticationToken(jwt, authorities, principalClaimValue);
 		})));
@@ -192,8 +289,8 @@ public class BackendSecurity
 	}
 
 	@Bean
-	public OAuth2AuthorizationService oAuth2AuthorizationService()
+	public OAuth2AuthorizationService oAuth2AuthorizationService(UserAccountAuthorizationRepository userAccountAuthorizationRepository, RegisteredClientRepository registeredClientRepository)
 	{
-		return new InMemoryOAuth2AuthorizationService();
+		return new JpaOAuth2AuthorizationService(userAccountAuthorizationRepository, registeredClientRepository);
 	}
 }

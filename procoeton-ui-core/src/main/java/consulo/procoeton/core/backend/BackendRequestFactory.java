@@ -2,6 +2,7 @@ package consulo.procoeton.core.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import consulo.procoeton.core.ProPropertiesService;
+import consulo.procoeton.core.service.LogoutService;
 import jakarta.annotation.PreDestroy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -21,19 +22,20 @@ public class BackendRequestFactory
 	private CloseableHttpClient myClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build()).build();
 
 	private final ObjectMapper myObjectMapper;
-
 	private final ProPropertiesService myPropertiesService;
+	private final LogoutService myLogoutService;
 
 	@Autowired
-	public BackendRequestFactory(ObjectMapper objectMapper, ProPropertiesService propertiesService)
+	public BackendRequestFactory(ObjectMapper objectMapper, ProPropertiesService propertiesService, LogoutService logoutService)
 	{
 		myObjectMapper = objectMapper;
 		myPropertiesService = propertiesService;
+		myLogoutService = logoutService;
 	}
 
 	public <T> BackendRequest<T> newRequest(BackendRequestTarget<T> target)
 	{
-		return new BackendRequest<>(target, myClient, myObjectMapper, myPropertiesService);
+		return new BackendRequest<>(target, myClient, myObjectMapper, myPropertiesService, myLogoutService);
 	}
 
 	@PreDestroy

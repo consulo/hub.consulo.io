@@ -1,5 +1,6 @@
 package consulo.procoeton.core.vaadin.view.login;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -11,9 +12,14 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.VaadinServletResponse;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WebBrowser;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import consulo.hub.shared.auth.HubClaimNames;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.procoeton.core.OAuth2InfoService;
 import consulo.procoeton.core.auth.backend.BackendAuthTokenTarget;
 import consulo.procoeton.core.auth.backend.BackendAuthenticationToken;
 import consulo.procoeton.core.auth.backend.BackendUserInfoTarget;
@@ -31,6 +37,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
@@ -50,12 +57,16 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 {
 	private final CaptchaFactory myCaptchaFactory;
 	private final BackendRequestFactory myBackendRequestFactory;
+	private final OAuth2InfoService myAuth2InfoService;
+	private final RememberMeServices myRememberMeServices;
 
 	@Autowired
-	public LoginView(CaptchaFactory captchaFactory, BackendRequestFactory backendRequestFactory)
+	public LoginView(CaptchaFactory captchaFactory, BackendRequestFactory backendRequestFactory, OAuth2InfoService auth2InfoService, RememberMeServices rememberMeServices)
 	{
 		myCaptchaFactory = captchaFactory;
 		myBackendRequestFactory = backendRequestFactory;
+		myAuth2InfoService = auth2InfoService;
+		myRememberMeServices = rememberMeServices;
 	}
 
 	@Override
@@ -97,28 +108,59 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 					return;
 				}
 
-				BackendRequest<Map<String, Object>> newRequest = myBackendRequestFactory.newRequest(BackendAuthTokenTarget.INSTANCE);
-				newRequest.parameter("grant_type", "client_credentials");
-				newRequest.authorizationHeader("Basic " + Base64.getEncoder().encodeToString((request.getEmail() + ":" + request.getPassword()).getBytes(StandardCharsets.UTF_8)));
+				WebBrowser browser = VaadinSession.getCurrent().getBrowser();
 
-				Map<String, Object> token = newRequest.execute();
-				if(token == null)
-				{
-					throw new BadCredentialsException("");
-				}
+				String address = browser.getAddress();
 
-				String accessToken = (String) token.get("access_token");
-				if(accessToken == null)
-				{
-					throw new BadCredentialsException("");
-				}
+				String application = browser.getBrowserApplication();
 
-				BackendRequest<UserAccount> getAccountRequest = myBackendRequestFactory.newRequest(BackendUserInfoTarget.INSTANCE);
-				getAccountRequest.authorizationHeader("Bearer " + accessToken);
+				login(request, address, application, UI.getCurrent());
+			}
+			catch(BadCredentialsException e)
+			{
+				Notifications.error("Invalid user or password");
+			}
+			catch(ValidationException ignored)
+			{
+			}
+		});
+		loginButton.setWidthFull();
+		loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		layout.add(loginButton);
 
-				UserAccount userAccount = getAccountRequest.execute();
+		Anchor registeAnchor = new Anchor("/register", "Register");
+		registeAnchor.addClassName(LumoUtility.Margin.AUTO);
+		layout.add(registeAnchor);
+	}
 
-				BackendAuthenticationToken authToken = new BackendAuthenticationToken(userAccount, accessToken, userAccount.getAuthorities());
+	private void login(AuthRequest request, String remoteAddr, String application, UI ui)
+	{
+		BackendRequest<Map<String, Object>> newRequest = myBackendRequestFactory.newRequest(BackendAuthTokenTarget.INSTANCE);
+		newRequest.parameter("grant_type", "client_credentials");
+		newRequest.parameter(HubClaimNames.CLIENT_NAME, application);
+		newRequest.parameter(HubClaimNames.SUB_CLIENT_NAME, myAuth2InfoService.getClientName());
+
+		newRequest.authorizationHeader("Basic " + Base64.getEncoder().encodeToString((request.getEmail() + ":" + request.getPassword()).getBytes(StandardCharsets.UTF_8)));
+
+		newRequest.execute(ui, (uu, token) ->
+		{
+			if(token == null)
+			{
+				throw new BadCredentialsException("");
+			}
+
+			String accessToken = (String) token.get("access_token");
+			if(accessToken == null)
+			{
+				throw new BadCredentialsException("");
+			}
+
+			BackendRequest<UserAccount> getAccountRequest = myBackendRequestFactory.newRequest(BackendUserInfoTarget.INSTANCE);
+			getAccountRequest.authorizationHeader("Bearer " + accessToken);
+
+			getAccountRequest.execute(uu, (uuu,userAccount) ->
+			{
+				BackendAuthenticationToken authToken = BackendAuthenticationToken.of(userAccount, accessToken);
 
 				SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
@@ -149,23 +191,11 @@ public class LoginView extends CenteredView implements BeforeEnterObserver
 					}
 				}
 
-				getUI().ifPresent(ui -> ui.navigate("/"));
-			}
-			catch(BadCredentialsException e)
-			{
-				Notifications.error("Invalid user or password");
-			}
-			catch(ValidationException ignored)
-			{
-			}
-		});
-		loginButton.setWidthFull();
-		loginButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		layout.add(loginButton);
+				myRememberMeServices.loginSuccess(vaadinRequest, VaadinServletResponse.getCurrent(), authToken);
 
-		Anchor registeAnchor = new Anchor("/register", "Register");
-		registeAnchor.addClassName(LumoUtility.Margin.AUTO);
-		layout.add(registeAnchor);
+				ui.navigate("/");
+			});
+		});
 	}
 
 	@Override

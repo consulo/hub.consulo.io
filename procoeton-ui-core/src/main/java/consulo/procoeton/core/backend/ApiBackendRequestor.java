@@ -3,9 +3,10 @@ package consulo.procoeton.core.backend;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
+import consulo.hub.shared.ServicesHeaders;
 import consulo.procoeton.core.ProPropertiesService;
 import consulo.procoeton.core.auth.backend.BackendAuthenticationToken;
-import consulo.procoeton.core.util.AuthUtil;
+import consulo.procoeton.core.service.LogoutService;
 import consulo.procoeton.core.util.PropertySet;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
@@ -32,15 +33,23 @@ import java.util.function.Supplier;
 @Service
 public class ApiBackendRequestor
 {
-	@Autowired
-	private ObjectMapper myObjectMapper;
+	private final ObjectMapper myObjectMapper;
 
-	@Autowired
-	private ProPropertiesService myPropertiesService;
+	private final ProPropertiesService myPropertiesService;
+
+	private final LogoutService myLogoutService;
 
 	private CloseableHttpClient myClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(5000).setSocketTimeout(5000).build()).build();
 
 	private final String myHostKey = ApiBackendKeys.BACKEND_HOST_URL_KEY;
+
+	@Autowired
+	public ApiBackendRequestor(ObjectMapper objectMapper, ProPropertiesService propertiesService, LogoutService logoutService)
+	{
+		myObjectMapper = objectMapper;
+		myPropertiesService = propertiesService;
+		myLogoutService = logoutService;
+	}
 
 	@Nullable
 	public <T> T runRequest(BackendApiUrl urlSuffix, Map<String, String> parameters, TypeReference<T> valueClazz) throws Exception
@@ -102,7 +111,7 @@ public class ApiBackendRequestor
 
 		if(myPropertiesService.isInstalled() && url.isPrivate())
 		{
-			builder.addHeader("BackendSecureKey", myPropertiesService.getPropertySet().getStringProperty(ApiBackendKeys.BACKEND_SECURE_KEY, ""));
+			builder.addHeader(ServicesHeaders.BACKEND_SECURE_KEY, myPropertiesService.getPropertySet().getStringProperty(ApiBackendKeys.BACKEND_SECURE_KEY, ""));
 		}
 
 		try
@@ -112,7 +121,7 @@ public class ApiBackendRequestor
 				int statusCode = response.getStatusLine().getStatusCode();
 				if(statusCode == 401 || statusCode == 403)
 				{
-					AuthUtil.forceLogout(UI.getCurrent());
+					myLogoutService.logout(UI.getCurrent(), false);
 				}
 
 				if(statusCode != 200)

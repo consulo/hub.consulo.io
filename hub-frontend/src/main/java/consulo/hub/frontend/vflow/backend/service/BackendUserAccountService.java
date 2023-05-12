@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.procoeton.core.auth.backend.BackendUserAccountServiceCore;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.auth.domain.UserAccount;
-import consulo.hub.shared.auth.oauth2.domain.OAuthTokenInfo;
+import consulo.hub.shared.auth.oauth2.domain.SessionInfo;
 import consulo.procoeton.core.backend.BackendApiUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,38 +47,22 @@ public class BackendUserAccountService extends BackendUserAccountServiceCore
 		}
 	}
 
-	public OAuthTokenInfo[] listOAuthTokens(UserAccount account)
+	public SessionInfo[] listOAuthTokens(UserAccount account)
 	{
 		try
 		{
 			Map<String, String> map = new HashMap<>();
 			map.put("userId", String.valueOf(account.getId()));
 
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/list"), map, OAuthTokenInfo[].class);
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/list"), map, SessionInfo[].class, () -> new SessionInfo[0]);
 		}
 		catch(Exception e)
 		{
 			LOG.warn("Failed to list tokens: " + account.getId(), e);
 		}
-		return new OAuthTokenInfo[0];
+		return new SessionInfo[0];
 	}
 
-	public OAuthTokenInfo removeOAuthToken(UserAccount account, String token)
-	{
-		try
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put("userId", String.valueOf(account.getId()));
-			map.put("token", token);
-
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/remove"), map, OAuthTokenInfo.class);
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to add token: " + account.getId(), e);
-		}
-		return null;
-	}
 
 	public List<UserAccount> listAll()
 	{

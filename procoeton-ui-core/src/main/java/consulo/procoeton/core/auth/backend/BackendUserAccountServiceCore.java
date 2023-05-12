@@ -1,6 +1,7 @@
 package consulo.procoeton.core.auth.backend;
 
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.hub.shared.auth.oauth2.domain.SessionInfo;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
 import org.slf4j.Logger;
@@ -20,6 +21,38 @@ public class BackendUserAccountServiceCore
 
 	@Autowired
 	private ApiBackendRequestor myApiBackendRequestor;
+
+	public SessionInfo revokeSessionByKey(UserAccount account, String token)
+	{
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("token", token);
+
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/revoke/token"), map, SessionInfo.class);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to revoke token: " + account.getId(), e);
+		}
+		return null;
+	}
+
+	public SessionInfo revokeSessionById(UserAccount account, String tokenId)
+	{
+		try
+		{
+			Map<String, String> map = new HashMap<>();
+			map.put("tokenId", tokenId);
+
+			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/revoke/id"), map, SessionInfo.class);
+		}
+		catch(Exception e)
+		{
+			LOG.warn("Failed to revoke token: " + account.getId(), e);
+		}
+		return null;
+	}
 
 	public boolean changePassword(long userId, String oldPassword, String newPassword)
 	{

@@ -6,29 +6,29 @@ import java.util.Map;
  * @author VISTALL
  * @since 29/08/2021
  */
-public class OAuthTokenInfo
+public class SessionInfo
 {
-	private String myToken;
+	private String myId;
 	private Map<String, Object> myAdditionalInfo;
 
-	public OAuthTokenInfo()
+	public SessionInfo()
 	{
 	}
 
-	public OAuthTokenInfo(String token, Map<String, Object> additionalInfo)
+	public SessionInfo(String id, Map<String, Object> additionalInfo)
 	{
-		myToken = token;
+		myId = id;
 		myAdditionalInfo = additionalInfo;
 	}
 
-	public String getToken()
+	public String getId()
 	{
-		return myToken;
+		return myId;
 	}
 
-	public void setToken(String token)
+	public void setId(String id)
 	{
-		this.myToken = token;
+		this.myId = id;
 	}
 
 	public Map<String, Object> getAdditionalInfo()

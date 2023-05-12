@@ -4,16 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
 import consulo.procoeton.core.ProPropertiesService;
-import consulo.procoeton.core.util.AuthUtil;
+import consulo.procoeton.core.service.LogoutService;
+import consulo.procoeton.core.vaadin.util.Notifications;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.net.http.HttpConnectTimeoutException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * @author VISTALL
@@ -25,16 +29,18 @@ public class BackendRequest<T>
 	private final CloseableHttpClient myClient;
 	private final ObjectMapper myObjectMapper;
 	private final ProPropertiesService myPropertiesService;
+	private final LogoutService myLogoutService;
 
 	private final Map<String, String> myHeaders = new LinkedHashMap<>();
 	private final Map<String, String> myParameters = new LinkedHashMap<>();
 
-	protected BackendRequest(BackendRequestTarget<T> target, CloseableHttpClient client, ObjectMapper objectMapper, ProPropertiesService propertiesService)
+	protected BackendRequest(BackendRequestTarget<T> target, CloseableHttpClient client, ObjectMapper objectMapper, ProPropertiesService propertiesService, LogoutService logoutService)
 	{
 		myTarget = target;
 		myClient = client;
 		myObjectMapper = objectMapper;
 		myPropertiesService = propertiesService;
+		myLogoutService = logoutService;
 	}
 
 	public BackendRequest authorizationHeader(String value)
@@ -54,7 +60,29 @@ public class BackendRequest<T>
 		return this;
 	}
 
+	public void execute(UI ui, BiConsumer<UI, T> consumer)
+	{
+		try
+		{
+			T value = executeImpl();
+			consumer.accept(ui, value);
+		}
+		catch(BackendServiceDownException e)
+		{
+			if(!ui.isClosing())
+			{
+				ui.access(() -> Notifications.error("Server Busy. Try Again Later"));
+			}
+		}
+	}
+
+	@Deprecated
 	public T execute()
+	{
+		return executeImpl();
+	}
+
+	private T executeImpl()
 	{
 		String host = myTarget.getHost(myPropertiesService);
 
@@ -87,7 +115,7 @@ public class BackendRequest<T>
 				int statusCode = response.getStatusLine().getStatusCode();
 				if(statusCode == 401 || statusCode == 403)
 				{
-					AuthUtil.forceLogout(UI.getCurrent());
+					myLogoutService.logout(UI.getCurrent(), false);
 				}
 
 				if(statusCode != 200)
@@ -99,6 +127,10 @@ public class BackendRequest<T>
 				return myObjectMapper.readValue(json, myTarget.getType());
 			});
 			return value == null ? myTarget.getDefaultValue() : value;
+		}
+		catch(HttpHostConnectException | HttpConnectTimeoutException e)
+		{
+			throw new BackendServiceDownException(e);
 		}
 		catch(IOException ignored)
 		{

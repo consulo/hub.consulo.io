@@ -17,11 +17,12 @@ import consulo.hub.frontend.vflow.repository.view.RepositoryView;
 import consulo.hub.frontend.vflow.statistics.view.AdminStatisticsView;
 import consulo.hub.frontend.vflow.statistics.view.StatisticsView;
 import consulo.hub.frontend.vflow.storage.view.StorageView;
-import consulo.hub.frontend.vflow.user.view.OAuthKeysView;
+import consulo.hub.frontend.vflow.user.view.UserSessionsView;
 import consulo.hub.frontend.vflow.user.view.UserInfoView;
 import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.procoeton.core.service.LogoutService;
 import consulo.procoeton.core.service.UserService;
 import consulo.procoeton.core.vaadin.MainLayoutBase;
 import consulo.procoeton.core.vaadin.ui.appnav.AppNav;
@@ -36,9 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class MainLayout extends MainLayoutBase
 {
 	@Autowired
-	public MainLayout(AccessAnnotationChecker accessAnnotationChecker, UserService userService)
+	public MainLayout(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService)
 	{
-		super(accessAnnotationChecker, userService);
+		super(accessAnnotationChecker, userService, logoutService);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class MainLayout extends MainLayoutBase
 			homeGroup.addItem("Error Reports", ErrorReportsView.class, FontAwesome.Solid.BOLT);
 			homeGroup.addItem("Statistics", StatisticsView.class, FontAwesome.Solid.SIGNAL);
 			homeGroup.addItem("Storage", StorageView.class, FontAwesome.Solid.FOLDER_OPEN);
-			homeGroup.addItem("OAuth Keys", OAuthKeysView.class, FontAwesome.Solid.KEY);
+			homeGroup.addItem("Sessions", UserSessionsView.class, FontAwesome.Solid.KEY);
 		}
 
 		//nav.addItem("Error Reports", StubView.class, FontAwesome.Solid.BOLT);

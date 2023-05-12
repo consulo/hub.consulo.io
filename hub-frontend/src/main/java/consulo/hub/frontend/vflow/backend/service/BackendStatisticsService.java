@@ -35,7 +35,7 @@ public class BackendStatisticsService
 			}
 			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/statistics/list"), args, new TypeReference<List<StatisticEntry>>()
 			{
-			});
+			}, List::of);
 		}
 		catch(Exception e)
 		{

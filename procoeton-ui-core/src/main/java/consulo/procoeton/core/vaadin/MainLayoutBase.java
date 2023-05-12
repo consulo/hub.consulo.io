@@ -21,8 +21,8 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.auth.domain.UserAccount;
+import consulo.procoeton.core.service.LogoutService;
 import consulo.procoeton.core.service.UserService;
-import consulo.procoeton.core.util.AuthUtil;
 import consulo.procoeton.core.vaadin.ui.ChildLayout;
 import consulo.procoeton.core.vaadin.ui.appnav.AppNav;
 import consulo.procoeton.core.vaadin.view.login.LoginView;
@@ -43,14 +43,16 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 
 	private final AccessAnnotationChecker myAccessAnnotationChecker;
 	private final UserService myUserService;
+	private final LogoutService myLogoutService;
 
 	private final Footer myFooter;
 	private final AppNav myAppNav;
 
-	public MainLayoutBase(AccessAnnotationChecker accessAnnotationChecker, UserService userService)
+	public MainLayoutBase(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService)
 	{
 		myAccessAnnotationChecker = accessAnnotationChecker;
 		myUserService = userService;
+		myLogoutService = logoutService;
 
 		setPrimarySection(Section.DRAWER);
 
@@ -156,7 +158,7 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 				}
 			});
 
-			userNameItem.getSubMenu().addItem("Sign Out", e -> AuthUtil.forceLogout(UI.getCurrent()));
+			userNameItem.getSubMenu().addItem("Sign Out", e -> myLogoutService.logout(UI.getCurrent(), true));
 
 			myFooter.add(userMenu);
 		}

@@ -17,10 +17,4 @@ public class AuthUtil
 	{
 		return Objects.requireNonNull(SecurityUtil.getUserAccout()).getId();
 	}
-
-	public static void forceLogout(UI ui)
-	{
-		SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-		logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
-	}
 }
