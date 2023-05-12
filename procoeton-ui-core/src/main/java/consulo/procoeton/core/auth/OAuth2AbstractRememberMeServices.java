@@ -6,6 +6,7 @@ import consulo.procoeton.core.auth.backend.BackendAuthenticationToken;
 import consulo.procoeton.core.auth.backend.BackendUserInfoTarget;
 import consulo.procoeton.core.backend.BackendRequest;
 import consulo.procoeton.core.backend.BackendRequestFactory;
+import consulo.procoeton.core.backend.BackendServiceDownException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.ObjectProvider;
@@ -62,7 +63,16 @@ public class OAuth2AbstractRememberMeServices extends AbstractRememberMeServices
 		BackendRequest<UserAccount> getAccountRequest = myBackendRequestFactory.getObject().newRequest(BackendUserInfoTarget.INSTANCE);
 		getAccountRequest.authorizationHeader("Bearer " + accessToken);
 
-		UserAccount userAccount = getAccountRequest.execute();
+		UserAccount userAccount = null;
+		try
+		{
+			userAccount = getAccountRequest.execute();
+		}
+		catch(BackendServiceDownException e)
+		{
+			throw new UsernameNotFoundException(accessToken);
+		}
+
 		if(userAccount == null)
 		{
 			throw new UsernameNotFoundException(accessToken);

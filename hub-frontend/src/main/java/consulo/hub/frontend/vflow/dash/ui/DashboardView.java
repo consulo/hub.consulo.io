@@ -5,20 +5,19 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
-import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
+import consulo.procoeton.core.vaadin.ui.LabeledLayout;
+import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +28,20 @@ import org.springframework.data.domain.Sort;
 import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 @PageTitle("Dashboard")
 @Route(value = "user/dashboard", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 @PermitAll
-public class DashboardView extends VChildLayout
+public class DashboardView extends ServerOfflineVChildLayout
 {
 	@Autowired
 	protected BackendErrorReporterService myErrorReportRepository;
 
 	public DashboardView()
 	{
+		super(true);
 	}
 
 	private Component buildLastPluginComments()
@@ -124,10 +125,8 @@ public class DashboardView extends VChildLayout
 	}
 
 	@Override
-	public void viewReady(AfterNavigationEvent event)
+	protected void buildLayout(Consumer<Component> uiBuilder)
 	{
-		removeAll();
-
 		UserAccount userAccount = SecurityUtil.getUserAccout();
 		if(userAccount == null)
 		{
@@ -152,7 +151,6 @@ public class DashboardView extends VChildLayout
 		fillLayout.add(lastErrorReports);
 		//fillLayout.setExpandRatio(lastErrorReports, 0.33f);
 
-		add(fillLayout);
-		setFlexGrow(1f, fillLayout);
+		uiBuilder.accept(fillLayout);
 	}
 }

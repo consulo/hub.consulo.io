@@ -1,11 +1,11 @@
 package consulo.hub.frontend.vflow.user.view;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -15,22 +15,23 @@ import consulo.hub.shared.auth.HubClaimNames;
 import consulo.hub.shared.auth.SecurityUtil;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.SessionInfo;
-import consulo.procoeton.core.vaadin.ui.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
  * @since 27-Sep-16
  */
-@PageTitle("User/Sessions")
+@PageTitle("Sessions")
 @Route(value = "user/sessions", layout = MainLayout.class)
 @PermitAll
-public class UserSessionsView extends VChildLayout
+public class UserSessionsView extends ServerOfflineVChildLayout
 {
 	private final BackendUserAccountService myBackendUserAccountService;
 
@@ -39,17 +40,13 @@ public class UserSessionsView extends VChildLayout
 	@Autowired
 	public UserSessionsView(BackendUserAccountService backendUserAccountService)
 	{
+		super(true);
 		myBackendUserAccountService = backendUserAccountService;
-		setMargin(false);
-		setSpacing(false);
-		setSizeFull();
 	}
 
 	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
+	protected void buildLayout(Consumer<Component> uiBuilder)
 	{
-		removeAll();
-
 		UserAccount userAccout = SecurityUtil.getUserAccout();
 		if(userAccout == null)
 		{
@@ -59,8 +56,7 @@ public class UserSessionsView extends VChildLayout
 		myTokenListPanel = VaadinUIUtil.newVerticalLayout();
 		myTokenListPanel.setSpacing(true);
 
-		add(myTokenListPanel);
-		//setExpandRatio(myTokenListPanel, 1);
+		uiBuilder.accept(myTokenListPanel);
 
 		SessionInfo[] tokens = myBackendUserAccountService.listOAuthTokens(userAccout);
 		for(SessionInfo token : tokens)

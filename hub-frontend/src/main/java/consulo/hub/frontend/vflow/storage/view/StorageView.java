@@ -8,19 +8,18 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendStorageService;
-import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.hub.frontend.vflow.base.MainLayout;
-import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
-import consulo.procoeton.core.util.AuthUtil;
 import consulo.hub.shared.base.InformationBean;
 import consulo.hub.shared.storage.domain.StorageFile;
 import consulo.hub.shared.storage.domain.StorageFileUpdateBy;
+import consulo.procoeton.core.util.AuthUtil;
+import consulo.procoeton.core.vaadin.ui.LabeledLayout;
+import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
+import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
 import consulo.util.io.StreamUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
 import consulo.util.lang.ExceptionUtil;
@@ -32,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
@@ -40,7 +40,7 @@ import java.util.*;
 @PageTitle("Storage")
 @Route(value = "user/storage", layout = MainLayout.class)
 @PermitAll
-public class StorageView extends VChildLayout
+public class StorageView extends ServerOfflineVChildLayout
 {
 	public static final String ID = "storage";
 
@@ -55,6 +55,8 @@ public class StorageView extends VChildLayout
 	@Autowired
 	public StorageView(BackendStorageService backendStorageService)
 	{
+		super(true);
+
 		myBackendStorageService = backendStorageService;
 		myItems = new ListBox<>();
 		myUpdateInfoPanel = new VerticalLayout();
@@ -76,10 +78,8 @@ public class StorageView extends VChildLayout
 	}
 
 	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
+	protected void buildLayout(Consumer<Component> uiBuilder)
 	{
-		removeAll();
-
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication == null)
 		{
@@ -99,7 +99,7 @@ public class StorageView extends VChildLayout
 
 		myItems.setSizeFull();
 
-		TextArea textArea = TinyComponents.newTextArea();
+		TextArea textArea = new TextArea();
 		textArea.setLabel("Text: ");
 		textArea.setSizeFull();
 		rightLayout.add(textArea);
@@ -152,8 +152,7 @@ public class StorageView extends VChildLayout
 		panel.add(rightLayout);
 		panel.setSizeFull();
 
-		add(panel);
-		setFlexGrow(1f, panel);
+		uiBuilder.accept(panel);
 	}
 
 	private void addFields(Class clazz, Object value, VerticalLayout verticalLayout)

@@ -33,6 +33,7 @@ import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.Notifications;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 
@@ -135,7 +136,17 @@ public class RepositoryItemComponent extends VerticalLayout
 	{
 		LazyComponent lazyComponent = new LazyComponent(() ->
 		{
-			RepositoryDownloadInfo[] allDownloadStat = backendPluginStatisticsService.getDownloadStat(pluginNode.id);
+			RepositoryDownloadInfo[] allDownloadStat = new RepositoryDownloadInfo[0];
+			try
+			{
+				allDownloadStat = backendPluginStatisticsService.getDownloadStat(pluginNode.id);
+			}
+			catch(Exception e)
+			{
+				Notifications.serverOffline();
+				allDownloadStat = new RepositoryDownloadInfo[0];
+			}
+
 			List<RepositoryDownloadInfo> channelDownloadStat = Arrays.stream(allDownloadStat).filter(it -> it.getChannel().equals(pluginChannel.name())).collect(Collectors.toList());
 
 			LocalDate now = LocalDate.now();

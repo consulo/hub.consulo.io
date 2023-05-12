@@ -22,4 +22,9 @@ public class Notifications
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 		notification.open();
 	}
+
+	public static void serverOffline()
+	{
+		error("Server Busy. Try Again Later");
+	}
 }

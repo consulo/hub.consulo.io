@@ -7,13 +7,13 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.AfterNavigationEvent;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
-import consulo.procoeton.core.vaadin.ui.VChildLayout;
-import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
-import consulo.procoeton.core.vaadin.ui.ScrollableLayout;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
+import consulo.procoeton.core.backend.BackendServiceDownException;
+import consulo.procoeton.core.vaadin.ui.ScrollableLayout;
+import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,12 +21,13 @@ import org.springframework.data.domain.Page;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
  * @since 02-Nov-16
  */
-public abstract class BaseErrorReportsView extends VChildLayout
+public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout
 {
 	private static final int ourPageSize = 50;
 
@@ -41,6 +42,8 @@ public abstract class BaseErrorReportsView extends VChildLayout
 
 	public BaseErrorReportsView()
 	{
+		super(true);
+
 		myFilterBox = new MultiSelectComboBox<>(null, ErrorReportStatus.values());
 
 		myFilterBox.addValueChangeListener(e ->
@@ -64,7 +67,7 @@ public abstract class BaseErrorReportsView extends VChildLayout
 	protected abstract Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize);
 
 	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
+	protected void buildLayout(Consumer<Component> uiBuilder)
 	{
 		removeAll();
 
@@ -75,9 +78,7 @@ public abstract class BaseErrorReportsView extends VChildLayout
 			myFilterBox.setValue(ErrorReportStatus.UNKNOWN);
 		}
 
-		add(myReportList);
-
-		setFlexGrow(1, myReportList);
+		uiBuilder.accept(myReportList);
 
 		if(allowFilters())
 		{
@@ -100,7 +101,15 @@ public abstract class BaseErrorReportsView extends VChildLayout
 	{
 		myReportList.removeAllItems();
 
-		Page<ErrorReport> page = getReports(myPage, myFilters.toArray(new ErrorReportStatus[myFilters.size()]), ourPageSize);
+		Page<ErrorReport> page = null;
+		try
+		{
+			page = getReports(myPage, myFilters.toArray(new ErrorReportStatus[myFilters.size()]), ourPageSize);
+		}
+		catch(BackendServiceDownException e)
+		{
+			return;
+		}
 
 		myLastPageSize = page.getNumberOfElements();
 

@@ -6,6 +6,7 @@ import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.hub.shared.util.JsonPage;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
+import consulo.procoeton.core.backend.BackendServiceDownException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,10 @@ public class BackendErrorReporterService
 			params.put("id", String.valueOf(errorReportId));
 
 			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/errorReporter/changeStatus"), params, ErrorReport.class);
+		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
 		}
 		catch(Exception e)
 		{
@@ -100,9 +105,13 @@ public class BackendErrorReporterService
 
 			return JsonPage.from(jsonPage, pageRequest.getPageSize());
 		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
+		}
 		catch(Exception e)
 		{
-			throw new RuntimeException(e);
+			return Page.empty();
 		}
 	}
 
@@ -111,6 +120,10 @@ public class BackendErrorReporterService
 		try
 		{
 			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/errorReporter/info"), Map.<String, String>of("longId", errorReportId), ErrorReport.class);
+		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
 		}
 		catch(Exception e)
 		{

@@ -12,15 +12,14 @@ import com.github.appreciated.apexcharts.config.series.SeriesType;
 import com.github.appreciated.apexcharts.helper.Series;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.router.AfterNavigationEvent;
 import consulo.hub.frontend.vflow.backend.service.BackendStatisticsService;
-import consulo.procoeton.core.vaadin.ui.ScrollableLayout;
 import consulo.hub.frontend.vflow.repository.ui.RepositoryItemComponent;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
 import consulo.hub.shared.statistics.domain.StatisticUsageGroup;
 import consulo.hub.shared.statistics.domain.StatisticUsageGroupValue;
 import consulo.procoeton.core.vaadin.ui.LabeledLayout;
-import consulo.procoeton.core.vaadin.ui.VChildLayout;
+import consulo.procoeton.core.vaadin.ui.ScrollableLayout;
+import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
 import consulo.util.lang.ObjectUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,24 +28,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * @author VISTALL
  * @since 09/09/2021
  */
-public abstract class BaseStatisticsView extends VChildLayout
+public abstract class BaseStatisticsView extends ServerOfflineVChildLayout
 {
 	@Autowired
 	protected BackendStatisticsService myStatisticRepository;
 
 	public BaseStatisticsView()
 	{
+		super(true);
 	}
 
 	protected abstract List<StatisticEntry> getStatistics();
 
 	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
+	protected void buildLayout(Consumer<Component> uiBuilder)
 	{
 		removeAll();
 
@@ -94,10 +95,10 @@ public abstract class BaseStatisticsView extends VChildLayout
 		group = null;
 
 		Label label = new Label("Installations: " + installationCount);
-		add(label);
+		uiBuilder.accept(label);
 
 		ScrollableLayout scrollable = new ScrollableLayout();
-		add(scrollable);
+		uiBuilder.accept(scrollable);
 
 		for(Map.Entry<String, StatisticsGroup> e : merged.entrySet())
 		{
@@ -126,34 +127,5 @@ public abstract class BaseStatisticsView extends VChildLayout
 		ApexCharts charts = builder.build();
 		charts.setWidthFull();
 		return charts;
-
-
-		//		DataSeries dataSeries = new DataSeries().add(reverse(counts.values()));
-		//
-		//		SeriesDefaults seriesDefaults = new SeriesDefaults().setFillToZero(true).setRenderer(SeriesRenderers.BAR);
-		//		Series series = new Series().addSeries(new XYseries().setLabel("Count"));
-		//		Axes axes = new Axes().addAxis(new XYaxis().setRenderer(AxisRenderers.CATEGORY).setTicks(new Ticks().add(reverse(counts.keySet())))).addAxis(new XYaxis(XYaxes.Y4).setTickOptions(new
-		//				AxisTickRenderer().setFormatString("%d")));
-		//
-		//		Highlighter highlighter = new Highlighter().setShow(true).setShowTooltip(true).setTooltipAlwaysVisible(true).setKeepTooltipInsideChart(true).setTooltipLocation(TooltipLocations.NORTH)
-		//				.setTooltipAxes(TooltipAxes.XY_BAR);
-		//
-		//		Options options = new Options().setHighlighter(highlighter).setSeriesDefaults(seriesDefaults).setSeries(series).setAxes(axes);
-		//		DCharts chart = new DCharts().setDataSeries(dataSeries).setOptions(options).show();
-		//		// show component on first resize
-		//		chart.setVisible(false);
-		//		chart.setHeight(20, Unit.EM);
-		//
-		//		CustomComponent customComponent = new CustomComponent(chart);
-		//		customComponent.setSizeFull();
-		//
-		//		SizeReporter sizeReporter = new SizeReporter(customComponent);
-		//		sizeReporter.addResizeListener(componentResizeEvent ->
-		//		{
-		//			chart.setVisible(true);
-		//			chart.setWidth(componentResizeEvent.getWidth(), Unit.PIXELS);
-		//		});
-		//
-		//		return customComponent;
 	}
 }

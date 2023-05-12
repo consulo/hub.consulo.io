@@ -1,8 +1,9 @@
 package consulo.hub.frontend.vflow.backend.service;
 
-import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
+import consulo.procoeton.core.backend.BackendServiceDownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,10 @@ public class BackendPluginStatisticsService
 				pluginIds = new RepositoryDownloadInfo[0];
 			}
 			return pluginIds;
+		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
 		}
 		catch(Exception e)
 		{

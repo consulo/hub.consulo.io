@@ -12,6 +12,7 @@ import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.http.HttpConnectTimeoutException;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -133,6 +135,10 @@ public class ApiBackendRequestor
 				return myObjectMapper.readValue(json, valueClazz);
 			});
 			return value == null ? defaultValueGetter.get() : value;
+		}
+		catch(HttpHostConnectException | HttpConnectTimeoutException e)
+		{
+			throw new BackendServiceDownException(e);
 		}
 		catch(IOException ignored)
 		{

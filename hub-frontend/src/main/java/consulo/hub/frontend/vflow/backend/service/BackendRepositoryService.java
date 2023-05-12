@@ -1,10 +1,11 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
+import consulo.procoeton.core.backend.BackendServiceDownException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,10 @@ public class BackendRepositoryService
 				consumer.accept(node);
 			}
 		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
+		}
 		catch(Exception e)
 		{
 			LOG.error("Fail to get plugins, channel: " + pluginChannel, e);
@@ -54,6 +59,10 @@ public class BackendRepositoryService
 			myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/iterate"), Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>()
 			{
 			});
+		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
 		}
 		catch(Exception e)
 		{

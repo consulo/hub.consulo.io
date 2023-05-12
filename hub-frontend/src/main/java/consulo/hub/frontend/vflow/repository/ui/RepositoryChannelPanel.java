@@ -11,12 +11,14 @@ import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
-import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.hub.frontend.vflow.repository.view.RepositoryView;
-import consulo.procoeton.core.vaadin.util.RouterUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.procoeton.core.backend.BackendServiceDownException;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.Notifications;
+import consulo.procoeton.core.vaadin.util.RouterUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.VersionComparatorUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -70,7 +72,14 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		setFlexGrow(1f, myHolder);
 
 		myPluginBuilds = TreeMultimap.<String, PluginNode>create(Collections.<String>reverseOrder(Comparator.<String>naturalOrder()), ourPluginNodeComparator);
-		backendRepositoryService.listAll(pluginChannel, pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
+		try
+		{
+			backendRepositoryService.listAll(pluginChannel, pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
+		}
+		catch(BackendServiceDownException ignored)
+		{
+			Notifications.serverOffline();
+		}
 
 		// name -> id
 		myNameToIdMap = new TreeMap<>((o1, o2) ->

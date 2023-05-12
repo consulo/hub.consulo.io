@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.hub.shared.storage.domain.StorageFile;
 import consulo.procoeton.core.backend.BackendApiUrl;
+import consulo.procoeton.core.backend.BackendServiceDownException;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,10 @@ public class BackendStorageService
 			{
 			}, List::of);
 		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
+		}
 		catch(Exception e)
 		{
 			LOG.error("Failed to list storage files: " + userId, e);
@@ -49,6 +54,10 @@ public class BackendStorageService
 			{
 			});
 		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
+		}
 		catch(Exception e)
 		{
 			LOG.error("Failed to deleteAll: " + userId, e);
@@ -61,6 +70,10 @@ public class BackendStorageService
 		try
 		{
 			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/get"), Map.of("userId", String.valueOf(userId), "fileId", String.valueOf(storageFileId)), StorageFile.class);
+		}
+		catch(BackendServiceDownException e)
+		{
+			throw e;
 		}
 		catch(Exception e)
 		{
