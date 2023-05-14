@@ -50,7 +50,10 @@ public class OAuth2AbstractRememberMeServices extends AbstractRememberMeServices
 	@Override
 	protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication)
 	{
-		BackendAuthenticationToken token = (BackendAuthenticationToken) successfulAuthentication;
+		if(!(successfulAuthentication instanceof BackendAuthenticationToken token))
+		{
+			return;
+		}
 
 		setCookie(new String[] {token.getName(), token.getToken()}, getTokenValiditySeconds(), request, response);
 	}
