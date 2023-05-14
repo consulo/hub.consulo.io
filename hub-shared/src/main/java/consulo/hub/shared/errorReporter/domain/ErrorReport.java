@@ -49,11 +49,11 @@ public class ErrorReport
 	@Column(length = 2040)
 	private String description;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OrderColumn
 	private List<ErrorReportAffectedPlugin> affectedPlugins = new ArrayList<>();
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OrderColumn
 	private List<ErrorReportAttachment> attachments = new ArrayList<>();
 
