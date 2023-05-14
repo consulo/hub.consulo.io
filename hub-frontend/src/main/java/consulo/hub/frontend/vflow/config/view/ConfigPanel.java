@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import consulo.hub.frontend.vflow.PropertiesServiceImpl;
 import consulo.hub.frontend.vflow.util.PropertyKeys;
+import consulo.procoeton.core.backend.ApiBackendKeys;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
 import consulo.procoeton.core.github.GithubPropertyKeys;
@@ -132,9 +133,17 @@ public class ConfigPanel extends VerticalLayout
 	{
 		return buildGroup("Backend", layout ->
 		{
-			TextField backendHost = TinyComponents.newTextField();
-			map(String.class, backendHost, PropertyKeys.BACKEND_HOST_URL_KEY, () -> "http://localhost:22333");
+			TextField backendSecureKeyField = new TextField();
+			map(String.class, backendSecureKeyField, ApiBackendKeys.BACKEND_SECURE_KEY, () -> "backend-secure-key");
 
+			TextField backendHubPasswordField = new TextField();
+			map(String.class, backendHubPasswordField, ApiBackendKeys.BACKEND_HOST_PASSWORD, () -> "backend-secure-key");
+
+			TextField backendHost = new TextField();
+			map(String.class, backendHost, ApiBackendKeys.BACKEND_HOST_URL_KEY, () -> "http://localhost:22333");
+
+			layout.add(VaadinUIUtil.labeledFill("Backend Secure Key: ", backendSecureKeyField));
+			layout.add(VaadinUIUtil.labeledFill("Backend Password: ", backendHubPasswordField));
 			layout.add(VaadinUIUtil.labeledFill("Backend URL: ", backendHost));
 
 			ComponentEventListener<ClickEvent<Button>> listener = clickEvent -> {
