@@ -116,12 +116,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.kohsuke</groupId>
-			<artifactId>github-api</artifactId>
-			<version>1.130</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
