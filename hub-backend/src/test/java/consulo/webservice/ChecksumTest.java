@@ -58,7 +58,7 @@ public class ChecksumTest extends Assert
 
 		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(tempFileService, objectMapper);
 
-		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), pluginChannelsService);
+		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), pluginChannelsService, githubReleaseService);
 
 		pluginChannelsService.run();
 

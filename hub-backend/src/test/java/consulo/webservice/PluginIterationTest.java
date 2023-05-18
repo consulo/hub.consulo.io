@@ -61,7 +61,7 @@ public class PluginIterationTest extends Assert
 
 		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, objectMapper);
 
-		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService);
+		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService, githubReleaseService);
 
 		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 

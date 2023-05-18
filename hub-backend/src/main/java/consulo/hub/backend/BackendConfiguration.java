@@ -2,6 +2,8 @@ package consulo.hub.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import consulo.hub.backend.github.GithubReleaseService;
+import consulo.hub.backend.github.impl.GithubReleaseServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,12 @@ public class BackendConfiguration
 	public StandardServletMultipartResolver multipartResolver()
 	{
 		return new StandardServletMultipartResolver();
+	}
+
+	@Bean
+	public GithubReleaseService githubReleaseService()
+	{
+		return new GithubReleaseServiceImpl();
 	}
 
 	@Bean

@@ -69,7 +69,7 @@ public class AnalyzerTest extends Assert
 
 		pluginAnalyzerService.run(new String[0]);
 
-		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), ourPluginChannelsService);
+		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), ourPluginChannelsService, githubReleaseService);
 
 		ourPluginChannelsService.run();
 

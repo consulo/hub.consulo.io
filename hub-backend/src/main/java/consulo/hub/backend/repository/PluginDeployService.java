@@ -10,6 +10,7 @@ import consulo.container.plugin.PluginId;
 import consulo.container.plugin.PluginPermissionDescriptor;
 import consulo.container.plugin.PluginPermissionType;
 import consulo.hub.backend.TempFileService;
+import consulo.hub.backend.github.GithubReleaseService;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
@@ -92,18 +93,22 @@ public class PluginDeployService
 
 	private final PluginChannelsService myPluginChannelsService;
 
+	private final GithubReleaseService myGithubReleaseService;
+
 	@Autowired
 	public PluginDeployService(TempFileService tempFileService,
 							   PluginAnalyzerService pluginAnalyzerService,
 							   ObjectMapper objectMapper,
 							   PluginHistoryService pluginHistoryService,
-							   PluginChannelsService pluginChannelsService)
+							   PluginChannelsService pluginChannelsService,
+							   GithubReleaseService githubReleaseService)
 	{
 		myTempFileService = tempFileService;
 		myPluginAnalyzerService = pluginAnalyzerService;
 		myObjectMapper = objectMapper;
 		myPluginHistoryService = pluginHistoryService;
 		myPluginChannelsService = pluginChannelsService;
+		myGithubReleaseService = githubReleaseService;
 	}
 
 	@Nonnull
@@ -195,12 +200,13 @@ public class PluginDeployService
 
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableSupplier<InputStream, IOException> streamSupplier) throws Exception
 	{
-		return deployPlugin(channel, () -> null, streamSupplier);
+		return deployPlugin(channel, () -> null, streamSupplier, null);
 	}
 
 	public PluginNode deployPlugin(PluginChannel channel,
 								   ThrowableSupplier<InputStream, IOException> historyStreamSupplier,
-								   ThrowableSupplier<InputStream, IOException> streamSupplier) throws Exception
+								   ThrowableSupplier<InputStream, IOException> streamSupplier,
+								   @Nullable PluginGithubInfo githubInfo) throws Exception
 	{
 		File tempFile = myTempFileService.createTempFile("deploy", "zip");
 
@@ -228,6 +234,11 @@ public class PluginDeployService
 		if(historyEntries != null)
 		{
 			myPluginHistoryService.insert(historyEntries, pluginNode);
+		}
+
+		if(githubInfo != null)
+		{
+			myGithubReleaseService.createTagAndRelease(githubInfo.repoUrl, githubInfo.commitSha1, pluginNode.version, pluginNode.platformVersion, pluginNode);
 		}
 
 		myTempFileService.asyncDelete(tempFile);
