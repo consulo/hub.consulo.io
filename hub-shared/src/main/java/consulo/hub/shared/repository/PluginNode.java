@@ -79,6 +79,8 @@ public class PluginNode implements Cloneable
 	public String iconBytes;
 	public String iconDarkBytes;
 
+	public String[] downloadUrls;
+
 	public ExtensionPreview[] extensionPreviews;
 
 	public Permission[] permissions;

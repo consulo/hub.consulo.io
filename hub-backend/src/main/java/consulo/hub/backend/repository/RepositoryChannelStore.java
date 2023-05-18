@@ -5,6 +5,7 @@ import consulo.util.lang.function.ThrowableConsumer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -40,4 +41,8 @@ public interface RepositoryChannelStore
 	void remove(String pluginId, String version, String platformVersion);
 
 	boolean isLoading();
+
+	default void attachDownloadUrl(PluginNode pluginNode, String downloadUrl) throws IOException
+	{
+	}
 }

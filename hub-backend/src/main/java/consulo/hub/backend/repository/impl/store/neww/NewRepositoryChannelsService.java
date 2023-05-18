@@ -22,7 +22,6 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 {
 	private final NewRepositoryChannelStore[] myPluginChannelServices;
 	private final WorkDirectoryService myWorkDirectoryService;
-	private final TempFileService myFileService;
 	private final TaskExecutor myTaskExecutor;
 
 	private final NewInlineRepositoryStore myInlineRepositoryStore;
@@ -30,7 +29,6 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 	public NewRepositoryChannelsService(WorkDirectoryService workDirectoryService, TempFileService fileService, TaskExecutor taskExecutor)
 	{
 		myWorkDirectoryService = workDirectoryService;
-		myFileService = fileService;
 		myTaskExecutor = taskExecutor;
 
 		myInlineRepositoryStore = new NewInlineRepositoryStore(workDirectoryService);
@@ -39,7 +37,7 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 		myPluginChannelServices = new NewRepositoryChannelStore[values.length];
 		for(int i = 0; i < values.length; i++)
 		{
-			myPluginChannelServices[i] = new NewRepositoryChannelStore(values[i], myInlineRepositoryStore);
+			myPluginChannelServices[i] = new NewRepositoryChannelStore(values[i], myInlineRepositoryStore, this);
 		}
 	}
 

@@ -51,7 +51,19 @@ public class NewInlineRepositoryStore
 
 		Path metaPath = pluginPath.resolve(fileName + ".json");
 
-		RepositoryNodeMeta meta = new RepositoryNodeMeta();
+		RepositoryNodeMeta meta;
+		if(Files.exists(metaPath))
+		{
+			try (Reader reader = Files.newBufferedReader(metaPath))
+			{
+				meta = GsonUtil.get().fromJson(reader, RepositoryNodeMeta.class);
+			}
+		}
+		else
+		{
+			meta = new RepositoryNodeMeta();
+		}
+
 		consumer.accept(meta);
 
 		Files.deleteIfExists(metaPath);

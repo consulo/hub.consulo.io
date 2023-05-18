@@ -2,13 +2,12 @@ package consulo.hub.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import consulo.hub.backend.github.GithubReleaseService;
-import consulo.hub.backend.github.impl.GithubReleaseServiceImpl;
+import consulo.hub.backend.github.release.GithubReleaseService;
+import consulo.hub.backend.github.release.impl.GithubReleaseServiceImpl;
 import consulo.hub.backend.impl.TempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
-import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +38,9 @@ public class BackendConfiguration
 	}
 
 	@Bean
-	public GithubReleaseService githubReleaseService()
+	public GithubReleaseService githubReleaseService(@Value("${github.oauth2.token:}") String oauthToken)
 	{
-		return new GithubReleaseServiceImpl();
+		return new GithubReleaseServiceImpl(oauthToken);
 	}
 
 	@Bean

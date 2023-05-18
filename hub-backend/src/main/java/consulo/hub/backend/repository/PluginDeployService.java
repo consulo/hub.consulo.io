@@ -10,7 +10,10 @@ import consulo.container.plugin.PluginId;
 import consulo.container.plugin.PluginPermissionDescriptor;
 import consulo.container.plugin.PluginPermissionType;
 import consulo.hub.backend.TempFileService;
-import consulo.hub.backend.github.GithubReleaseService;
+import consulo.hub.backend.github.release.GithubRelease;
+import consulo.hub.backend.github.release.GithubReleaseService;
+import consulo.hub.backend.github.release.GithubTagBuilder;
+import consulo.hub.backend.github.release.RepoGithubTagBuilder;
 import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
@@ -39,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -209,23 +213,23 @@ public class PluginDeployService
 								   ThrowableSupplier<InputStream, IOException> streamSupplier,
 								   @Nullable RestPluginGithubInfo githubInfo) throws Exception
 	{
-		File tempFile = myTempFileService.createTempFile("deploy", "zip");
+		Path tempFile = myTempFileService.createTempFilePath("deploy", "zip");
 
 		try (InputStream inputStream = streamSupplier.get())
 		{
-			try (OutputStream output = new FileOutputStream(tempFile))
+			try (OutputStream output = Files.newOutputStream(tempFile))
 			{
 				ByteStreams.copy(inputStream, output);
 			}
 		}
 
-		File deployUnzip = myTempFileService.createTempFile("deploy_unzip", "");
+		Path deployUnzip = myTempFileService.createTempFilePath("deploy_unzip", "");
 
-		FileUtil.createDirectory(deployUnzip);
+		Files.createDirectories(deployUnzip);
 
-		try (ZipFile zipFile = new ZipFile(tempFile))
+		try (ZipFile zipFile = new ZipFile(tempFile.toFile()))
 		{
-			ZipUtil.extract(zipFile, deployUnzip);
+			ZipUtil.extract(zipFile, deployUnzip.toFile());
 		}
 
 		RestPluginHistoryEntry[] historyEntries = processPluginHistory(historyStreamSupplier);
@@ -239,7 +243,18 @@ public class PluginDeployService
 
 		if(githubInfo != null)
 		{
-			myGithubReleaseService.createTagAndRelease(githubInfo.repoUrl, githubInfo.commitSha1, pluginNode.version, pluginNode.platformVersion, pluginNode);
+			GithubTagBuilder builder = new RepoGithubTagBuilder(pluginNode);
+
+			GithubRelease release = myGithubReleaseService.createTagAndRelease(githubInfo.repoUrl, githubInfo.commitSha1, builder);
+
+			try (InputStream inputStream = Files.newInputStream(pluginNode.targetPath))
+			{
+				String assetUrl = release.uploadAsset(pluginNode.targetPath.getFileName().toString(), "application/zip", inputStream);
+				if(assetUrl != null)
+				{
+					myRepositoryChannelsService.getRepositoryByChannel(channel).attachDownloadUrl(pluginNode, assetUrl);
+				}
+			}
 		}
 
 		myTempFileService.asyncDelete(tempFile);
@@ -279,11 +294,11 @@ public class PluginDeployService
 		return historyEntries;
 	}
 
-	private PluginNode loadPlugin(PluginChannel channel, File deployUnzip) throws Exception
+	private PluginNode loadPlugin(PluginChannel channel, Path deployUnzip) throws Exception
 	{
 		List<PluginDescriptorImpl> pluginDescriptors = new ArrayList<>();
 
-		loadDescriptors(deployUnzip, pluginDescriptors);
+		loadDescriptors(deployUnzip.toFile(), pluginDescriptors);
 
 		if(pluginDescriptors.size() != 1)
 		{
@@ -361,7 +376,7 @@ public class PluginDeployService
 
 		try
 		{
-			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip, pluginDescriptor, repositoryChannelStore);
+			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip.toFile(), pluginDescriptor, repositoryChannelStore);
 		}
 		catch(Throwable e)
 		{
