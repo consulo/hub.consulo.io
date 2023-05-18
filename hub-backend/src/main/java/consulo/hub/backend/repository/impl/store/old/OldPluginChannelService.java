@@ -29,6 +29,8 @@ public class OldPluginChannelService extends BaseRepositoryChannelStore<OldPlugi
 
 	private File myPluginChannelDirectory;
 
+	protected boolean myLoading;
+
 	public OldPluginChannelService(PluginChannel channel)
 	{
 		super(channel);
@@ -43,6 +45,12 @@ public class OldPluginChannelService extends BaseRepositoryChannelStore<OldPlugi
 			map.put(entry.getKey(), entry.getValue().copy());
 		}
 		return map;
+	}
+
+	@Override
+	public boolean isLoading()
+	{
+		return myLoading;
 	}
 
 	@Override

@@ -1,15 +1,24 @@
 package consulo.hub.backend.repository.impl.store.neww;
 
 import consulo.hub.backend.WorkDirectoryService;
+import consulo.hub.backend.repository.impl.store.BaseRepositoryChannelStore;
 import consulo.hub.backend.util.GsonUtil;
+import consulo.hub.shared.repository.PluginChannel;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +32,8 @@ public class NewInlineRepositoryStore
 	private final WorkDirectoryService myWorkDirectoryService;
 
 	private Path myStorePath;
+
+	private AtomicBoolean myLoading = new AtomicBoolean();
 
 	public NewInlineRepositoryStore(WorkDirectoryService workDirectoryService)
 	{
@@ -44,7 +55,7 @@ public class NewInlineRepositoryStore
 
 		String jsonText = GsonUtil.prettyGet().toJson(meta);
 
-		Files.writeString(metaPath, jsonText);
+		Files.writeString(metaPath, jsonText, StandardCharsets.UTF_8);
 	}
 
 	@Nonnull
@@ -100,5 +111,99 @@ public class NewInlineRepositoryStore
 		myStorePath = workPath;
 
 		return isNewStore;
+	}
+
+	public void startLoad(boolean runImport, NewRepositoryChannelsService repositoryChannelsService)
+	{
+		try
+		{
+			myLoading.set(true);
+
+			List<Path> paths = Files.walk(workPath(), 1).filter(it -> !it.equals(workPath())).toList();
+
+			paths.parallelStream().forEach(path ->
+			{
+				try
+				{
+					Files.walkFileTree(path, new SimpleFileVisitor<>()
+					{
+						@Override
+						public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+						{
+							if(file.getFileName().toString().endsWith(".json"))
+							{
+								processJsonFile(file, repositoryChannelsService);
+							}
+							return FileVisitResult.CONTINUE;
+						}
+					});
+				}
+				catch(IOException e)
+				{
+					LOG.error(e.getLocalizedMessage(), e);
+				}
+			});
+		}
+		catch(Throwable e)
+		{
+			LOG.error(e.getLocalizedMessage(), e);
+		}
+		finally
+		{
+			myLoading.set(false);
+		}
+	}
+
+	private void processJsonFile(Path jsonFilePath, NewRepositoryChannelsService repositoryChannelsService)
+	{
+		String path = jsonFilePath.toAbsolutePath().toString();
+
+		RepositoryNodeMeta meta;
+		try (Reader fileReader = Files.newBufferedReader(jsonFilePath, StandardCharsets.UTF_8))
+		{
+			meta = GsonUtil.get().fromJson(fileReader, RepositoryNodeMeta.class);
+		}
+		catch(IOException e)
+		{
+			LOG.error(e.getMessage(), e);
+			return;
+		}
+
+		String fileName = jsonFilePath.getFileName().toString();
+
+		Path parentDir = jsonFilePath.getParent();
+
+		String artifactFileStr = fileName.substring(0, fileName.length() - 5);
+
+		Path targetArchive = parentDir.resolve(artifactFileStr);
+
+		if(!Files.exists(targetArchive))
+		{
+			try
+			{
+				Files.delete(jsonFilePath);
+
+				LOG.warn("Zombie json file: " + path);
+			}
+			catch(IOException e)
+			{
+				LOG.error(path, e);
+			}
+			return;
+		}
+
+		meta.node.targetPath = targetArchive;
+
+		for(PluginChannel channel : meta.channels)
+		{
+			BaseRepositoryChannelStore store = (BaseRepositoryChannelStore) repositoryChannelsService.getRepositoryByChannel(channel);
+
+			store._add(meta.node);
+		}
+	}
+
+	public boolean isLoading()
+	{
+		return myLoading.get();
 	}
 }

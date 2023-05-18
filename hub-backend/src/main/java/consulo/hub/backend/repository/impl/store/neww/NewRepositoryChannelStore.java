@@ -22,4 +22,10 @@ public class NewRepositoryChannelStore extends BaseRepositoryChannelStore<NewRep
 	{
 		return new NewRepositoryNodeState(myChannel, pluginId, myInlineRepositoryStore);
 	}
+
+	@Override
+	public boolean isLoading()
+	{
+		return myInlineRepositoryStore.isLoading();
+	}
 }

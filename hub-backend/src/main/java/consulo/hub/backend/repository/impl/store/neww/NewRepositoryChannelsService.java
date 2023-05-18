@@ -53,7 +53,7 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 	@PostConstruct
 	public void init() throws Exception
 	{
-		myInlineRepositoryStore.init();
+		boolean runImport = myInlineRepositoryStore.init();
 
 		Path tempDir = myWorkDirectoryService.getWorkingDirectory().resolve("tempDir");
 		if(Files.exists(tempDir))
@@ -63,5 +63,9 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 
 		Files.createDirectory(tempDir);
 
+		myTaskExecutor.execute(() ->
+		{
+			myInlineRepositoryStore.startLoad(runImport, this);
+		});
 	}
 }

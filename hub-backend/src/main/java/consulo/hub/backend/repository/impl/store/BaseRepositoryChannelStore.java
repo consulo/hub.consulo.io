@@ -9,6 +9,7 @@ import consulo.util.lang.function.ThrowableConsumer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,6 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 	protected final PluginChannel myChannel;
 
 	protected final Map<String, S> myPlugins = new ConcurrentSkipListMap<>();
-
-	protected boolean myLoading;
 
 	public BaseRepositoryChannelStore(PluginChannel channel)
 	{
@@ -67,7 +66,7 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 	}
 
 	@VisibleForTesting
-	public void _add(PluginNode node) throws Exception
+	public void _add(PluginNode node)
 	{
 		S pluginsState = myPlugins.computeIfAbsent(node.id, this::creatRepositoryNodeState);
 
@@ -102,11 +101,5 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 		}
 
 		state.remove(version, platformVersion);
-	}
-
-	@Override
-	public boolean isLoading()
-	{
-		return myLoading;
 	}
 }
