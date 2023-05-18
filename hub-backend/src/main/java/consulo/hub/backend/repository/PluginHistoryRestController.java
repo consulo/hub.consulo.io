@@ -1,6 +1,6 @@
 package consulo.hub.backend.repository;
 
-import consulo.hub.backend.repository.pluginsState.PluginsState;
+import consulo.hub.backend.repository.impl.store.old.PluginsState;
 import consulo.hub.backend.repository.repository.PluginHistoryEntryRepository;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginHistoryEntry;

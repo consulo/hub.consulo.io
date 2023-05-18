@@ -6,7 +6,7 @@ import consulo.hub.backend.repository.PluginChannelService;
 import consulo.hub.backend.repository.PluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
-import consulo.hub.backend.repository.pluginsState.PluginsState;
+import consulo.hub.backend.repository.impl.store.old.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.junit.AfterClass;

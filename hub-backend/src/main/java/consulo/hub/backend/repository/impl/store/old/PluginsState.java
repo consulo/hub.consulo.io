@@ -1,4 +1,4 @@
-package consulo.hub.backend.repository.pluginsState;
+package consulo.hub.backend.repository.impl.store.old;
 
 import com.google.common.annotations.VisibleForTesting;
 import consulo.hub.backend.repository.PluginChannelService;

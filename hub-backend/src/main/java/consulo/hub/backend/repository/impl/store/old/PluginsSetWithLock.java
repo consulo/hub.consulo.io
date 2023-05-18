@@ -1,4 +1,4 @@
-package consulo.hub.backend.repository.pluginsState;
+package consulo.hub.backend.repository.impl.store.old;
 
 import consulo.hub.backend.util.AccessToken;
 import consulo.hub.shared.repository.PluginNode;

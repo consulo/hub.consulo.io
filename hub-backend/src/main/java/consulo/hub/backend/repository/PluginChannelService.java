@@ -1,8 +1,8 @@
 package consulo.hub.backend.repository;
 
 import com.google.common.annotations.VisibleForTesting;
-import consulo.hub.backend.repository.pluginsState.PluginsSetWithLock;
-import consulo.hub.backend.repository.pluginsState.PluginsState;
+import consulo.hub.backend.repository.impl.store.old.PluginsSetWithLock;
+import consulo.hub.backend.repository.impl.store.old.PluginsState;
 import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;

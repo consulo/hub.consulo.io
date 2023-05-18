@@ -1,7 +1,7 @@
 package consulo.hub.backend.repository;
 
 import com.google.common.annotations.VisibleForTesting;
-import consulo.hub.backend.repository.pluginsState.PluginsState;
+import consulo.hub.backend.repository.impl.store.old.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
@@ -26,7 +26,6 @@ import java.util.*;
 @Service
 public class PluginChannelIterationService
 {
-	public static final String ourConsuloBootBuild = "1555";
 	public static final int ourMaxBuildCount = 5;
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
@@ -76,11 +75,6 @@ public class PluginChannelIterationService
 			for(Map.Entry<String, NavigableSet<PluginNode>> entry : map.entrySet())
 			{
 				String platformVersion = entry.getKey();
-				if(ourConsuloBootBuild.equals(platformVersion))
-				{
-					i--;
-					continue;
-				}
 
 				if(i > ourMaxBuildCount)
 				{
@@ -139,19 +133,6 @@ public class PluginChannelIterationService
 
 			pluginChannelService.remove(node.id, node.version, node.platformVersion);
 		}
-	}
-
-	private static boolean weNeedSkip(PluginNode pluginNode)
-	{
-		if(RepositoryUtil.ourStandardWinId.equals(pluginNode.id) && pluginNode.version.equals(ourConsuloBootBuild))
-		{
-			return true;
-		}
-		if(RepositoryUtil.isPlatformNode(pluginNode.id))
-		{
-			return false;
-		}
-		return Comparing.equal(pluginNode.platformVersion, ourConsuloBootBuild);
 	}
 
 	/**
