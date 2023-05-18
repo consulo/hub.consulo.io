@@ -2,8 +2,10 @@ package consulo.hub.backend.repository.impl.store.neww;
 
 import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.repository.impl.store.BaseRepositoryChannelStore;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelService;
 import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -104,8 +107,6 @@ public class NewInlineRepositoryStore
 		if(isNewStore)
 		{
 			Files.createDirectory(workPath);
-
-			// TODO migration
 		}
 
 		myStorePath = workPath;
@@ -113,7 +114,87 @@ public class NewInlineRepositoryStore
 		return isNewStore;
 	}
 
-	public void startLoad(boolean runImport, NewRepositoryChannelsService repositoryChannelsService)
+	public void runImport(NewRepositoryChannelsService repositoryChannelsService)
+	{
+		try
+		{
+			myLoading.set(true);
+
+			Path pluginPath = myWorkDirectoryService.getWorkingDirectory().resolve("plugin");
+			if(!Files.exists(pluginPath))
+			{
+				// there no plugin dir - skip
+				return;
+			}
+
+			String migratedMarker = "migrated.txt";
+
+			ImportPluginJoiner joiner = new ImportPluginJoiner();
+
+			for(PluginChannel channel : PluginChannel.values())
+			{
+				Path channelDir = pluginPath.resolve(channel.name());
+				if(!Files.exists(channelDir))
+				{
+					continue;
+				}
+
+				Path marker = channelDir.resolve(migratedMarker);
+				if(Files.exists(marker))
+				{
+					// already migrated
+					continue;
+				}
+
+				OldPluginChannelService oldService = new OldPluginChannelService(channel);
+				oldService.initImpl(pluginPath.toFile());
+
+				oldService.iteratePluginNodes(pluginNode ->
+				{
+					joiner.join(pluginNode, channel);
+				});
+
+				Files.writeString(marker, "done");
+			}
+
+			for(Map.Entry<ImportPlugin, RepositoryNodeMeta> entry : joiner.getNodes().entrySet())
+			{
+				RepositoryNodeMeta meta = entry.getValue();
+
+				LOG.info("Importing " + entry.getKey());
+
+				if(RepositoryUtil.isPlatformNode(meta.node.id))
+				{
+					// TODO platform import
+				}
+				else
+				{
+					String ext = repositoryChannelsService.getDeployPluginExtension();
+
+					Path path = prepareArtifactPath(meta.node.id, meta.node.version, ext);
+
+					Files.copy(meta.node.targetFile.toPath(), path);
+
+					updateMeta(meta.node.id, meta.node.version, ext, newMeta ->
+					{
+						newMeta.node = meta.node;
+						newMeta.channels.addAll(meta.channels);
+					});
+				}
+			}
+			System.out.println();
+		}
+		catch(Throwable e)
+		{
+			LOG.error(e.getLocalizedMessage(), e);
+		}
+		finally
+		{
+			myLoading.set(false);
+		}
+	}
+
+	public void load(NewRepositoryChannelsService repositoryChannelsService)
 	{
 		try
 		{

@@ -65,7 +65,14 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 
 		myTaskExecutor.execute(() ->
 		{
-			myInlineRepositoryStore.startLoad(runImport, this);
+			if(runImport)
+			{
+				myInlineRepositoryStore.runImport(this);
+			}
+			else
+			{
+				myInlineRepositoryStore.load(this);
+			}
 		});
 	}
 }

@@ -16,6 +16,7 @@ public class RepositoryUtil
 			ourStandardWinId,
 			"consulo-win",
 			"consulo-win64",
+			"consulo-winA64",
 			ourStandardLinuxId,
 			"consulo-linux",
 			"consulo-linux64",
@@ -25,6 +26,7 @@ public class RepositoryUtil
 			ourStandardWinId + "-zip",
 			"consulo-win" + "-zip",
 			"consulo-win64" + "-zip",
+			"consulo-winA64" + "-zip",
 	};
 
 	public static boolean isPlatformNode(String pluginId)

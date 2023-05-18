@@ -8,18 +8,14 @@ import consulo.hub.shared.repository.PluginNode;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.Pair;
 import consulo.util.lang.function.ThrowableConsumer;
-import consulo.util.lang.function.ThrowableFunction;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableSet;
 
@@ -122,19 +118,6 @@ public class OldPluginsState extends BaseRepositoryNodeState implements Reposito
 			FileUtil.writeToFile(metaFile, GsonUtil.get().toJson(pluginNode));
 
 			_add(pluginNode);
-		}
-	}
-
-	private String calculateChecksum(File input, ThrowableFunction<InputStream, String, Exception> digFunc)
-	{
-		try(FileInputStream in = new FileInputStream(input))
-		{
-			return digFunc.apply(in).toUpperCase(Locale.ROOT);
-		}
-		catch(Exception e)
-		{
-			logger.error("Can't calculate checksum " + input.getPath(), e);
-			return "__error__";
 		}
 	}
 
