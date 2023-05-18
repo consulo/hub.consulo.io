@@ -16,8 +16,10 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.util.FileSystemUtils;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -82,7 +84,7 @@ public class TarGzArchive
 		}
 	}
 
-	public void create(@Nonnull File file, @Nonnull String type) throws IOException, ArchiveException
+	public void create(@Nonnull Path file, @Nonnull String type) throws IOException, ArchiveException
 	{
 		ArchiveStreamFactory factory = new ArchiveStreamFactory();
 		try (OutputStream pathStream = createFileStream(file, type))
@@ -187,9 +189,9 @@ public class TarGzArchive
 	}
 
 	@Nonnull
-	private static OutputStream createFileStream(File file, String type) throws IOException
+	private static OutputStream createFileStream(Path path, String type) throws IOException
 	{
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
+		OutputStream fileOutputStream = Files.newOutputStream(path);
 		if(ArchiveStreamFactory.TAR.equals(type))
 		{
 			return new GzipCompressorOutputStream(fileOutputStream);

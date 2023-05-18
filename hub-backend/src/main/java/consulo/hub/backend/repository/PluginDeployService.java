@@ -20,6 +20,8 @@ import consulo.util.io.FileUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.ThrowableSupplier;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Comment;
@@ -35,9 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -91,7 +92,7 @@ public class PluginDeployService
 
 	private final PluginHistoryService myPluginHistoryService;
 
-	private final PluginChannelsService myPluginChannelsService;
+	private final RepositoryChannelsService myRepositoryChannelsService;
 
 	private final GithubReleaseService myGithubReleaseService;
 
@@ -100,14 +101,14 @@ public class PluginDeployService
 							   PluginAnalyzerService pluginAnalyzerService,
 							   ObjectMapper objectMapper,
 							   PluginHistoryService pluginHistoryService,
-							   PluginChannelsService pluginChannelsService,
+							   RepositoryChannelsService repositoryChannelsService,
 							   GithubReleaseService githubReleaseService)
 	{
 		myTempFileService = tempFileService;
 		myPluginAnalyzerService = pluginAnalyzerService;
 		myObjectMapper = objectMapper;
 		myPluginHistoryService = pluginHistoryService;
-		myPluginChannelsService = pluginChannelsService;
+		myRepositoryChannelsService = repositoryChannelsService;
 		myGithubReleaseService = githubReleaseService;
 	}
 
@@ -176,11 +177,11 @@ public class PluginDeployService
 
 		archive.putEntry(makePluginChannelFileName(pluginId, channel), ArrayUtil.EMPTY_BYTE_ARRAY, System.currentTimeMillis());
 
-		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(channel);
+		RepositoryChannelStore repositoryChannelStore = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
 		String type = ext.equals("zip") ? ArchiveStreamFactory.ZIP : ArchiveStreamFactory.TAR;
 
-		pluginChannelService.push(pluginNode, ext, f -> archive.create(f, type));
+		repositoryChannelStore.push(pluginNode, ext, f -> archive.create(f, type));
 
 		return pluginNode;
 	}
@@ -206,7 +207,7 @@ public class PluginDeployService
 	public PluginNode deployPlugin(PluginChannel channel,
 								   ThrowableSupplier<InputStream, IOException> historyStreamSupplier,
 								   ThrowableSupplier<InputStream, IOException> streamSupplier,
-								   @Nullable PluginGithubInfo githubInfo) throws Exception
+								   @Nullable RestPluginGithubInfo githubInfo) throws Exception
 	{
 		File tempFile = myTempFileService.createTempFile("deploy", "zip");
 
@@ -302,7 +303,7 @@ public class PluginDeployService
 		pluginNode.platformVersion = stableVersion(pluginDescriptor.getPlatformVersion());
 
 		int platformVersion = Integer.parseInt(stableVersion(pluginDescriptor.getPlatformVersion()));
-		if (platformVersion <= LAST_V2_BUILD)
+		if(platformVersion <= LAST_V2_BUILD)
 		{
 			throw new IOException("Impossible deploy plugins for V2 Consulo");
 		}
@@ -356,20 +357,20 @@ public class PluginDeployService
 		pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
 		pluginNode.incompatibleWiths = Arrays.stream(pluginDescriptor.getIncompatibleWithPlugindIds()).map(PluginId::getIdString).toArray(String[]::new);
 
-		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(channel);
+		RepositoryChannelStore repositoryChannelStore = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
 		try
 		{
-			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip, pluginDescriptor, pluginChannelService);
+			pluginNode.extensionPreviews = myPluginAnalyzerService.analyze(deployUnzip, pluginDescriptor, repositoryChannelStore);
 		}
 		catch(Throwable e)
 		{
 			logger.info(e.getMessage(), e);
 		}
 
-		pluginChannelService.push(pluginNode, "zip", f ->
+		repositoryChannelStore.push(pluginNode, myRepositoryChannelsService.getDeployPluginExtension(), path ->
 		{
-			try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(f)))
+			try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(path)))
 			{
 				CommonProcessors.CollectProcessor<File> fileCollectProcessor = new CommonProcessors.CollectProcessor<>();
 				File ideaPluginDescriptorPath = pluginDescriptor.getPath();

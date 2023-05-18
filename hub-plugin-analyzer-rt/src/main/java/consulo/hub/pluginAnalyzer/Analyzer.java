@@ -14,8 +14,8 @@ import consulo.logging.internal.DefaultLogger;
 import consulo.logging.internal.LoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.*;
 
 /**

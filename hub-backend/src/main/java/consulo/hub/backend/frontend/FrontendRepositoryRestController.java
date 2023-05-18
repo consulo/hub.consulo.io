@@ -1,8 +1,8 @@
 package consulo.hub.backend.frontend;
 
 import consulo.hub.backend.repository.PluginChannelIterationService;
-import consulo.hub.backend.repository.PluginChannelService;
-import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.RepositoryChannelStore;
+import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.PluginStatisticsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class FrontendRepositoryRestController
 {
 	@Autowired
-	private PluginChannelsService myPluginChannelsService;
+	private RepositoryChannelsService myPluginChannelsService;
 
 	@Autowired
 	private PluginStatisticsService myPluginStatisticsService;
@@ -36,7 +36,7 @@ public class FrontendRepositoryRestController
 	@RequestMapping("/api/private/repository/list")
 	public List<PluginNode> listPlugins(@RequestParam("channel") PluginChannel pluginChannel)
 	{
-		PluginChannelService service = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
+		RepositoryChannelStore service = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
 
 		List<PluginNode> pluginNodes = new ArrayList<>();
 		service.iteratePluginNodes(pluginNodes::add);

@@ -1,6 +1,7 @@
-package consulo.hub.backend.repository;
+package consulo.hub.backend.repository.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.repository.*;
 import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.repository.PluginChannel;
@@ -15,8 +16,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.File;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -30,18 +33,18 @@ public class PluginChannelRestController
 	{
 	}
 
-	private final PluginChannelsService myUserConfigurationService;
+	private final RepositoryChannelsService myPluginChannelsService;
 	private final PluginDeployService myPluginDeployService;
 	private final PluginStatisticsService myPluginStatisticsService;
 	private final ObjectMapper myObjectMapper;
 
 	@Autowired
-	public PluginChannelRestController(@Nonnull PluginChannelsService userConfigurationService,
+	public PluginChannelRestController(@Nonnull RepositoryChannelsService pluginChannelsService,
 									   @Nonnull PluginDeployService pluginDeployService,
 									   @Nonnull PluginStatisticsService pluginStatisticsService,
 									   ObjectMapper objectMapper)
 	{
-		myUserConfigurationService = userConfigurationService;
+		myPluginChannelsService = pluginChannelsService;
 		myPluginDeployService = pluginDeployService;
 		myPluginStatisticsService = pluginStatisticsService;
 		myObjectMapper = objectMapper;
@@ -71,7 +74,7 @@ public class PluginChannelRestController
 			idValue = pluginId;
 		}
 
-		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
+		RepositoryChannelStore channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		String idNew = idValue;
 		if(zip)
@@ -97,8 +100,15 @@ public class PluginChannelRestController
 		}
 
 		File targetFile = select.targetFile;
-		assert targetFile != null;
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + targetFile.getName() + "\"").body(new FileSystemResource(targetFile));
+		if(targetFile != null)
+		{
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + targetFile.getName() + "\"").body(new FileSystemResource(targetFile));
+		}
+		else
+		{
+			Path targetPath = Objects.requireNonNull(select.targetPath);
+			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + targetPath.getFileName() + "\"").body(new FileSystemResource(targetPath));
+		}
 	}
 
 	@RequestMapping(value = "/api/repository/platformDeploy", method = RequestMethod.POST)
@@ -128,10 +138,10 @@ public class PluginChannelRestController
 			throw new NotAuthorizedException();
 		}
 
-		PluginGithubInfo pluginGithubInfo = null;
+		RestPluginGithubInfo pluginGithubInfo = null;
 		if(github != null)
 		{
-			pluginGithubInfo =	myObjectMapper.readValue(github.getBytes(), PluginGithubInfo.class);
+			pluginGithubInfo =	myObjectMapper.readValue(github.getBytes(), RestPluginGithubInfo.class);
 		}
 		return myPluginDeployService.deployPlugin(channel, () -> history == null ? null : history.getInputStream(), file::getInputStream, pluginGithubInfo);
 	}
@@ -146,7 +156,7 @@ public class PluginChannelRestController
 							 @RequestParam("platformVersion") String platformVersion,
 							 @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
-		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
+		RepositoryChannelStore channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		return channelService.select(myPluginStatisticsService, platformVersion, platformBuildSelect);
 	}
@@ -158,7 +168,7 @@ public class PluginChannelRestController
 										   @RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
 										   @RequestParam(value = "version") String version)
 	{
-		PluginChannelService channelService = myUserConfigurationService.getRepositoryByChannel(channel);
+		RepositoryChannelStore channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
 		String idNew = id;
 		if(zip)

@@ -5,7 +5,6 @@ import consulo.hub.shared.repository.PluginNode;
 import org.kohsuke.github.*;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 
 /**
  * @author VISTALL
@@ -13,24 +12,29 @@ import java.io.IOException;
  */
 public class GithubReleaseServiceImpl implements GithubReleaseService
 {
-	private final GitHub gitHub;
+	private  GitHub gitHub;
 
 	public GithubReleaseServiceImpl()
 	{
-		try
-		{
-			gitHub = GitHub.connectUsingOAuth("");
-		}
-		catch(IOException e)
-		{
-			throw new RuntimeException(e);
-		}
+//		try
+//		{
+//			gitHub = GitHub.connectUsingOAuth("");
+//		}
+//		catch(IOException e)
+//		{
+//			throw new RuntimeException(e);
+//		}
 	}
 
 
 	@Override
 	public String createTagAndRelease(String repoUrl, String commitHash, String version, String platformVersion, PluginNode pluginNode)  throws Exception
 	{
+		if(Boolean.TRUE)
+		{
+			return null;
+		}
+
 		// https://github.com/consulo/consulo-spellchecker/
 		String repoName = repoUrl.replace("https://github.com/", "");
 		if(repoName.endsWith("/"))

@@ -1,6 +1,9 @@
-package consulo.hub.backend.repository;
+package consulo.hub.backend.repository.controller;
 
-import consulo.hub.backend.repository.impl.store.old.PluginsState;
+import consulo.hub.backend.repository.RepositoryChannelStore;
+import consulo.hub.backend.repository.RepositoryChannelsService;
+import consulo.hub.backend.repository.RepositoryNodeState;
+import consulo.hub.backend.repository.RestPluginHistoryEntry;
 import consulo.hub.backend.repository.repository.PluginHistoryEntryRepository;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginHistoryEntry;
@@ -26,10 +29,10 @@ public class PluginHistoryRestController
 {
 	private final PluginHistoryEntryRepository myPluginHistoryEntryRepository;
 
-	private final PluginChannelsService myPluginChannelsService;
+	private final RepositoryChannelsService myPluginChannelsService;
 
 	@Autowired
-	public PluginHistoryRestController(PluginHistoryEntryRepository pluginHistoryEntryRepository, PluginChannelsService pluginChannelsService)
+	public PluginHistoryRestController(PluginHistoryEntryRepository pluginHistoryEntryRepository, RepositoryChannelsService pluginChannelsService)
 	{
 		myPluginHistoryEntryRepository = pluginHistoryEntryRepository;
 		myPluginChannelsService = pluginChannelsService;
@@ -52,13 +55,13 @@ public class PluginHistoryRestController
 
 		for(PluginChannel pluginChannel : PluginChannel.values())
 		{
-			PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
-			if(pluginChannelService.isLoading())
+			RepositoryChannelStore repositoryChannelStore = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
+			if(repositoryChannelStore.isLoading())
 			{
 				continue;
 			}
 
-			PluginsState state = pluginChannelService.getState(pluginId);
+			RepositoryNodeState state = repositoryChannelStore.getState(pluginId);
 			if(state == null)
 			{
 				continue;

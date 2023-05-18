@@ -1,23 +1,20 @@
 package consulo.hub.backend.repository;
 
 import com.google.common.annotations.VisibleForTesting;
-import consulo.hub.backend.repository.impl.store.old.PluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
-import consulo.util.collection.ArrayUtil;
 import consulo.util.io.FilePermissionCopier;
 import consulo.util.io.FileUtil;
-import consulo.util.lang.Comparing;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * @author VISTALL
@@ -30,14 +27,14 @@ public class PluginChannelIterationService
 
 	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
 
-	private final PluginChannelsService myPluginChannelsService;
+	private final RepositoryChannelsService myChannelsService;
 
 	private final PluginDeployService myPluginDeployService;
 
 	@Autowired
-	public PluginChannelIterationService(PluginChannelsService pluginChannelsService, PluginDeployService pluginDeployService)
+	public PluginChannelIterationService(RepositoryChannelsService channelsService, PluginDeployService pluginDeployService)
 	{
-		myPluginChannelsService = pluginChannelsService;
+		myChannelsService = channelsService;
 		myPluginDeployService = pluginDeployService;
 	}
 
@@ -50,89 +47,89 @@ public class PluginChannelIterationService
 	@VisibleForTesting
 	public void cleanup(PluginChannel pluginChannel)
 	{
-		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
-		if(pluginChannelService.isLoading())
-		{
-			return;
-		}
-
-		Set<String> outdatedPlatformVersions = new HashSet<>();
-		List<PluginNode> toRemove = new ArrayList<>();
-
-		Map<String, PluginsState> pluginStates = pluginChannelService.copyPluginsState();
-		// first of all we need check platform nodes
-		for(String platformPluginId : RepositoryUtil.ourPlatformPluginIds)
-		{
-			PluginsState pluginsState = pluginStates.get(platformPluginId);
-			if(pluginsState == null)
-			{
-				continue;
-			}
-
-			NavigableMap<String, NavigableSet<PluginNode>> map = pluginsState.getPluginsByPlatformVersion();
-
-			int i = map.size();
-			for(Map.Entry<String, NavigableSet<PluginNode>> entry : map.entrySet())
-			{
-				String platformVersion = entry.getKey();
-
-				if(i > ourMaxBuildCount)
-				{
-					outdatedPlatformVersions.add(platformVersion);
-					NavigableSet<PluginNode> value = entry.getValue();
-					if(!value.isEmpty())
-					{
-						toRemove.add(value.iterator().next());
-					}
-
-					i--;
-				}
-			}
-		}
-
-		// process other plugins
-		for(Map.Entry<String, PluginsState> entry : pluginStates.entrySet())
-		{
-			if(ArrayUtil.contains(RepositoryUtil.ourPlatformPluginIds, entry.getKey()))
-			{
-				continue;
-			}
-
-			PluginsState pluginsState = entry.getValue();
-
-			NavigableMap<String, NavigableSet<PluginNode>> map = pluginsState.getPluginsByPlatformVersion();
-
-			for(Map.Entry<String, NavigableSet<PluginNode>> platformVersionEntry : map.entrySet())
-			{
-				String platformVersion = platformVersionEntry.getKey();
-				NavigableSet<PluginNode> pluginNodes = platformVersionEntry.getValue();
-
-				// drop all plugins for outdated platfomrs
-				if(outdatedPlatformVersions.contains(platformVersion))
-				{
-					toRemove.addAll(pluginNodes);
-					continue;
-				}
-
-				int i = pluginNodes.size();
-				for(PluginNode node : pluginNodes)
-				{
-					if(i > ourMaxBuildCount)
-					{
-						toRemove.add(node);
-					}
-
-					i--;
-				}
-			}
-		}
-
-		for(PluginNode node : toRemove)
-		{
-			logger.info("removing id=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", channel=" + pluginChannel);
-
-			pluginChannelService.remove(node.id, node.version, node.platformVersion);
-		}
+//		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
+//		if(pluginChannelService.isLoading())
+//		{
+//			return;
+//		}
+//
+//		Set<String> outdatedPlatformVersions = new HashSet<>();
+//		List<PluginNode> toRemove = new ArrayList<>();
+//
+//		Map<String, PluginsStateOld> pluginStates = pluginChannelService.copyPluginsState();
+//		// first of all we need check platform nodes
+//		for(String platformPluginId : RepositoryUtil.ourPlatformPluginIds)
+//		{
+//			PluginsStateOld pluginsState = pluginStates.get(platformPluginId);
+//			if(pluginsState == null)
+//			{
+//				continue;
+//			}
+//
+//			NavigableMap<String, NavigableSet<PluginNode>> map = pluginsState.getPluginsByPlatformVersion();
+//
+//			int i = map.size();
+//			for(Map.Entry<String, NavigableSet<PluginNode>> entry : map.entrySet())
+//			{
+//				String platformVersion = entry.getKey();
+//
+//				if(i > ourMaxBuildCount)
+//				{
+//					outdatedPlatformVersions.add(platformVersion);
+//					NavigableSet<PluginNode> value = entry.getValue();
+//					if(!value.isEmpty())
+//					{
+//						toRemove.add(value.iterator().next());
+//					}
+//
+//					i--;
+//				}
+//			}
+//		}
+//
+//		// process other plugins
+//		for(Map.Entry<String, PluginsStateOld> entry : pluginStates.entrySet())
+//		{
+//			if(ArrayUtil.contains(RepositoryUtil.ourPlatformPluginIds, entry.getKey()))
+//			{
+//				continue;
+//			}
+//
+//			PluginsStateOld pluginsState = entry.getValue();
+//
+//			NavigableMap<String, NavigableSet<PluginNode>> map = pluginsState.getPluginsByPlatformVersion();
+//
+//			for(Map.Entry<String, NavigableSet<PluginNode>> platformVersionEntry : map.entrySet())
+//			{
+//				String platformVersion = platformVersionEntry.getKey();
+//				NavigableSet<PluginNode> pluginNodes = platformVersionEntry.getValue();
+//
+//				// drop all plugins for outdated platfomrs
+//				if(outdatedPlatformVersions.contains(platformVersion))
+//				{
+//					toRemove.addAll(pluginNodes);
+//					continue;
+//				}
+//
+//				int i = pluginNodes.size();
+//				for(PluginNode node : pluginNodes)
+//				{
+//					if(i > ourMaxBuildCount)
+//					{
+//						toRemove.add(node);
+//					}
+//
+//					i--;
+//				}
+//			}
+//		}
+//
+//		for(PluginNode node : toRemove)
+//		{
+//			logger.info("removing id=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", channel=" + pluginChannel);
+//
+//			pluginChannelService.remove(node.id, node.version, node.platformVersion);
+//		}
 	}
 
 	/**
@@ -164,8 +161,8 @@ public class PluginChannelIterationService
 
 	public void iterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
 	{
-		PluginChannelService fromChannel = myPluginChannelsService.getRepositoryByChannel(from);
-		PluginChannelService toChannel = myPluginChannelsService.getRepositoryByChannel(to);
+		RepositoryChannelStore fromChannel = myChannelsService.getRepositoryByChannel(from);
+		RepositoryChannelStore toChannel = myChannelsService.getRepositoryByChannel(to);
 
 		fromChannel.iteratePluginNodes(originalNode ->
 		{
@@ -196,7 +193,7 @@ public class PluginChannelIterationService
 				}
 				else
 				{
-					toChannel.push(node, "zip", file -> FileUtil.copy(targetFile, file, FilePermissionCopier.BY_NIO2));
+					toChannel.push(node, myChannelsService.getDeployPluginExtension(), file -> FileUtil.copy(targetFile, file.toFile(), FilePermissionCopier.BY_NIO2));
 				}
 			}
 			catch(Exception e)

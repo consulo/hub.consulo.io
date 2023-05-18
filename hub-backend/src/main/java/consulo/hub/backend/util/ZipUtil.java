@@ -3,7 +3,7 @@ package consulo.hub.backend.util;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.ObjectUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;

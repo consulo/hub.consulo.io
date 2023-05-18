@@ -19,12 +19,12 @@ import consulo.util.io.StreamUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
 import consulo.util.io.UnsyncByteArrayOutputStream;
 import consulo.util.lang.Pair;
+import jakarta.annotation.Nonnull;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.iq80.snappy.SnappyInputStream;
 import org.iq80.snappy.SnappyOutputStream;
 
-import javax.annotation.Nonnull;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

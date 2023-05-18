@@ -3,8 +3,8 @@ package consulo.hub.backend.errorReporter;
 import com.google.gson.Gson;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.errorReporter.repository.ErrorReportRepository;
-import consulo.hub.backend.repository.PluginChannelService;
-import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.RepositoryChannelStore;
+import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportAffectedPlugin;
@@ -88,7 +88,7 @@ public class ErrorReportRestController
 	private UserAccountRepository myUserAccountRepository;
 
 	@Autowired
-	private PluginChannelsService myUserConfigurationService;
+	private RepositoryChannelsService myPluginChannelsService;
 
 	@RequestMapping("/api/errorReporter/list")
 	public JsonPage<ErrorReport> listErrorReports(@AuthenticationPrincipal @NonNull UserAccount account,
@@ -133,7 +133,7 @@ public class ErrorReportRestController
 
 		PluginChannel pluginChannel = PluginChannel.valueOf(appUpdateChannel);
 
-		PluginChannelService repository = myUserConfigurationService.getRepositoryByChannel(pluginChannel);
+		RepositoryChannelStore repository = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
 
 		String osName = errorReport.getOsName();
 		if(osName == null)
@@ -145,9 +145,9 @@ public class ErrorReportRestController
 
 		String platformPluginId = os.myPluginId;
 
-		PluginNode platformLastNode = repository.select(PluginChannelService.SNAPSHOT, platformPluginId, null, false);
+		PluginNode platformLastNode = repository.select(RepositoryChannelStore.SNAPSHOT, platformPluginId, null, false);
 
-		int platformVersion = appBuild.equals(PluginChannelService.SNAPSHOT) ? Integer.MAX_VALUE : Integer.parseInt(appBuild);
+		int platformVersion = appBuild.equals(RepositoryChannelStore.SNAPSHOT) ? Integer.MAX_VALUE : Integer.parseInt(appBuild);
 		if(platformLastNode != null)
 		{
 			int lastVersion = Integer.parseInt(platformLastNode.version);

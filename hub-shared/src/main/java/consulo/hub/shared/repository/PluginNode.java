@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.zip.ZipFile;
 
 /**
  * @author VISTALL
@@ -51,7 +54,7 @@ public class PluginNode implements Cloneable
 		public String sha3_256;
 	}
 
-	private static final String CORE_PLUGIN = "com.intellij";
+	private static final String CONSULO_PLUGIN = "consulo";
 
 	public static final PluginNode[] EMPTY_ARRAY = new PluginNode[0];
 
@@ -84,12 +87,16 @@ public class PluginNode implements Cloneable
 
 	public boolean experimental;
 
+	// old store ref
+	@Deprecated
 	public transient File targetFile;
+	// new store ref
+	public transient Path targetPath;
 
-	public void clean()
+	public void cleanUp()
 	{
-		dependencies = dependencies == null ? ArrayUtils.EMPTY_STRING_ARRAY : ArrayUtils.removeElement(dependencies, CORE_PLUGIN);
-		optionalDependencies = optionalDependencies == null ? ArrayUtils.EMPTY_STRING_ARRAY : ArrayUtils.removeElement(optionalDependencies, CORE_PLUGIN);
+		dependencies = dependencies == null ? ArrayUtils.EMPTY_STRING_ARRAY : ArrayUtils.removeElement(dependencies, CONSULO_PLUGIN);
+		optionalDependencies = optionalDependencies == null ? ArrayUtils.EMPTY_STRING_ARRAY : ArrayUtils.removeElement(optionalDependencies, CONSULO_PLUGIN);
 
 		if(dependencies.length == 0)
 		{
@@ -117,6 +124,21 @@ public class PluginNode implements Cloneable
 		}
 	}
 
+	public ZipFile openZip() throws IOException
+	{
+		if(targetPath != null)
+		{
+			return new ZipFile(targetPath.toFile());
+		}
+
+		if(targetFile != null)
+		{
+			return new ZipFile(targetFile);
+		}
+
+		throw new IllegalArgumentException(id);
+	}
+
 	@Override
 	public PluginNode clone()
 	{
@@ -124,6 +146,7 @@ public class PluginNode implements Cloneable
 		{
 			PluginNode clone = (PluginNode) super.clone();
 			clone.targetFile = null;
+			clone.targetPath = null;
 			return clone;
 		}
 		catch(CloneNotSupportedException e)

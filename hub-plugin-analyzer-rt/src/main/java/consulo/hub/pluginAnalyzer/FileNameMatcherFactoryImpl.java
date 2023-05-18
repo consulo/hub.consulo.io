@@ -6,7 +6,7 @@ import consulo.virtualFileSystem.internal.matcher.ExactFileNameMatcher;
 import consulo.virtualFileSystem.internal.matcher.ExtensionFileNameMatcher;
 import consulo.virtualFileSystem.internal.matcher.WildcardFileNameMatcher;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Just copy paste from impl module - we do not expose impl to analyzer

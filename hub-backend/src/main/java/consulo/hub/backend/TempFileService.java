@@ -1,8 +1,11 @@
 package consulo.hub.backend;
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * @author VISTALL
@@ -10,9 +13,26 @@ import java.io.File;
  */
 public interface TempFileService
 {
-	File createTempDir(String prefix);
+	@Nonnull
+	Path createTempDirPath(String prefix) throws IOException;
 
-	File createTempFile(String prefix, @Nullable String ext);
+	@Nonnull
+	Path createTempFilePath(String prefix, @Nullable String ext) throws IOException;
 
+	void asyncDelete(Path... files);
+
+	@Deprecated
+	default File createTempDir(String prefix) throws IOException
+	{
+		return createTempDirPath(prefix).toFile();
+	}
+
+	@Deprecated
+	default File createTempFile(String prefix, @Nullable String ext) throws IOException
+	{
+		return createTempFilePath(prefix, ext).toFile();
+	}
+
+	@Deprecated
 	void asyncDelete(File... files);
 }

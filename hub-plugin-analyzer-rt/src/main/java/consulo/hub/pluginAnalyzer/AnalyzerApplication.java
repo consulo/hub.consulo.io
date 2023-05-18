@@ -21,7 +21,7 @@ import consulo.util.lang.function.ThrowableSupplier;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.awt.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

@@ -6,12 +6,12 @@ import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
 import consulo.procoeton.core.backend.BackendServiceDownException;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.function.Consumer;
 

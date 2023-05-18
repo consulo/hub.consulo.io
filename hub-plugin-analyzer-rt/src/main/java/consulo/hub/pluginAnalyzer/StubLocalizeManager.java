@@ -6,7 +6,7 @@ import consulo.localize.LocalizeManager;
 import consulo.localize.LocalizeManagerListener;
 import consulo.localize.LocalizeValue;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Locale;
 import java.util.Set;
 

@@ -19,13 +19,13 @@ import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.Locale;
 import java.util.function.Consumer;

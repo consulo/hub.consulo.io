@@ -4,11 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import consulo.hub.backend.github.GithubReleaseService;
 import consulo.hub.backend.github.impl.GithubReleaseServiceImpl;
+import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
+import consulo.hub.backend.repository.RepositoryChannelsService;
+import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -16,9 +23,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 /**
-* @author VISTALL
-* @since 01/05/2023
-*/
+ * @author VISTALL
+ * @since 01/05/2023
+ */
 @Configuration
 public class BackendConfiguration
 {
@@ -54,6 +61,19 @@ public class BackendConfiguration
 	public TaskScheduler taskScheduler()
 	{
 		return new ThreadPoolTaskScheduler();
+	}
+
+	@Bean
+	public WorkDirectoryService repositoryWorkDirectoryService(@Value("${working.directory:hub-workdir}") String workingDirectoryPath)
+	{
+		return new WorkDirectoryServiceImpl(workingDirectoryPath);
+	}
+
+	@Bean
+	@Order(1_000)
+	public RepositoryChannelsService pluginChannelsService(WorkDirectoryService workDirectoryService, TempFileServiceImpl fileService, TaskExecutor taskExecutor)
+	{
+		return new NewRepositoryChannelsService(workDirectoryService, fileService, taskExecutor);
 	}
 
 	@PostConstruct

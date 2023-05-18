@@ -2,7 +2,7 @@ package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import consulo.hub.backend.impl.TempFileServiceImpl;
-import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.shared.repository.PluginChannel;
@@ -52,7 +52,7 @@ public class ChecksumTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		PluginChannelsService pluginChannelsService = new PluginChannelsService(canonicalPath, tempFileService, Runnable::run);
+		OldPluginChannelsService pluginChannelsService = new OldPluginChannelsService(canonicalPath, tempFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 

@@ -5,10 +5,11 @@ import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.plugin.PluginId;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.repository.PluginAnalyzerService;
-import consulo.hub.backend.repository.PluginChannelService;
+import consulo.hub.backend.repository.RepositoryChannelStore;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.util.collection.ArrayUtil;
+import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
 import java.util.zip.ZipFile;
@@ -53,7 +53,7 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 
 	@Override
 	@Nonnull
-	public PluginNode.ExtensionPreview[] analyze(File deployHome, PluginDescriptorImpl descriptor, PluginChannelService channelService) throws Exception
+	public PluginNode.ExtensionPreview[] analyze(File deployHome, PluginDescriptorImpl descriptor, RepositoryChannelStore channelService) throws Exception
 	{
 		File[] forRemove = new File[0];
 
@@ -71,14 +71,14 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 
 			for(String dependencyId : dependencies)
 			{
-				PluginNode pluginNode = channelService.select(PluginChannelService.SNAPSHOT, dependencyId, null, false);
+				PluginNode pluginNode = channelService.select(RepositoryChannelStore.SNAPSHOT, dependencyId, null, false);
 				if(pluginNode == null)
 				{
 					continue;
 				}
 
 
-				try (ZipFile zipFile = new ZipFile(pluginNode.targetFile))
+				try (ZipFile zipFile = pluginNode.openZip())
 				{
 					ZipUtil.extract(zipFile, analyzeUnzip);
 				}
@@ -99,7 +99,7 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 		}
 	}
 
-	private void collectAllDependencies(String pluginId, String[] dependencies, PluginChannelService channelService, Set<String> processed, Set<String> result)
+	private void collectAllDependencies(String pluginId, String[] dependencies, RepositoryChannelStore channelService, Set<String> processed, Set<String> result)
 	{
 		if(!processed.add(pluginId))
 		{
@@ -108,7 +108,7 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 
 		for(String dependencyId : dependencies)
 		{
-			PluginNode dependPlugin = channelService.select(PluginChannelService.SNAPSHOT, dependencyId, null, false);
+			PluginNode dependPlugin = channelService.select(RepositoryChannelStore.SNAPSHOT, dependencyId, null, false);
 			if(dependPlugin == null)
 			{
 				continue;

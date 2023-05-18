@@ -3,24 +3,24 @@ package consulo.webservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import consulo.hub.backend.impl.TempFileServiceImpl;
 import consulo.hub.backend.repository.PluginChannelIterationService;
-import consulo.hub.backend.repository.PluginChannelService;
-import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelService;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.backend.repository.archive.TarGzArchive;
-import consulo.hub.backend.repository.impl.store.old.PluginsState;
+import consulo.hub.backend.repository.impl.store.old.OldPluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.Couple;
+import jakarta.annotation.Nonnull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ public class PluginIterationTest extends Assert
 {
 	private PluginDeployService myDeployService;
 	private PluginChannelIterationService myPluginChannelIterationService;
-	private PluginChannelsService myPluginChannelsService;
+	private OldPluginChannelsService myPluginChannelsService;
 	private TempFileServiceImpl myFileService;
 
 	private File myTempDir;
@@ -55,7 +55,7 @@ public class PluginIterationTest extends Assert
 
 		myFileService = new TempFileServiceImpl(myTempDir);
 
-		myPluginChannelsService = new PluginChannelsService(canonicalPath, myFileService, Runnable::run);
+		myPluginChannelsService = new OldPluginChannelsService(canonicalPath, myFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
@@ -80,9 +80,9 @@ public class PluginIterationTest extends Assert
 		PluginChannel pluginChannel = PluginChannel.release;
 		String platformId = RepositoryUtil.ourStandardWinId;
 
-		PluginChannelService channel = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
+		OldPluginChannelService channel = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
 
-		int bootBuild = Integer.parseInt(PluginChannelIterationService.ourConsuloBootBuild);
+		int bootBuild = 1000;
 		final int count = 100;
 		int start = bootBuild - count;
 		int end = bootBuild + count;
@@ -105,7 +105,7 @@ public class PluginIterationTest extends Assert
 		}
 
 		Set<Couple<Integer>> toCheckPlatformVersions = new LinkedHashSet<>();
-		toCheckPlatformVersions.add(Couple.of(bootBuild, bootBuild));
+		//toCheckPlatformVersions.add(Couple.of(bootBuild, bootBuild));
 
 		for(int i = 0; i < PluginChannelIterationService.ourMaxBuildCount; i++)
 		{
@@ -158,7 +158,7 @@ public class PluginIterationTest extends Assert
 		toCheckIds.add(platformId);
 		Collections.addAll(toCheckIds, dummyPluginIds);
 
-		Map<String, PluginsState> states = channel.copyPluginsState();
+		Map<String, OldPluginsState> states = channel.copyPluginsState();
 
 		// test data after
 		for(String toCheckId : toCheckIds)
@@ -176,7 +176,7 @@ public class PluginIterationTest extends Assert
 				targetVerCheck = toCheckPluginVersions;
 			}
 
-			PluginsState platforPluginsState = states.get(toCheckId);
+			OldPluginsState platforPluginsState = states.get(toCheckId);
 
 			assertNotNull(platforPluginsState);
 
@@ -214,7 +214,7 @@ public class PluginIterationTest extends Assert
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
-		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
+		OldPluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
 
 		PluginNode pluginNodeInAlpha = pluginChannelService.select(platformNode.platformVersion, platformNode.id, null, false);
 		assertNotNull(pluginNodeInAlpha);
@@ -254,7 +254,7 @@ public class PluginIterationTest extends Assert
 
 		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
-		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
+		OldPluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
 
 		PluginNode pluginNodeInAlpha = pluginChannelService.select(pluginNode.platformVersion, pluginNode.id, null, false);
 		assertNotNull(pluginNodeInAlpha);

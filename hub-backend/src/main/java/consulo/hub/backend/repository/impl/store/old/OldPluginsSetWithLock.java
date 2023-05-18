@@ -3,8 +3,8 @@ package consulo.hub.backend.repository.impl.store.old;
 import consulo.hub.backend.util.AccessToken;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.util.io.FileUtil;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -15,7 +15,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author VISTALL
  * @since 09-May-17
  */
-public class PluginsSetWithLock extends PluginsState
+@Deprecated
+public class OldPluginsSetWithLock extends OldPluginsState
 {
 	private static class LockWrapper extends AccessToken
 	{
@@ -36,7 +37,7 @@ public class PluginsSetWithLock extends PluginsState
 
 	private final ReentrantReadWriteLock myLock = new ReentrantReadWriteLock();
 
-	public PluginsSetWithLock(File rootDir, String pluginId)
+	public OldPluginsSetWithLock(File rootDir, String pluginId)
 	{
 		super(rootDir, pluginId);
 

@@ -13,9 +13,9 @@ import consulo.ui.layout.*;
 import consulo.ui.model.ListModel;
 import consulo.ui.model.MutableListModel;
 import consulo.ui.style.StyleManager;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
@@ -210,12 +210,6 @@ public class StubUIInternal extends UIInternal
 
 	@Override
 	public ColorBox _Components_colorBox(@Nullable ColorValue colorValue)
-	{
-		return null;
-	}
-
-	@Override
-	public <E> Tree<E> _Components_tree(E e, TreeModel<E> treeModel)
 	{
 		return null;
 	}

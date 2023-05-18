@@ -2,11 +2,12 @@ package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import consulo.hub.backend.impl.TempFileServiceImpl;
-import consulo.hub.backend.repository.PluginChannelService;
-import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.RepositoryChannelStore;
+import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
+import consulo.hub.backend.repository.RepositoryNodeState;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
-import consulo.hub.backend.repository.impl.store.old.PluginsState;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.junit.AfterClass;
@@ -48,7 +49,7 @@ public class AnalyzerTest extends Assert
 			};
 
 	private static File ourTempDir;
-	private static PluginChannelsService ourPluginChannelsService;
+	private static RepositoryChannelsService ourPluginChannelsService;
 
 	@BeforeClass
 	public static void before() throws Exception
@@ -61,7 +62,7 @@ public class AnalyzerTest extends Assert
 
 		TempFileServiceImpl tempFileService = new TempFileServiceImpl(ourTempDir);
 
-		ourPluginChannelsService = new PluginChannelsService(canonicalPath, tempFileService, Runnable::run);
+		ourPluginChannelsService = new OldPluginChannelsService(canonicalPath, tempFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
@@ -219,9 +220,9 @@ public class AnalyzerTest extends Assert
 
 	private PluginNode findPlugin(String pluginId) throws Exception
 	{
-		PluginChannelService channelService = ourPluginChannelsService.getRepositoryByChannel(PluginChannel.nightly);
+		RepositoryChannelStore channelService = ourPluginChannelsService.getRepositoryByChannel(PluginChannel.nightly);
 
-		PluginsState state = Objects.requireNonNull(channelService.getState(pluginId), "plugin: " + pluginId + " not found");
+		RepositoryNodeState state = Objects.requireNonNull(channelService.getState(pluginId), "plugin: " + pluginId + " not found");
 		return state.select("SNAPSHOT", "SNAPSHOT", false);
 	}
 }

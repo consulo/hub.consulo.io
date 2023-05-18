@@ -1,6 +1,6 @@
 package consulo.hub.backend.github;
 
-import consulo.hub.backend.repository.PluginChannelsService;
+import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.util.lang.StringUtil;
 import org.kohsuke.github.GitHub;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class GithubRestController
 	private static final int ourBotId = 21259940;
 
 	@Autowired
-	private PluginChannelsService myUserConfigurationService;
+	private RepositoryChannelsService myPluginChannelsService;
 
 	@RequestMapping(value = "/github/webhook", method = RequestMethod.POST)
 	public ResponseEntity<?> hook(@RequestHeader("X-GitHub-Event") String event, @RequestHeader("X-Hub-Signature") String signature, @RequestBody byte[] array) throws IOException
