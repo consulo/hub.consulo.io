@@ -1,12 +1,19 @@
 package consulo.hub.backend.repository.impl.store.neww;
 
+import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.WorkDirectoryService;
+import consulo.hub.backend.repository.PluginDeployService;
+import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.repository.impl.store.BaseRepositoryChannelStore;
+import consulo.hub.backend.repository.impl.store.BaseRepositoryNodeState;
 import consulo.hub.backend.repository.impl.store.old.OldPluginChannelService;
 import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import jakarta.annotation.Nonnull;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +41,16 @@ public class NewInlineRepositoryStore
 
 	private final WorkDirectoryService myWorkDirectoryService;
 
+	private final TempFileService myTempFileService;
+
 	private Path myStorePath;
 
 	private AtomicBoolean myLoading = new AtomicBoolean();
 
-	public NewInlineRepositoryStore(WorkDirectoryService workDirectoryService)
+	public NewInlineRepositoryStore(WorkDirectoryService workDirectoryService, TempFileService tempFileService)
 	{
 		myWorkDirectoryService = workDirectoryService;
+		myTempFileService = tempFileService;
 	}
 
 	public void updateMeta(String pluginId, String version, String ext, Consumer<RepositoryNodeMeta> consumer) throws IOException
@@ -166,7 +176,7 @@ public class NewInlineRepositoryStore
 					joiner.join(pluginNode, channel);
 				});
 
-				Files.writeString(marker, "done");
+				// todo Files.writeString(marker, "done");
 			}
 
 			for(Map.Entry<ImportPlugin, RepositoryNodeMeta> entry : joiner.getNodes().entrySet())
@@ -175,26 +185,66 @@ public class NewInlineRepositoryStore
 
 				LOG.info("Importing " + entry.getKey());
 
-				if(RepositoryUtil.isPlatformNode(meta.node.id))
+				String pluginId = meta.node.id;
+				if(RepositoryUtil.isPlatformNode(pluginId))
 				{
-					// TODO platform import
+					String ext = repositoryChannelsService.getNodeExtension(meta.node);
+					if(ext.equals("zip"))
+					{
+						// we skipping zip artifacts we will redeploy it from tar.gz
+						continue;
+					}
+
+					Path tempExtractPath = myTempFileService.createTempDirPath("deploy_platform_extract");
+
+					try
+					{
+						TarGzArchive archive = new TarGzArchive();
+						archive.extract(meta.node.targetFile, tempExtractPath.toFile());
+
+						// remove old plugin channel markets
+						for(PluginChannel pluginChannel : PluginChannel.values())
+						{
+							archive.removeEntry(PluginDeployService.makePluginChannelFileName(pluginId, pluginChannel));
+						}
+
+						Path path = prepareArtifactPath(pluginId, meta.node.version, ext);
+
+						archive.create(path, ArchiveStreamFactory.TAR);
+
+						updateMeta(pluginId, meta.node.version, ext, newMeta ->
+						{
+							PluginNode cloned = meta.node.clone();
+
+							BaseRepositoryNodeState.prepareNode(cloned, path);
+
+							newMeta.node = cloned;
+
+							newMeta.channels.addAll(meta.channels);
+						});
+
+						pushWindowsZip(pluginId, archive, meta);
+					}
+					finally
+					{
+						myTempFileService.asyncDelete(tempExtractPath);
+					}
 				}
 				else
 				{
 					String ext = repositoryChannelsService.getDeployPluginExtension();
 
-					Path path = prepareArtifactPath(meta.node.id, meta.node.version, ext);
+					Path path = prepareArtifactPath(pluginId, meta.node.version, ext);
 
 					Files.copy(meta.node.targetFile.toPath(), path);
 
-					updateMeta(meta.node.id, meta.node.version, ext, newMeta ->
+					updateMeta(pluginId, meta.node.version, ext, newMeta ->
 					{
 						newMeta.node = meta.node;
 						newMeta.channels.addAll(meta.channels);
 					});
 				}
 			}
-			System.out.println();
 		}
 		catch(Throwable e)
 		{
@@ -204,6 +254,36 @@ public class NewInlineRepositoryStore
 		{
 			myLoading.set(false);
 		}
+	}
+
+	private void pushWindowsZip(String pluginId, TarGzArchive archive, RepositoryNodeMeta meta) throws IOException, ArchiveException
+	{
+		// we already skipped zip artifacts - we need recreate it
+		if(!pluginId.startsWith("consulo-win"))
+		{
+			return;
+		}
+
+		pluginId = pluginId + "-zip";
+		String ext = "zip";
+
+		// special hack for windows
+		Path path = prepareArtifactPath(pluginId, meta.node.version, ext);
+
+		archive.create(path, ArchiveStreamFactory.ZIP);
+
+		final String finalPluginId = pluginId;
+		updateMeta(finalPluginId, meta.node.version, ext, newMeta ->
+		{
+			PluginNode cloned = meta.node.clone();
+			cloned.id = finalPluginId;
+
+			BaseRepositoryNodeState.prepareNode(cloned, path);
+
+			newMeta.node = cloned;
+
+			newMeta.channels.addAll(meta.channels);
+		});
 	}
 
 	public void load(NewRepositoryChannelsService repositoryChannelsService)

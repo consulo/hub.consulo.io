@@ -26,12 +26,12 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 
 	private final NewInlineRepositoryStore myInlineRepositoryStore;
 
-	public NewRepositoryChannelsService(WorkDirectoryService workDirectoryService, TempFileService fileService, TaskExecutor taskExecutor)
+	public NewRepositoryChannelsService(WorkDirectoryService workDirectoryService, TempFileService tempFileService, TaskExecutor taskExecutor)
 	{
 		myWorkDirectoryService = workDirectoryService;
 		myTaskExecutor = taskExecutor;
 
-		myInlineRepositoryStore = new NewInlineRepositoryStore(workDirectoryService);
+		myInlineRepositoryStore = new NewInlineRepositoryStore(workDirectoryService, tempFileService);
 
 		PluginChannel[] values = PluginChannel.values();
 		myPluginChannelServices = new NewRepositoryChannelStore[values.length];

@@ -190,7 +190,7 @@ public class PluginDeployService
 		return pluginNode;
 	}
 
-	private static String makePluginChannelFileName(String pluginId, PluginChannel pluginChannel)
+	public static String makePluginChannelFileName(String pluginId, PluginChannel pluginChannel)
 	{
 		boolean mac = pluginId.startsWith("consulo-mac");
 		if(mac)

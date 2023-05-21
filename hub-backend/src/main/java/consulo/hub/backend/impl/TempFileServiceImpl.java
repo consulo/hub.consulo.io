@@ -103,7 +103,9 @@ public class TempFileServiceImpl implements TempFileService
 	@Nonnull
 	public Path createTempDirPath(String prefix) throws IOException
 	{
-		Path path = getTempDirectoryPath().resolve(prefix);
+		long l = myTempCount.incrementAndGet();
+		Path path = getTempDirectoryPath().resolve(prefix + "_" + l);
+
 		if(Files.exists(path))
 		{
 			MoreFiles.deleteRecursively(path.toAbsolutePath(), RecursiveDeleteOption.ALLOW_INSECURE);

@@ -203,7 +203,7 @@ public abstract class BaseRepositoryNodeState implements RepositoryNodeState
 		}
 	}
 
-	protected void prepareNode(PluginNode pluginNode, Path nioPath)
+	public static void prepareNode(PluginNode pluginNode, Path nioPath)
 	{
 		pluginNode.checksum.md5 = calculateChecksum(nioPath, DigestUtils::md5Hex);
 		pluginNode.checksum.sha_256 = calculateChecksum(nioPath, DigestUtils::sha256Hex);
@@ -217,7 +217,7 @@ public abstract class BaseRepositoryNodeState implements RepositoryNodeState
 		pluginNode.date = System.currentTimeMillis();
 	}
 
-	protected String calculateChecksum(Path input, ThrowableFunction<InputStream, String, Exception> digFunc)
+	public static String calculateChecksum(Path input, ThrowableFunction<InputStream, String, Exception> digFunc)
 	{
 		try (InputStream in = Files.newInputStream(input))
 		{

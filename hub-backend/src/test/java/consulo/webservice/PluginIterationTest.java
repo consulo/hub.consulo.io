@@ -1,7 +1,9 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginChannelIterationService;
 import consulo.hub.backend.repository.impl.store.old.OldPluginChannelService;
 import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
@@ -55,17 +57,19 @@ public class PluginIterationTest extends Assert
 
 		myFileService = new TempFileServiceImpl(myTempDir);
 
-		myPluginChannelsService = new OldPluginChannelsService(canonicalPath, myFileService, Runnable::run);
+		WorkDirectoryService workDirectoryService = new WorkDirectoryServiceImpl(canonicalPath);
+
+		myPluginChannelsService = new OldPluginChannelsService(workDirectoryService, myFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, objectMapper);
 
-		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService, githubReleaseService);
+		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService, new EmptyGithubReleaseServiceImpl());
 
 		myPluginChannelIterationService = new PluginChannelIterationService(myPluginChannelsService, myDeployService);
 
-		myPluginChannelsService.run();
+		myPluginChannelsService.init();
 	}
 
 	@After

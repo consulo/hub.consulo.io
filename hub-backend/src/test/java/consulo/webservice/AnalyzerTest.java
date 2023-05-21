@@ -1,10 +1,11 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.impl.TempFileServiceImpl;
-import consulo.hub.backend.repository.RepositoryChannelStore;
-import consulo.hub.backend.repository.RepositoryChannelsService;
+import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginDeployService;
+import consulo.hub.backend.repository.RepositoryChannelStore;
 import consulo.hub.backend.repository.RepositoryNodeState;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
 import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
@@ -49,7 +50,7 @@ public class AnalyzerTest extends Assert
 			};
 
 	private static File ourTempDir;
-	private static RepositoryChannelsService ourPluginChannelsService;
+	private static OldPluginChannelsService ourPluginChannelsService;
 
 	@BeforeClass
 	public static void before() throws Exception
@@ -62,7 +63,9 @@ public class AnalyzerTest extends Assert
 
 		TempFileServiceImpl tempFileService = new TempFileServiceImpl(ourTempDir);
 
-		ourPluginChannelsService = new OldPluginChannelsService(canonicalPath, tempFileService, Runnable::run);
+		WorkDirectoryService workDirectoryService = new WorkDirectoryServiceImpl(canonicalPath);
+
+		ourPluginChannelsService = new OldPluginChannelsService(workDirectoryService, tempFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
@@ -70,9 +73,10 @@ public class AnalyzerTest extends Assert
 
 		pluginAnalyzerService.run(new String[0]);
 
-		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), ourPluginChannelsService, githubReleaseService);
+		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), ourPluginChannelsService, new
+				EmptyGithubReleaseServiceImpl());
 
-		ourPluginChannelsService.run();
+		ourPluginChannelsService.init();
 
 		for(String pluginId : DOWNLOAD_PLUGINS)
 		{

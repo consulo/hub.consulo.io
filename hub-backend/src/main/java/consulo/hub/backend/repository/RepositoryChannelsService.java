@@ -25,14 +25,17 @@ public interface RepositoryChannelsService
 	{
 		if(!RepositoryUtil.isPlatformNode(pluginNode.id))
 		{
+			// application/zip
 			return getDeployPluginExtension();
 		}
 
 		if(pluginNode.id.endsWith("-zip"))
 		{
+			// application/zip
 			return "zip";
 		}
 
-		return "tar";
+		// application/x-gtar
+		return "tar.gz";
 	}
 }

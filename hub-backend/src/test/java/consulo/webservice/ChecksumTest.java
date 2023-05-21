@@ -1,10 +1,12 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.impl.TempFileServiceImpl;
-import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
+import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
+import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.apache.commons.codec.binary.Hex;
@@ -52,15 +54,18 @@ public class ChecksumTest extends Assert
 
 		String canonicalPath = tempDir.getCanonicalPath();
 
-		OldPluginChannelsService pluginChannelsService = new OldPluginChannelsService(canonicalPath, tempFileService, Runnable::run);
+		WorkDirectoryService workDirectoryService = new WorkDirectoryServiceImpl(canonicalPath);
+
+		OldPluginChannelsService pluginChannelsService = new OldPluginChannelsService(workDirectoryService, tempFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(tempFileService, objectMapper);
 
-		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), pluginChannelsService, githubReleaseService);
+		PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), pluginChannelsService, new
+				EmptyGithubReleaseServiceImpl());
 
-		pluginChannelsService.run();
+		pluginChannelsService.init();
 
 		PluginNode lastNode = null;
 		for(String pluginId : pluginIds)
