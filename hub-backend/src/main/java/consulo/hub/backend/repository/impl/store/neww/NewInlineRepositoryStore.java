@@ -205,6 +205,7 @@ public class NewInlineRepositoryStore
 
 								BaseRepositoryNodeState.prepareNode(cloned, path);
 
+								cloned.id = nodeId;
 								cloned.name = platformNodeDesc.name();
 
 								newMeta.node = cloned;
