@@ -2,6 +2,7 @@ package consulo.hub.backend.auth.oauth2;
 
 import consulo.hub.shared.auth.HubClaimNames;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import java.util.Objects;
@@ -17,7 +18,7 @@ public class OAuth2AuthenticationDetails extends WebAuthenticationDetails
 
 	public OAuth2AuthenticationDetails(HttpServletRequest request)
 	{
-		super(request);
+		super(getRemoteAddr(request), extractSessionId(request));
 
 		clientName = request.getParameter(HubClaimNames.CLIENT_NAME);
 		subClientName = request.getParameter(HubClaimNames.SUB_CLIENT_NAME);
@@ -28,6 +29,22 @@ public class OAuth2AuthenticationDetails extends WebAuthenticationDetails
 		super(remoteAddress, sessionId);
 		this.clientName = clientName;
 		this.subClientName = subClientName;
+	}
+
+	private static String extractSessionId(HttpServletRequest request)
+	{
+		HttpSession session = request.getSession(false);
+		return (session != null) ? session.getId() : null;
+	}
+
+	private static String getRemoteAddr(HttpServletRequest request)
+	{
+		String parameter = request.getParameter(HubClaimNames.REMOTE_ADDRESS);
+		if(parameter != null)
+		{
+			return parameter;
+		}
+		return request.getRemoteAddr();
 	}
 
 	public String getClientName()
