@@ -89,6 +89,8 @@ public class PluginNode implements Cloneable
 
 	public boolean experimental;
 
+	public boolean obsolete;
+
 	// old store ref
 	@Deprecated
 	public transient File targetFile;
