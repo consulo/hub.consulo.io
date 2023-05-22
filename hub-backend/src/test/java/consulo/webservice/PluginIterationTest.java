@@ -9,7 +9,7 @@ import consulo.hub.backend.repository.impl.store.old.OldPluginChannelService;
 import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
-import consulo.hub.backend.repository.archive.TarGzArchive;
+import consulo.hub.backend.repository.archive.ArchiveData;
 import consulo.hub.backend.repository.impl.store.old.OldPluginsState;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
@@ -227,7 +227,7 @@ public class PluginIterationTest extends Assert
 		assertNotNull(pluginNodeInAlpha.targetFile);
 		assertTrue(pluginNodeInAlpha.targetFile.exists());
 
-		TarGzArchive archive = new TarGzArchive();
+		ArchiveData archive = new ArchiveData();
 
 		File testDir = myFileService.createTempFile("test_extract_iter", null);
 
@@ -248,7 +248,7 @@ public class PluginIterationTest extends Assert
 			FileUtil.copy(resourceAsStream, outputStream);
 		}
 
-		return myDeployService.deployPlatform(channel, platformVersion, pluginId, tempFile);
+		return myDeployService.deployPlatform(channel, platformVersion, pluginId, tempFile.toPath());
 	}
 
 	@Test

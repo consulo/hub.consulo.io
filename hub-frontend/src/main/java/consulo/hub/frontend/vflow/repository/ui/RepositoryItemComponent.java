@@ -29,7 +29,6 @@ import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
-import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
@@ -246,41 +245,10 @@ public class RepositoryItemComponent extends VerticalLayout
 		return newList;
 	}
 
+	@Deprecated
+	// use as is
 	public static String getPluginNodeName(PluginNode pluginNode)
 	{
-		if(RepositoryUtil.isPlatformNode(pluginNode.id))
-		{
-			switch(pluginNode.id)
-			{
-				// windows
-				case "consulo-win-no-jre":
-					return "Platform (Windows, without JRE)";
-				case "consulo-win":
-					return "Platform (Windows, with JRE x32)";
-				case "consulo-win64":
-					return "Platform (Windows, with JRE x64)";
-				case "consulo-win-no-jre-zip":
-					return "Platform (Windows, without JRE, zip archive)";
-				case "consulo-win-zip":
-					return "Platform (Windows, with JRE x32, zip archive)";
-				case "consulo-win64-zip":
-					return "Platform (Windows, with JRE x64, zip archive)";
-				// linux
-				case "consulo-linux-no-jre":
-					return "Platform (Linux, without JRE)";
-				case "consulo-linux":
-					return "Platform (Linux, with JRE x32)";
-				case "consulo-linux64":
-					return "Platform (Linux, with JRE x64)";
-				// mac
-				case "consulo-mac-no-jre":
-					return "Platform (macOS, without JRE)";
-				case "consulo-mac64":
-					return "Platform (macOS, with JRE x64)";
-				default:
-					return pluginNode.id;
-			}
-		}
 		return pluginNode.name;
 	}
 }

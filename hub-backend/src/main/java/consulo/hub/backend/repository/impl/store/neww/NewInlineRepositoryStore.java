@@ -2,18 +2,16 @@ package consulo.hub.backend.repository.impl.store.neww;
 
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.WorkDirectoryService;
-import consulo.hub.backend.repository.PluginDeployService;
-import consulo.hub.backend.repository.archive.TarGzArchive;
+import consulo.hub.backend.repository.archive.ArchiveData;
 import consulo.hub.backend.repository.impl.store.BaseRepositoryChannelStore;
 import consulo.hub.backend.repository.impl.store.BaseRepositoryNodeState;
 import consulo.hub.backend.repository.impl.store.old.OldPluginChannelService;
 import consulo.hub.backend.util.GsonUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.hub.shared.repository.util.PlatformNodeDesc;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -149,8 +146,6 @@ public class NewInlineRepositoryStore
 				return;
 			}
 
-			String migratedMarker = "migrated.txt";
-
 			ImportPluginJoiner joiner = new ImportPluginJoiner();
 
 			for(PluginChannel channel : PluginChannel.values())
@@ -161,13 +156,6 @@ public class NewInlineRepositoryStore
 					continue;
 				}
 
-				Path marker = channelDir.resolve(migratedMarker);
-				if(Files.exists(marker))
-				{
-					// already migrated
-					continue;
-				}
-
 				OldPluginChannelService oldService = new OldPluginChannelService(channel);
 				oldService.initImpl(pluginPath.toFile());
 
@@ -175,76 +163,80 @@ public class NewInlineRepositoryStore
 				{
 					joiner.join(pluginNode, channel);
 				});
-
-				// todo Files.writeString(marker, "done");
 			}
 
-			for(Map.Entry<ImportPlugin, RepositoryNodeMeta> entry : joiner.getNodes().entrySet())
+			joiner.getNodes().entrySet().stream().parallel().forEach(entry ->
 			{
-				RepositoryNodeMeta meta = entry.getValue();
-
-				LOG.info("Importing " + entry.getKey());
-
-				String pluginId = meta.node.id;
-				if(RepositoryUtil.isPlatformNode(pluginId))
+				try
 				{
-					String ext = repositoryChannelsService.getNodeExtension(meta.node);
-					if(ext.equals("zip"))
+					RepositoryNodeMeta meta = entry.getValue();
+
+					LOG.info("Importing " + entry.getKey());
+
+					final String originalPluginId = meta.node.id;
+					PlatformNodeDesc platformNodeDesc = PlatformNodeDesc.findByOldId(originalPluginId);
+					if(platformNodeDesc != null)
 					{
-						// we skipping zip artifacts we will redeploy it from tar.gz
-						continue;
-					}
+						Path tempExtractPath = myTempFileService.createTempDirPath("deploy_platform_extract");
 
-					Path tempExtractPath = myTempFileService.createTempDirPath("deploy_platform_extract");
-
-					try
-					{
-						TarGzArchive archive = new TarGzArchive();
-						archive.extract(meta.node.targetFile, tempExtractPath.toFile());
-
-						// remove old plugin channel markets
-						for(PluginChannel pluginChannel : PluginChannel.values())
+						try
 						{
-							archive.removeEntry(PluginDeployService.makePluginChannelFileName(pluginId, pluginChannel));
+							ArchiveData archive = new ArchiveData();
+
+							meta.node.targetFile.toString();
+
+							archive.extract(meta.node.targetFile, tempExtractPath.toFile());
+
+							// remove old plugin channel markets
+							for(PluginChannel pluginChannel : PluginChannel.values())
+							{
+								archive.removeEntry(makePluginChannelFileName(originalPluginId, pluginChannel));
+							}
+
+							String nodeId = platformNodeDesc.id();
+							String ext = platformNodeDesc.ext();
+							Path path = prepareArtifactPath(nodeId, meta.node.version, ext);
+
+							archive.create(path, ext.equals("tar.gz") ? "tar" : ext);
+
+							updateMeta(nodeId, meta.node.version, ext, newMeta ->
+							{
+								PluginNode cloned = meta.node.clone();
+
+								BaseRepositoryNodeState.prepareNode(cloned, path);
+
+								cloned.name = platformNodeDesc.name();
+
+								newMeta.node = cloned;
+
+								newMeta.channels.addAll(meta.channels);
+							});
 						}
-
-						Path path = prepareArtifactPath(pluginId, meta.node.version, ext);
-
-						archive.create(path, ArchiveStreamFactory.TAR);
-
-						updateMeta(pluginId, meta.node.version, ext, newMeta ->
+						finally
 						{
-							PluginNode cloned = meta.node.clone();
+							myTempFileService.asyncDelete(tempExtractPath);
+						}
+					}
+					else
+					{
+						String ext = repositoryChannelsService.getDeployPluginExtension();
 
-							BaseRepositoryNodeState.prepareNode(cloned, path);
+						Path path = prepareArtifactPath(originalPluginId, meta.node.version, ext);
 
-							newMeta.node = cloned;
+						Files.copy(meta.node.targetFile.toPath(), path);
 
+						updateMeta(originalPluginId, meta.node.version, ext, newMeta ->
+						{
+							newMeta.node = meta.node;
 							newMeta.channels.addAll(meta.channels);
 						});
-
-						pushWindowsZip(pluginId, archive, meta);
-					}
-					finally
-					{
-						myTempFileService.asyncDelete(tempExtractPath);
 					}
 				}
-				else
+				catch(IOException | ArchiveException e)
 				{
-					String ext = repositoryChannelsService.getDeployPluginExtension();
-
-					Path path = prepareArtifactPath(pluginId, meta.node.version, ext);
-
-					Files.copy(meta.node.targetFile.toPath(), path);
-
-					updateMeta(pluginId, meta.node.version, ext, newMeta ->
-					{
-						newMeta.node = meta.node;
-						newMeta.channels.addAll(meta.channels);
-					});
+					LOG.error(entry.getKey().toString(), e);
 				}
-			}
+			});
 		}
 		catch(Throwable e)
 		{
@@ -256,34 +248,17 @@ public class NewInlineRepositoryStore
 		}
 	}
 
-	private void pushWindowsZip(String pluginId, TarGzArchive archive, RepositoryNodeMeta meta) throws IOException, ArchiveException
+	public static String makePluginChannelFileName(String pluginId, PluginChannel pluginChannel)
 	{
-		// we already skipped zip artifacts - we need recreate it
-		if(!pluginId.startsWith("consulo-win"))
+		boolean mac = pluginId.startsWith("consulo-mac");
+		if(mac)
 		{
-			return;
+			return "Consulo.app/Contents/." + pluginChannel.name();
 		}
-
-		pluginId = pluginId + "-zip";
-		String ext = "zip";
-
-		// special hack for windows
-		Path path = prepareArtifactPath(pluginId, meta.node.version, ext);
-
-		archive.create(path, ArchiveStreamFactory.ZIP);
-
-		final String finalPluginId = pluginId;
-		updateMeta(finalPluginId, meta.node.version, ext, newMeta ->
+		else
 		{
-			PluginNode cloned = meta.node.clone();
-			cloned.id = finalPluginId;
-
-			BaseRepositoryNodeState.prepareNode(cloned, path);
-
-			newMeta.node = cloned;
-
-			newMeta.channels.addAll(meta.channels);
-		});
+			return "Consulo/." + pluginChannel.name();
+		}
 	}
 
 	public void load(NewRepositoryChannelsService repositoryChannelsService)

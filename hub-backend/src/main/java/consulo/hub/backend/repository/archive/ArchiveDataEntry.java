@@ -6,7 +6,7 @@ import java.io.File;
  * @author VISTALL
  * @since 02-Jan-17
  */
-public class TarGzArchiveEntry
+public class ArchiveDataEntry
 {
 	private String myName;
 	private boolean myDirectory;
@@ -20,7 +20,7 @@ public class TarGzArchiveEntry
 
 	private long mySize = -1;
 
-	public TarGzArchiveEntry(String name, boolean directory, int mode, long time, byte flags, String linkName)
+	public ArchiveDataEntry(String name, boolean directory, int mode, long time, byte flags, String linkName)
 	{
 		myName = name;
 		myDirectory = directory;

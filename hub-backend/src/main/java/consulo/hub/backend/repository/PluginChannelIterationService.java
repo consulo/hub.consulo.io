@@ -183,13 +183,7 @@ public class PluginChannelIterationService
 				// platform nodes have special logic
 				if(RepositoryUtil.isPlatformNode(node.id))
 				{
-					// special windows archive will processed as while deploying tar.gz files
-					if(node.id.endsWith("-zip"))
-					{
-						return;
-					}
-
-					myPluginDeployService.deployPlatform(to, Integer.parseInt(node.platformVersion), node.id, targetFile);
+					myPluginDeployService.deployPlatform(to, Integer.parseInt(node.platformVersion), node.id, targetFile.toPath());
 				}
 				else
 				{

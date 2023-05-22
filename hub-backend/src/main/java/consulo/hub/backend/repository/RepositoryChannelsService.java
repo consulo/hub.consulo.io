@@ -2,7 +2,7 @@ package consulo.hub.backend.repository;
 
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.hub.shared.repository.util.RepositoryUtil;
+import consulo.hub.shared.repository.util.PlatformNodeDesc;
 import jakarta.annotation.Nonnull;
 
 /**
@@ -23,19 +23,31 @@ public interface RepositoryChannelsService
 	@Nonnull
 	default String getNodeExtension(@Nonnull PluginNode pluginNode)
 	{
-		if(!RepositoryUtil.isPlatformNode(pluginNode.id))
+		PlatformNodeDesc node = PlatformNodeDesc.getNode(pluginNode.id);
+		if(node == null)
 		{
-			// application/zip
 			return getDeployPluginExtension();
 		}
+		return node.ext();
+	}
 
-		if(pluginNode.id.endsWith("-zip"))
+	@Nonnull
+	default String getNodeContentType(@Nonnull PluginNode pluginNode)
+	{
+		PlatformNodeDesc node = PlatformNodeDesc.getNode(pluginNode.id);
+		if(node == null)
 		{
-			// application/zip
-			return "zip";
+			return "application/zip";
 		}
 
-		// application/x-gtar
-		return "tar.gz";
+		String ext = node.ext();
+		switch(ext)
+		{
+			case "exe":
+				return "application/vnd.microsoft.portable-executable";
+			case "zip":
+				return "application/zip";
+		}
+		return "application/x-gtar";
 	}
 }

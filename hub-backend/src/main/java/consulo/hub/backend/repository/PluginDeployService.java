@@ -14,18 +14,16 @@ import consulo.hub.backend.github.release.GithubRelease;
 import consulo.hub.backend.github.release.GithubReleaseService;
 import consulo.hub.backend.github.release.GithubTagBuilder;
 import consulo.hub.backend.github.release.RepoGithubTagBuilder;
-import consulo.hub.backend.repository.archive.TarGzArchive;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.util.collection.ArrayUtil;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.util.io.FileUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.ThrowableSupplier;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Comment;
 import org.jdom.Content;
@@ -119,53 +117,42 @@ public class PluginDeployService
 	@Nonnull
 	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull MultipartFile platformFile, @Nullable MultipartFile history) throws Exception
 	{
-		File tempFile = myTempFileService.createTempFile("deploy", "tar.gz");
+		Path deployFile = myTempFileService.createTempFilePath(platformFile.getName(), null);
 
-		try (OutputStream outputStream = new FileOutputStream(tempFile))
+		try (OutputStream outputStream = Files.newOutputStream(deployFile))
 		{
 			IOUtils.copy(platformFile.getInputStream(), outputStream);
 		}
 
-		String pluginId = platformFile.getOriginalFilename().replace(".tar.gz", "");
+		// cut extension, can be zip/tar.gz/exe
+		String nodeId = FileUtil.getNameWithoutExtension(platformFile.getOriginalFilename());
+		if(!RepositoryUtil.isPlatformNode(nodeId))
+		{
+			throw new IllegalArgumentException("Unknown ID: " + nodeId);
+		}
 
 		RestPluginHistoryEntry[] historyEntries = processPluginHistory(() -> history == null ? null : history.getInputStream());
 
-		PluginNode pluginNode = deployPlatform(channel, platformVersion, pluginId, tempFile);
+		PluginNode pluginNode = deployPlatform(channel, platformVersion, nodeId, deployFile);
 
 		if(historyEntries != null)
 		{
 			myPluginHistoryService.insert(historyEntries, pluginNode);
 		}
 
-		myTempFileService.asyncDelete(tempFile);
+		myTempFileService.asyncDelete(deployFile);
 
 		return pluginNode;
 	}
 
 	@Nonnull
-	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull File tempFile) throws Exception
+	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull Path deployFilePath) throws Exception
 	{
-		File deployPlatform = myTempFileService.createTempFile("deploy_platform_extract", null);
-
-		TarGzArchive archive = new TarGzArchive();
-
-		archive.extract(tempFile, deployPlatform);
-
-		PluginNode pluginNode = deployPlatformImpl(channel, pluginId, platformVersion, archive, "tar.gz");
-
-		if(pluginId.startsWith("consulo-win"))
-		{
-			// special hack for windows
-			deployPlatformImpl(channel, pluginId + "-zip", platformVersion, archive, "zip");
-		}
-
-		myTempFileService.asyncDelete(deployPlatform);
-
-		return pluginNode;
+		return deployPlatformImpl(channel, pluginId, platformVersion, deployFilePath);
 	}
 
 	@Nonnull
-	private PluginNode deployPlatformImpl(PluginChannel channel, String pluginId, int platformVersion, TarGzArchive archive, String ext) throws Exception
+	private PluginNode deployPlatformImpl(PluginChannel channel, String pluginId, int platformVersion, Path deployPath) throws Exception
 	{
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = pluginId;
@@ -173,34 +160,13 @@ public class PluginDeployService
 		pluginNode.name = "Platform";
 		pluginNode.platformVersion = String.valueOf(platformVersion);
 
-		// remove old plugin channel markets
-		for(PluginChannel pluginChannel : PluginChannel.values())
-		{
-			archive.removeEntry(makePluginChannelFileName(pluginId, pluginChannel));
-		}
-
-		archive.putEntry(makePluginChannelFileName(pluginId, channel), ArrayUtil.EMPTY_BYTE_ARRAY, System.currentTimeMillis());
-
 		RepositoryChannelStore repositoryChannelStore = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
-		String type = ext.equals("zip") ? ArchiveStreamFactory.ZIP : ArchiveStreamFactory.TAR;
+		String ext = myRepositoryChannelsService.getNodeExtension(pluginNode);
 
-		repositoryChannelStore.push(pluginNode, ext, f -> archive.create(f, type));
+		repositoryChannelStore.push(pluginNode, ext, target -> Files.copy(deployPath, target));
 
 		return pluginNode;
-	}
-
-	public static String makePluginChannelFileName(String pluginId, PluginChannel pluginChannel)
-	{
-		boolean mac = pluginId.startsWith("consulo-mac");
-		if(mac)
-		{
-			return "Consulo.app/Contents/." + pluginChannel.name();
-		}
-		else
-		{
-			return "Consulo/." + pluginChannel.name();
-		}
 	}
 
 	public PluginNode deployPlugin(PluginChannel channel, ThrowableSupplier<InputStream, IOException> streamSupplier) throws Exception
