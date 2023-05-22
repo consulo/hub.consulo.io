@@ -125,7 +125,7 @@ public class PluginDeployService
 		}
 
 		// cut extension, can be zip/tar.gz/exe
-		String nodeId = FileUtil.getNameWithoutExtension(platformFile.getOriginalFilename());
+		String nodeId = RepositoryUtil.extractIdFromFileName(platformFile.getOriginalFilename());
 		if(!RepositoryUtil.isPlatformNode(nodeId))
 		{
 			throw new IllegalArgumentException("Unknown ID: " + nodeId);
