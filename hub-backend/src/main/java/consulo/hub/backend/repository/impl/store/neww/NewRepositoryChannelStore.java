@@ -6,6 +6,7 @@ import consulo.hub.shared.repository.PluginNode;
 import consulo.util.collection.ArrayUtil;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -28,19 +29,33 @@ public class NewRepositoryChannelStore extends BaseRepositoryChannelStore<NewRep
 	{
 		String ext = myRepositoryChannelsService.getNodeExtension(pluginNode);
 
+		// update offline data
 		myInlineRepositoryStore.updateMeta(pluginNode.id, pluginNode.version, ext, meta ->
 		{
 			PluginNode node = meta.node;
-			String[] downloadUrls = node.downloadUrls;
-			if(downloadUrls == null)
-			{
-				node.downloadUrls = new String[]{downloadUrl};
-			}
-			else
-			{
-				node.downloadUrls = ArrayUtil.append(node.downloadUrls, downloadUrl);
-			}
+			attachDownloadUrlImpl(node, downloadUrl);
 		});
+
+		NewRepositoryNodeState state = Objects.requireNonNull(getState(pluginNode.id));
+
+		// update online data
+		state.runOver(pluginNode.platformVersion, pluginNode.version, false, node ->
+		{
+			attachDownloadUrlImpl(node, downloadUrl);
+		});
+	}
+
+	private void attachDownloadUrlImpl(PluginNode node, String downloadUrl)
+	{
+		String[] downloadUrls = node.downloadUrls;
+		if(downloadUrls == null)
+		{
+			node.downloadUrls = new String[]{downloadUrl};
+		}
+		else
+		{
+			node.downloadUrls = ArrayUtil.append(node.downloadUrls, downloadUrl);
+		}
 	}
 
 	@Override

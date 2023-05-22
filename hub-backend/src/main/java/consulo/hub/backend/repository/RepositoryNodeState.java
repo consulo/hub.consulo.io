@@ -17,6 +17,15 @@ public interface RepositoryNodeState
 	@Nullable
 	PluginNode select(@Nonnull String platformVersion, @Nullable String version, boolean platformBuildSelect);
 
+	default void runOver(@Nonnull String platformVersion, @Nullable String version, boolean platformBuildSelect, Consumer<PluginNode> consumer)
+	{
+		PluginNode select = select(platformVersion, version, platformBuildSelect);
+		if(select != null)
+		{
+			consumer.accept(select);
+		}
+	}
+
 	void selectInto(@Nonnull PluginStatisticsService statisticsService, @Nonnull PluginChannel channel, @Nonnull String platformVersion, boolean platformBuildSelect, List<PluginNode> list);
 
 	boolean isInRepository(String version, String platformVersion);

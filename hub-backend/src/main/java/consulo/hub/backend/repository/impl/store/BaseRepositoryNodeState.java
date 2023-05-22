@@ -147,6 +147,40 @@ public abstract class BaseRepositoryNodeState implements RepositoryNodeState
 	}
 
 	@Override
+	public void runOver(@Nonnull String platformVersion, @Nullable String version, boolean platformBuildSelect, Consumer<PluginNode> consumer)
+	{
+		try (AccessToken ignored = readLock())
+		{
+			NavigableSet<PluginNode> pluginNodes = getPluginSetByVersion(platformVersion, platformBuildSelect);
+			if(pluginNodes == null || pluginNodes.isEmpty())
+			{
+				return;
+			}
+
+			PluginNode node = null;
+			if(version == null || RepositoryChannelStore.SNAPSHOT.equals(version))
+			{
+				node = pluginNodes.last();
+			}
+			else
+			{
+				for(PluginNode pluginNode : pluginNodes)
+				{
+					if(Comparing.equal(pluginNode.version, version))
+					{
+						node = pluginNode;
+					}
+				}
+			}
+
+			if(node != null)
+			{
+				consumer.accept(node);
+			}
+		}
+	}
+
+	@Override
 	public void selectInto(@Nonnull PluginStatisticsService statisticsService, @Nonnull PluginChannel channel, @Nonnull String platformVersion, boolean platformBuildSelect, List<PluginNode> list)
 	{
 		try (AccessToken ignored = readLock())
