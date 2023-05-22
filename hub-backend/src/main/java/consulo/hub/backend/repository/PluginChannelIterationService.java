@@ -138,7 +138,7 @@ public class PluginChannelIterationService
 	//@Scheduled(cron = "0 0 * * * *")
 	public void iterAlpha()
 	{
-		iterate(PluginChannel.nightly, PluginChannel.alpha);
+	//iterate(PluginChannel.nightly, PluginChannel.alpha);
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class PluginChannelIterationService
 	@Scheduled(cron = "0 0 0 * * *")
 	public void iterBeta()
 	{
-		iterate(PluginChannel.alpha, PluginChannel.beta);
+		//iterate(PluginChannel.alpha, PluginChannel.beta);
 	}
 
 	/**
@@ -156,7 +156,7 @@ public class PluginChannelIterationService
 	@Scheduled(cron = "0 0 0 * * MON")
 	public void iterRelease()
 	{
-		iterate(PluginChannel.beta, PluginChannel.release);
+		//iterate(PluginChannel.beta, PluginChannel.release);
 	}
 
 	public void iterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
@@ -183,7 +183,7 @@ public class PluginChannelIterationService
 				// platform nodes have special logic
 				if(RepositoryUtil.isPlatformNode(node.id))
 				{
-					myPluginDeployService.deployPlatform(to, Integer.parseInt(node.platformVersion), node.id, targetFile.toPath());
+					myPluginDeployService.deployPlatform(to, null, Integer.parseInt(node.platformVersion), node.id, targetFile.toPath());
 				}
 				else
 				{
