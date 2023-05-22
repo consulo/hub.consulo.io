@@ -248,7 +248,7 @@ public class PluginIterationTest extends Assert
 			FileUtil.copy(resourceAsStream, outputStream);
 		}
 
-		return myDeployService.deployPlatform(channel, platformVersion, pluginId, tempFile.toPath());
+		return myDeployService.deployPlatform(channel, null, platformVersion, pluginId, tempFile.toPath());
 	}
 
 	@Test

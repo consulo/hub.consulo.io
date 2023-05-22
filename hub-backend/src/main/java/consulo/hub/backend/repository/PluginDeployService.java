@@ -17,6 +17,7 @@ import consulo.hub.backend.github.release.RepoGithubTagBuilder;
 import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.util.PlatformNodeDesc;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.util.io.FileUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
@@ -115,7 +116,7 @@ public class PluginDeployService
 	}
 
 	@Nonnull
-	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull MultipartFile platformFile, @Nullable MultipartFile history) throws Exception
+	public PluginNode deployPlatform(@Nonnull PluginChannel channel, @Nullable RestPluginGithubInfo githubInfo, int platformVersion, @Nonnull MultipartFile platformFile, @Nullable MultipartFile history) throws Exception
 	{
 		Path deployFile = myTempFileService.createTempFilePath(platformFile.getName(), null);
 
@@ -133,7 +134,7 @@ public class PluginDeployService
 
 		RestPluginHistoryEntry[] historyEntries = processPluginHistory(() -> history == null ? null : history.getInputStream());
 
-		PluginNode pluginNode = deployPlatform(channel, platformVersion, nodeId, deployFile);
+		PluginNode pluginNode = deployPlatform(channel, githubInfo, platformVersion, nodeId, deployFile);
 
 		if(historyEntries != null)
 		{
@@ -146,18 +147,18 @@ public class PluginDeployService
 	}
 
 	@Nonnull
-	public PluginNode deployPlatform(@Nonnull PluginChannel channel, int platformVersion, @Nonnull String pluginId, @Nonnull Path deployFilePath) throws Exception
+	public PluginNode deployPlatform(@Nonnull PluginChannel channel, @Nullable RestPluginGithubInfo githubInfo, int platformVersion, @Nonnull String pluginId, @Nonnull Path deployFilePath) throws Exception
 	{
-		return deployPlatformImpl(channel, pluginId, platformVersion, deployFilePath);
+		return deployPlatformImpl(channel, githubInfo, pluginId, platformVersion, deployFilePath);
 	}
 
 	@Nonnull
-	private PluginNode deployPlatformImpl(PluginChannel channel, String pluginId, int platformVersion, Path deployPath) throws Exception
+	private PluginNode deployPlatformImpl(PluginChannel channel, RestPluginGithubInfo githubInfo, String pluginId, int platformVersion, Path deployPath) throws Exception
 	{
 		PluginNode pluginNode = new PluginNode();
 		pluginNode.id = pluginId;
 		pluginNode.version = String.valueOf(platformVersion);
-		pluginNode.name = "Platform";
+		pluginNode.name = PlatformNodeDesc.getNode(pluginId).name();
 		pluginNode.platformVersion = String.valueOf(platformVersion);
 
 		RepositoryChannelStore repositoryChannelStore = myRepositoryChannelsService.getRepositoryByChannel(channel);
@@ -165,6 +166,24 @@ public class PluginDeployService
 		String ext = myRepositoryChannelsService.getNodeExtension(pluginNode);
 
 		repositoryChannelStore.push(pluginNode, ext, target -> Files.copy(deployPath, target));
+
+		if(githubInfo != null)
+		{
+			GithubTagBuilder builder = new RepoGithubTagBuilder(pluginNode);
+
+			GithubRelease release = myGithubReleaseService.createTagAndRelease(githubInfo.repoUrl, githubInfo.commitSha1, builder);
+
+			String contentType = myRepositoryChannelsService.getNodeContentType(pluginNode);
+
+			try (InputStream inputStream = Files.newInputStream(pluginNode.targetPath))
+			{
+				String assetUrl = release.uploadAsset(pluginNode.targetPath.getFileName().toString(), contentType, inputStream);
+				if(assetUrl != null)
+				{
+					myRepositoryChannelsService.getRepositoryByChannel(channel).attachDownloadUrl(pluginNode, assetUrl);
+				}
+			}
+		}
 
 		return pluginNode;
 	}

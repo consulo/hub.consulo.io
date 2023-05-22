@@ -115,6 +115,7 @@ public class PluginChannelRestController
 	public PluginNode platformDeploy(@RequestParam("channel") PluginChannel channel,
 									 @RequestParam("file") MultipartFile file,
 									 @RequestParam(value = "history", required = false) MultipartFile history,
+									 @RequestParam(value = "github", required = false) MultipartFile github,
 									 @RequestParam("platformVersion") int platformVersion,
 									 @AuthenticationPrincipal UserAccount userAccount) throws Exception
 	{
@@ -123,7 +124,13 @@ public class PluginChannelRestController
 			throw new NotAuthorizedException();
 		}
 
-		return myPluginDeployService.deployPlatform(channel, platformVersion, file, history);
+		RestPluginGithubInfo pluginGithubInfo = null;
+		if(github != null)
+		{
+			pluginGithubInfo = myObjectMapper.readValue(github.getBytes(), RestPluginGithubInfo.class);
+		}
+
+		return myPluginDeployService.deployPlatform(channel, pluginGithubInfo, platformVersion, file, history);
 	}
 
 	@RequestMapping(value = "/api/repository/pluginDeploy", method = RequestMethod.POST)
