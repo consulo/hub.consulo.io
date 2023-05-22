@@ -183,8 +183,6 @@ public class NewInlineRepositoryStore
 						{
 							ArchiveData archive = new ArchiveData();
 
-							meta.node.targetFile.toString();
-
 							archive.extract(meta.node.targetFile, tempExtractPath.toFile());
 
 							// remove old plugin channel markets

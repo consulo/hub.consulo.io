@@ -67,10 +67,8 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 			{
 				myInlineRepositoryStore.runImport(this);
 			}
-			else
-			{
-				myInlineRepositoryStore.load(this);
-			}
+
+			myInlineRepositoryStore.load(this);
 		});
 	}
 }
