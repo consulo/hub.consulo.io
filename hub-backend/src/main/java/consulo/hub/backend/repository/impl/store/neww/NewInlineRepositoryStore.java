@@ -125,7 +125,7 @@ public class NewInlineRepositoryStore
 
 		if(isNewStore)
 		{
-			Files.createDirectory(workPath);
+			Files.createDirectories(workPath);
 		}
 
 		myStorePath = workPath;

@@ -56,6 +56,7 @@ public class OldPluginChannelsService implements RepositoryChannelsService
 		return myPluginChannelServices[channel.ordinal()];
 	}
 
+	@Override
 	public void init()
 	{
 		initWorkingDirectory(myWorkDirectoryService.getWorkingDirectory().toAbsolutePath().toString());

@@ -20,6 +20,10 @@ public interface RepositoryChannelsService
 		return RepositoryChannelStore.PLUGIN_EXTENSION;
 	}
 
+	default void init() throws Exception
+	{
+	}
+
 	@Nonnull
 	default String getNodeExtension(@Nonnull PluginNode pluginNode)
 	{
