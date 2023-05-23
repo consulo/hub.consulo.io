@@ -9,10 +9,8 @@ import consulo.util.lang.function.ThrowableConsumer;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
@@ -47,14 +45,14 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 
 	@Override
 	@Nonnull
-	public PluginNode[] select(@Nonnull PluginStatisticsService statisticsService, @Nonnull String platformVersion, boolean platformBuildSelect)
+	public ArrayList<PluginNode> select(@Nonnull PluginStatisticsService statisticsService, @Nonnull String platformVersion, boolean platformBuildSelect)
 	{
-		List<PluginNode> list = new ArrayList<>();
+		ArrayList<PluginNode> list = new ArrayList<>();
 		for(S state : myPlugins.values())
 		{
 			state.selectInto(statisticsService, myChannel, platformVersion, platformBuildSelect, list);
 		}
-		return list.isEmpty() ? PluginNode.EMPTY_ARRAY : list.toArray(new PluginNode[list.size()]);
+		return list;
 	}
 
 	@Override

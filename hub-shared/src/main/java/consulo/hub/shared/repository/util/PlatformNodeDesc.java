@@ -1,8 +1,8 @@
 package consulo.hub.shared.repository.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -11,6 +11,7 @@ import java.util.Objects;
 public record PlatformNodeDesc(String id, String name, String oldId, String ext)
 {
 	private static Map<String, PlatformNodeDesc> ourNodes = new HashMap<>();
+	private static Map<String, PlatformNodeDesc> ourOldMapping = new HashMap<>();
 
 	static
 	{
@@ -40,21 +41,23 @@ public record PlatformNodeDesc(String id, String name, String oldId, String ext)
 		return ourNodes.get(id);
 	}
 
+	public static Collection<PlatformNodeDesc> values()
+	{
+		return ourNodes.values();
+	}
+
 	public static PlatformNodeDesc findByOldId(String oldId)
 	{
-		for(PlatformNodeDesc node : ourNodes.values())
-		{
-			if(Objects.equals(oldId, node.oldId()))
-			{
-				return node;
-			}
-		}
-
-		return null;
+		return ourOldMapping.get(oldId);
 	}
 
 	private static void add(PlatformNodeDesc node)
 	{
 		ourNodes.put(node.id(), node);
+		String oldId = node.oldId();
+		if(oldId != null)
+		{
+			ourOldMapping.put(oldId, node);
+		}
 	}
 }

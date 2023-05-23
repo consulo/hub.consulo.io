@@ -6,6 +6,7 @@ import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.hub.shared.repository.util.PlatformNodeDesc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author VISTALL
@@ -80,6 +81,13 @@ public class PluginChannelRestController
 		if(zip)
 		{
 			idNew = idValue + "-zip";
+		}
+
+		// FIXME [VISTALL] remap to new platform id - remove later
+		PlatformNodeDesc newPlatformDesc = PlatformNodeDesc.findByOldId(idNew);
+		if(newPlatformDesc != null)
+		{
+			idNew = newPlatformDesc.id();
 		}
 
 		PluginNode select = channelService.select(platformVersion, idNew, version, platformBuildSelect);
@@ -159,13 +167,48 @@ public class PluginChannelRestController
 	}
 
 	@RequestMapping("/api/repository/list")
-	public PluginNode[] list(@RequestParam("channel") PluginChannel channel,
-							 @RequestParam("platformVersion") String platformVersion,
-							 @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
+	public List<PluginNode> list(@RequestParam("channel") PluginChannel channel,
+					 @RequestParam("platformVersion") String platformVersion,
+					 @RequestParam(value = "addObsoletePlatforms", defaultValue = "true", required = false) boolean addObsoletePlatforms,
+					 @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
 		RepositoryChannelStore channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
-		return channelService.select(myPluginStatisticsService, platformVersion, platformBuildSelect);
+		ArrayList<PluginNode> result = channelService.select(myPluginStatisticsService, platformVersion, platformBuildSelect);
+
+		// TODO we put old style platform ids
+		if(addObsoletePlatforms)
+		{
+			Collection<PlatformNodeDesc> values = PlatformNodeDesc.values();
+
+			result.ensureCapacity(result.size() + values.size());
+
+			List<PluginNode> join = new ArrayList<>(values.size());
+
+			for(PluginNode node : result)
+			{
+				PlatformNodeDesc nodeDesc = PlatformNodeDesc.getNode(node.id);
+				if(nodeDesc == null)
+				{
+					continue;
+				}
+
+				String oldId = nodeDesc.oldId();
+				if(oldId == null)
+				{
+					continue;
+				}
+
+				PluginNode oldNode = node.clone();
+				oldNode.id = oldId;
+				oldNode.obsolete = true;
+				join.add(oldNode);
+			}
+
+			result.addAll(join);
+		}
+
+		return result;
 	}
 
 	@RequestMapping("/api/repository/info")
@@ -181,6 +224,13 @@ public class PluginChannelRestController
 		if(zip)
 		{
 			idNew = id + "-zip";
+		}
+
+		// FIXME [VISTALL] remap to new platform id - remove later
+		PlatformNodeDesc newPlatformDesc = PlatformNodeDesc.findByOldId(idNew);
+		if(newPlatformDesc != null)
+		{
+			idNew = newPlatformDesc.id();
 		}
 
 		PluginNode select = channelService.select(platformVersion, idNew, version, true);

@@ -7,6 +7,7 @@ import jakarta.annotation.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -25,7 +26,7 @@ public interface RepositoryChannelStore
 	PluginNode select(@Nonnull String platformVersion, @Nonnull String pluginId, @Nullable String version, boolean platformBuildSelect);
 
 	@Nonnull
-	PluginNode[] select(@Nonnull PluginStatisticsService statisticsService, @Nonnull String platformVersion, boolean platformBuildSelect);
+	ArrayList<PluginNode> select(@Nonnull PluginStatisticsService statisticsService, @Nonnull String platformVersion, boolean platformBuildSelect);
 
 	void push(PluginNode pluginNode, String ext, ThrowableConsumer<Path, Exception> writeConsumer) throws Exception;
 
