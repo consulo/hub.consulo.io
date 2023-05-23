@@ -5,26 +5,33 @@ import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.server.InputStreamFactory;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.vflow.repository.view.RepositoryView;
 import consulo.hub.shared.repository.FrontPluginNode;
-import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.backend.BackendServiceDownException;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.vaadin.util.Notifications;
 import consulo.procoeton.core.vaadin.util.RouterUtil;
+import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.VersionComparatorUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -38,16 +45,15 @@ public class RepositoryChannelPanel extends HorizontalLayout
 	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
 	private final TagsLocalizeLoader myTagsLocalizeLoader;
 	private final Multimap<String, FrontPluginNode> myPluginBuilds;
-	private final ListBox<String> myListSelect;
+	private final ListBox<FrontPluginNode> myListSelect;
 	private String mySelectedPluginId;
-
-	private Map<FrontPluginNode, String> myNameToIdMap;
 
 	private HorizontalLayout myHolder;
 
 	public RepositoryChannelPanel(@Nonnull BackendRepositoryService backendRepositoryService,
 								  @Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
-								  @Nonnull TagsLocalizeLoader tagsLocalizeLoader, RouteParameters routeParameters)
+								  @Nonnull TagsLocalizeLoader tagsLocalizeLoader,
+								  RouteParameters routeParameters)
 	{
 		myBackendPluginStatisticsService = backendPluginStatisticsService;
 		myTagsLocalizeLoader = tagsLocalizeLoader;
@@ -56,7 +62,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		myListSelect = new ListBox<>();
 		myListSelect.setHeightFull();
-		myListSelect.setWidth(35, Unit.PERCENTAGE);
+
 		add(myListSelect);
 
 		myHolder = VaadinUIUtil.newHorizontalLayout();
@@ -78,8 +84,14 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			Notifications.serverOffline();
 		}
 
-		// name -> id
-		myNameToIdMap = new TreeMap<>((o1, o2) ->
+		List<FrontPluginNode> items = new ArrayList<>();
+		for(Map.Entry<String, Collection<FrontPluginNode>> entry : myPluginBuilds.asMap().entrySet())
+		{
+			Collection<FrontPluginNode> value = entry.getValue();
+			items.add(ContainerUtil.getFirstItem(value));
+		}
+
+		items.sort((o1, o2) ->
 		{
 			if(RepositoryUtil.isPlatformNode(o1.id()))
 			{
@@ -93,23 +105,45 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			return o1.name().compareToIgnoreCase(o2.name());
 		});
 
-		for(Map.Entry<String, Collection<FrontPluginNode>> entry : myPluginBuilds.asMap().entrySet())
-		{
-			myNameToIdMap.put(entry.getValue().iterator().next(), entry.getKey());
-		}
+		myListSelect.setItems(items);
 
-		myListSelect.setItems(myNameToIdMap.values());
-
-		Map<String, String> captions = new HashMap<>();
-		for(Map.Entry<FrontPluginNode, String> entry : myNameToIdMap.entrySet())
+		myListSelect.setRenderer(new ComponentRenderer<Component, FrontPluginNode>((c) ->
 		{
-			captions.put(entry.getValue(), entry.getKey().name());
-		}
-		myListSelect.setItemLabelGenerator(captions::get);
+			HorizontalLayout row = new HorizontalLayout();
+			row.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+			String iconBytes = c.myPluginNode.iconBytes;
+			Image image = new Image();
+
+			if(RepositoryUtil.isPlatformNode(c.id()))
+			{
+				InputStream platformIcon = getClass().getResourceAsStream("/images/consuloBig.png");
+				image.setSrc(new StreamResource(c.id() + ".png", (InputStreamFactory) () -> platformIcon));
+			}
+			else if(iconBytes == null)
+			{
+				InputStream pluginIcon = getClass().getResourceAsStream("/images/pluginBig.svg");
+				image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory) () -> pluginIcon));
+			}
+			else
+			{
+				byte[] imgBytes = Base64.getDecoder().decode(iconBytes);
+
+				image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory) () -> new ByteArrayInputStream(imgBytes)));
+			}
+
+			image.setHeight(3, Unit.EM);
+			image.setWidth(3, Unit.EM);
+			row.add(image);
+
+			row.add(new Label(c.name()));
+			return row;
+		}));
 
 		myListSelect.addValueChangeListener(event ->
 		{
-			String pluginId = event.getValue();
+			FrontPluginNode node = event.getValue();
+
+			String pluginId = node == null ? null : node.id();
 
 			mySelectedPluginId = pluginId;
 
@@ -132,13 +166,21 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 	public void selectPlugin(@Nullable String pluginId)
 	{
-		if(pluginId == null || !myNameToIdMap.containsValue(pluginId))
+		if(pluginId == null)
 		{
 			myListSelect.setValue(null);
 		}
 		else
 		{
-			myListSelect.setValue(pluginId);
+			Collection<FrontPluginNode> nodes = myPluginBuilds.get(pluginId);
+			if(nodes.isEmpty())
+			{
+				myListSelect.setValue(null);
+			}
+			else
+			{
+				myListSelect.setValue(ContainerUtil.getFirstItem(nodes));
+			}
 		}
 	}
 

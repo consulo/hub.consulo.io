@@ -30,6 +30,7 @@ import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
+import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
@@ -62,7 +63,7 @@ public class RepositoryItemComponent extends VerticalLayout
 		Tooltip.forComponent(header).withText(pluginNode.id());
 		add(header);
 
-		if(pluginNode.tags() != null && pluginNode.tags().length > 0 || pluginNode.experimental())
+		if(pluginNode.tags() != null && pluginNode.tags().length > 0 || pluginNode.experimental() || RepositoryUtil.isPlatformNode(pluginNode.id()))
 		{
 			HorizontalLayout tagsPanel = new HorizontalLayout();
 			if(pluginNode.experimental())
@@ -78,6 +79,12 @@ public class RepositoryItemComponent extends VerticalLayout
 					tagsPanel.add(label);
 				}
 			}
+
+			if(RepositoryUtil.isPlatformNode(pluginNode.id()))
+			{
+				tagsPanel.add(new Badge("platform"));
+			}
+
 			add(tagsPanel);
 		}
 
