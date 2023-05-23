@@ -1,14 +1,13 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.impl.TempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.RepositoryChannelStore;
 import consulo.hub.backend.repository.RepositoryNodeState;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
-import consulo.hub.backend.repository.impl.store.old.OldPluginChannelsService;
+import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import org.junit.AfterClass;
@@ -17,10 +16,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -49,23 +48,22 @@ public class AnalyzerTest extends Assert
 					"org.jetbrains.plugins.javaFX"
 			};
 
-	private static File ourTempDir;
-	private static OldPluginChannelsService ourPluginChannelsService;
+	private static Path ourTempDir;
+	private static NewRepositoryChannelsService ourPluginChannelsService;
 
 	@BeforeClass
 	public static void before() throws Exception
 	{
-		ourTempDir = Files.createTempDirectory("webService").toFile();
+		ourTempDir = Files.createTempDirectory("webService");
 
 		FileSystemUtils.deleteRecursively(ourTempDir);
 
-		String canonicalPath = ourTempDir.getCanonicalPath();
-
 		TempFileServiceImpl tempFileService = new TempFileServiceImpl(ourTempDir);
 
-		WorkDirectoryService workDirectoryService = new WorkDirectoryServiceImpl(canonicalPath);
+		WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(ourTempDir.toAbsolutePath().toString());
+		workDirectoryService.init();
 
-		ourPluginChannelsService = new OldPluginChannelsService(workDirectoryService, tempFileService, Runnable::run);
+		ourPluginChannelsService = new NewRepositoryChannelsService(workDirectoryService, tempFileService, Runnable::run);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
@@ -80,7 +78,7 @@ public class AnalyzerTest extends Assert
 
 		for(String pluginId : DOWNLOAD_PLUGINS)
 		{
-			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+			URL url = new URL("https://p-api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
 
 			System.out.println("Downloading " + url);
 
@@ -93,7 +91,14 @@ public class AnalyzerTest extends Assert
 	@AfterClass
 	public static void after()
 	{
-		FileSystemUtils.deleteRecursively(ourTempDir);
+		try
+		{
+			FileSystemUtils.deleteRecursively(ourTempDir);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Test

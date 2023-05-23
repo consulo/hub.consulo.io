@@ -10,6 +10,7 @@ import consulo.hub.backend.util.ZipUtil;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.util.collection.ArrayUtil;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,9 +100,14 @@ public class PluginAnalyzerServiceImpl implements CommandLineRunner, PluginAnaly
 		}
 	}
 
-	private void collectAllDependencies(String pluginId, String[] dependencies, RepositoryChannelStore channelService, Set<String> processed, Set<String> result)
+	private void collectAllDependencies(String pluginId, @Nullable String[] dependencies, RepositoryChannelStore channelService, Set<String> processed, Set<String> result)
 	{
 		if(!processed.add(pluginId))
+		{
+			return;
+		}
+
+		if(dependencies == null)
 		{
 			return;
 		}

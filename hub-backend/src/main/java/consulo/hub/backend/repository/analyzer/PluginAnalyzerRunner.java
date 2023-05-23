@@ -35,10 +35,12 @@ public class PluginAnalyzerRunner
 	@SuppressWarnings("unchecked")
 	private List<Map<String, String>> run(List<URL> platformURLs, List<URL> analyzerURLs, String[] pluginsDir, String targetPluginId) throws Exception
 	{
-		URLClassLoader containerClassLoader = new URLClassLoader(myEnv.getContainerGroup().getClassUrls().toArray(URL[]::new), ClassLoader.getPlatformClassLoader());
-		Class<?> bootClass = Class.forName(ContainerBoot.class.getName(), true, containerClassLoader);
-		Method initMethod = bootClass.getDeclaredMethod("init", List.class, List.class, String[].class, String.class);
-		initMethod.setAccessible(true);
-		return (List<Map<String, String>>) initMethod.invoke(null, platformURLs, analyzerURLs, pluginsDir, targetPluginId);
+		try (URLClassLoader containerClassLoader = new URLClassLoader(myEnv.getContainerGroup().getClassUrls().toArray(URL[]::new), ClassLoader.getPlatformClassLoader()))
+		{
+			Class<?> bootClass = Class.forName(ContainerBoot.class.getName(), true, containerClassLoader);
+			Method initMethod = bootClass.getDeclaredMethod("init", List.class, List.class, String[].class, String.class);
+			initMethod.setAccessible(true);
+			return (List<Map<String, String>>) initMethod.invoke(null, platformURLs, analyzerURLs, pluginsDir, targetPluginId);
+		}
 	}
 }
