@@ -37,7 +37,7 @@ public class GithubReleaseServiceImpl implements GithubReleaseService, Applicati
 		}
 
 		// https://github.com/consulo/consulo-spellchecker/
-		String repoName = repoUrl.replace("https://github.com/", "");
+		String repoName = repoUrl.replace("https://github.com/", "").trim();
 		if(repoName.endsWith("/"))
 		{
 			repoName = repoName.substring(0, repoName.length() - 1);
