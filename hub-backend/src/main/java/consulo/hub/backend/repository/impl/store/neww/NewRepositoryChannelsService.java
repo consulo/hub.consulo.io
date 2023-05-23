@@ -41,6 +41,11 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 		}
 	}
 
+	public NewInlineRepositoryStore getInlineRepositoryStore()
+	{
+		return myInlineRepositoryStore;
+	}
+
 	@Nonnull
 	@Override
 	public RepositoryChannelStore getRepositoryByChannel(@Nonnull PluginChannel channel)

@@ -1,6 +1,6 @@
 package consulo.hub.backend.frontend;
 
-import consulo.hub.backend.repository.PluginChannelIterationService;
+import consulo.hub.backend.repository.PluginChannelsIterationScheduler;
 import consulo.hub.backend.repository.RepositoryChannelStore;
 import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.PluginStatisticsService;
@@ -31,7 +31,7 @@ public class FrontendRepositoryRestController
 	private PluginStatisticsService myPluginStatisticsService;
 
 	@Autowired
-	private PluginChannelIterationService myPluginChannelIterationService;
+	private PluginChannelsIterationScheduler myPluginChannelIterationService;
 
 	@RequestMapping("/api/private/repository/list")
 	public List<PluginNode> listPlugins(@RequestParam("channel") PluginChannel pluginChannel)

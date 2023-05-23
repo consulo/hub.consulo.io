@@ -58,10 +58,11 @@ public class AnalyzerTest extends Assert
 
 		FileSystemUtils.deleteRecursively(ourTempDir);
 
-		TempFileServiceImpl tempFileService = new TempFileServiceImpl(ourTempDir);
-
 		WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(ourTempDir.toAbsolutePath().toString());
 		workDirectoryService.init();
+
+		TempFileServiceImpl tempFileService = new TempFileServiceImpl(workDirectoryService);
+		tempFileService.init();
 
 		ourPluginChannelsService = new NewRepositoryChannelsService(workDirectoryService, tempFileService, Runnable::run);
 

@@ -322,9 +322,9 @@ public class NewInlineRepositoryStore
 
 		String artifactFileStr = fileName.substring(0, fileName.length() - 5);
 
-		Path targetArchive = parentDir.resolve(artifactFileStr);
+		Path targetArtifact = parentDir.resolve(artifactFileStr);
 
-		if(!Files.exists(targetArchive))
+		if(!Files.exists(targetArtifact))
 		{
 			try
 			{
@@ -339,13 +339,16 @@ public class NewInlineRepositoryStore
 			return;
 		}
 
-		meta.node.targetPath = targetArchive;
+		meta.node.targetPath = targetArtifact;
 
 		for(PluginChannel channel : meta.channels)
 		{
 			BaseRepositoryChannelStore store = (BaseRepositoryChannelStore) repositoryChannelsService.getRepositoryByChannel(channel);
 
-			store._add(meta.node);
+			PluginNode newPluginNode = meta.node.clone();
+			newPluginNode.targetPath = targetArtifact;
+
+			store._add(newPluginNode);
 		}
 	}
 

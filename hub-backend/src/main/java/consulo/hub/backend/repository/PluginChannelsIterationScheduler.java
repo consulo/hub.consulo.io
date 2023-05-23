@@ -2,18 +2,12 @@ package consulo.hub.backend.repository;
 
 import com.google.common.annotations.VisibleForTesting;
 import consulo.hub.shared.repository.PluginChannel;
-import consulo.hub.shared.repository.PluginNode;
-import consulo.hub.shared.repository.util.RepositoryUtil;
-import consulo.util.io.FilePermissionCopier;
-import consulo.util.io.FileUtil;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -21,21 +15,19 @@ import java.util.Arrays;
  * @since 03-Jan-17
  */
 @Service
-public class PluginChannelIterationService
+public class PluginChannelsIterationScheduler
 {
-	public static final int ourMaxBuildCount = 5;
+	public static final int ourMaxBuildCount = 10;
 
-	private static final Logger logger = LoggerFactory.getLogger(PluginChannelIterationService.class);
+	private static final Logger logger = LoggerFactory.getLogger(PluginChannelsIterationScheduler.class);
 
-	private final RepositoryChannelsService myChannelsService;
+	private final RepositoryChannelsService myRepositoryChannelsService;
+	private final RepositoryChannelIterationService myRepositoryChannelIterationService;
 
-	private final PluginDeployService myPluginDeployService;
-
-	@Autowired
-	public PluginChannelIterationService(RepositoryChannelsService channelsService, PluginDeployService pluginDeployService)
+	public PluginChannelsIterationScheduler(RepositoryChannelsService repositoryChannelsService, RepositoryChannelIterationService repositoryChannelIterationService)
 	{
-		myChannelsService = channelsService;
-		myPluginDeployService = pluginDeployService;
+		myRepositoryChannelsService = repositoryChannelsService;
+		myRepositoryChannelIterationService = repositoryChannelIterationService;
 	}
 
 	@Scheduled(cron = "0 * * * * *")
@@ -47,7 +39,7 @@ public class PluginChannelIterationService
 	@VisibleForTesting
 	public void cleanup(PluginChannel pluginChannel)
 	{
-//		PluginChannelService pluginChannelService = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
+//		RepositoryChannelStore pluginChannelService = myRepositoryChannelsService.getRepositoryByChannel(pluginChannel);
 //		if(pluginChannelService.isLoading())
 //		{
 //			return;
@@ -138,7 +130,7 @@ public class PluginChannelIterationService
 	//@Scheduled(cron = "0 0 * * * *")
 	public void iterAlpha()
 	{
-	//iterate(PluginChannel.nightly, PluginChannel.alpha);
+		//iterate(PluginChannel.nightly, PluginChannel.alpha);
 	}
 
 	/**
@@ -147,7 +139,7 @@ public class PluginChannelIterationService
 	@Scheduled(cron = "0 0 0 * * *")
 	public void iterBeta()
 	{
-		//iterate(PluginChannel.alpha, PluginChannel.beta);
+		iterate(PluginChannel.alpha, PluginChannel.beta);
 	}
 
 	/**
@@ -156,44 +148,11 @@ public class PluginChannelIterationService
 	@Scheduled(cron = "0 0 0 * * MON")
 	public void iterRelease()
 	{
-		//iterate(PluginChannel.beta, PluginChannel.release);
+		iterate(PluginChannel.beta, PluginChannel.release);
 	}
 
 	public void iterate(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
 	{
-		RepositoryChannelStore fromChannel = myChannelsService.getRepositoryByChannel(from);
-		RepositoryChannelStore toChannel = myChannelsService.getRepositoryByChannel(to);
-
-		fromChannel.iteratePluginNodes(originalNode ->
-		{
-			if(toChannel.isInRepository(originalNode.id, originalNode.version, originalNode.platformVersion))
-			{
-				return;
-			}
-
-			PluginNode node = originalNode.clone();
-			try
-			{
-				File targetFile = originalNode.targetFile;
-
-				assert targetFile != null;
-
-				logger.info("iterate id=" + node.id + ", version=" + node.version + ", platformVersion=" + node.platformVersion + ", from=" + from + ", to=" + to);
-
-				// platform nodes have special logic
-				if(RepositoryUtil.isPlatformNode(node.id))
-				{
-					myPluginDeployService.deployPlatform(to, null, Integer.parseInt(node.platformVersion), node.id, targetFile.toPath());
-				}
-				else
-				{
-					toChannel.push(node, myChannelsService.getDeployPluginExtension(), file -> FileUtil.copy(targetFile, file.toFile(), FilePermissionCopier.BY_NIO2));
-				}
-			}
-			catch(Exception e)
-			{
-				logger.error("Problem with plugin node: " + originalNode.id + ":" + originalNode.version, e);
-			}
-		});
+		myRepositoryChannelIterationService.iterate(from, to);
 	}
 }

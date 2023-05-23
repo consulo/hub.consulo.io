@@ -61,12 +61,6 @@ public class TempFileServiceImpl implements TempFileService
 		myWorkDirectoryService = workDirectoryService;
 	}
 
-	@Deprecated
-	public TempFileServiceImpl(File tempDirectory)
-	{
-		this(tempDirectory.toPath());
-	}
-
 	public TempFileServiceImpl(Path tempDirectory)
 	{
 		myTempDirPath = tempDirectory;
