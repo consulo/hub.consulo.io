@@ -62,6 +62,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		myListSelect = new ListBox<>();
 		myListSelect.setHeightFull();
+		myListSelect.setWidth(35, Unit.EM);
 
 		add(myListSelect);
 
