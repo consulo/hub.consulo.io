@@ -12,7 +12,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.vflow.repository.view.RepositoryView;
-import consulo.hub.shared.repository.PluginChannel;
+import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.backend.BackendServiceDownException;
@@ -21,10 +21,10 @@ import consulo.procoeton.core.vaadin.util.Notifications;
 import consulo.procoeton.core.vaadin.util.RouterUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.VersionComparatorUtil;
-import org.apache.commons.lang3.StringUtils;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.*;
 
 /**
@@ -33,25 +33,22 @@ import java.util.*;
  */
 public class RepositoryChannelPanel extends HorizontalLayout
 {
-	private static final Comparator<PluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version, o1.version);
+	private static final Comparator<FrontPluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version(), o1.version());
 
 	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
 	private final TagsLocalizeLoader myTagsLocalizeLoader;
-	private final PluginChannel myPluginChannel;
-	private final Multimap<String, PluginNode> myPluginBuilds;
+	private final Multimap<String, FrontPluginNode> myPluginBuilds;
 	private final ListBox<String> myListSelect;
 	private String mySelectedPluginId;
 
-	private Map<PluginNode, String> myNameToIdMap;
+	private Map<FrontPluginNode, String> myNameToIdMap;
 
 	private HorizontalLayout myHolder;
 
-	public RepositoryChannelPanel(@Nonnull PluginChannel pluginChannel,
-								  @Nonnull BackendRepositoryService backendRepositoryService,
+	public RepositoryChannelPanel(@Nonnull BackendRepositoryService backendRepositoryService,
 								  @Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
 								  @Nonnull TagsLocalizeLoader tagsLocalizeLoader, RouteParameters routeParameters)
 	{
-		myPluginChannel = pluginChannel;
 		myBackendPluginStatisticsService = backendPluginStatisticsService;
 		myTagsLocalizeLoader = tagsLocalizeLoader;
 
@@ -71,10 +68,10 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		add(myHolder);
 		setFlexGrow(1f, myHolder);
 
-		myPluginBuilds = TreeMultimap.<String, PluginNode>create(Collections.<String>reverseOrder(Comparator.<String>naturalOrder()), ourPluginNodeComparator);
+		myPluginBuilds = TreeMultimap.create(Collections.<String>reverseOrder(Comparator.<String>naturalOrder()), ourPluginNodeComparator);
 		try
 		{
-			backendRepositoryService.listAll(pluginChannel, pluginNode -> myPluginBuilds.put(pluginNode.id, pluginNode));
+			backendRepositoryService.listAll(node -> myPluginBuilds.put(node.id(), node));
 		}
 		catch(BackendServiceDownException ignored)
 		{
@@ -84,22 +81,19 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		// name -> id
 		myNameToIdMap = new TreeMap<>((o1, o2) ->
 		{
-			if(RepositoryUtil.isPlatformNode(o1.id))
+			if(RepositoryUtil.isPlatformNode(o1.id()))
 			{
 				return -1;
 			}
-			else if(RepositoryUtil.isPlatformNode(o2.id))
+			else if(RepositoryUtil.isPlatformNode(o2.id()))
 			{
 				return 1;
 			}
-			else if(RepositoryUtil.isPlatformNode(o1.id) && RepositoryUtil.isPlatformNode(o2.id))
-			{
-				return RepositoryItemComponent.getPluginNodeName(o1).compareToIgnoreCase(RepositoryItemComponent.getPluginNodeName(o2));
-			}
-			return o1.name.compareToIgnoreCase(o2.name);
+
+			return o1.name().compareToIgnoreCase(o2.name());
 		});
 
-		for(Map.Entry<String, Collection<PluginNode>> entry : myPluginBuilds.asMap().entrySet())
+		for(Map.Entry<String, Collection<FrontPluginNode>> entry : myPluginBuilds.asMap().entrySet())
 		{
 			myNameToIdMap.put(entry.getValue().iterator().next(), entry.getKey());
 		}
@@ -107,9 +101,9 @@ public class RepositoryChannelPanel extends HorizontalLayout
 		myListSelect.setItems(myNameToIdMap.values());
 
 		Map<String, String> captions = new HashMap<>();
-		for(Map.Entry<PluginNode, String> entry : myNameToIdMap.entrySet())
+		for(Map.Entry<FrontPluginNode, String> entry : myNameToIdMap.entrySet())
 		{
-			captions.put(entry.getValue(), RepositoryItemComponent.getPluginNodeName(entry.getKey()));
+			captions.put(entry.getValue(), entry.getKey().name());
 		}
 		myListSelect.setItemLabelGenerator(captions::get);
 
@@ -132,7 +126,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 				}
 			}
 
-			RouterUtil.updateUrl(RepositoryView.class, () -> routeParameters, Map.of(RepositoryView.CHANNEL, pluginChannel.name(), RepositoryView.ID, pluginId));
+			RouterUtil.updateUrl(RepositoryView.class, () -> routeParameters, Map.of(RepositoryView.ID, pluginId));
 		});
 	}
 
@@ -157,21 +151,21 @@ public class RepositoryChannelPanel extends HorizontalLayout
 	private Component build(String pluginId)
 	{
 		// all plugin nodes
-		Collection<PluginNode> pluginNodes = myPluginBuilds.get(pluginId);
+		Collection<FrontPluginNode> pluginNodes = myPluginBuilds.get(pluginId);
 
 		// version -> nodes
-		SortedSetMultimap<String, PluginNode> sortByVersion = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
+		SortedSetMultimap<String, FrontPluginNode> sortByVersion = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
 
-		for(PluginNode pluginNode : pluginNodes)
+		for(FrontPluginNode pluginNode : pluginNodes)
 		{
-			sortByVersion.put(pluginNode.platformVersion, pluginNode);
+			sortByVersion.put(pluginNode.platformVersion(), pluginNode);
 		}
 
-		PluginNode lastPluginNodeByVersion = null;
+		FrontPluginNode lastPluginNodeByVersion = null;
 
-		Map<String, Collection<PluginNode>> sorted = sortByVersion.asMap();
+		Map<String, Collection<FrontPluginNode>> sorted = sortByVersion.asMap();
 
-		for(Map.Entry<String, Collection<PluginNode>> entry : sorted.entrySet())
+		for(Map.Entry<String, Collection<FrontPluginNode>> entry : sorted.entrySet())
 		{
 			lastPluginNodeByVersion = entry.getValue().iterator().next();
 			break;
@@ -179,7 +173,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 		if(lastPluginNodeByVersion != null)
 		{
-			return new RepositoryItemComponent(lastPluginNodeByVersion, myPluginChannel, myTagsLocalizeLoader, myBackendPluginStatisticsService, sorted);
+			return new RepositoryItemComponent(lastPluginNodeByVersion, myTagsLocalizeLoader, myBackendPluginStatisticsService, sorted);
 		}
 
 		return null;

@@ -68,6 +68,7 @@ public class PluginNode implements Cloneable
 	public String url;
 	public Checksum checksum = new Checksum();
 	public Integer downloads;
+	@Deprecated
 	public Integer downloadsAll;
 	public Long length;
 	public Long date;

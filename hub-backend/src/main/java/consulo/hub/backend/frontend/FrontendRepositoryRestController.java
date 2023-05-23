@@ -1,19 +1,15 @@
 package consulo.hub.backend.frontend;
 
-import consulo.hub.backend.repository.PluginChannelsIterationScheduler;
-import consulo.hub.backend.repository.RepositoryChannelStore;
-import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.PluginStatisticsService;
+import consulo.hub.backend.repository.RepositoryChannelIterationService;
+import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginChannel;
-import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -24,36 +20,23 @@ import java.util.Map;
 @RestController
 public class FrontendRepositoryRestController
 {
-	@Autowired
-	private RepositoryChannelsService myPluginChannelsService;
+	private final PluginStatisticsService myPluginStatisticsService;
 
-	@Autowired
-	private PluginStatisticsService myPluginStatisticsService;
+	private final RepositoryChannelIterationService myPluginChannelIterationService;
 
-	@Autowired
-	private PluginChannelsIterationScheduler myPluginChannelIterationService;
+	private final FrontendCacheService myFrontendCacheService;
+
+	public FrontendRepositoryRestController(PluginStatisticsService pluginStatisticsService, RepositoryChannelIterationService pluginChannelIterationService, FrontendCacheService frontendCacheService)
+	{
+		myPluginStatisticsService = pluginStatisticsService;
+		myPluginChannelIterationService = pluginChannelIterationService;
+		myFrontendCacheService = frontendCacheService;
+	}
 
 	@RequestMapping("/api/private/repository/list")
-	public List<PluginNode> listPlugins(@RequestParam("channel") PluginChannel pluginChannel)
+	public Collection<FrontPluginNode> listPlugins()
 	{
-		RepositoryChannelStore service = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
-
-		List<PluginNode> pluginNodes = new ArrayList<>();
-		service.iteratePluginNodes(pluginNodes::add);
-		Map<String, int[]> downloadStat = new HashMap<>();
-		for(PluginNode node : pluginNodes)
-		{
-			int[] counts = downloadStat.computeIfAbsent(node.id, id ->
-			{
-				int count = myPluginStatisticsService.getDownloadStatCount(id, pluginChannel);
-				int countAll = myPluginStatisticsService.getDownloadStatCountAll(id);
-				return new int[] {count, countAll};
-			});
-
-			node.downloads = counts[0];
-			node.downloadsAll = counts[1];
-		}
-		return pluginNodes;
+		return myFrontendCacheService.listPlugins();
 	}
 
 	@RequestMapping("/api/private/repository/downloadStat")

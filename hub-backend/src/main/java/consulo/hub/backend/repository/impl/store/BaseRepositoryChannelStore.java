@@ -11,8 +11,10 @@ import jakarta.annotation.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -25,9 +27,19 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 
 	protected final Map<String, S> myPlugins = new ConcurrentSkipListMap<>();
 
+	private final List<Runnable> myChangeListener = new CopyOnWriteArrayList<>();
+
 	public BaseRepositoryChannelStore(PluginChannel channel)
 	{
 		myChannel = channel;
+	}
+
+	public void onStoreChanged()
+	{
+		for(Runnable runnable : myChangeListener)
+		{
+			runnable.run();
+		}
 	}
 
 	@Override
@@ -41,6 +53,12 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 		}
 
 		return state.select(platformVersion, version, platformBuildSelect);
+	}
+
+	@Override
+	public void addChangeListener(Runnable runnable)
+	{
+		myChangeListener.add(runnable);
 	}
 
 	@Override
@@ -61,6 +79,8 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 		S pluginsState = myPlugins.computeIfAbsent(pluginNode.id, this::creatRepositoryNodeState);
 
 		pluginsState.push(pluginNode, ext, writeConsumer);
+
+		onStoreChanged();
 	}
 
 	@VisibleForTesting
@@ -99,5 +119,7 @@ public abstract class BaseRepositoryChannelStore<S extends BaseRepositoryNodeSta
 		}
 
 		state.remove(version, platformVersion);
+
+		onStoreChanged();
 	}
 }

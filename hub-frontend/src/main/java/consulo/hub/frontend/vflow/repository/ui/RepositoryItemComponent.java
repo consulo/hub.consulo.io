@@ -26,6 +26,7 @@ import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
+import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
@@ -41,7 +42,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author VISTALL
@@ -49,34 +49,30 @@ import java.util.stream.Collectors;
  */
 public class RepositoryItemComponent extends VerticalLayout
 {
-	private final PluginChannel myPluginChannel;
-
-	RepositoryItemComponent(@Nonnull PluginNode pluginNode,
-							@Nonnull PluginChannel pluginChannel,
+	RepositoryItemComponent(@Nonnull FrontPluginNode pluginNode,
 							@Nonnull TagsLocalizeLoader tagsLocalizeLoader,
 							@Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
-							@Nonnull Map<String, Collection<PluginNode>> versions)
+							@Nonnull Map<String, Collection<FrontPluginNode>> versions)
 	{
-		myPluginChannel = pluginChannel;
 		setSizeFull();
 		setPadding(false);
 		setMargin(false);
 
-		H3 header = new H3(getPluginNodeName(pluginNode));
-		Tooltip.forComponent(header).withText(pluginNode.id);
+		H3 header = new H3(pluginNode.name());
+		Tooltip.forComponent(header).withText(pluginNode.id());
 		add(header);
 
-		if(pluginNode.tags != null && pluginNode.tags.length > 0 || pluginNode.experimental)
+		if(pluginNode.tags() != null && pluginNode.tags().length > 0 || pluginNode.experimental())
 		{
 			HorizontalLayout tagsPanel = new HorizontalLayout();
-			if(pluginNode.experimental)
+			if(pluginNode.experimental())
 			{
 				tagsPanel.add(new Badge("EXPERIMENTAL", "error"));
 			}
 
-			if(pluginNode.tags != null)
+			if(pluginNode.tags() != null)
 			{
-				for(String tag : pluginNode.tags)
+				for(String tag : pluginNode.tags())
 				{
 					Badge label = new Badge(tagsLocalizeLoader.getTagLocalize(tag));
 					tagsPanel.add(label);
@@ -86,7 +82,7 @@ public class RepositoryItemComponent extends VerticalLayout
 		}
 
 		add(VaadinUIUtil.newHorizontalLayout(new Label("Permission:")));
-		PluginNode.Permission[] permissions = pluginNode.permissions;
+		PluginNode.Permission[] permissions = pluginNode.permissions();
 		if(permissions != null)
 		{
 			for(PluginNode.Permission permission : permissions)
@@ -101,9 +97,9 @@ public class RepositoryItemComponent extends VerticalLayout
 			add(VaadinUIUtil.newHorizontalLayout(label));
 		}
 
-		if(!StringUtils.isEmpty(pluginNode.description))
+		if(!StringUtils.isEmpty(pluginNode.description()))
 		{
-			Html descriptiopnLabel = new Html("<div>" + pluginNode.description + "</div>");
+			Html descriptiopnLabel = new Html("<div>" + pluginNode.description() + "</div>");
 			descriptiopnLabel.addClassName(LumoUtility.FontSize.XSMALL);
 			descriptiopnLabel.addClassName(LumoUtility.Width.FULL);
 			//descriptiopnLabel.addClassName(LumoUtility.Padding.SMALL);
@@ -115,38 +111,36 @@ public class RepositoryItemComponent extends VerticalLayout
 			add(descriptiopnLabel);
 		}
 
-		if(!StringUtils.isEmpty(pluginNode.vendor))
+		if(!StringUtils.isEmpty(pluginNode.vendor()))
 		{
-			add(VaadinUIUtil.labeled("Vendor: ", new Label(pluginNode.vendor)));
+			add(VaadinUIUtil.labeled("Vendor: ", new Label(pluginNode.vendor())));
 		}
 
-		add(VaadinUIUtil.labeled("Downloads: ", new Label(pluginNode.downloads + " (all: " + pluginNode.downloadsAll + ")")));
+		add(VaadinUIUtil.labeled("Downloads: ", new Label(String.valueOf(pluginNode.downloads()))));
 
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.setWidthFull();
 		add(tabSheet);
 
 		tabSheet.add("Versions", buildVersion(versions));
-		tabSheet.add("Download Statistcs", downloadStatistics(pluginNode, pluginChannel, backendPluginStatisticsService));
+		tabSheet.add("Download Statistcs", downloadStatistics(pluginNode, backendPluginStatisticsService));
 		tabSheet.add("Comments", new VerticalLayout());
 	}
 
-	private Component downloadStatistics(PluginNode pluginNode, PluginChannel pluginChannel, BackendPluginStatisticsService backendPluginStatisticsService)
+	private Component downloadStatistics(FrontPluginNode pluginNode, BackendPluginStatisticsService backendPluginStatisticsService)
 	{
 		LazyComponent lazyComponent = new LazyComponent(() ->
 		{
 			RepositoryDownloadInfo[] allDownloadStat = new RepositoryDownloadInfo[0];
 			try
 			{
-				allDownloadStat = backendPluginStatisticsService.getDownloadStat(pluginNode.id);
+				allDownloadStat = backendPluginStatisticsService.getDownloadStat(pluginNode.id());
 			}
 			catch(Exception e)
 			{
 				Notifications.serverOffline();
 				allDownloadStat = new RepositoryDownloadInfo[0];
 			}
-
-			List<RepositoryDownloadInfo> channelDownloadStat = Arrays.stream(allDownloadStat).filter(it -> it.getChannel().equals(pluginChannel.name())).collect(Collectors.toList());
 
 			LocalDate now = LocalDate.now();
 
@@ -162,7 +156,7 @@ public class RepositoryItemComponent extends VerticalLayout
 				month = month.with(TemporalAdjusters.lastDayOfMonth());
 				long end = month.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
 
-				for(RepositoryDownloadInfo downloadInfo : channelDownloadStat)
+				for(RepositoryDownloadInfo downloadInfo : allDownloadStat)
 				{
 					if(downloadInfo.getTime() >= start && downloadInfo.getTime() <= end)
 					{
@@ -194,36 +188,74 @@ public class RepositoryItemComponent extends VerticalLayout
 		return lazyComponent;
 	}
 
-	private Component buildVersion(Map<String, Collection<PluginNode>> versions)
+	private Component buildVersion(Map<String, Collection<FrontPluginNode>> versions)
 	{
 		Accordion accordion = new Accordion();
 
-		for(Map.Entry<String, Collection<PluginNode>> entry : versions.entrySet())
+		for(Map.Entry<String, Collection<FrontPluginNode>> entry : versions.entrySet())
 		{
 			String key = entry.getKey();
 
-			Collection<PluginNode> value = entry.getValue();
+			Collection<FrontPluginNode> value = entry.getValue();
 
 			VerticalLayout layout = VaadinUIUtil.newVerticalLayout();
 			layout.setWidthFull();
 
-			for(PluginNode node : value)
+			for(FrontPluginNode node : value)
 			{
 				HorizontalLayout row = new HorizontalLayout();
 				row.setWidthFull();
 				row.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-				row.add("build #" + node.version + " at " + new Date(node.date));
-				Button downloadButton = new Button("Download #" + node.version, new Icon(VaadinIcon.DOWNLOAD));
+				row.add("build #" + node.version() + " at " + new Date(node.date()));
+
+				List<PluginChannel> channels = new ArrayList<>(node.myChannels);
+				Collections.sort(channels);
+
+				if(channels.size() == 1 && channels.get(0) == PluginChannel.nightly)
+				{
+					row.add(new Badge(PluginChannel.nightly.name(), "error"));
+				}
+				else
+				{
+					for(PluginChannel channel : channels)
+					{
+						String[] classes;
+						if(channel == PluginChannel.release)
+						{
+							classes = new String[]{"success"};
+						}
+						else
+						{
+							classes = new String[0];
+						}
+						row.add(new Badge(channel.name(), classes));
+					}
+				}
+
+				Button downloadButton = new Button("Download #" + node.version(), new Icon(VaadinIcon.DOWNLOAD));
 				downloadButton.addClickListener(event ->
 				{
-					StringBuilder builder = new StringBuilder("/api/repository/download?");
-					builder.append("channel=").append(myPluginChannel.name()).append("&");
-					builder.append("platformVersion=").append(node.platformVersion).append("&");
-					builder.append("id=").append(node.id).append("&");
-					builder.append("version=").append(node.version).append("&");
-					builder.append("platformBuildSelect=").append("true");
+					String[] downloadUrls = node.myPluginNode.downloadUrls;
+					String downloadUrl;
+					if(downloadUrls != null && downloadUrls.length > 0)
+					{
+						downloadUrl = downloadUrls[0];
+					}
+					else
+					{
+						// just use first channel
+						PluginChannel first = node.myChannels.iterator().next();
 
-					UI.getCurrent().getPage().open(builder.toString(), "");
+						StringBuilder builder = new StringBuilder("/api/repository/download?");
+						builder.append("channel=").append(first).append("&");
+						builder.append("platformVersion=").append(node.platformVersion()).append("&");
+						builder.append("id=").append(node.id()).append("&");
+						builder.append("version=").append(node.version()).append("&");
+						builder.append("platformBuildSelect=").append("true");
+						downloadUrl = builder.toString();
+					}
+
+					UI.getCurrent().getPage().open(downloadUrl, "");
 				});
 				downloadButton.addClassName(LumoUtility.Margin.Left.AUTO);
 				row.add(downloadButton);

@@ -46,4 +46,8 @@ public interface RepositoryChannelStore
 	default void attachDownloadUrl(PluginNode pluginNode, String downloadUrl) throws IOException
 	{
 	}
+
+	default void addChangeListener(Runnable runnable)
+	{
+	}
 }

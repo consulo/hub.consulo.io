@@ -1,8 +1,8 @@
 package consulo.hub.frontend.vflow.backend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginChannel;
-import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.backend.ApiBackendRequestor;
 import consulo.procoeton.core.backend.BackendApiUrl;
 import consulo.procoeton.core.backend.BackendServiceDownException;
@@ -27,17 +27,17 @@ public class BackendRepositoryService
 	@Autowired
 	private ApiBackendRequestor myApiBackendRequestor;
 
-	public void listAll(PluginChannel pluginChannel, @Nonnull Consumer<PluginNode> consumer)
+	public void listAll(@Nonnull Consumer<FrontPluginNode> consumer)
 	{
 		try
 		{
-			PluginNode[] nodes = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of("channel", pluginChannel.name()), PluginNode[].class);
+			FrontPluginNode[] nodes = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of(), FrontPluginNode[].class);
 			if(nodes == null)
 			{
-				nodes = new PluginNode[0];
+				nodes = new FrontPluginNode[0];
 			}
 
-			for(PluginNode node : nodes)
+			for(FrontPluginNode node : nodes)
 			{
 				consumer.accept(node);
 			}
@@ -48,7 +48,7 @@ public class BackendRepositoryService
 		}
 		catch(Exception e)
 		{
-			LOG.error("Fail to get plugins, channel: " + pluginChannel, e);
+			LOG.error("Fail to get plugins", e);
 		}
 	}
 

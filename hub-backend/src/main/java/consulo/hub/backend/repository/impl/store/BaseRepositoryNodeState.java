@@ -194,12 +194,11 @@ public abstract class BaseRepositoryNodeState implements RepositoryNodeState
 			PluginNode last = pluginNodes.last();
 
 			PluginNode lastCloned = last.clone();
-			lastCloned.downloads = statisticsService.getDownloadStatCount(last.id, channel);
+			lastCloned.downloads = statisticsService.getDownloadStatCountAll(last.id);
 			lastCloned.downloadsAll = statisticsService.getDownloadStatCountAll(last.id);
 			list.add(lastCloned);
 		}
 	}
-
 
 	@Override
 	public void remove(String version, String platformVersion)
