@@ -242,27 +242,17 @@ public class RepositoryItemComponent extends VerticalLayout
 				Button downloadButton = new Button("Download #" + node.version(), new Icon(VaadinIcon.DOWNLOAD));
 				downloadButton.addClickListener(event ->
 				{
-					String[] downloadUrls = node.myPluginNode.downloadUrls;
-					String downloadUrl;
-					if(downloadUrls != null && downloadUrls.length > 0)
-					{
-						downloadUrl = downloadUrls[0];
-					}
-					else
-					{
-						// just use first channel
-						PluginChannel first = node.myChannels.iterator().next();
+					// just use first channel
+					PluginChannel first = node.myChannels.iterator().next();
 
-						StringBuilder builder = new StringBuilder("/api/repository/download?");
-						builder.append("channel=").append(first).append("&");
-						builder.append("platformVersion=").append(node.platformVersion()).append("&");
-						builder.append("id=").append(node.id()).append("&");
-						builder.append("version=").append(node.version()).append("&");
-						builder.append("platformBuildSelect=").append("true");
-						downloadUrl = builder.toString();
-					}
+					StringBuilder builder = new StringBuilder("/api/repository/download?");
+					builder.append("channel=").append(first).append("&");
+					builder.append("platformVersion=").append(node.platformVersion()).append("&");
+					builder.append("id=").append(node.id()).append("&");
+					builder.append("version=").append(node.version()).append("&");
+					builder.append("platformBuildSelect=").append("true");
 
-					UI.getCurrent().getPage().open(downloadUrl, "");
+					UI.getCurrent().getPage().open(builder.toString(), "");
 				});
 				downloadButton.addClassName(LumoUtility.Margin.Left.AUTO);
 				row.add(downloadButton);

@@ -7,6 +7,7 @@ import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.PlatformNodeDesc;
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -17,10 +18,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Nonnull;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author VISTALL
@@ -62,6 +67,7 @@ public class PluginChannelRestController
 									  @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect,
 									  @RequestParam(value = "zip", defaultValue = "false", required = false) boolean zip,
 									  @RequestParam(value = "viaUpdate", defaultValue = "false", required = false) boolean viaUpdate,
+									  @RequestParam(value = "noRedirect", defaultValue = "false", required = false) boolean noRedirect,
 									  @RequestParam(value = "version", required = false) String version)
 	{
 		if(id == null && pluginId == null)
@@ -105,6 +111,22 @@ public class PluginChannelRestController
 		if(!noTracking)
 		{
 			myPluginStatisticsService.increaseDownload(idNew, channel, select.version, platformVersion, viaUpdate);
+		}
+
+		if(!noRedirect)
+		{
+			String[] downloadUrls = select.downloadUrls;
+			if(downloadUrls != null && downloadUrls.length > 0)
+			{
+				String downloadUrl = downloadUrls[0];
+				try
+				{
+					return ResponseEntity.status(HttpStatus.FOUND).location(new URI(downloadUrl)).build();
+				}
+				catch(URISyntaxException ignored)
+				{
+				}
+			}
 		}
 
 		File targetFile = select.targetFile;
