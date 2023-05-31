@@ -79,7 +79,7 @@ public class AnalyzerTest extends Assert
 
 		for(String pluginId : DOWNLOAD_PLUGINS)
 		{
-			URL url = new URL("https://p-api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
 
 			System.out.println("Downloading " + url);
 

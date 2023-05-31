@@ -264,7 +264,7 @@ public class PluginIterationTest extends Assert
 		PluginNode lastNode = null;
 		for(String pluginId : pluginIds)
 		{
-			URL url = new URL("https://p-api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
 
 			InputStream resourceAsStream = url.openStream();
 
