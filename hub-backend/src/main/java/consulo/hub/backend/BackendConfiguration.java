@@ -6,7 +6,6 @@ import consulo.hub.backend.github.release.GithubReleaseService;
 import consulo.hub.backend.github.release.impl.GithubReleaseServiceImpl;
 import consulo.hub.backend.impl.TempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
-import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
@@ -70,7 +69,7 @@ public class BackendConfiguration
 
 	@Bean
 	@Order(1_000)
-	public RepositoryChannelsService pluginChannelsService(WorkDirectoryService workDirectoryService, TempFileServiceImpl fileService, TaskExecutor taskExecutor)
+	public NewRepositoryChannelsService pluginChannelsService(WorkDirectoryService workDirectoryService, TempFileServiceImpl fileService, TaskExecutor taskExecutor)
 	{
 		return new NewRepositoryChannelsService(workDirectoryService, fileService, taskExecutor);
 	}

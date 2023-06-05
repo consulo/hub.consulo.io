@@ -8,14 +8,17 @@ import consulo.component.extension.ExtensionPoint;
 import consulo.component.extension.preview.ExtensionPreview;
 import consulo.component.extension.preview.ExtensionPreviewRecorder;
 import consulo.component.internal.inject.InjectingBindingLoader;
+import consulo.container.plugin.PluginDescriptor;
+import consulo.container.plugin.PluginDescriptorStatus;
+import consulo.container.plugin.PluginManager;
 import consulo.disposer.Disposable;
 import consulo.logging.Logger;
 import consulo.logging.internal.DefaultLogger;
 import consulo.logging.internal.LoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.util.*;
 
 /**
@@ -135,6 +138,33 @@ public class Analyzer
 
 	public static void after()
 	{
+		ArrayList<PluginDescriptor> descriptors = new ArrayList<>(PluginManager.getPlugins());
 		ourRootDisposable.disposeWithTree();
+
+		for(PluginDescriptor descriptor : descriptors)
+		{
+			if(descriptor.getStatus() != PluginDescriptorStatus.OK)
+			{
+				continue;
+			}
+
+			ClassLoader pluginClassLoader = descriptor.getPluginClassLoader();
+			if(pluginClassLoader == null)
+			{
+				continue;
+			}
+
+			if(pluginClassLoader instanceof AutoCloseable closeable)
+			{
+				try
+				{
+					closeable.close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
