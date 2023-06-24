@@ -2,10 +2,9 @@ package consulo.hub.pluginAnalyzer;
 
 import consulo.virtualFileSystem.fileType.FileNameMatcher;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
-import consulo.virtualFileSystem.internal.matcher.ExactFileNameMatcher;
-import consulo.virtualFileSystem.internal.matcher.ExtensionFileNameMatcher;
-import consulo.virtualFileSystem.internal.matcher.WildcardFileNameMatcher;
-
+import consulo.virtualFileSystem.internal.matcher.ExactFileNameMatcherImpl;
+import consulo.virtualFileSystem.internal.matcher.ExtensionFileNameMatcherImpl;
+import consulo.virtualFileSystem.internal.matcher.WildcardFileNameMatcherImpl;
 import jakarta.annotation.Nonnull;
 
 /**
@@ -20,20 +19,20 @@ public class FileNameMatcherFactoryImpl extends FileNameMatcherFactory
 	@Override
 	public FileNameMatcher createExtensionFileNameMatcher(@Nonnull String extension)
 	{
-		return new ExtensionFileNameMatcher(extension);
+		return new ExtensionFileNameMatcherImpl(extension);
 	}
 
 	@Nonnull
 	@Override
 	public FileNameMatcher createExactFileNameMatcher(@Nonnull String fileName, boolean ignoreCase)
 	{
-		return new ExactFileNameMatcher(fileName, ignoreCase);
+		return new ExactFileNameMatcherImpl(fileName, ignoreCase);
 	}
 
 	@Nonnull
 	@Override
 	public FileNameMatcher createWildcardFileNameMatcher(@Nonnull String pattern)
 	{
-		return new WildcardFileNameMatcher(pattern);
+		return new WildcardFileNameMatcherImpl(pattern);
 	}
 }
