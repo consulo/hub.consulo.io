@@ -1,7 +1,7 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.impl.AsyncTempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
@@ -50,7 +50,7 @@ public class ChecksumTest extends Assert
 		WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(tempDir.toAbsolutePath().toString());
 		workDirectoryService.init();
 
-		TempFileServiceImpl tempFileService = new TempFileServiceImpl(workDirectoryService);
+		SyncTempFileServiceImpl tempFileService = new SyncTempFileServiceImpl(workDirectoryService);
 		tempFileService.init();
 
 		FileSystemUtils.deleteRecursively(tempDir);

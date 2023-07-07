@@ -1,6 +1,6 @@
 package consulo.hub.backend.repository.impl.store.old;
 
-import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.impl.AsyncTempFileServiceImpl;
 import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
@@ -25,10 +25,10 @@ public class OldPluginChannelsService implements RepositoryChannelsService
 
 	private final OldPluginChannelService[] myPluginChannelServices;
 	private final WorkDirectoryService myWorkDirectoryService;
-	private final TempFileServiceImpl myFileService;
+	private final AsyncTempFileServiceImpl myFileService;
 	private final TaskExecutor myTaskExecutor;
 
-	public OldPluginChannelsService(WorkDirectoryService workDirectoryService, TempFileServiceImpl fileService, TaskExecutor taskExecutor)
+	public OldPluginChannelsService(WorkDirectoryService workDirectoryService, AsyncTempFileServiceImpl fileService, TaskExecutor taskExecutor)
 	{
 		myWorkDirectoryService = workDirectoryService;
 		myFileService = fileService;

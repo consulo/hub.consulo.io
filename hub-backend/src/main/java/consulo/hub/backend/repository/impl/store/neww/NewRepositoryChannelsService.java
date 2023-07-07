@@ -10,6 +10,7 @@ import consulo.hub.shared.repository.PluginChannel;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.util.FileSystemUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,7 +62,7 @@ public class NewRepositoryChannelsService implements RepositoryChannelsService
 		Path tempDir = myWorkDirectoryService.getWorkingDirectory().resolve("tempDir");
 		if(Files.exists(tempDir))
 		{
-			MoreFiles.deleteRecursively(tempDir.toAbsolutePath(), RecursiveDeleteOption.ALLOW_INSECURE);
+			FileSystemUtils.deleteRecursively(tempDir);
 		}
 
 		Files.createDirectory(tempDir);

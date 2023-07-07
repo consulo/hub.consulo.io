@@ -1,7 +1,7 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.impl.AsyncTempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.RepositoryChannelIterationService;
@@ -39,7 +39,7 @@ public class PluginIterationTest extends Assert
 	private PluginDeployService myDeployService;
 	private RepositoryChannelIterationService myPluginChannelIterationService;
 	private RepositoryChannelsService myPluginChannelsService;
-	private TempFileServiceImpl myFileService;
+	private AsyncTempFileServiceImpl myFileService;
 
 	private Path myTempDir;
 
@@ -55,7 +55,7 @@ public class PluginIterationTest extends Assert
 		WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(myTempDir.toAbsolutePath().toString());
 		workDirectoryService.init();
 
-		myFileService = new TempFileServiceImpl(workDirectoryService);
+		myFileService = new SyncTempFileServiceImpl(workDirectoryService);
 		myFileService.init();
 
 		myPluginChannelsService = new NewRepositoryChannelsService(workDirectoryService, myFileService, Runnable::run);

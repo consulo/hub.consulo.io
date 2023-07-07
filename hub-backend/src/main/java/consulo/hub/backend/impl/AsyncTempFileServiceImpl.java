@@ -1,7 +1,5 @@
 package consulo.hub.backend.impl;
 
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.WorkDirectoryService;
 import consulo.util.lang.StringUtil;
@@ -19,8 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -29,13 +27,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 06/05/2023
  */
 @Service
-public class TempFileServiceImpl implements TempFileService
+public class AsyncTempFileServiceImpl implements TempFileService
 {
-	private static final Logger LOG = LoggerFactory.getLogger(TempFileServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AsyncTempFileServiceImpl.class);
 
 	private AtomicLong myTempCount = new AtomicLong();
 
-	private Executor myExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new ThreadFactory()
+	private ScheduledExecutorService myExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory()
 	{
 		private final ThreadGroup myGroup = new ThreadGroup("async delete");
 
@@ -56,12 +54,12 @@ public class TempFileServiceImpl implements TempFileService
 	private WorkDirectoryService myWorkDirectoryService;
 
 	@Autowired
-	public TempFileServiceImpl(WorkDirectoryService workDirectoryService)
+	public AsyncTempFileServiceImpl(WorkDirectoryService workDirectoryService)
 	{
 		myWorkDirectoryService = workDirectoryService;
 	}
 
-	public TempFileServiceImpl(Path tempDirectory)
+	public AsyncTempFileServiceImpl(Path tempDirectory)
 	{
 		myTempDirPath = tempDirectory;
 	}
@@ -85,7 +83,7 @@ public class TempFileServiceImpl implements TempFileService
 		Path tempDir = workDirectoryService.getWorkingDirectory().resolve("tempDir");
 		if(Files.exists(tempDir))
 		{
-			MoreFiles.deleteRecursively(tempDir.toAbsolutePath(), RecursiveDeleteOption.ALLOW_INSECURE);
+			FileSystemUtils.deleteRecursively(tempDir);
 		}
 
 		Files.createDirectory(tempDir);
@@ -102,7 +100,7 @@ public class TempFileServiceImpl implements TempFileService
 
 		if(Files.exists(path))
 		{
-			MoreFiles.deleteRecursively(path.toAbsolutePath(), RecursiveDeleteOption.ALLOW_INSECURE);
+			FileSystemUtils.deleteRecursively(path);
 		}
 
 		Files.createDirectory(path);
@@ -119,7 +117,7 @@ public class TempFileServiceImpl implements TempFileService
 		Path path = getTempDirectoryPath().resolve(StringUtil.isEmpty(ext) ? prefix + "_" + l : prefix + "_" + l + "." + ext);
 		if(Files.exists(path))
 		{
-			MoreFiles.deleteRecursively(path.toAbsolutePath(), RecursiveDeleteOption.ALLOW_INSECURE);
+			FileSystemUtils.deleteRecursively(path);
 		}
 
 		return path;
@@ -133,13 +131,13 @@ public class TempFileServiceImpl implements TempFileService
 			return;
 		}
 
-		myExecutor.execute(() ->
+		myExecutor.submit(() ->
 		{
 			for(Path file : files)
 			{
 				try
 				{
-					MoreFiles.deleteRecursively(file.toAbsolutePath(), RecursiveDeleteOption.ALLOW_INSECURE);
+					FileSystemUtils.deleteRecursively(file);
 				}
 				catch(IOException e)
 				{

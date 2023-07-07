@@ -1,7 +1,7 @@
 package consulo.webservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import consulo.hub.backend.impl.TempFileServiceImpl;
+import consulo.hub.backend.impl.AsyncTempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.PluginDeployService;
 import consulo.hub.backend.repository.RepositoryChannelStore;
@@ -61,7 +61,7 @@ public class AnalyzerTest extends Assert
 		WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(ourTempDir.toAbsolutePath().toString());
 		workDirectoryService.init();
 
-		TempFileServiceImpl tempFileService = new TempFileServiceImpl(workDirectoryService);
+		SyncTempFileServiceImpl tempFileService = new SyncTempFileServiceImpl(workDirectoryService);
 		tempFileService.init();
 
 		ourPluginChannelsService = new NewRepositoryChannelsService(workDirectoryService, tempFileService, Runnable::run);
@@ -90,16 +90,9 @@ public class AnalyzerTest extends Assert
 	}
 
 	@AfterClass
-	public static void after()
+	public static void after() throws Exception
 	{
-		try
-		{
-			FileSystemUtils.deleteRecursively(ourTempDir);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+		FileSystemUtils.deleteRecursively(ourTempDir);
 	}
 
 	@Test

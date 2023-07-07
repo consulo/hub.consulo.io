@@ -12,12 +12,8 @@ import consulo.container.plugin.PluginDescriptor;
 import consulo.container.plugin.PluginDescriptorStatus;
 import consulo.container.plugin.PluginManager;
 import consulo.disposer.Disposable;
-import consulo.logging.Logger;
-import consulo.logging.internal.DefaultLogger;
-import consulo.logging.internal.LoggerFactory;
+import consulo.hub.pluginAnalyzer.logger.SilentLoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 
 import java.util.*;
 
@@ -27,64 +23,14 @@ import java.util.*;
  */
 public class Analyzer
 {
-	public static class SilentLogger extends DefaultLogger
-	{
-		public SilentLogger(String category)
-		{
-			super(category);
-		}
-
-		@Override
-		public void error(String message, @Nullable Throwable t, String... details)
-		{
-			if(message != null)
-			{
-				System.out.println(message);
-			}
-			if(t != null)
-			{
-				t.printStackTrace();
-			}
-		}
-	}
-
-	public static class SilentFactory implements LoggerFactory
-	{
-		@Nonnull
-		@Override
-		public Logger getLoggerInstance(String s)
-		{
-			return new SilentLogger(s);
-		}
-
-		@Nonnull
-		@Override
-		public Logger getLoggerInstance(@Nonnull Class<?> aClass)
-		{
-			return new SilentLogger(aClass.getName());
-		}
-
-		@Override
-		public int getPriority()
-		{
-			return 0;
-		}
-
-		@Override
-		public void shutdown()
-		{
-
-		}
-	}
-
 	private static Disposable ourRootDisposable = Disposable.newDisposable();
 
 	// called by reflection inside PluginAnalyzerService
 	public static List<Map<String, String>> before(String targetPluginId)
 	{
-		initOtherPlugins();
+		LoggerFactoryInitializer.setFactory(new SilentLoggerFactory());
 
-		LoggerFactoryInitializer.setFactory(new SilentFactory());
+		initOtherPlugins();
 
 		InjectingBindingLoader injectingBindingLoader = InjectingBindingLoader.INSTANCE;
 
@@ -132,7 +78,7 @@ public class Analyzer
 		PluginsInitializeInfo plugins = PluginsLoader.initPlugins(null, false);
 		for(CompositeMessage message : plugins.getPluginErrors())
 		{
-			System.out.println(message.toString());
+			//System.out.println(message.toString());
 		}
 	}
 
@@ -140,6 +86,7 @@ public class Analyzer
 	{
 		ArrayList<PluginDescriptor> descriptors = new ArrayList<>(PluginManager.getPlugins());
 		ourRootDisposable.disposeWithTree();
+		ourRootDisposable = null;
 
 		for(PluginDescriptor descriptor : descriptors)
 		{

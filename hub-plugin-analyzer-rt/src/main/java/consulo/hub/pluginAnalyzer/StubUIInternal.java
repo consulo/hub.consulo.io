@@ -17,6 +17,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
@@ -221,7 +222,7 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public Image _Image_fromBytes(Image.ImageType imageType, byte[] bytes, int width, int height) throws IOException
+	public Image _Image_fromStream(Image.ImageType imageType, InputStream stream) throws IOException
 	{
 		return stubImage;
 	}
