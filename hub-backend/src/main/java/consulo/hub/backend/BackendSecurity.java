@@ -238,6 +238,8 @@ public class BackendSecurity
 		http.authorizeHttpRequests().requestMatchers("/api/repository/info").permitAll();
 		// anybody can download plugins
 		http.authorizeHttpRequests().requestMatchers("/api/repository/download").permitAll();
+		// anybody can select channel
+		http.authorizeHttpRequests().requestMatchers("/api/repository/selectChannel").permitAll();
 		// anybody can get history of plugin
 		http.authorizeHttpRequests().requestMatchers("/api/repository/history/listByVersion").permitAll();
 		http.authorizeHttpRequests().requestMatchers("/api/repository/history/listByVersionRange").permitAll();

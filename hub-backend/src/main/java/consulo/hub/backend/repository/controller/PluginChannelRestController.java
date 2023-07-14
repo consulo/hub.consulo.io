@@ -178,7 +178,7 @@ public class PluginChannelRestController
 		RestPluginGithubInfo pluginGithubInfo = null;
 		if(github != null)
 		{
-			pluginGithubInfo =	myObjectMapper.readValue(github.getBytes(), RestPluginGithubInfo.class);
+			pluginGithubInfo = myObjectMapper.readValue(github.getBytes(), RestPluginGithubInfo.class);
 		}
 		return myPluginDeployService.deployPlugin(channel, () -> history == null ? null : history.getInputStream(), file::getInputStream, pluginGithubInfo);
 	}
@@ -190,9 +190,9 @@ public class PluginChannelRestController
 
 	@RequestMapping("/api/repository/list")
 	public List<PluginNode> list(@RequestParam("channel") PluginChannel channel,
-					 @RequestParam("platformVersion") String platformVersion,
-					 @RequestParam(value = "addObsoletePlatforms", defaultValue = "true", required = false) boolean addObsoletePlatforms,
-					 @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
+								 @RequestParam("platformVersion") String platformVersion,
+								 @RequestParam(value = "addObsoletePlatforms", defaultValue = "true", required = false) boolean addObsoletePlatforms,
+								 @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect)
 	{
 		RepositoryChannelStore channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
@@ -268,5 +268,11 @@ public class PluginChannelRestController
 		}
 
 		return ResponseEntity.ok(select.clone());
+	}
+
+	@RequestMapping("/api/repository/selectChannel")
+	public ResponseEntity<PluginChannelSelect> selectChannel(@RequestParam("platformId") final String platformId, @RequestParam("platformVersion") String platformVersion)
+	{
+		return ResponseEntity.ok(new PluginChannelSelect());
 	}
 }
