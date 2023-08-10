@@ -1,6 +1,8 @@
 package consulo.hub.backend.errorReporter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.auth.repository.UserAccountRepository;
 import consulo.hub.backend.errorReporter.repository.ErrorReportRepository;
 import consulo.hub.backend.repository.RepositoryChannelStore;
@@ -27,6 +29,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +94,12 @@ public class ErrorReportRestController
 	@Autowired
 	private RepositoryChannelsService myPluginChannelsService;
 
+	@Autowired
+	private ObjectMapper myObjectMapper;
+
+	@Autowired
+	private WorkDirectoryService myWorkDirectoryService;
+
 	@RequestMapping("/api/errorReporter/list")
 	public JsonPage<ErrorReport> listErrorReports(@AuthenticationPrincipal @NonNull UserAccount account,
 												  @RequestParam(value = "statuses", required = false) String statuses,
@@ -111,8 +121,36 @@ public class ErrorReportRestController
 	}
 
 	@RequestMapping(value = "/api/errorReporter/create", method = RequestMethod.POST)
-	public Map<String, String> create(@AuthenticationPrincipal UserAccount account, @RequestParam(value = "assignUserId", required = false) long assignUserId, @RequestBody ErrorReport errorReport) throws IOException
+	public Map<String, String> create(@AuthenticationPrincipal UserAccount account,
+									  @RequestParam(value = "assignUserId", required = false) Long assignUserId,
+									  @RequestBody ErrorReport errorReport) throws IOException
 	{
+		try
+		{
+			return createImpl(account, assignUserId, errorReport);
+		}
+		catch(Throwable e)
+		{
+			Path errorReportsDir = myWorkDirectoryService.getWorkingDirectory().resolve("errorReports");
+			if(!Files.exists(errorReportsDir))
+			{
+				Files.createDirectory(errorReportsDir);
+			}
+
+			Path errorDataFile = errorReportsDir.resolve("errorReportError" + e.hashCode() + "_" + System.currentTimeMillis() + ".txt");
+			String data = myObjectMapper.writeValueAsString(errorReport);
+			Files.writeString(errorDataFile, data);
+			return resultWithMessage(CreateResult.BAD_REPORT, null, e.getMessage());
+		}
+	}
+
+	private Map<String, String> createImpl(UserAccount account, Long assignUserId, ErrorReport errorReport)
+	{
+		if(Boolean.TRUE)
+		{
+			throw new IllegalArgumentException();
+		}
+
 		String appBuild = errorReport.getAppBuild();
 		if(appBuild == null)
 		{
@@ -185,7 +223,7 @@ public class ErrorReportRestController
 		}
 
 		UserAccount assignUser = null;
-		if(assignUserId != 0)
+		if(assignUserId != null && assignUserId != 0)
 		{
 			assignUser = myUserAccountRepository.findById(assignUserId).get();
 		}
@@ -227,7 +265,7 @@ public class ErrorReportRestController
 
 	private void limitString(Supplier<String> getter, Consumer<String> setter, int limit)
 	{
-		limit --; // just be sure
+		limit--; // just be sure
 
 		String value = getter.get();
 		if(value == null)
