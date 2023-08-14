@@ -146,11 +146,6 @@ public class ErrorReportRestController
 
 	private Map<String, String> createImpl(UserAccount account, Long assignUserId, ErrorReport errorReport)
 	{
-		if(Boolean.TRUE)
-		{
-			throw new IllegalArgumentException();
-		}
-
 		String appBuild = errorReport.getAppBuild();
 		if(appBuild == null)
 		{
