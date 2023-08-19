@@ -1,24 +1,14 @@
 package consulo.hub.backend.repository.controller;
 
-import consulo.hub.backend.repository.RepositoryChannelStore;
-import consulo.hub.backend.repository.RepositoryChannelsService;
-import consulo.hub.backend.repository.RepositoryNodeState;
+import consulo.hub.backend.repository.PluginHistoryRequest;
+import consulo.hub.backend.repository.PluginHistoryResponse;
+import consulo.hub.backend.repository.PluginHistoryService;
 import consulo.hub.backend.repository.RestPluginHistoryEntry;
-import consulo.hub.backend.repository.repository.PluginHistoryEntryRepository;
-import consulo.hub.shared.repository.PluginChannel;
-import consulo.hub.shared.repository.PluginHistoryEntry;
-import consulo.util.collection.ArrayUtil;
-import consulo.util.lang.VersionComparatorUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author VISTALL
@@ -27,92 +17,65 @@ import java.util.stream.Collectors;
 @RestController
 public class PluginHistoryRestController
 {
-	private final PluginHistoryEntryRepository myPluginHistoryEntryRepository;
+	private final PluginHistoryService myPluginHistoryService;
 
-	private final RepositoryChannelsService myPluginChannelsService;
-
-	@Autowired
-	public PluginHistoryRestController(PluginHistoryEntryRepository pluginHistoryEntryRepository, RepositoryChannelsService pluginChannelsService)
+	public PluginHistoryRestController(PluginHistoryService pluginHistoryService)
 	{
-		myPluginHistoryEntryRepository = pluginHistoryEntryRepository;
-		myPluginChannelsService = pluginChannelsService;
+		myPluginHistoryService = pluginHistoryService;
 	}
 
 	@RequestMapping("/api/repository/history/listByVersion")
 	public List<RestPluginHistoryEntry> listPluginHistory(@RequestParam("id") String pluginId, @RequestParam("version") String pluginVersion)
 	{
-		List<PluginHistoryEntry> entryList = myPluginHistoryEntryRepository.findAllByPluginIdAndPluginVersion(pluginId, pluginVersion);
-		return entryList.stream().map(this::map).limit(100).collect(Collectors.toList());
+		return myPluginHistoryService.listPluginHistory(pluginId, pluginVersion).toList();
 	}
 
 	@RequestMapping("/api/repository/history/listByVersionRange")
-	public List<RestPluginHistoryEntry> lustPluginHistoryByRange(@RequestParam("id") String pluginId,
+	public List<RestPluginHistoryEntry> listPluginHistoryByRange(@RequestParam("id") String pluginId,
 																 @RequestParam("fromVersion") String fromVer,
 																 @RequestParam("toVersion") String toVer,
 																 @RequestParam(value = "includeFromVersion", required = false, defaultValue = "true") boolean includeFromVersion)
 	{
-		Set<String> allVersions = new TreeSet<>(VersionComparatorUtil::compare);
-
-		for(PluginChannel pluginChannel : PluginChannel.values())
-		{
-			RepositoryChannelStore repositoryChannelStore = myPluginChannelsService.getRepositoryByChannel(pluginChannel);
-			if(repositoryChannelStore.isLoading())
-			{
-				continue;
-			}
-
-			RepositoryNodeState state = repositoryChannelStore.getState(pluginId);
-			if(state == null)
-			{
-				continue;
-			}
-
-			state.forEach(pluginNode -> allVersions.add(pluginNode.version));
-		}
-
-		// unknown version
-		if(!allVersions.contains(toVer))
-		{
-			return List.of();
-		}
-
-		String[] verArray = allVersions.toArray(String[]::new);
-
-		List<String> targetVersions = new ArrayList<>();
-
-		int indexOfToVersion = ArrayUtil.indexOf(verArray, toVer);
-
-		for(int i = indexOfToVersion; i >= 0; i--)
-		{
-			String tempVer = verArray[i];
-
-			targetVersions.add(tempVer);
-
-			if(tempVer.equals(fromVer))
-			{
-				break;
-			}
-		}
-
-		if(!includeFromVersion)
-		{
-			targetVersions.remove(fromVer);
-		}
-
-		List<PluginHistoryEntry> entryList = myPluginHistoryEntryRepository.findAllByPluginIdAndPluginVersionIn(pluginId, targetVersions);
-		return entryList.stream().map(this::map).collect(Collectors.toList());
+		return myPluginHistoryService.lustPluginHistoryByRange(pluginId, fromVer, toVer, includeFromVersion).toList();
 	}
 
-	private RestPluginHistoryEntry map(PluginHistoryEntry jpaHistory)
+	@PostMapping("/api/repository/history/request")
+	@ResponseBody
+	public PluginHistoryResponse requestHistory(@RequestBody PluginHistoryRequest request)
 	{
-		RestPluginHistoryEntry entry = new RestPluginHistoryEntry();
-		entry.setCommitAuthor(jpaHistory.getCommitAuthor());
-		entry.setCommitHash(jpaHistory.getCommitHash());
-		entry.setCommitMessage(jpaHistory.getCommitMessage());
-		entry.setCommitTimestamp(jpaHistory.getCommitTimestamp());
-		entry.setRepoUrl(jpaHistory.getRepoUrl());
+		if(request.plugins.length == 0)
+		{
+			throw new IllegalArgumentException("Empty plugins");
+		}
 
-		entry.setPluginVersion(jpaHistory.getPluginVersion());
-		return entry;
+		PluginHistoryResponse response = new PluginHistoryResponse();
+
+		for(PluginHistoryRequest.PluginInfo plugin : request.plugins)
+		{
+			String id = plugin.id;
+
+			Stream<RestPluginHistoryEntry> stream;
+			String fromVer = Objects.requireNonNull(plugin.fromVersion, "fromVersion");
+
+			if(Objects.equals(plugin.fromVersion, plugin.toVersion))
+			{
+				stream = myPluginHistoryService.listPluginHistory(id, plugin.fromVersion);
+			}
+			else
+			{
+				stream = myPluginHistoryService.lustPluginHistoryByRange(id, fromVer, Objects.requireNonNull(plugin.toVersion), plugin.includeFromVersion);
+			}
+
+			stream.forEachOrdered(entry ->
+			{
+				PluginHistoryResponse.PluginHistory pluginHistory = new PluginHistoryResponse.PluginHistory();
+				pluginHistory.id = id;
+				pluginHistory.history = entry;
+
+				response.entries.add(pluginHistory);
+			});
+		}
+
+		return response;
 	}
 }

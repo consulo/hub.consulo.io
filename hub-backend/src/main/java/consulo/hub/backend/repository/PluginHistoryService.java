@@ -1,6 +1,9 @@
 package consulo.hub.backend.repository;
 
 import consulo.hub.shared.repository.PluginNode;
+import org.springframework.lang.NonNull;
+
+import java.util.stream.Stream;
 
 /**
  * @author VISTALL
@@ -9,4 +12,13 @@ import consulo.hub.shared.repository.PluginNode;
 public interface PluginHistoryService
 {
 	void insert(RestPluginHistoryEntry[] historyEntries, PluginNode pluginNode);
+
+	@NonNull
+	Stream<RestPluginHistoryEntry> listPluginHistory(String pluginId, String pluginVersion);
+
+	@NonNull
+	Stream<RestPluginHistoryEntry> lustPluginHistoryByRange(String pluginId,
+															String fromVer,
+															String toVer,
+															boolean includeFromVersion);
 }

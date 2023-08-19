@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface PluginHistoryEntryRepository extends JpaRepository<PluginHistoryEntry, Long>
 {
+	List<PluginHistoryEntry> findFirst100ByPluginIdAndPluginVersion(String pluginId, String pluginVersion);
+
 	List<PluginHistoryEntry> findAllByPluginIdAndPluginVersion(String pluginId, String pluginVersion);
 
 	List<PluginHistoryEntry> findAllByPluginIdAndPluginVersionIn(String pluginId, List<String> pluginVersions);

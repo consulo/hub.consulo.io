@@ -243,6 +243,7 @@ public class BackendSecurity
 		// anybody can get history of plugin
 		http.authorizeHttpRequests().requestMatchers("/api/repository/history/listByVersion").permitAll();
 		http.authorizeHttpRequests().requestMatchers("/api/repository/history/listByVersionRange").permitAll();
+		http.authorizeHttpRequests().requestMatchers("/api/repository/history/request").permitAll();
 		// storage api - only authorized users
 		http.authorizeHttpRequests().requestMatchers("/api/storage/**").hasAuthority(Roles.ROLE_USER);
 		// user api - only registered users
