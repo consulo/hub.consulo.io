@@ -36,7 +36,7 @@ public class PluginHistoryRestController
 																 @RequestParam("toVersion") String toVer,
 																 @RequestParam(value = "includeFromVersion", required = false, defaultValue = "true") boolean includeFromVersion)
 	{
-		return myPluginHistoryService.lustPluginHistoryByRange(pluginId, fromVer, toVer, includeFromVersion).toList();
+		return myPluginHistoryService.listPluginHistoryByRange(pluginId, fromVer, toVer, includeFromVersion).toList();
 	}
 
 	@PostMapping("/api/repository/history/request")
@@ -63,7 +63,7 @@ public class PluginHistoryRestController
 			}
 			else
 			{
-				stream = myPluginHistoryService.lustPluginHistoryByRange(id, fromVer, Objects.requireNonNull(plugin.toVersion), plugin.includeFromVersion);
+				stream = myPluginHistoryService.listPluginHistoryByRange(id, fromVer, Objects.requireNonNull(plugin.toVersion), plugin.includeFromVersion);
 			}
 
 			stream.forEachOrdered(entry ->

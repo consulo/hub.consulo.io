@@ -25,7 +25,7 @@ public class EmptyPluginHistoryServiceImpl implements PluginHistoryService
 	}
 
 	@Override
-	public Stream<RestPluginHistoryEntry> lustPluginHistoryByRange(String pluginId, String fromVer, String toVer, boolean includeFromVersion)
+	public Stream<RestPluginHistoryEntry> listPluginHistoryByRange(String pluginId, String fromVer, String toVer, boolean includeFromVersion)
 	{
 		return Stream.of();
 	}

@@ -17,7 +17,7 @@ public interface PluginHistoryService
 	Stream<RestPluginHistoryEntry> listPluginHistory(String pluginId, String pluginVersion);
 
 	@NonNull
-	Stream<RestPluginHistoryEntry> lustPluginHistoryByRange(String pluginId,
+	Stream<RestPluginHistoryEntry> listPluginHistoryByRange(String pluginId,
 															String fromVer,
 															String toVer,
 															boolean includeFromVersion);

@@ -41,7 +41,7 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 	}
 
 	@Override
-	public Stream<RestPluginHistoryEntry> lustPluginHistoryByRange(String pluginId,
+	public Stream<RestPluginHistoryEntry> listPluginHistoryByRange(String pluginId,
 																   String fromVer,
 																   String toVer,
 																   boolean includeFromVersion)
