@@ -41,21 +41,27 @@ public class StubProjectManager extends ProjectManager
 	@Override
 	public AsyncResult<Project> openProjectAsync(@Nonnull VirtualFile virtualFile, @Nonnull UIAccess uiAccess)
 	{
-		return null;
+		return AsyncResult.rejected();
 	}
 
 	@Nonnull
 	@Override
 	public AsyncResult<Project> openProjectAsync(@Nonnull Project project, @Nonnull UIAccess uiAccess)
 	{
-		return null;
+		return AsyncResult.rejected();
+	}
+
+	@Override
+	public boolean isProjectOpened(Project project)
+	{
+		return false;
 	}
 
 	@Nonnull
 	@Override
 	public AsyncResult<Void> closeAndDisposeAsync(@Nonnull Project project, @Nonnull UIAccess uiAccess, boolean b, boolean b1, boolean b2)
 	{
-		return null;
+		return AsyncResult.rejected();
 	}
 
 	@Override
