@@ -3,7 +3,7 @@ package consulo.hub.frontend.vflow.user.view;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -84,10 +84,10 @@ public class UserSessionsView extends ServerOfflineVChildLayout
 		String remoteAddress = (String) additionalInfo.get(HubClaimNames.REMOTE_ADDRESS);
 
 		VerticalLayout infoLayout = new VerticalLayout();
-		infoLayout.add(VaadinUIUtil.labeled("Issued at", new Label(issuedAt)));
-		infoLayout.add(VaadinUIUtil.labeled("Client", new Label(clientName)));
-		infoLayout.add(VaadinUIUtil.labeled("Service", new Label(subClientName)));
-		infoLayout.add(VaadinUIUtil.labeled("IP", new Label(remoteAddress)));
+		infoLayout.add(VaadinUIUtil.labeled("Issued at", new Span(issuedAt)));
+		infoLayout.add(VaadinUIUtil.labeled("Client", new Span(clientName)));
+		infoLayout.add(VaadinUIUtil.labeled("Service", new Span(subClientName)));
+		infoLayout.add(VaadinUIUtil.labeled("IP", new Span(remoteAddress)));
 
 		layout.add(infoLayout);
 

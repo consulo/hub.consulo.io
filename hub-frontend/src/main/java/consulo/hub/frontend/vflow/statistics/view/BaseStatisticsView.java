@@ -11,7 +11,7 @@ import com.github.appreciated.apexcharts.config.plotoptions.builder.BarBuilder;
 import com.github.appreciated.apexcharts.config.series.SeriesType;
 import com.github.appreciated.apexcharts.helper.Series;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import consulo.hub.frontend.vflow.backend.service.BackendStatisticsService;
 import consulo.hub.frontend.vflow.repository.ui.RepositoryItemComponent;
 import consulo.hub.shared.statistics.domain.StatisticEntry;
@@ -94,7 +94,7 @@ public abstract class BaseStatisticsView extends ServerOfflineVChildLayout
 		group.clear();
 		group = null;
 
-		Label label = new Label("Installations: " + installationCount);
+		Span label = new Span("Installations: " + installationCount);
 		uiBuilder.accept(label);
 
 		ScrollableLayout scrollable = new ScrollableLayout();

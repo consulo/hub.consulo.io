@@ -6,7 +6,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -56,10 +56,10 @@ public class ErrorReportComponent extends VerticalLayout
 		leftLayout.setWidth(100, Unit.PERCENTAGE);
 		leftLayout.setSpacing(true);
 		SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm");
-		Label label = new Label(format.format(new Date(errorReport.getCreateDate())));
+		Span label = new Span(format.format(new Date(errorReport.getCreateDate())));
 		label.addClassName(LumoUtility.Whitespace.NOWRAP);
 		leftLayout.add(label);
-		leftLayout.add(new Label(StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 128, 3)));
+		leftLayout.add(new Span(StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 128, 3)));
 
 		HorizontalLayout rightLayout = VaadinUIUtil.newHorizontalLayout();
 		rightLayout.setSpacing(true);
@@ -156,7 +156,7 @@ public class ErrorReportComponent extends VerticalLayout
 			TableDataCell labelRow = tableRow.addDataCell();
 			TableDataCell valueRow = tableRow.addDataCell();
 
-			labelRow.add(new Label(field.getName() + ":"));
+			labelRow.add(new Span(field.getName() + ":"));
 
 			Object rawValue = null;
 			try

@@ -6,3 +6,6 @@ tomcat.8080/
 /target
 /src/main/resources/application.properties
 /src/main/resources/hibernate.cfg.xml
+hub-backend/hub-store/
+hub-backend/test_plugin/
+hub-backend/testErrors/

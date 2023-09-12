@@ -6,7 +6,7 @@ import com.google.common.collect.TreeMultimap;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -136,7 +136,7 @@ public class RepositoryChannelPanel extends HorizontalLayout
 			image.setWidth(3, Unit.EM);
 			row.add(image);
 
-			row.add(new Label(c.name()));
+			row.add(new Span(c.name()));
 			return row;
 		}));
 

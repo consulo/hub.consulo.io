@@ -22,7 +22,7 @@
 	<properties>
 		<consulo.version>3-SNAPSHOT</consulo.version>
 		<spring.boot.version>3.0.6</spring.boot.version>
-		<vaadin.version>24.0.5</vaadin.version>
+		<vaadin.version>24.1.8</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 	</properties>
 

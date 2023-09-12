@@ -2,7 +2,7 @@ package consulo.procoeton.core.vaadin.ui.util;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -40,7 +40,7 @@ public class VaadinUIUtil
 	{
 		HorizontalLayout layout = newHorizontalLayout();
 		layout.setWidthFull();
-		layout.add(new Label(name));
+		layout.add(new Span(name));
 		layout.add(component);
 		layout.setFlexGrow(1, component);
 		if(component instanceof HasSize)
@@ -55,7 +55,7 @@ public class VaadinUIUtil
 		HorizontalLayout horizontalLayout = VaadinUIUtil.newHorizontalLayout();
 		horizontalLayout.setSpacing(true);
 		horizontalLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
-		horizontalLayout.add(new Label(name));
+		horizontalLayout.add(new Span(name));
 		horizontalLayout.add(component);
 		return horizontalLayout;
 	}

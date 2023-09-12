@@ -17,7 +17,7 @@ import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -88,19 +88,19 @@ public class RepositoryItemComponent extends VerticalLayout
 			add(tagsPanel);
 		}
 
-		add(VaadinUIUtil.newHorizontalLayout(new Label("Permission:")));
+		add(VaadinUIUtil.newHorizontalLayout(new Span("Permission:")));
 		PluginNode.Permission[] permissions = pluginNode.permissions();
 		if(permissions != null)
 		{
 			for(PluginNode.Permission permission : permissions)
 			{
-				Label label = new Label("- " + permission.type);
+				Span label = new Span("- " + permission.type);
 				add(VaadinUIUtil.newHorizontalLayout(label));
 			}
 		}
 		else
 		{
-			Label label = new Label("- <no special permissions>");
+			Span label = new Span("- <no special permissions>");
 			add(VaadinUIUtil.newHorizontalLayout(label));
 		}
 
@@ -120,10 +120,10 @@ public class RepositoryItemComponent extends VerticalLayout
 
 		if(!StringUtils.isEmpty(pluginNode.vendor()))
 		{
-			add(VaadinUIUtil.labeled("Vendor: ", new Label(pluginNode.vendor())));
+			add(VaadinUIUtil.labeled("Vendor: ", new Span(pluginNode.vendor())));
 		}
 
-		add(VaadinUIUtil.labeled("Downloads: ", new Label(String.valueOf(pluginNode.downloads()))));
+		add(VaadinUIUtil.labeled("Downloads: ", new Span(String.valueOf(pluginNode.downloads()))));
 
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.setWidthFull();

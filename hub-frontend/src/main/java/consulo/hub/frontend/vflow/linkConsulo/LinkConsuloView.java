@@ -5,7 +5,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
@@ -50,7 +50,7 @@ public class LinkConsuloView extends CenteredView
 			return;
 		}
 
-		layout.add(new Label("Do you want link Consulo to this account?"));
+		layout.add(new Span("Do you want link Consulo to this account?"));
 
 		ComponentEventListener<ClickEvent<Button>> listener1 = clickEvent -> {
 			QueryParameters queryParameters = location.getQueryParameters();

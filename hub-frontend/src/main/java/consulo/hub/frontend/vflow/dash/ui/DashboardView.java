@@ -2,7 +2,7 @@ package consulo.hub.frontend.vflow.dash.ui;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -49,7 +49,7 @@ public class DashboardView extends ServerOfflineVChildLayout
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setSizeFull();
 		//verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.add(new Label("Not Implemented Yet"));
+		verticalLayout.add(new Span("Not Implemented Yet"));
 
 		return panel("Last Plugin Comments", verticalLayout);
 	}
@@ -59,7 +59,7 @@ public class DashboardView extends ServerOfflineVChildLayout
 		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
 		verticalLayout.setSizeFull();
 		//verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.add(new Label("Not Implemented Yet"));
+		verticalLayout.add(new Span("Not Implemented Yet"));
 
 		return panel("Last Settings Update", verticalLayout);
 	}
@@ -79,7 +79,7 @@ public class DashboardView extends ServerOfflineVChildLayout
 		{
 			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
 
-			Label label = new Label(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+			Span label = new Span(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
 			label.addClassName(LumoUtility.FontWeight.BOLD);
 			lineLayout.add(label);
 			//lineLayout.addStyleName("errorViewLineLayout");
@@ -104,8 +104,8 @@ public class DashboardView extends ServerOfflineVChildLayout
 			HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
 			leftLayout.setWidth(100, Unit.PERCENTAGE);
 			leftLayout.setSpacing(true);
-			leftLayout.add(new Label("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
-			leftLayout.add(new Label("At: " + new Date(errorReport.getCreateDate())));
+			leftLayout.add(new Span("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+			leftLayout.add(new Span("At: " + new Date(errorReport.getCreateDate())));
 
 			shortLine.add(leftLayout);
 			//shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);

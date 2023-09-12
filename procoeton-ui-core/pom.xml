@@ -42,7 +42,7 @@
 	</repositories>
 
 	<properties>
-		<vaadin.version>24.0.5</vaadin.version>
+		<vaadin.version>24.1.8</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 	</properties>
 
@@ -119,6 +119,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-el</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -146,6 +152,16 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 			<version>${vaadin.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.tomcat.embed</groupId>
+					<artifactId>tomcat-embed-websocket</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

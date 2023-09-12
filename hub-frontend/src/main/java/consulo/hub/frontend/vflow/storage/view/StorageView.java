@@ -2,7 +2,7 @@ package consulo.hub.frontend.vflow.storage.view;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -170,7 +170,7 @@ public class StorageView extends ServerOfflineVChildLayout
 			layout.setWidthFull();
 
 			verticalLayout.add(layout);
-			layout.add(new Label(name + ": "));
+			layout.add(new Span(name + ": "));
 			try
 			{
 				Object fieldValue = declaredField.get(value);
