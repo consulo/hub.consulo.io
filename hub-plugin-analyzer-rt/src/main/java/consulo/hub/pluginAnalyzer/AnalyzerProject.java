@@ -3,6 +3,7 @@ package consulo.hub.pluginAnalyzer;
 import consulo.annotation.component.ComponentScope;
 import consulo.application.Application;
 import consulo.component.impl.internal.BaseComponentManager;
+import consulo.component.impl.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingContainer;
 import consulo.component.internal.inject.InjectingContainerBuilder;
 import consulo.project.Project;
@@ -19,9 +20,9 @@ import jakarta.annotation.Nullable;
  */
 public class AnalyzerProject extends BaseComponentManager implements Project
 {
-	public AnalyzerProject(Application application)
+	public AnalyzerProject(Application application, ComponentBinding componentBinding)
 	{
-		super(application, "AnalyzerProject", ComponentScope.PROJECT, false);
+		super(application, "AnalyzerProject", ComponentScope.PROJECT, componentBinding, false);
 
 		buildInjectingContainer();
 	}

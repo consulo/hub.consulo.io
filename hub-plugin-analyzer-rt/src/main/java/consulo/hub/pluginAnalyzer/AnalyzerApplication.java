@@ -9,6 +9,7 @@ import consulo.application.event.ApplicationListener;
 import consulo.application.impl.internal.IdeaModalityState;
 import consulo.component.bind.InjectingBinding;
 import consulo.component.impl.internal.BaseComponentManager;
+import consulo.component.impl.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingContainer;
 import consulo.component.internal.inject.InjectingContainerBuilder;
 import consulo.disposer.Disposable;
@@ -34,12 +35,14 @@ import java.util.function.Supplier;
  */
 public class AnalyzerApplication extends BaseComponentManager implements Application
 {
+	private final ComponentBinding myComponentBinding;
 	private final Disposable myLastDisposable;
 
-	public AnalyzerApplication(Disposable lastDisposable)
+	public AnalyzerApplication(Disposable lastDisposable, ComponentBinding componentBinding)
 	{
-		super(null, "AnalyzerApplication", ComponentScope.APPLICATION, false);
+		super(null, "AnalyzerApplication", ComponentScope.APPLICATION, componentBinding, false);
 		myLastDisposable = lastDisposable;
+		myComponentBinding = componentBinding;
 
 		buildInjectingContainer();
 	}
@@ -65,7 +68,7 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
 		// this fix for ArchiveFileType which require ArchiveFileType VirtualFileManager inside contructor
 		builder.bind(VirtualFileManager.class).to(new StubVirtualFileManager());
 		builder.bind(FileNameMatcherFactory.class).to(new FileNameMatcherFactoryImpl());
-		builder.bind(ProjectManager.class).to(new StubProjectManager(this));
+		builder.bind(ProjectManager.class).to(new StubProjectManager(this, myComponentBinding));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package consulo.hub.pluginAnalyzer;
 
+import consulo.component.impl.internal.ComponentBinding;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
@@ -19,11 +20,13 @@ import jakarta.annotation.Nullable;
 public class StubProjectManager extends ProjectManager
 {
 	private final AnalyzerApplication myApplication;
+	private final ComponentBinding myComponentBinding;
 	private AnalyzerProject myDefaultProject;
 
-	public StubProjectManager(AnalyzerApplication analyzerApplication)
+	public StubProjectManager(AnalyzerApplication analyzerApplication, ComponentBinding componentBinding)
 	{
 		myApplication = analyzerApplication;
+		myComponentBinding = componentBinding;
 	}
 
 	@Nonnull
@@ -32,7 +35,7 @@ public class StubProjectManager extends ProjectManager
 	{
 		if(myDefaultProject == null)
 		{
-			myDefaultProject = new AnalyzerProject(myApplication);
+			myDefaultProject = new AnalyzerProject(myApplication, myComponentBinding);
 		}
 		return myDefaultProject;
 	}

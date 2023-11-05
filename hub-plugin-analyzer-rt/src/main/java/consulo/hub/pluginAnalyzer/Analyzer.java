@@ -7,7 +7,9 @@ import consulo.application.impl.internal.plugin.PluginsLoader;
 import consulo.component.extension.ExtensionPoint;
 import consulo.component.extension.preview.ExtensionPreview;
 import consulo.component.extension.preview.ExtensionPreviewRecorder;
+import consulo.component.impl.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingBindingLoader;
+import consulo.component.internal.inject.TopicBindingLoader;
 import consulo.container.plugin.PluginDescriptor;
 import consulo.container.plugin.PluginDescriptorStatus;
 import consulo.container.plugin.PluginManager;
@@ -32,11 +34,11 @@ public class Analyzer
 
 		initOtherPlugins();
 
-		InjectingBindingLoader injectingBindingLoader = InjectingBindingLoader.INSTANCE;
+		InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader();
 
 		injectingBindingLoader.analyzeBindings();
 
-		AnalyzerApplication application = new AnalyzerApplication(ourRootDisposable);
+		AnalyzerApplication application = new AnalyzerApplication(ourRootDisposable, new ComponentBinding(injectingBindingLoader, new TopicBindingLoader()));
 		ApplicationManager.setApplication(application, ourRootDisposable);
 
 		ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
