@@ -86,6 +86,10 @@ public class PluginAnalyzerClassGroup
 			}
 
 			int firstSeparator = urlString.indexOf("!/");
+			if(firstSeparator == -1)
+			{
+				throw new IllegalArgumentException("Invalid url: " + urlString);
+			}
 
 			// we need start slash
 			String bootJarFile = urlString.substring(SystemUtils.IS_OS_WINDOWS ? 10 : 9, firstSeparator);
