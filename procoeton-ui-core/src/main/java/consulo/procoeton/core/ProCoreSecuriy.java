@@ -33,7 +33,7 @@ public class ProCoreSecuriy extends VaadinWebSecurity
 	@Override
 	protected void configure(HttpSecurity http) throws Exception
 	{
-		http.rememberMe().rememberMeServices(rememberMeServices());
+		http.rememberMe(it -> it.rememberMeServices(rememberMeServices()));
 
 		super.configure(http);
 

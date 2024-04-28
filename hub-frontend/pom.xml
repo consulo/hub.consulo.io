@@ -49,6 +49,19 @@
 		<profile>
 			<!-- Production mode is activated using -Pproduction -->
 			<id>production</id>
+			<dependencies>
+				<!-- Exclude development dependencies from production -->
+				<dependency>
+					<groupId>com.vaadin</groupId>
+					<artifactId>vaadin-core</artifactId>
+					<exclusions>
+						<exclusion>
+							<groupId>com.vaadin</groupId>
+							<artifactId>vaadin-dev</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
@@ -63,9 +76,6 @@
 								<phase>compile</phase>
 							</execution>
 						</executions>
-						<configuration>
-							<productionMode>true</productionMode>
-						</configuration>
 					</plugin>
 				</plugins>
 			</build>
@@ -188,6 +198,7 @@
 	</dependencies>
 
 	<build>
+		<defaultGoal>spring-boot:run</defaultGoal>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -211,6 +222,9 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<optimizeBundle>false</optimizeBundle>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

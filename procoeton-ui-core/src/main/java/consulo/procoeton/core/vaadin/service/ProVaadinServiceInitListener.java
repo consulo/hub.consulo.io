@@ -47,10 +47,10 @@ public class ProVaadinServiceInitListener implements VaadinServiceInitListener
 
 		registry.clean();
 
+		List<Class<? extends RouterLayout>> parentLayouts = List.of(myProMainLayoutProvider.getLayoutClass());
+
 		for(RouteData route : registeredRoutes)
 		{
-			List<Class<? extends RouterLayout>> parentLayouts = List.of(myProMainLayoutProvider.getLayoutClass());
-
 			registry.setRoute(route.getTemplate(), route.getNavigationTarget(), parentLayouts);
 
 			// register alias too

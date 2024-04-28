@@ -1,5 +1,7 @@
 package consulo.procoeton.hub;
 
+import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.shared.communication.PushMode;
@@ -30,6 +32,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @ComponentScan(basePackageClasses = {ProCore.class, Application.class}, basePackages = "consulo.hub.frontend.vflow")
 @Push(PushMode.MANUAL)
 @Theme(value = "vflow")
+@Uses(AppLayout.class)
 public class Application implements AppShellConfigurator
 {
 	public static void main(String[] args)
