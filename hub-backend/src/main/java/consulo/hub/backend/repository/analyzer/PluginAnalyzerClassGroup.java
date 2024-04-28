@@ -89,7 +89,7 @@ public class PluginAnalyzerClassGroup
 			String jarEntry;
 			if(urlString.startsWith(JAR_NESTED))
 			{
-				urlString = StringUtils.removeEnd(urlString, JAR_NESTED);
+				urlString = StringUtils.removeStart(urlString, JAR_NESTED);
 
 				int index = urlString.indexOf("/!");
 
