@@ -2,10 +2,12 @@ package consulo.procoeton.core.auth.backend;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import consulo.hub.shared.ServiceAccounts;
+import consulo.hub.shared.ServicesHeaders;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.ProPropertiesService;
 import consulo.procoeton.core.backend.ApiBackendKeys;
 import consulo.procoeton.core.backend.BackendRequestTarget;
+import consulo.procoeton.core.util.PropertySet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.springframework.http.HttpHeaders;
 
@@ -55,11 +57,14 @@ public class BackendUserRegisterTarget implements BackendRequestTarget<UserAccou
 		}
 
 		String email = ServiceAccounts.HUB;
-		String password = propertiesService.getPropertySet().getStringProperty(ApiBackendKeys.BACKEND_HOST_PASSWORD);
+		PropertySet propertySet = propertiesService.getPropertySet();
+		String password = propertySet.getStringProperty(ApiBackendKeys.BACKEND_HOST_PASSWORD);
 
 		String headerValue = "Basic " + Base64.getEncoder().encodeToString((email + ":" + password).getBytes(StandardCharsets.UTF_8));
 		requst.setHeader(HttpHeaders.AUTHORIZATION, headerValue);
 
+		String backendSecureKey = propertySet.getStringProperty(ApiBackendKeys.BACKEND_SECURE_KEY, "");
+		requst.setHeader(ServicesHeaders.BACKEND_SECURE_KEY, backendSecureKey);
 	}
 
 	@Override

@@ -7,22 +7,12 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>hub(Parent)</name>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>consulo</groupId>
-				<artifactId>arch.managment</artifactId>
-				<version>${consulo.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<properties>
 		<consulo.version>3-SNAPSHOT</consulo.version>
-		<spring.boot.version>3.0.6</spring.boot.version>
-		<vaadin.version>24.1.8</vaadin.version>
+		<spring.boot.version>3.2.5</spring.boot.version>
+		<spring.version>6.2.4</spring.version>
+		<vaadin.version>24.3.10</vaadin.version>
+		<vaadin.flow.version>${vaadin.version}</vaadin.flow.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 	</properties>
 
@@ -35,6 +25,58 @@
 			</snapshots>
 		</repository>
 	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>33.1.0-jre</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-compress</artifactId>
+				<version>1.26.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>1.29</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.code.gson</groupId>
+				<artifactId>gson</artifactId>
+				<version>2.10.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jdom</groupId>
+				<artifactId>jdom-core</artifactId>
+				<version>3.0-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.iq80.snappy</groupId>
+				<artifactId>snappy</artifactId>
+				<version>0.4</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>2.0.13</version>
+			</dependency>
+
+			<dependency>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>6.0.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<pluginRepositories>
 		<pluginRepository>

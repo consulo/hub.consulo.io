@@ -16,6 +16,7 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
@@ -24,7 +25,6 @@ import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.service.LogoutService;
 import consulo.procoeton.core.service.UserService;
 import consulo.procoeton.core.vaadin.ui.ChildLayout;
-import consulo.procoeton.core.vaadin.ui.appnav.AppNav;
 import consulo.procoeton.core.vaadin.view.login.LoginView;
 
 import java.util.Optional;
@@ -46,7 +46,7 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 	private final LogoutService myLogoutService;
 
 	private final Footer myFooter;
-	private final AppNav myAppNav;
+	private final SideNav myAppNav;
 
 	public MainLayoutBase(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService)
 	{
@@ -57,7 +57,7 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 		setPrimarySection(Section.DRAWER);
 
 		myFooter = new Footer();
-		myAppNav = new AppNav();
+		myAppNav = new SideNav();
 
 		addDrawerContent();
 		addHeaderContent();
@@ -103,12 +103,12 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 
 	private void updateMenuItems()
 	{
-		myAppNav.removeAllItems();
+		myAppNav.removeAll();
 
 		updateMenuItems(myAppNav);
 	}
 
-	protected abstract void updateMenuItems(AppNav appNav);
+	protected abstract void updateMenuItems(SideNav appNav);
 
 	private void updateLoginInfo()
 	{

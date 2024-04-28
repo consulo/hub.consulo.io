@@ -368,6 +368,8 @@ public class PluginDeployService
 			logger.info(e.getMessage(), e);
 		}
 
+		logger.info("Deploying plugin " + pluginDescriptor.getPluginId() + "=" + pluginDescriptor.getVersion() + " for platform: " + platformVersion + " to channe: " + channel);
+
 		repositoryChannelStore.push(pluginNode, myRepositoryChannelsService.getDeployPluginExtension(), path ->
 		{
 			try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(path)))

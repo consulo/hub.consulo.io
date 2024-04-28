@@ -42,9 +42,6 @@
 	</repositories>
 
 	<properties>
-		<vaadin.version>24.1.8</vaadin.version>
-		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
-
 		<start-class>consulo.hub.frontend.WebServiceApplication</start-class>
 	</properties>
 
