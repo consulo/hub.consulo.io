@@ -5,6 +5,7 @@ import consulo.hub.backend.TempFileService;
 import consulo.util.io.StreamUtil;
 import consulo.util.io.URLUtil;
 import jakarta.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ import java.util.zip.ZipFile;
 public class PluginAnalyzerClassGroup
 {
 	private static final Logger LOG = LoggerFactory.getLogger(PluginAnalyzerClassGroup.class);
+
+	private static final String JAR_NESTED = "jar:nested:";
 
 	private Set<String> myRequiredClasses = new LinkedHashSet<>();
 
@@ -77,24 +80,37 @@ public class PluginAnalyzerClassGroup
 			URL url = getJarUrlForClass(clazz);
 
 			//jar:file:/W:/_github.com/consulo/hub.consulo.io/backend/target/hub-backend-1.0-SNAPSHOT.jar!/BOOT-INF/lib/consulo-core-api-2-SNAPSHOT.jar!/
+			// jar:nested:/opt/hub-backend/hub-backend-1.0-SNAPSHOT.jar/!BOOT-INF/lib/consulo-container-api-3-SNAPSHOT.jar
 
 			String urlString = url.toString();
+			urlString = StringUtils.removeEnd(urlString, "!/");
 
-			if(urlString.endsWith("!/"))
+			String bootJarFile;
+			String jarEntry;
+			if(urlString.startsWith(JAR_NESTED))
 			{
-				urlString = urlString.substring(0, urlString.length() - 2);
+				urlString = StringUtils.removeEnd(urlString, JAR_NESTED);
+
+				int index = urlString.indexOf("/!");
+
+				bootJarFile = urlString.substring(0, index);
+				jarEntry = urlString.substring(index + 2, urlString.length());
+			}
+			else
+			{
+				int firstSeparator = urlString.indexOf("!/");
+				if(firstSeparator == -1)
+				{
+					throw new IllegalArgumentException("Invalid url: " + urlString);
+				}
+
+				// we need start slash
+				bootJarFile = urlString.substring(SystemUtils.IS_OS_WINDOWS ? 10 : 9, firstSeparator);
+
+				jarEntry = urlString.substring(firstSeparator + 2, urlString.length());
 			}
 
-			int firstSeparator = urlString.indexOf("!/");
-			if(firstSeparator == -1)
-			{
-				throw new IllegalArgumentException("Invalid url: " + urlString);
-			}
-
-			// we need start slash
-			String bootJarFile = urlString.substring(SystemUtils.IS_OS_WINDOWS ? 10 : 9, firstSeparator);
-
-			String jarEntry = urlString.substring(firstSeparator + 2, urlString.length());
+			LOG.info("Extracting boot jars: " + bootJarFile + "=" + jarEntry);
 
 			ZipFile zipFile = zipFileMap.computeIfAbsent(bootJarFile, it -> {
 				try
