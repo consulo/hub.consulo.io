@@ -110,13 +110,6 @@ public class AnalyzerProject extends BaseComponentManager implements Project
 
 	}
 
-	@Nonnull
-	@Override
-	public AsyncResult<Void> saveAsync(@Nonnull UIAccess uiAccess)
-	{
-		return null;
-	}
-
 	@Override
 	public boolean isOpen()
 	{
