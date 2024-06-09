@@ -101,7 +101,7 @@ public class StubUIInternal extends UIInternal
 	}
 
 	@Override
-	public DockLayout _Layouts_dock()
+	public DockLayout _Layouts_dock(int gap)
 	{
 		return null;
 	}
