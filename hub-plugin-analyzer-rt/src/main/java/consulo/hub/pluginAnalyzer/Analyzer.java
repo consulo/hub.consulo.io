@@ -25,54 +25,62 @@ import java.util.*;
  */
 public class Analyzer
 {
-	private static Disposable ourRootDisposable = Disposable.newDisposable();
-
 	// called by reflection inside PluginAnalyzerService
-	public static List<Map<String, String>> before(String targetPluginId)
+	public static List<Map<String, String>> runAnalyzer(String targetPluginId)
 	{
-		LoggerFactoryInitializer.setFactory(new SilentLoggerFactory());
+		Disposable disposable = Disposable.newDisposable();
 
-		initOtherPlugins();
-
-		InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader();
-
-		injectingBindingLoader.analyzeBindings();
-
-		AnalyzerApplication application = new AnalyzerApplication(ourRootDisposable, new ComponentBinding(injectingBindingLoader, new TopicBindingLoader()));
-		ApplicationManager.setApplication(application, ourRootDisposable);
-
-		ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
-
-		List<ExtensionPreview> previews = new ArrayList<>();
-
-		recorders.forEachExtensionSafe(extensionPreviewRecorder -> extensionPreviewRecorder.analyze(it ->
+		try
 		{
-			ExtensionPreview extensionPreview = (ExtensionPreview) it;
+			LoggerFactoryInitializer.setFactory(new SilentLoggerFactory());
 
-			if(!targetPluginId.equals(extensionPreview.getImplPluginId().getIdString()))
+			initOtherPlugins();
+
+			List<ExtensionPreview> previews = new ArrayList<>();
+
+			try (InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader())
 			{
-				return;
+				injectingBindingLoader.analyzeBindings();
+
+				AnalyzerApplication application = new AnalyzerApplication(disposable, new ComponentBinding(injectingBindingLoader, new TopicBindingLoader()));
+				ApplicationManager.setApplication(application, disposable);
+
+				ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
+
+				recorders.forEachExtensionSafe(recorder -> recorder.analyze(it ->
+				{
+					ExtensionPreview extensionPreview = (ExtensionPreview) it;
+
+					if(!targetPluginId.equals(extensionPreview.getImplPluginId().getIdString()))
+					{
+						return;
+					}
+
+					previews.add(extensionPreview);
+				}));
 			}
 
-			previews.add(extensionPreview);
-		}));
+			if(previews.isEmpty())
+			{
+				return List.of();
+			}
 
-		if(previews.isEmpty())
-		{
-			return List.of();
+			List<Map<String, String>> result = new LinkedList<>();
+			for(ExtensionPreview preview : previews)
+			{
+				Map<String, String> map = new HashMap<>();
+				map.put("apiClassName", preview.getApiClassName());
+				map.put("apiPluginId", preview.getApiPluginId().toString());
+				map.put("implId", preview.getImplId());
+				map.put("implPluginId", preview.getImplPluginId().toString());
+				result.add(map);
+			}
+			return result;
 		}
-
-		List<Map<String, String>> result = new LinkedList<>();
-		for(ExtensionPreview preview : previews)
+		finally
 		{
-			Map<String, String> map = new HashMap<>();
-			map.put("apiClassName", preview.getApiClassName());
-			map.put("apiPluginId", preview.getApiPluginId().toString());
-			map.put("implId", preview.getImplId());
-			map.put("implPluginId", preview.getImplPluginId().toString());
-			result.add(map);
+			disposeAll(disposable);
 		}
-		return result;
 	}
 
 	private static void initOtherPlugins()
@@ -84,11 +92,10 @@ public class Analyzer
 		}
 	}
 
-	public static void after()
+	private static void disposeAll(Disposable disposable)
 	{
 		ArrayList<PluginDescriptor> descriptors = new ArrayList<>(PluginManager.getPlugins());
-		ourRootDisposable.disposeWithTree();
-		ourRootDisposable = null;
+		disposable.disposeWithTree();
 
 		for(PluginDescriptor descriptor : descriptors)
 		{

@@ -20,11 +20,6 @@ import java.util.Set;
  */
 public class ContainerBoot
 {
-	/**
-	 * @see PluginIds#CONSULO_REPO_ANALYZER
-	 */
-	private static final PluginId ANALYZER = PluginId.getId("consulo.repo.analyzer");
-
 	// called by reflection
 	public static Object init(List<URL> platformURLs, List<URL> analyzerURLs, String[] pluginsDir, String targetPluginId) throws Exception
 	{
@@ -76,17 +71,18 @@ public class ContainerBoot
 
 		PluginDescriptorImpl base = initPlugin(PluginIds.CONSULO_BASE, platformURLs, new ClassLoader[]{ContainerBoot.class.getClassLoader()}, workDir);
 
-		PluginDescriptorImpl analyzer = initPlugin(ANALYZER, analyzerURLs, new ClassLoader[]{base.getPluginClassLoader()}, workDir);
+		/**
+		 * @see PluginIds#CONSULO_REPO_ANALYZER
+		 */
+		PluginId analyzerPluginId = PluginId.getId("consulo.repo.analyzer");
+
+		PluginDescriptorImpl analyzer = initPlugin(analyzerPluginId, analyzerURLs, new ClassLoader[]{base.getPluginClassLoader()}, workDir);
 
 		PluginHolderModificator.initialize(List.of(base, analyzer));
 
 		Class<?> analyzerClass = Class.forName("consulo.hub.pluginAnalyzer.Analyzer", true, analyzer.getPluginClassLoader());
 
-		Object result = analyzerClass.getDeclaredMethod("before", String.class).invoke(null, targetPluginId);
-
-		analyzerClass.getDeclaredMethod("after").invoke(null);
-
-		return result;
+		return analyzerClass.getDeclaredMethod("runAnalyzer", String.class).invoke(null, targetPluginId);
 	}
 
 	private static PluginDescriptorImpl initPlugin(PluginId pluginId, List<URL> urls, ClassLoader[] parentClassLoaders, final File workDir)

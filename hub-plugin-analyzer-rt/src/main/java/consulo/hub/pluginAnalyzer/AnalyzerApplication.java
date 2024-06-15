@@ -235,7 +235,7 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
 	@Override
 	public IdeaModalityState getNoneModalityState()
 	{
-		return IdeaModalityState.NON_MODAL;
+		return IdeaModalityState.nonModal();
 	}
 
 	@Nonnull
