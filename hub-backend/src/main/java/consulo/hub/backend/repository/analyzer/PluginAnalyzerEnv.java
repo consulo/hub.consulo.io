@@ -30,7 +30,7 @@ import consulo.module.content.layer.ModuleExtensionProvider;
 import consulo.module.extension.MutableModuleExtension;
 import consulo.navigation.NavigationItem;
 import consulo.platform.base.icon.PlatformIconGroup;
-import consulo.platform.base.localize.IdeLocalize;
+import consulo.platform.base.localize.CommonLocalize;
 import consulo.process.ExecutionException;
 import consulo.project.ProjectManager;
 import consulo.task.TaskRepositoryType;
@@ -136,7 +136,7 @@ public class PluginAnalyzerEnv
 		// module content api
 		myPlatformClassGroup.requireClass(ModuleExtensionProvider.class);
 		// base localize
-		myPlatformClassGroup.requireClass(IdeLocalize.class);
+		myPlatformClassGroup.requireClass(CommonLocalize.class);
 		// localize
 		myPlatformClassGroup.requireClass(LocalizeKey.class);
 		// project api

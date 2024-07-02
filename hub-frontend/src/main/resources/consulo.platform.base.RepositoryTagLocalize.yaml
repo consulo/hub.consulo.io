@@ -1,0 +1,68 @@
+all:
+  text: '<all>'
+database:
+  text: Database
+custom.language:
+  text: Programming Language
+grammar.language:
+  text: Grammar Language
+markup.language:
+  text: Markup Language
+template.language:
+  text: Template Language
+build.framework:
+  text: Build Framework
+software.framework:
+  text: Software Framework
+game.framework:
+  text: Game Framework
+test.framework:
+  text: Test Framework
+web.framework:
+  text: Web Framework
+ide.framework:
+  text: IDE Framework
+ui.framework:
+  text: UI Framework
+library:
+  text: Library
+language.extension:
+  text: Language Extension
+vcs:
+  text: Version Control
+import:
+  text: Import
+run.debugger:
+  text: Debugging
+run.coverage:
+  text: Coverage
+experimental:
+  text: Experimental
+web.server:
+  text: Web Server
+web.tool:
+  text: Web Tool
+tools:
+  text: Tools
+cloud:
+  text: Cloud
+ide.theme:
+  text: IDE Theme
+ide.extension:
+  text: IDE Extension
+script.language:
+  text: Script Language
+pattern.language:
+  text: Pattern Language
+issue.managment:
+  text: Issue Managment
+editor:
+  text: Editor
+editor.extension:
+  text: Editor Extension
+editor.spelling:
+  text: Editor Spelling
+serialize.framework:
+  text: Serialize Framework
+editor.color.scheme:
+  text: Editor Color Scheme

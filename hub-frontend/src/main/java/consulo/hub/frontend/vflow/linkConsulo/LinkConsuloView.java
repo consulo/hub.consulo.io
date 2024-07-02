@@ -18,6 +18,7 @@ import consulo.procoeton.core.vaadin.view.CenteredView;
 import jakarta.annotation.security.PermitAll;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author VISTALL
@@ -59,10 +60,10 @@ public class LinkConsuloView extends CenteredView
 			String token = getFirstParameter(queryParameters, "token");
 			String hostName = getFirstParameter(queryParameters, "host");
 
-			myUserAccountService.requestOAuthKey(userAccout, token, hostName);
+			Map<String, String> map = myUserAccountService.requestOAuthKey(userAccout, token, hostName);
 
 			Page current = UI.getCurrent().getPage();
-			current.open(redirect + "?token=" + token, "Redirect");
+			current.open(redirect + "?token=" + token, "_blank");
 
 			//FIXME ?? current.setUriFragment(DashboardView.ID);
 		};

@@ -82,7 +82,7 @@ public class RepositoryItemComponent extends VerticalLayout
 
 			if(RepositoryUtil.isPlatformNode(pluginNode.id()))
 			{
-				tagsPanel.add(new Badge("platform"));
+				tagsPanel.add(new Badge("IDE"));
 			}
 
 			add(tagsPanel);

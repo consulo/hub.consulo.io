@@ -1,11 +1,12 @@
 package consulo.hub.frontend.vflow.repository.ui;
 
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
-import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -22,10 +23,10 @@ public class TagsLocalizeLoader
 
 	private Map<String, String> myTagsText = new HashMap<>();
 
-	//@PostConstruct  TODO
+	@PostConstruct
 	public void init()
 	{
-		try (InputStream resourceAsStream = TagsLocalizeLoader.class.getResourceAsStream("/localize/consulo/platform/base/RepositoryTagLocalize.yaml"))
+		try (InputStream resourceAsStream = TagsLocalizeLoader.class.getResourceAsStream("/consulo.platform.base.RepositoryTagLocalize.yaml"))
 		{
 			Yaml yaml = new Yaml();
 
