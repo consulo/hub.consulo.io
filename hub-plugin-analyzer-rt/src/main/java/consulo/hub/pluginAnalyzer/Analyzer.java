@@ -10,10 +10,7 @@ import consulo.component.extension.preview.ExtensionPreviewRecorder;
 import consulo.component.impl.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingBindingLoader;
 import consulo.component.internal.inject.TopicBindingLoader;
-import consulo.container.plugin.PluginDescriptor;
-import consulo.container.plugin.PluginDescriptorStatus;
-import consulo.container.plugin.PluginManager;
-import consulo.disposer.Disposable;
+import consulo.disposer.AutoDisposable;
 import consulo.hub.pluginAnalyzer.logger.SilentLoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
 
@@ -28,9 +25,7 @@ public class Analyzer
 	// called by reflection inside PluginAnalyzerService
 	public static List<Map<String, String>> runAnalyzer(String targetPluginId)
 	{
-		Disposable disposable = Disposable.newDisposable();
-
-		try
+		try (AutoDisposable disposable = AutoDisposable.newAutoDisposable())
 		{
 			LoggerFactoryInitializer.setFactory(new SilentLoggerFactory());
 
@@ -77,10 +72,6 @@ public class Analyzer
 			}
 			return result;
 		}
-		finally
-		{
-			disposeAll(disposable);
-		}
 	}
 
 	private static void initOtherPlugins()
@@ -89,38 +80,6 @@ public class Analyzer
 		for(CompositeMessage message : plugins.getPluginErrors())
 		{
 			//System.out.println(message.toString());
-		}
-	}
-
-	private static void disposeAll(Disposable disposable)
-	{
-		ArrayList<PluginDescriptor> descriptors = new ArrayList<>(PluginManager.getPlugins());
-		disposable.disposeWithTree();
-
-		for(PluginDescriptor descriptor : descriptors)
-		{
-			if(descriptor.getStatus() != PluginDescriptorStatus.OK)
-			{
-				continue;
-			}
-
-			ClassLoader pluginClassLoader = descriptor.getPluginClassLoader();
-			if(pluginClassLoader == null)
-			{
-				continue;
-			}
-
-			if(pluginClassLoader instanceof AutoCloseable closeable)
-			{
-				try
-				{
-					closeable.close();
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 }

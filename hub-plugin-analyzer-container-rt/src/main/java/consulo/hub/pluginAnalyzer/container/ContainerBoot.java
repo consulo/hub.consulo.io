@@ -6,13 +6,14 @@ import consulo.container.impl.PluginHolderModificator;
 import consulo.container.impl.classloader.PluginClassLoaderImpl;
 import consulo.container.impl.classloader.PluginLoadStatistics;
 import consulo.container.internal.PathManagerHolder;
-import consulo.container.plugin.PluginId;
-import consulo.container.plugin.PluginIds;
+import consulo.container.plugin.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author VISTALL
@@ -82,7 +83,41 @@ public class ContainerBoot
 
 		Class<?> analyzerClass = Class.forName("consulo.hub.pluginAnalyzer.Analyzer", true, analyzer.getPluginClassLoader());
 
-		return analyzerClass.getDeclaredMethod("runAnalyzer", String.class).invoke(null, targetPluginId);
+		Object data = analyzerClass.getDeclaredMethod("runAnalyzer", String.class).invoke(null, targetPluginId);
+
+		closeAllPlugins();
+
+		return data;
+	}
+
+	private static void closeAllPlugins()
+	{
+		ArrayList<PluginDescriptor> descriptors = new ArrayList<>(PluginManager.getPlugins());
+
+		System.out.println("Disposing: " + descriptors.stream().map(it -> it.getPluginId().getIdString()).collect(Collectors.joining(", ")));
+
+		for(PluginDescriptor descriptor : descriptors)
+		{
+			if(descriptor.getStatus() != PluginDescriptorStatus.OK)
+			{
+				continue;
+			}
+
+			ClassLoader pluginClassLoader = descriptor.getPluginClassLoader();
+			if(pluginClassLoader instanceof PluginClassLoaderImpl pluginClassLoaderImpl)
+			{
+				try
+				{
+					((PluginClassLoaderImpl) pluginClassLoader).close();
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		PluginHolderModificator.initialize(List.of());
 	}
 
 	private static PluginDescriptorImpl initPlugin(PluginId pluginId, List<URL> urls, ClassLoader[] parentClassLoaders, final File workDir)
@@ -107,6 +142,7 @@ public class ContainerBoot
 				throw new UnsupportedOperationException();
 			}
 		};
+		basePlatformPlugin.setStatus(PluginDescriptorStatus.OK);
 
 		PluginClassLoaderImpl baseClassLoader = new PluginClassLoaderImpl(urls, parentClassLoaders, basePlatformPlugin);
 		basePlatformPlugin.setLoader(baseClassLoader);
