@@ -9,12 +9,10 @@ import consulo.hub.shared.repository.PluginHistoryEntry;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.VersionComparatorUtil;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -26,6 +24,8 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 {
 	private final PluginHistoryEntryRepository myPluginHistoryEntryRepository;
 	private final RepositoryChannelsService myPluginChannelsService;
+
+	private final Object myLock = new Object();
 
 	@Autowired
 	public JpaPluginHistoryServiceImpl(PluginHistoryEntryRepository pluginHistoryEntryRepository, RepositoryChannelsService pluginChannelsService)
@@ -123,7 +123,7 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 
 		UserAccount deployAccount = SecurityUtil.getUserAccout();
 
-		List<PluginHistoryEntry> history = Arrays.stream(historyEntries).map(
+		List<PluginHistoryEntry> entries = Arrays.stream(historyEntries).map(
 				(it) -> {
 					PluginHistoryEntry entry = new PluginHistoryEntry();
 					// copy history
@@ -138,14 +138,11 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 					entry.setDeployUser(deployAccount);
 					return entry;
 				}
-		).collect(Collectors.toList());
+		).toList();
 
-		saveAll(history);
-	}
-
-	@Transactional(Transactional.TxType.REQUIRES_NEW)
-	private void saveAll(List<PluginHistoryEntry> entries)
-	{
-		myPluginHistoryEntryRepository.saveAll(entries);
+		synchronized(myLock)
+		{
+			myPluginHistoryEntryRepository.saveAllAndFlush(entries);
+		}
 	}
 }
