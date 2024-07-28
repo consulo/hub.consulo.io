@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import consulo.hub.shared.auth.domain.UserAccount;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 /**
  * @author VISTALL
  * @since 16/10/2021
@@ -125,5 +127,26 @@ public class PluginHistoryEntry
 	public void setDeployUser(UserAccount deployUser)
 	{
 		this.deployUser = deployUser;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o)
+		{
+			return true;
+		}
+		if(o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		PluginHistoryEntry that = (PluginHistoryEntry) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(id);
 	}
 }

@@ -9,6 +9,7 @@ import consulo.hub.shared.repository.PluginHistoryEntry;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.VersionComparatorUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -139,6 +140,12 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 				}
 		).collect(Collectors.toList());
 
-		myPluginHistoryEntryRepository.saveAll(history);
+		saveAll(history);
+	}
+
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
+	private void saveAll(List<PluginHistoryEntry> entries)
+	{
+		myPluginHistoryEntryRepository.saveAll(entries);
 	}
 }
