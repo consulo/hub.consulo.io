@@ -140,9 +140,6 @@ public class JpaPluginHistoryServiceImpl implements PluginHistoryService
 				}
 		).toList();
 
-		synchronized(myLock)
-		{
-			myPluginHistoryEntryRepository.saveAllAndFlush(entries);
-		}
+		myPluginHistoryEntryRepository.saveAllAndFlush(entries);
 	}
 }

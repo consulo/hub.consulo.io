@@ -20,7 +20,7 @@ import java.util.Objects;
 public class PluginHistoryEntry
 {
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	private Long id;
 
 	@Column(nullable = false)
