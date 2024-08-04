@@ -2,14 +2,13 @@ package consulo.hub.backend.repository.analyzer.externalProcess;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sshtools.forker.client.ForkerBuilder;
-import com.sshtools.forker.client.ForkerProcess;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerEnv;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerRunner;
 import consulo.hub.pluginAnalyzer.container.ContainerMain;
 import consulo.hub.pluginAnalyzer.container.ContainerRunData;
 import consulo.hub.shared.repository.PluginNode;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -61,14 +60,19 @@ public class ExternalProcessPluginAnalyzerRunner implements PluginAnalyzerRunner
 
         String classPath = String.join(File.pathSeparator, classPaths);
 
-        ForkerBuilder builder = new ForkerBuilder();
-        builder.java(classPath);
-        builder.redirectErrorStream(true);
-        builder.command().add(ContainerMain.class.getName());
-        builder.command().add(input.toAbsolutePath().toString());
-        builder.command().add(output.toAbsolutePath().toString());
+        List<String> processParameters = new ArrayList<>();
+        processParameters.add(getJavaPath());
+        processParameters.add("-classpath");
+        processParameters.add(classPath);
+        processParameters.add(ContainerMain.class.getName());
+        processParameters.add(input.toAbsolutePath().toString());
+        processParameters.add(output.toAbsolutePath().toString());
 
-        ForkerProcess process = builder.start();
+        ProcessBuilder builder = new ProcessBuilder(processParameters);
+        builder.redirectErrorStream(true);
+        builder.inheritIO();
+
+        Process process = builder.start();
 
         if (!process.waitFor(10, TimeUnit.SECONDS)) {
             process.destroyForcibly();
@@ -84,5 +88,13 @@ public class ExternalProcessPluginAnalyzerRunner implements PluginAnalyzerRunner
         }
 
         return new PluginNode.ExtensionPreview[0];
+    }
+
+    private static String getJavaPath() {
+        String javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+        if (SystemUtils.IS_OS_WINDOWS) {
+            javaExe += ".exe";
+        }
+        return javaExe;
     }
 }
