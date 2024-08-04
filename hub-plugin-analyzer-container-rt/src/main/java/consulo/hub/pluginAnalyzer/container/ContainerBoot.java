@@ -115,6 +115,10 @@ public class ContainerBoot
 					e.printStackTrace();
 				}
 			}
+
+			((PluginDescriptorImpl)descriptor).setLoader(null);
+			((PluginDescriptorImpl)descriptor).setModuleLayer(null);
+			((PluginDescriptorImpl)descriptor).setStatus(PluginDescriptorStatus.ERROR_WHILE_LOADING);
 		}
 
 		PluginHolderModificator.initialize(List.of());
