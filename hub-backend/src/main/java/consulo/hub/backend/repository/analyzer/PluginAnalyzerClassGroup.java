@@ -26,179 +26,151 @@ import java.util.zip.ZipFile;
  * @author VISTALL
  * @since 06/05/2023
  */
-public class PluginAnalyzerClassGroup
-{
-	private static final Logger LOG = LoggerFactory.getLogger(PluginAnalyzerClassGroup.class);
+public class PluginAnalyzerClassGroup {
+    private static final Logger LOG = LoggerFactory.getLogger(PluginAnalyzerClassGroup.class);
 
-	private static final String JAR_NESTED = "jar:nested:";
+    private static final String JAR_NESTED = "jar:nested:";
 
-	private Set<String> myRequiredClasses = new LinkedHashSet<>();
+    private Set<String> myRequiredClasses = new LinkedHashSet<>();
 
-	private List<URL> myClassUrls = List.of();
+    private List<URL> myClassUrls = List.of();
 
-	public void requireClass(Class<?> clazz)
-	{
-		requireClass(clazz.getName());
-	}
+    public void requireClass(Class<?> clazz) {
+        requireClass(clazz.getName());
+    }
 
-	public void requireClass(String clazzName)
-	{
-		myRequiredClasses.add(clazzName);
-	}
+    public void requireClass(String clazzName) {
+        myRequiredClasses.add(clazzName);
+    }
 
-	public void init(TempFileService tempFileService) throws Exception
-	{
-		URL urlLang = getJarUrlForClass(Application.class);
+    public void init(TempFileService tempFileService) throws Exception {
+        URL urlLang = getJarUrlForClass(Application.class);
 
-		if(urlLang.toString().contains("BOOT-INF"))
-		{
-			myClassUrls = prepareRunningInsideBoot(myRequiredClasses, tempFileService);
-		}
-		else
-		{
-			myClassUrls = prepareRunningOutsideBoot(myRequiredClasses);
-		}
-	}
+        if (urlLang.toString().contains("BOOT-INF")) {
+            myClassUrls = prepareRunningInsideBoot(myRequiredClasses, tempFileService);
+        }
+        else {
+            myClassUrls = prepareRunningOutsideBoot(myRequiredClasses);
+        }
+    }
 
-	public List<URL> getClassUrls()
-	{
-		return myClassUrls;
-	}
+    public List<URL> getClassUrls() {
+        return myClassUrls;
+    }
 
-	private static List<URL> prepareRunningInsideBoot(Set<String> requiredClasses, TempFileService tempFileService) throws Exception
-	{
-		File librariesTempDir = tempFileService.createTempDir("boot_extracted_libraries");
+    private static List<URL> prepareRunningInsideBoot(Set<String> requiredClasses, TempFileService tempFileService) throws Exception {
+        File librariesTempDir = tempFileService.createTempDir("boot_extracted_libraries");
 
-		Map<String, ZipFile> zipFileMap = new HashMap<>();
+        Map<String, ZipFile> zipFileMap = new HashMap<>();
 
-		List<URL> resultUrls = new ArrayList<>();
+        List<URL> resultUrls = new ArrayList<>();
 
-		for(String requiredClass : requiredClasses)
-		{
-			Class<?> clazz = Class.forName(requiredClass);
+        for (String requiredClass : requiredClasses) {
+            Class<?> clazz = Class.forName(requiredClass);
 
-			URL url = getJarUrlForClass(clazz);
+            URL url = getJarUrlForClass(clazz);
 
-			//jar:file:/W:/_github.com/consulo/hub.consulo.io/backend/target/hub-backend-1.0-SNAPSHOT.jar!/BOOT-INF/lib/consulo-core-api-2-SNAPSHOT.jar!/
-			// jar:nested:/opt/hub-backend/hub-backend-1.0-SNAPSHOT.jar/!BOOT-INF/lib/consulo-container-api-3-SNAPSHOT.jar
+            //jar:file:/W:/_github.com/consulo/hub.consulo.io/backend/target/hub-backend-1.0-SNAPSHOT.jar!/BOOT-INF/lib/consulo-core-api-2-SNAPSHOT.jar!/
+            // jar:nested:/opt/hub-backend/hub-backend-1.0-SNAPSHOT.jar/!BOOT-INF/lib/consulo-container-api-3-SNAPSHOT.jar
 
-			String urlString = url.toString();
-			urlString = StringUtils.removeEnd(urlString, "!/");
+            String urlString = url.toString();
+            urlString = StringUtils.removeEnd(urlString, "!/");
 
-			String bootJarFile;
-			String jarEntry;
-			if(urlString.startsWith(JAR_NESTED))
-			{
-				urlString = StringUtils.removeStart(urlString, JAR_NESTED);
+            String bootJarFile;
+            String jarEntry;
+            if (urlString.startsWith(JAR_NESTED)) {
+                urlString = StringUtils.removeStart(urlString, JAR_NESTED);
 
-				int index = urlString.indexOf("/!");
+                int index = urlString.indexOf("/!");
 
-				bootJarFile = urlString.substring(0, index);
-				jarEntry = urlString.substring(index + 2, urlString.length());
-			}
-			else
-			{
-				int firstSeparator = urlString.indexOf("!/");
-				if(firstSeparator == -1)
-				{
-					throw new IllegalArgumentException("Invalid url: " + urlString);
-				}
+                bootJarFile = urlString.substring(0, index);
+                jarEntry = urlString.substring(index + 2, urlString.length());
+            }
+            else {
+                int firstSeparator = urlString.indexOf("!/");
+                if (firstSeparator == -1) {
+                    throw new IllegalArgumentException("Invalid url: " + urlString);
+                }
 
-				// we need start slash
-				bootJarFile = urlString.substring(SystemUtils.IS_OS_WINDOWS ? 10 : 9, firstSeparator);
+                // we need start slash
+                bootJarFile = urlString.substring(SystemUtils.IS_OS_WINDOWS ? 10 : 9, firstSeparator);
 
-				jarEntry = urlString.substring(firstSeparator + 2, urlString.length());
-			}
+                jarEntry = urlString.substring(firstSeparator + 2, urlString.length());
+            }
 
-			LOG.info("Extracting boot jars: " + bootJarFile + "=" + jarEntry);
+            LOG.info("Extracting boot jars: " + bootJarFile + "=" + jarEntry);
 
-			ZipFile zipFile = zipFileMap.computeIfAbsent(bootJarFile, it -> {
-				try
-				{
-					return new ZipFile(it, StandardCharsets.UTF_8);
-				}
-				catch(IOException e)
-				{
-					throw new RuntimeException(e);
-				}
-			});
+            ZipFile zipFile = zipFileMap.computeIfAbsent(bootJarFile, it -> {
+                try {
+                    return new ZipFile(it, StandardCharsets.UTF_8);
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
-			ZipEntry entry = zipFile.getEntry(jarEntry);
+            ZipEntry entry = zipFile.getEntry(jarEntry);
 
-			String jarName = jarEntry.substring(jarEntry.lastIndexOf("/") + 1, jarEntry.length());
-			File targetJarFile = new File(librariesTempDir, jarName);
-			try (InputStream inputStream = zipFile.getInputStream(entry); FileOutputStream stream = new FileOutputStream(targetJarFile))
-			{
-				StreamUtil.copyStreamContent(inputStream, stream);
-			}
+            String jarName = jarEntry.substring(jarEntry.lastIndexOf("/") + 1, jarEntry.length());
+            File targetJarFile = new File(librariesTempDir, jarName);
+            try (InputStream inputStream = zipFile.getInputStream(entry); FileOutputStream stream = new FileOutputStream(targetJarFile)) {
+                StreamUtil.copyStreamContent(inputStream, stream);
+            }
 
-			resultUrls.add(targetJarFile.toURI().toURL());
-		}
+            resultUrls.add(targetJarFile.toURI().toURL());
+        }
 
-		for(ZipFile file : zipFileMap.values())
-		{
-			try
-			{
-				file.close();
-			}
-			catch(IOException ignored)
-			{
-			}
-		}
+        for (ZipFile file : zipFileMap.values()) {
+            try {
+                file.close();
+            }
+            catch (IOException ignored) {
+            }
+        }
 
-		return resultUrls;
-	}
+        return resultUrls;
+    }
 
-	private static List<URL> prepareRunningOutsideBoot(Set<String> requiredClasses)
-	{
-		List<URL> resultUrls = new ArrayList<>();
+    private static List<URL> prepareRunningOutsideBoot(Set<String> requiredClasses) {
+        List<URL> resultUrls = new ArrayList<>();
 
-		for(String clazzName : requiredClasses)
-		{
-			try
-			{
-				Class<?> clazz = Class.forName(clazzName);
+        for (String clazzName : requiredClasses) {
+            try {
+                Class<?> clazz = Class.forName(clazzName);
 
-				File jarPathForClass = getJarPathForClass(clazz);
+                File jarPathForClass = getJarPathForClass(clazz);
 
-				resultUrls.add(jarPathForClass.toURI().toURL());
-			}
-			catch(ClassNotFoundException | MalformedURLException e)
-			{
-				LOG.error("Class " + clazzName + " is not found", e);
-			}
-		}
+                resultUrls.add(jarPathForClass.toURI().toURL());
+            }
+            catch (ClassNotFoundException | MalformedURLException e) {
+                LOG.error("Class " + clazzName + " is not found", e);
+            }
+        }
 
-		return resultUrls;
-	}
+        return resultUrls;
+    }
 
-	@Nonnull
-	private static File getJarPathForClass(@Nonnull Class aClass)
-	{
-		CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
-		if(codeSource != null)
-		{
-			URL location = codeSource.getLocation();
-			if(location != null)
-			{
-				return URLUtil.urlToFile(location);
-			}
-		}
-		throw new IllegalArgumentException("can't find path for class " + aClass.getName());
-	}
+    @Nonnull
+    private static File getJarPathForClass(@Nonnull Class aClass) {
+        CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+        if (codeSource != null) {
+            URL location = codeSource.getLocation();
+            if (location != null) {
+                return URLUtil.urlToFile(location);
+            }
+        }
+        throw new IllegalArgumentException("can't find path for class " + aClass.getName());
+    }
 
-	@Nonnull
-	private static URL getJarUrlForClass(@Nonnull Class aClass)
-	{
-		CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
-		if(codeSource != null)
-		{
-			URL location = codeSource.getLocation();
-			if(location != null)
-			{
-				return location;
-			}
-		}
-		throw new IllegalArgumentException("can't find path for class " + aClass.getName());
-	}
+    @Nonnull
+    private static URL getJarUrlForClass(@Nonnull Class aClass) {
+        CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+        if (codeSource != null) {
+            URL location = codeSource.getLocation();
+            if (location != null) {
+                return location;
+            }
+        }
+        throw new IllegalArgumentException("can't find path for class " + aClass.getName());
+    }
 }

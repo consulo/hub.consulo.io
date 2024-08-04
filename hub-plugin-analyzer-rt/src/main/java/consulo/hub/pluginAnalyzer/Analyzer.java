@@ -20,66 +20,57 @@ import java.util.*;
  * @author VISTALL
  * @since 20-Sep-16
  */
-public class Analyzer
-{
-	// called by reflection inside PluginAnalyzerService
-	public static List<Map<String, String>> runAnalyzer(String targetPluginId)
-	{
-		try (AutoDisposable disposable = AutoDisposable.newAutoDisposable())
-		{
-			LoggerFactoryInitializer.setFactory(new SilentLoggerFactory());
+public class Analyzer {
+    // called by reflection inside PluginAnalyzerService
+    public static List<Map<String, String>> runAnalyzer(String targetPluginId) {
+        try (AutoDisposable disposable = AutoDisposable.newAutoDisposable()) {
+            LoggerFactoryInitializer.setFactory(new SilentLoggerFactory());
 
-			initOtherPlugins();
+            initOtherPlugins();
 
-			List<ExtensionPreview> previews = new ArrayList<>();
+            List<ExtensionPreview> previews = new ArrayList<>();
 
-			try (InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader())
-			{
-				injectingBindingLoader.analyzeBindings();
+            try (InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader()) {
+                injectingBindingLoader.analyzeBindings();
 
-				AnalyzerApplication application = new AnalyzerApplication(disposable, new ComponentBinding(injectingBindingLoader, new TopicBindingLoader()));
-				ApplicationManager.setApplication(application, disposable);
+                AnalyzerApplication application = new AnalyzerApplication(disposable, new ComponentBinding(injectingBindingLoader, new TopicBindingLoader()));
+                ApplicationManager.setApplication(application, disposable);
 
-				ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
+                ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
 
-				recorders.forEachExtensionSafe(recorder -> recorder.analyze(it ->
-				{
-					ExtensionPreview extensionPreview = (ExtensionPreview) it;
+                recorders.forEachExtensionSafe(recorder -> recorder.analyze(it ->
+                {
+                    ExtensionPreview extensionPreview = (ExtensionPreview) it;
 
-					if(!targetPluginId.equals(extensionPreview.getImplPluginId().getIdString()))
-					{
-						return;
-					}
+                    if (!targetPluginId.equals(extensionPreview.getImplPluginId().getIdString())) {
+                        return;
+                    }
 
-					previews.add(extensionPreview);
-				}));
-			}
+                    previews.add(extensionPreview);
+                }));
+            }
 
-			if(previews.isEmpty())
-			{
-				return List.of();
-			}
+            if (previews.isEmpty()) {
+                return List.of();
+            }
 
-			List<Map<String, String>> result = new LinkedList<>();
-			for(ExtensionPreview preview : previews)
-			{
-				Map<String, String> map = new HashMap<>();
-				map.put("apiClassName", preview.getApiClassName());
-				map.put("apiPluginId", preview.getApiPluginId().toString());
-				map.put("implId", preview.getImplId());
-				map.put("implPluginId", preview.getImplPluginId().toString());
-				result.add(map);
-			}
-			return result;
-		}
-	}
+            List<Map<String, String>> result = new LinkedList<>();
+            for (ExtensionPreview preview : previews) {
+                Map<String, String> map = new HashMap<>();
+                map.put("apiClassName", preview.getApiClassName());
+                map.put("apiPluginId", preview.getApiPluginId().toString());
+                map.put("implId", preview.getImplId());
+                map.put("implPluginId", preview.getImplPluginId().toString());
+                result.add(map);
+            }
+            return result;
+        }
+    }
 
-	private static void initOtherPlugins()
-	{
-		PluginsInitializeInfo plugins = PluginsLoader.initPlugins(null, false);
-		for(CompositeMessage message : plugins.getPluginErrors())
-		{
-			//System.out.println(message.toString());
-		}
-	}
+    private static void initOtherPlugins() {
+        PluginsInitializeInfo plugins = PluginsLoader.initPlugins(null, false);
+        for (CompositeMessage message : plugins.getPluginErrors()) {
+            System.out.println(message.toString());
+        }
+    }
 }

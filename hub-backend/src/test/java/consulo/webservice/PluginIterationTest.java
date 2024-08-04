@@ -8,6 +8,7 @@ import consulo.hub.backend.repository.RepositoryChannelIterationService;
 import consulo.hub.backend.repository.RepositoryChannelStore;
 import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerServiceImpl;
+import consulo.hub.backend.repository.analyzer.builtin.BuiltinPluginAnalyzerRunnerFactory;
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelIterationService;
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
 import consulo.hub.shared.repository.PluginChannel;
@@ -34,49 +35,46 @@ import java.util.Optional;
  * @author VISTALL
  * @since 04-Jan-17
  */
-public class PluginIterationTest extends Assert
-{
-	private PluginDeployService myDeployService;
-	private RepositoryChannelIterationService myPluginChannelIterationService;
-	private RepositoryChannelsService myPluginChannelsService;
-	private AsyncTempFileServiceImpl myFileService;
+public class PluginIterationTest extends Assert {
+    private PluginDeployService myDeployService;
+    private RepositoryChannelIterationService myPluginChannelIterationService;
+    private RepositoryChannelsService myPluginChannelsService;
+    private AsyncTempFileServiceImpl myFileService;
 
-	private Path myTempDir;
+    private Path myTempDir;
 
-	@Before
-	public void before() throws Exception
-	{
-		Path tempDir = Files.createTempDirectory("webService");
+    @Before
+    public void before() throws Exception {
+        Path tempDir = Files.createTempDirectory("webService");
 
-		myTempDir = tempDir;
+        myTempDir = tempDir;
 
-		Files.createDirectories(myTempDir);
+        Files.createDirectories(myTempDir);
 
-		WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(myTempDir.toAbsolutePath().toString());
-		workDirectoryService.init();
+        WorkDirectoryServiceImpl workDirectoryService = new WorkDirectoryServiceImpl(myTempDir.toAbsolutePath().toString());
+        workDirectoryService.init();
 
-		myFileService = new SyncTempFileServiceImpl(workDirectoryService);
-		myFileService.init();
+        myFileService = new SyncTempFileServiceImpl(workDirectoryService);
+        myFileService.init();
 
-		myPluginChannelsService = new NewRepositoryChannelsService(workDirectoryService, myFileService, Runnable::run);
-		myPluginChannelsService.init();
+        myPluginChannelsService = new NewRepositoryChannelsService(workDirectoryService, myFileService, Runnable::run);
+        myPluginChannelsService.init();
 
-		ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
 
-		PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, objectMapper);
+        PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, new BuiltinPluginAnalyzerRunnerFactory(objectMapper));
 
-		myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService, new EmptyGithubReleaseServiceImpl());
+        myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService, new EmptyGithubReleaseServiceImpl());
 
-		myPluginChannelIterationService = new NewRepositoryChannelIterationService((NewRepositoryChannelsService) myPluginChannelsService);
+        myPluginChannelIterationService = new NewRepositoryChannelIterationService((NewRepositoryChannelsService) myPluginChannelsService);
 
-		myPluginChannelsService.init();
-	}
+        myPluginChannelsService.init();
+    }
 
-	@After
-	public void after() throws Exception
-	{
-		FileSystemUtils.deleteRecursively(myTempDir);
-	}
+    @After
+    public void after() throws Exception {
+        FileSystemUtils.deleteRecursively(myTempDir);
+    }
 
 //	@Test
 //	public void testCleanupTask() throws Exception
@@ -204,72 +202,65 @@ public class PluginIterationTest extends Assert
 //		}
 //	}
 
-	private void assertInPluginChannel(Collection<PluginNode> all, String pluginId, String platformVersion, int version)
-	{
-		Optional<PluginNode> node = all.stream().filter(it -> it.platformVersion.equals(platformVersion) && it.id.equals(pluginId) && it.version.equals(String.valueOf(version))).findFirst();
+    private void assertInPluginChannel(Collection<PluginNode> all, String pluginId, String platformVersion, int version) {
+        Optional<PluginNode> node = all.stream().filter(it -> it.platformVersion.equals(platformVersion) && it.id.equals(pluginId) && it.version.equals(String.valueOf(version))).findFirst();
 
-		assertTrue("Version " + pluginId + ":" + platformVersion + ":" + version + " is not found", node.isPresent());
-	}
+        assertTrue("Version " + pluginId + ":" + platformVersion + ":" + version + " is not found", node.isPresent());
+    }
 
-	@Test
-	public void testPlatformIteration() throws Exception
-	{
-		PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, RepositoryUtil.ourStandardWinId, "/consulo-win-no-jre_1554.tar.gz");
+    @Test
+    public void testPlatformIteration() throws Exception {
+        PluginNode platformNode = deployPlatform(PluginChannel.nightly, 1554, RepositoryUtil.ourStandardWinId, "/consulo-win-no-jre_1554.tar.gz");
 
-		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
+        myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
-		RepositoryChannelStore pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
+        RepositoryChannelStore pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
 
-		PluginNode pluginNodeInAlpha = pluginChannelService.select(platformNode.platformVersion, platformNode.id, null, false);
-		assertNotNull(pluginNodeInAlpha);
-		assertEquals(pluginNodeInAlpha.id, platformNode.id);
-		assertNotNull(pluginNodeInAlpha);
-		assertNotNull(pluginNodeInAlpha.targetPath);
-		assertTrue(Files.exists(pluginNodeInAlpha.targetPath));
-	}
+        PluginNode pluginNodeInAlpha = pluginChannelService.select(platformNode.platformVersion, platformNode.id, null, false);
+        assertNotNull(pluginNodeInAlpha);
+        assertEquals(pluginNodeInAlpha.id, platformNode.id);
+        assertNotNull(pluginNodeInAlpha);
+        assertNotNull(pluginNodeInAlpha.targetPath);
+        assertTrue(Files.exists(pluginNodeInAlpha.targetPath));
+    }
 
-	@Nonnull
-	private PluginNode deployPlatform(PluginChannel channel, int platformVersion, String pluginId, String pluginPath) throws Exception
-	{
-		InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
+    @Nonnull
+    private PluginNode deployPlatform(PluginChannel channel, int platformVersion, String pluginId, String pluginPath) throws Exception {
+        InputStream resourceAsStream = AnalyzerTest.class.getResourceAsStream(pluginPath);
 
-		File tempFile = myFileService.createTempFile("platformTemp", ".tar.gz");
-		try (FileOutputStream outputStream = new FileOutputStream(tempFile))
-		{
-			FileUtil.copy(resourceAsStream, outputStream);
-		}
+        File tempFile = myFileService.createTempFile("platformTemp", ".tar.gz");
+        try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+            FileUtil.copy(resourceAsStream, outputStream);
+        }
 
-		return myDeployService.deployPlatform(channel, null, platformVersion, pluginId, tempFile.toPath());
-	}
+        return myDeployService.deployPlatform(channel, null, platformVersion, pluginId, tempFile.toPath());
+    }
 
-	@Test
-	public void testPluginIteration() throws Exception
-	{
-		PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "com.intellij.xml");
+    @Test
+    public void testPluginIteration() throws Exception {
+        PluginNode pluginNode = deployPlugin(PluginChannel.nightly, "com.intellij.xml");
 
-		myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
+        myPluginChannelIterationService.iterate(PluginChannel.nightly, PluginChannel.alpha);
 
-		RepositoryChannelStore pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
+        RepositoryChannelStore pluginChannelService = myPluginChannelsService.getRepositoryByChannel(PluginChannel.alpha);
 
-		PluginNode pluginNodeInAlpha = pluginChannelService.select(pluginNode.platformVersion, pluginNode.id, null, false);
-		assertNotNull(pluginNodeInAlpha);
-		assertEquals(pluginNodeInAlpha.id, pluginNode.id);
-		assertNotNull(pluginNodeInAlpha);
-		assertNotNull(pluginNodeInAlpha.targetPath);
-		assertTrue(Files.exists(pluginNodeInAlpha.targetPath));
-	}
+        PluginNode pluginNodeInAlpha = pluginChannelService.select(pluginNode.platformVersion, pluginNode.id, null, false);
+        assertNotNull(pluginNodeInAlpha);
+        assertEquals(pluginNodeInAlpha.id, pluginNode.id);
+        assertNotNull(pluginNodeInAlpha);
+        assertNotNull(pluginNodeInAlpha.targetPath);
+        assertTrue(Files.exists(pluginNodeInAlpha.targetPath));
+    }
 
-	private PluginNode deployPlugin(PluginChannel channel, String... pluginIds) throws Exception
-	{
-		PluginNode lastNode = null;
-		for(String pluginId : pluginIds)
-		{
-			URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
+    private PluginNode deployPlugin(PluginChannel channel, String... pluginIds) throws Exception {
+        PluginNode lastNode = null;
+        for (String pluginId : pluginIds) {
+            URL url = new URL("https://api.consulo.io/repository/download?id=" + pluginId + "&platformVersion=SNAPSHOT&version=SNAPSHOT&channel=nightly");
 
-			InputStream resourceAsStream = url.openStream();
+            InputStream resourceAsStream = url.openStream();
 
-			lastNode = myDeployService.deployPlugin(channel, () -> resourceAsStream);
-		}
-		return lastNode;
-	}
+            lastNode = myDeployService.deployPlugin(channel, () -> resourceAsStream);
+        }
+        return lastNode;
+    }
 }
