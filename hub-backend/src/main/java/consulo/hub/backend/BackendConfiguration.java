@@ -7,7 +7,7 @@ import consulo.hub.backend.github.release.impl.GithubReleaseServiceImpl;
 import consulo.hub.backend.impl.AsyncTempFileServiceImpl;
 import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerRunnerFactory;
-import consulo.hub.backend.repository.analyzer.builtin.BuiltinPluginAnalyzerRunnerFactory;
+import consulo.hub.backend.repository.analyzer.externalProcess.ExternalProcessPluginAnalyzerRunnerFactory;
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
@@ -69,8 +69,8 @@ public class BackendConfiguration {
     }
 
     @Bean
-    public PluginAnalyzerRunnerFactory pluginAnalyzerRunnerFactory(ObjectMapper objectMapper) {
-        return new BuiltinPluginAnalyzerRunnerFactory(objectMapper);
+    public PluginAnalyzerRunnerFactory pluginAnalyzerRunnerFactory(ObjectMapper objectMapper, TempFileService tempFileService) {
+        return new ExternalProcessPluginAnalyzerRunnerFactory(objectMapper, tempFileService);
     }
 
     @PostConstruct
