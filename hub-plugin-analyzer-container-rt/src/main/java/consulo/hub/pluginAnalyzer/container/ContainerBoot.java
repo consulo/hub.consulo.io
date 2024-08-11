@@ -4,7 +4,6 @@ import consulo.container.boot.ContainerPathManager;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.PluginHolderModificator;
 import consulo.container.impl.classloader.PluginClassLoaderImpl;
-import consulo.container.impl.classloader.PluginLoadStatistics;
 import consulo.container.internal.PathManagerHolder;
 import consulo.container.plugin.*;
 
@@ -26,8 +25,6 @@ public class ContainerBoot {
     public static List<Map<String, String>> init(List<URL> platformURLs, List<URL> analyzerURLs, String[] pluginsDir, String targetPluginId) throws Exception {
         // disable ignore plugins check
         System.setProperty("consulo.ignore.disabled.plugins", "true");
-
-        PluginLoadStatistics.initialize(false);
 
         File workDir = new File("");
 
