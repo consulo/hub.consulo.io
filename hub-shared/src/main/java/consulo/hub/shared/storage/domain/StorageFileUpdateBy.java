@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 public class StorageFileUpdateBy extends InformationBean
 {
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	private Long id;
 
 	@Column

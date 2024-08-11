@@ -17,7 +17,7 @@ import java.util.Objects;
 public class StatisticEntry
 {
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	private Long id;
 
 	private String key;

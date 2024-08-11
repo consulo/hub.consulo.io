@@ -23,7 +23,7 @@ public class ErrorReport
 	public static final int MAX_STACKTRACE_LENGHT = 51200;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	private Long id;
 
 	private String longId;

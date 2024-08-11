@@ -12,7 +12,7 @@ import java.util.Objects;
 public class ErrorReportAttachment
 {
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	private Long id;
 
 	private String name;

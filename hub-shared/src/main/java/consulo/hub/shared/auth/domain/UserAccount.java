@@ -27,7 +27,7 @@ public class UserAccount implements UserDetails
 	public static final int ROLE_DEVELOPER = 1 << 4;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	@Column
 	private Long id;
 	@Column

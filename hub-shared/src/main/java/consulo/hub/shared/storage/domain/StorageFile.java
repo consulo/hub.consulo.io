@@ -14,7 +14,7 @@ import java.util.Objects;
 public class StorageFile
 {
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	@Column
 	private Long id;
 

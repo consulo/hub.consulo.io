@@ -14,7 +14,7 @@ import jakarta.persistence.Id;
 public class ErrorReportAffectedPlugin
 {
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue
 	private Long id;
 
 	private String pluginId;
