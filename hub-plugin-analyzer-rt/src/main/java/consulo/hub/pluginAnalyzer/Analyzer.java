@@ -42,7 +42,7 @@ public class Analyzer {
                 {
                     ExtensionPreview extensionPreview = (ExtensionPreview) it;
 
-                    if (!targetPluginId.equals(extensionPreview.getImplPluginId().getIdString())) {
+                    if (!targetPluginId.equals(extensionPreview.implPluginId().getIdString())) {
                         return;
                     }
 
@@ -57,10 +57,10 @@ public class Analyzer {
             List<Map<String, String>> result = new LinkedList<>();
             for (ExtensionPreview preview : previews) {
                 Map<String, String> map = new HashMap<>();
-                map.put("apiClassName", preview.getApiClassName());
-                map.put("apiPluginId", preview.getApiPluginId().toString());
-                map.put("implId", preview.getImplId());
-                map.put("implPluginId", preview.getImplPluginId().toString());
+                map.put("apiClassName", preview.apiClassName());
+                map.put("apiPluginId", preview.apiPluginId().toString());
+                map.put("implId", preview.implId());
+                map.put("implPluginId", preview.implPluginId().toString());
                 result.add(map);
             }
             return result;
