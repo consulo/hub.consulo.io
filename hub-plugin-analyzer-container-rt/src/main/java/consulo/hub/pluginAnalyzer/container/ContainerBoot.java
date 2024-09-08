@@ -1,6 +1,7 @@
 package consulo.hub.pluginAnalyzer.container;
 
 import consulo.container.boot.ContainerPathManager;
+import consulo.container.impl.ClassPathItem;
 import consulo.container.impl.PluginDescriptorImpl;
 import consulo.container.impl.PluginHolderModificator;
 import consulo.container.impl.classloader.PluginClassLoaderImpl;
@@ -121,13 +122,13 @@ public class ContainerBoot {
             }
 
             @Override
-            public List<File> getClassPath(Set<PluginId> enabledPluginIds) {
+            public List<ClassPathItem> getClassPathItems(Set<PluginId> enabledPluginIds) {
                 throw new UnsupportedOperationException();
             }
         };
         basePlatformPlugin.setStatus(PluginDescriptorStatus.OK);
 
-        PluginClassLoaderImpl baseClassLoader = new PluginClassLoaderImpl(urls, parentClassLoaders, basePlatformPlugin);
+        PluginClassLoaderImpl baseClassLoader = new PluginClassLoaderImpl(urls, null, parentClassLoaders, basePlatformPlugin);
         basePlatformPlugin.setLoader(baseClassLoader);
 
         return basePlatformPlugin;

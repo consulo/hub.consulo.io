@@ -25,12 +25,6 @@ public class SilentLoggerFactory implements LoggerFactory
 	}
 
 	@Override
-	public int getPriority()
-	{
-		return 0;
-	}
-
-	@Override
 	public void shutdown()
 	{
 
