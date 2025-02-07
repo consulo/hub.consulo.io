@@ -1,9 +1,9 @@
 package consulo.hub.pluginAnalyzer;
 
 import consulo.application.ApplicationManager;
-import consulo.application.impl.internal.plugin.CompositeMessage;
-import consulo.application.impl.internal.plugin.PluginsInitializeInfo;
-import consulo.application.impl.internal.plugin.PluginsLoader;
+import consulo.application.internal.plugin.CompositeMessage;
+import consulo.application.internal.plugin.PluginsInitializeInfo;
+import consulo.application.internal.plugin.PluginsLoader;
 import consulo.component.extension.ExtensionPoint;
 import consulo.component.extension.preview.ExtensionPreview;
 import consulo.component.extension.preview.ExtensionPreviewRecorder;

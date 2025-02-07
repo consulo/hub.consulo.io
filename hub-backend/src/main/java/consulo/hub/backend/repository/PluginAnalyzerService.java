@@ -1,6 +1,6 @@
 package consulo.hub.backend.repository;
 
-import consulo.container.impl.PluginDescriptorImpl;
+import consulo.container.internal.plugin.PluginDescriptorImpl;
 import consulo.hub.shared.repository.PluginNode;
 import jakarta.annotation.Nonnull;
 

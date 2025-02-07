@@ -6,7 +6,6 @@ import consulo.annotation.component.ComponentScope;
 import consulo.application.AccessToken;
 import consulo.application.Application;
 import consulo.application.event.ApplicationListener;
-import consulo.application.impl.internal.IdeaModalityState;
 import consulo.component.bind.InjectingBinding;
 import consulo.component.impl.internal.BaseComponentManager;
 import consulo.component.impl.internal.ComponentBinding;
@@ -14,6 +13,7 @@ import consulo.component.internal.inject.InjectingContainer;
 import consulo.component.internal.inject.InjectingContainerBuilder;
 import consulo.disposer.Disposable;
 import consulo.project.ProjectManager;
+import consulo.ui.ModalityState;
 import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
@@ -21,8 +21,8 @@ import consulo.util.collection.MultiMap;
 import consulo.util.lang.function.ThrowableSupplier;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
-
 import jakarta.annotation.Nonnull;
+
 import java.awt.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -212,35 +212,35 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
 
 	@Nonnull
 	@Override
-	public IdeaModalityState getCurrentModalityState()
+	public ModalityState getCurrentModalityState()
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@Nonnull
 	@Override
-	public IdeaModalityState getModalityStateForComponent(@Nonnull Component c)
+	public ModalityState getModalityStateForComponent(@Nonnull Component c)
 	{
 		return getNoneModalityState();
 	}
 
 	@Nonnull
 	@Override
-	public IdeaModalityState getDefaultModalityState()
+	public ModalityState getDefaultModalityState()
 	{
 		return getNoneModalityState();
 	}
 
 	@Nonnull
 	@Override
-	public IdeaModalityState getNoneModalityState()
+	public ModalityState getNoneModalityState()
 	{
-		return IdeaModalityState.nonModal();
+		return ModalityState.nonModal();
 	}
 
 	@Nonnull
 	@Override
-	public IdeaModalityState getAnyModalityState()
+	public ModalityState getAnyModalityState()
 	{
 		throw new UnsupportedOperationException();
 	}

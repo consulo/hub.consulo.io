@@ -1,6 +1,6 @@
 package consulo.hub.backend.repository.analyzer;
 
-import consulo.container.impl.PluginDescriptorImpl;
+import consulo.container.internal.plugin.PluginDescriptorImpl;
 import consulo.container.plugin.PluginId;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.repository.PluginAnalyzerService;

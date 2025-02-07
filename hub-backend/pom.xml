@@ -137,12 +137,6 @@
 
         <dependency>
             <groupId>consulo</groupId>
-            <artifactId>consulo-container-impl</artifactId>
-            <version>${consulo.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>consulo</groupId>
             <artifactId>consulo-util-nodep</artifactId>
             <version>${consulo.version}</version>
         </dependency>
@@ -155,7 +149,7 @@
 
         <dependency>
             <groupId>consulo</groupId>
-            <artifactId>consulo-application-impl</artifactId>
+            <artifactId>consulo-component-impl</artifactId>
             <version>${consulo.version}</version>
         </dependency>
 

@@ -3,13 +3,10 @@ package consulo.hub.backend.repository.analyzer;
 import com.google.gson.Gson;
 import consulo.annotation.component.ComponentScope;
 import consulo.application.Application;
-import consulo.application.impl.internal.plugin.PluginsLoader;
 import consulo.compiler.Compiler;
 import consulo.compiler.artifact.ArtifactType;
 import consulo.component.ComponentManager;
 import consulo.component.impl.internal.BaseComponentManager;
-import consulo.component.store.impl.internal.IComponentStore;
-import consulo.container.impl.ContainerLogger;
 import consulo.container.plugin.PluginDescriptor;
 import consulo.content.base.BinariesOrderRootType;
 import consulo.disposer.Disposer;
@@ -77,8 +74,6 @@ public class PluginAnalyzerEnv {
     private void initClasses() {
         // container-api
         myContainerGroup.requireClass(PluginDescriptor.class);
-        // container-impl
-        myContainerGroup.requireClass(ContainerLogger.class);
         // util-nodep
         myContainerGroup.requireClass(ArrayUtilRt.class);
         // boot
@@ -86,8 +81,6 @@ public class PluginAnalyzerEnv {
         // gson - for external runner
         myContainerGroup.requireClass(Gson.class);
 
-        // application-impl
-        myPlatformClassGroup.requireClass(PluginsLoader.class);
         // application-api
         myPlatformClassGroup.requireClass(Application.class);
         // component-api
@@ -122,8 +115,6 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(ComponentScope.class);
         // jakarta api
         myPlatformClassGroup.requireClass(Provider.class);
-        // component store impl
-        myPlatformClassGroup.requireClass(IComponentStore.class);
         // vfs api
         myPlatformClassGroup.requireClass(VirtualFileTracker.class);
         // application-content-api

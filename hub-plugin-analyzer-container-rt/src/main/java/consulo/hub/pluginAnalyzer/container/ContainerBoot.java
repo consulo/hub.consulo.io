@@ -1,11 +1,11 @@
 package consulo.hub.pluginAnalyzer.container;
 
 import consulo.container.boot.ContainerPathManager;
-import consulo.container.impl.ClassPathItem;
-import consulo.container.impl.PluginDescriptorImpl;
-import consulo.container.impl.PluginHolderModificator;
-import consulo.container.impl.classloader.PluginClassLoaderImpl;
 import consulo.container.internal.PathManagerHolder;
+import consulo.container.internal.plugin.ClassPathItem;
+import consulo.container.internal.plugin.PluginDescriptorImpl;
+import consulo.container.internal.plugin.PluginHolderModificator;
+import consulo.container.internal.plugin.classloader.PluginClassLoaderImpl;
 import consulo.container.plugin.*;
 
 import java.io.File;
