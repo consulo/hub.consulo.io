@@ -6,6 +6,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.function.Consumer;
 
 /**
@@ -33,4 +35,6 @@ public interface RepositoryNodeState
 	void forEach(@Nonnull Consumer<PluginNode> consumer);
 
 	void remove(String version, String platformVersion);
+
+    NavigableMap<String, NavigableSet<PluginNode>> getPluginsByPlatformVersion();
 }
