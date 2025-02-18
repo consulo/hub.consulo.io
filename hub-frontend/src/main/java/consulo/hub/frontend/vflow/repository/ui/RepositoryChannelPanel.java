@@ -117,8 +117,8 @@ public class RepositoryChannelPanel extends HorizontalLayout
 
 			if(RepositoryUtil.isPlatformNode(c.id()))
 			{
-				InputStream platformIcon = getClass().getResourceAsStream("/images/consuloBig.png");
-				image.setSrc(new StreamResource(c.id() + ".png", (InputStreamFactory) () -> platformIcon));
+				InputStream platformIcon = getClass().getResourceAsStream("/images/consuloBig.svg");
+				image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory) () -> platformIcon));
 			}
 			else if(iconBytes == null)
 			{

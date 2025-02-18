@@ -19,7 +19,7 @@ public record PlatformNodeDesc(String id, String name, Set<String> oldIds, Strin
         add(new PlatformNodeDesc("consulo.dist.linux64", "Platform (Linux, with JRE x64)", Set.of("consulo-linux64"), "tar.gz"));
         add(new PlatformNodeDesc("consulo.dist.linux.aarch64", "Platform (Linux, with JRE ARM64)", Set.of("consulo.dist.linuxA64"), "tar.gz"));
         add(new PlatformNodeDesc("consulo.dist.linux.riscv64", "Platform (Linux, with JRE RISCV64)", Set.of(), "tar.gz"));
-        add(new PlatformNodeDesc("consulo.dist.linux.loong64", "Platform (Linux, with JRE LOONGARCH64)", Set.of(), "tar.gz"));
+        add(new PlatformNodeDesc("consulo.dist.linux.loong64", "Platform (Linux, with JRE LOONGARCH64)", Set.of("consulo.dist.linux.loongarch64"), "tar.gz"));
 
         add(new PlatformNodeDesc("consulo.dist.mac64.no.jre", "Platform (macOS x64, without JRE)", Set.of("consulo-mac-no-jre"), "tar.gz"));
         add(new PlatformNodeDesc("consulo.dist.mac64", "Platform (macOS x64, with JRE)", Set.of("consulo-mac64"), "tar.gz"));
