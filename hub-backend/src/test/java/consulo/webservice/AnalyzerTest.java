@@ -10,6 +10,7 @@ import consulo.hub.backend.repository.analyzer.externalProcess.ExternalProcessPl
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.webservice.stub.StubGithubReleaseServiceImpl;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -70,8 +71,8 @@ public class AnalyzerTest extends Assert {
 
         pluginAnalyzerService.run(new String[0]);
 
-        PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), ourPluginChannelsService, new
-            EmptyGithubReleaseServiceImpl());
+        PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new StubPluginHistoryServiceImpl(), ourPluginChannelsService, new
+            StubGithubReleaseServiceImpl());
 
         ourPluginChannelsService.init();
 

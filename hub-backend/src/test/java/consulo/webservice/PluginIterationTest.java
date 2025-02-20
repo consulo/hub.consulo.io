@@ -15,6 +15,7 @@ import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.util.io.FileUtil;
+import consulo.webservice.stub.StubGithubReleaseServiceImpl;
 import jakarta.annotation.Nonnull;
 import org.junit.After;
 import org.junit.Assert;
@@ -64,7 +65,7 @@ public class PluginIterationTest extends Assert {
 
         PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(myFileService, new BuiltinPluginAnalyzerRunnerFactory(objectMapper));
 
-        myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), myPluginChannelsService, new EmptyGithubReleaseServiceImpl());
+        myDeployService = new PluginDeployService(myFileService, pluginAnalyzerService, objectMapper, new StubPluginHistoryServiceImpl(), myPluginChannelsService, new StubGithubReleaseServiceImpl());
 
         myPluginChannelIterationService = new NewRepositoryChannelIterationService((NewRepositoryChannelsService) myPluginChannelsService);
 

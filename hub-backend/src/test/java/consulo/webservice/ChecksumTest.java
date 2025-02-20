@@ -8,6 +8,7 @@ import consulo.hub.backend.repository.analyzer.builtin.BuiltinPluginAnalyzerRunn
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
+import consulo.webservice.stub.StubGithubReleaseServiceImpl;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,8 +60,8 @@ public class ChecksumTest extends Assert {
 
         PluginAnalyzerServiceImpl pluginAnalyzerService = new PluginAnalyzerServiceImpl(tempFileService, new BuiltinPluginAnalyzerRunnerFactory(objectMapper));
 
-        PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new EmptyPluginHistoryServiceImpl(), pluginChannelsService, new
-            EmptyGithubReleaseServiceImpl());
+        PluginDeployService deploy = new PluginDeployService(tempFileService, pluginAnalyzerService, objectMapper, new StubPluginHistoryServiceImpl(), pluginChannelsService, new
+            StubGithubReleaseServiceImpl());
 
         pluginChannelsService.init();
 
