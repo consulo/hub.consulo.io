@@ -167,14 +167,14 @@ public class PluginChannelRestController {
     @RequestMapping("/api/repository/list")
     public List<PluginNode> list(@RequestParam("channel") PluginChannel channel,
                                  @RequestParam("platformVersion") String platformVersion,
-                                 @RequestParam(value = "addObsoletePlatforms", defaultValue = "true", required = false) boolean addObsoletePlatforms,
+                                 @RequestParam(value = "addObsoletePlatformsV2", defaultValue = "true", required = false) boolean addObsoletePlatformsV2,
                                  @RequestParam(value = "platformBuildSelect", defaultValue = "false", required = false) boolean platformBuildSelect) {
         RepositoryChannelStore channelService = myPluginChannelsService.getRepositoryByChannel(channel);
 
         ArrayList<PluginNode> result = channelService.select(myPluginStatisticsService, platformVersion, platformBuildSelect);
 
         // TODO we put old style platform ids
-        if (addObsoletePlatforms) {
+        if (addObsoletePlatformsV2) {
             Collection<PlatformNodeDesc> values = PlatformNodeDesc.values();
 
             result.ensureCapacity(result.size() + values.size());
