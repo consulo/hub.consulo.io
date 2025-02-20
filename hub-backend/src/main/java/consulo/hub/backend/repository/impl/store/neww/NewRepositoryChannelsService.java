@@ -1,7 +1,5 @@
 package consulo.hub.backend.repository.impl.store.neww;
 
-import com.google.common.io.MoreFiles;
-import com.google.common.io.RecursiveDeleteOption;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.backend.WorkDirectoryService;
 import consulo.hub.backend.repository.RepositoryChannelStore;
@@ -19,62 +17,48 @@ import java.nio.file.Path;
  * @author VISTALL
  * @since 18/05/2023
  */
-public class NewRepositoryChannelsService implements RepositoryChannelsService
-{
-	private final NewRepositoryChannelStore[] myPluginChannelServices;
-	private final WorkDirectoryService myWorkDirectoryService;
-	private final TaskExecutor myTaskExecutor;
+public class NewRepositoryChannelsService implements RepositoryChannelsService {
+    private final NewRepositoryChannelStore[] myPluginChannelServices;
+    private final WorkDirectoryService myWorkDirectoryService;
+    private final TaskExecutor myTaskExecutor;
 
-	private final NewInlineRepositoryStore myInlineRepositoryStore;
+    private final NewInlineRepositoryStore myInlineRepositoryStore;
 
-	public NewRepositoryChannelsService(WorkDirectoryService workDirectoryService, TempFileService tempFileService, TaskExecutor taskExecutor)
-	{
-		myWorkDirectoryService = workDirectoryService;
-		myTaskExecutor = taskExecutor;
+    public NewRepositoryChannelsService(WorkDirectoryService workDirectoryService, TempFileService tempFileService, TaskExecutor taskExecutor) {
+        myWorkDirectoryService = workDirectoryService;
+        myTaskExecutor = taskExecutor;
 
-		myInlineRepositoryStore = new NewInlineRepositoryStore(workDirectoryService, tempFileService);
+        myInlineRepositoryStore = new NewInlineRepositoryStore(workDirectoryService, tempFileService);
 
-		PluginChannel[] values = PluginChannel.values();
-		myPluginChannelServices = new NewRepositoryChannelStore[values.length];
-		for(int i = 0; i < values.length; i++)
-		{
-			myPluginChannelServices[i] = new NewRepositoryChannelStore(values[i], myInlineRepositoryStore, this);
-		}
-	}
+        PluginChannel[] values = PluginChannel.values();
+        myPluginChannelServices = new NewRepositoryChannelStore[values.length];
+        for (int i = 0; i < values.length; i++) {
+            myPluginChannelServices[i] = new NewRepositoryChannelStore(values[i], myInlineRepositoryStore, this);
+        }
+    }
 
-	public NewInlineRepositoryStore getInlineRepositoryStore()
-	{
-		return myInlineRepositoryStore;
-	}
+    public NewInlineRepositoryStore getInlineRepositoryStore() {
+        return myInlineRepositoryStore;
+    }
 
-	@Nonnull
-	@Override
-	public RepositoryChannelStore getRepositoryByChannel(@Nonnull PluginChannel channel)
-	{
-		return myPluginChannelServices[channel.ordinal()];
-	}
+    @Nonnull
+    @Override
+    public RepositoryChannelStore getRepositoryByChannel(@Nonnull PluginChannel channel) {
+        return myPluginChannelServices[channel.ordinal()];
+    }
 
-	@PostConstruct
-	public void init() throws Exception
-	{
-		boolean runImport = myInlineRepositoryStore.init();
+    @Override
+    @PostConstruct
+    public void init() throws Exception {
+        myInlineRepositoryStore.init();
 
-		Path tempDir = myWorkDirectoryService.getWorkingDirectory().resolve("tempDir");
-		if(Files.exists(tempDir))
-		{
-			FileSystemUtils.deleteRecursively(tempDir);
-		}
+        Path tempDir = myWorkDirectoryService.getWorkingDirectory().resolve("tempDir");
+        if (Files.exists(tempDir)) {
+            FileSystemUtils.deleteRecursively(tempDir);
+        }
 
-		Files.createDirectory(tempDir);
+        Files.createDirectory(tempDir);
 
-		myTaskExecutor.execute(() ->
-		{
-			if(runImport)
-			{
-				myInlineRepositoryStore.runImport(this);
-			}
-
-			myInlineRepositoryStore.load(this);
-		});
-	}
+        myTaskExecutor.execute(() -> myInlineRepositoryStore.load(this));
+    }
 }
