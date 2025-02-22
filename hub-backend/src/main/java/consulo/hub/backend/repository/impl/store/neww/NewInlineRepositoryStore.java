@@ -125,6 +125,8 @@ public class NewInlineRepositoryStore {
     public void load(NewRepositoryChannelsService repositoryChannelsService) {
         List<ConvertPlatformOldToNewId> toConvert = new ArrayList<>();
 
+        long time = System.currentTimeMillis();
+
         try {
             myLoading.set(true);
 
@@ -193,6 +195,10 @@ public class NewInlineRepositoryStore {
         finally {
             myLoading.set(false);
         }
+
+        long diff = (System.currentTimeMillis() - time) / 1000L;
+
+        LOG.info("Finished loading repository state in {} seconds", diff);
     }
 
     @Nullable

@@ -27,7 +27,7 @@ public class RepositoryCleanupService {
 
     private static final int ourMaxRemovePerSession = 100;
 
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryCleanupService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RepositoryCleanupService.class);
 
     private final RepositoryChannelsService myRepositoryChannelsService;
     private final TaskExecutor myTaskExecutor;
@@ -87,22 +87,28 @@ public class RepositoryCleanupService {
             }
         }
 
-        for (PlatformNodeDesc desc : PlatformNodeDesc.values()) {
-            Map<PluginChannel, TreeSet<BuildNumber>> map = versions.getOrDefault(desc, Map.of());
+        Set<BuildNumber> notFullyReleasedBuilds = new HashSet<>();
 
-            for (Map.Entry<PluginChannel, TreeSet<BuildNumber>> entry : map.entrySet()) {
-                TreeSet<BuildNumber> deployedVersions = entry.getValue();
+        for (BuildNumber platformBuildVer : allVersions) {
+            for (PlatformNodeDesc desc : PlatformNodeDesc.values()) {
+                Map<PluginChannel, TreeSet<BuildNumber>> map = versions.getOrDefault(desc, Map.of());
 
-                Iterator<BuildNumber> allVersionsIterator = allVersions.iterator();
-                while (allVersionsIterator.hasNext()) {
-                    BuildNumber allVersion = allVersionsIterator.next();
+                boolean[] states = new boolean[pluginChannels.length];
+                for (int i = 0; i < pluginChannels.length; i++) {
+                    PluginChannel pluginChannel = pluginChannels[i];
 
-                    if (!deployedVersions.contains(allVersion)) {
-                        allVersionsIterator.remove();
-                    }
+                    Set<BuildNumber> buildNumbers = Objects.requireNonNullElse(map.get(pluginChannel), Set.of());
+
+                    states[i] = buildNumbers.contains(platformBuildVer);
+                }
+
+                if (!allTrue(states) && !allFalse(states)) {
+                    notFullyReleasedBuilds.add(platformBuildVer);
                 }
             }
         }
+
+        allVersions.removeAll(notFullyReleasedBuilds);
 
         List<String> toRemoveBuilds = new ArrayList<>(ourMaxRemovePerSession);
         while (allVersions.size() > ourMaxBuildCount) {
@@ -118,7 +124,7 @@ public class RepositoryCleanupService {
         Set<Path> filesToRemove = new LinkedHashSet<>();
 
         for (PlatformNodeDesc desc : PlatformNodeDesc.values()) {
-            for (PluginChannel channel : PluginChannel.values()) {
+            for (PluginChannel channel : pluginChannels) {
                 RepositoryChannelStore store = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
                 RepositoryNodeState state = store.getState(desc.id());
@@ -141,7 +147,7 @@ public class RepositoryCleanupService {
 
         Set<String> allPluginIds = new HashSet<>();
 
-        for (PluginChannel channel : PluginChannel.values()) {
+        for (PluginChannel channel : pluginChannels) {
             RepositoryChannelStore store = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
             store.iteratePluginNodes(pluginNode -> allPluginIds.add(pluginNode.id));
@@ -154,7 +160,7 @@ public class RepositoryCleanupService {
             }
         }
 
-        for (PluginChannel channel : PluginChannel.values()) {
+        for (PluginChannel channel : pluginChannels) {
             RepositoryChannelStore store = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
             for (String allPluginId : allPluginIds) {
@@ -178,7 +184,7 @@ public class RepositoryCleanupService {
             }
         }
 
-        logger.info("CleanUp: Analyzing repos - marked {} platform builds to remove. All {} files marked to remove with plugins", toRemoveBuilds.size(), filesToRemove.size());
+        LOG.info("CleanUp: Analyzing repos - marked {} platform builds to remove. All {} files marked to remove with plugins", toRemoveBuilds.size(), filesToRemove.size());
 
         long startTime = System.currentTimeMillis();
         filesToRemove.parallelStream().forEach(path -> {
@@ -189,12 +195,31 @@ public class RepositoryCleanupService {
 
                 Files.deleteIfExists(jsonFile);
             } catch (IOException e) {
-                logger.error("Failed to remove " + path, e);
+                LOG.error("Failed to remove " + path, e);
             }
         });
         
-        long endTime = (System.currentTimeMillis() - startTime) / 1000L;
+        long diff = (System.currentTimeMillis() - startTime) / 1000L;
 
-        logger.info("CleanUp: Finished to remove files in {} seconds", endTime);
+        LOG.info("CleanUp: Finished to remove files in {} seconds", diff);
+    }
+
+    private static boolean allTrue(boolean[] states) {
+        for (boolean state : states) {
+            if (!state) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean allFalse(boolean[] states) {
+        for (boolean state : states) {
+            if (state) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
