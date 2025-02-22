@@ -45,7 +45,13 @@ public abstract class BaseRepositoryNodeState implements RepositoryNodeState {
     @Nonnull
     public NavigableMap<String, NavigableSet<PluginNode>> getPluginsByPlatformVersion() {
         try (AccessToken ignored = readLock()) {
-            return new TreeMap<>(myPluginsByPlatformVersion);
+            TreeMap<String, NavigableSet<PluginNode>> copy = new TreeMap<>();
+            for (Map.Entry<String, NavigableSet<PluginNode>> entry : myPluginsByPlatformVersion.entrySet()) {
+                NavigableSet<PluginNode> copySet = newTreeSet("");
+                copySet.addAll(entry.getValue());
+                copy.put(entry.getKey(), copySet);
+            }
+            return copy;
         }
     }
 

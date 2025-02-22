@@ -46,7 +46,7 @@ public class RepositoryCleanupTest extends Assert {
 
         ourPluginChannelsService.init();
 
-        ourRepositoryCleanupService = new RepositoryCleanupService(ourPluginChannelsService);
+        ourRepositoryCleanupService = new RepositoryCleanupService(ourPluginChannelsService, Runnable::run);
 
         int maxVersion = 10000;
         List<Integer> versions = IntStream.range(1, maxVersion).mapToObj(Integer::valueOf).toList();
@@ -79,6 +79,7 @@ public class RepositoryCleanupTest extends Assert {
                 pluginNode.id = PLATFORM_ID;
                 pluginNode.version = String.valueOf(deployVersion);
                 pluginNode.platformVersion = String.valueOf(deployVersion);
+                pluginNode.targetPath = Path.of(PLATFORM_ID + "_" + deployVersion + ".platform");
 
                 store._add(pluginNode);
             }
@@ -92,6 +93,6 @@ public class RepositoryCleanupTest extends Assert {
 
     @Test
     public void test() {
-        ourRepositoryCleanupService.collect();
+        ourRepositoryCleanupService.runCleanUp();
     }
 }

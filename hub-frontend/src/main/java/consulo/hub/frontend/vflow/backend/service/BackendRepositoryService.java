@@ -20,53 +20,54 @@ import java.util.function.Consumer;
  * @since 21/08/2021
  */
 @Service
-public class BackendRepositoryService
-{
-	private static final Logger LOG = LoggerFactory.getLogger(BackendRepositoryService.class);
+public class BackendRepositoryService {
+    private static final Logger LOG = LoggerFactory.getLogger(BackendRepositoryService.class);
 
-	@Autowired
-	private ApiBackendRequestor myApiBackendRequestor;
+    @Autowired
+    private ApiBackendRequestor myApiBackendRequestor;
 
-	public void listAll(@Nonnull Consumer<FrontPluginNode> consumer)
-	{
-		try
-		{
-			FrontPluginNode[] nodes = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of(), FrontPluginNode[].class);
-			if(nodes == null)
-			{
-				nodes = new FrontPluginNode[0];
-			}
+    public void cleanup() {
+        try {
+            myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/cleanup"), Map.of(), new TypeReference<Map<String, String>>() {
+            });
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error("Fail to get plugins", e);
+        }
+    }
 
-			for(FrontPluginNode node : nodes)
-			{
-				consumer.accept(node);
-			}
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.error("Fail to get plugins", e);
-		}
-	}
+    public void listAll(@Nonnull Consumer<FrontPluginNode> consumer) {
+        try {
+            FrontPluginNode[] nodes = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of(), FrontPluginNode[].class);
+            if (nodes == null) {
+                nodes = new FrontPluginNode[0];
+            }
 
-	public void iteratePlugins(@Nonnull PluginChannel from, @Nonnull PluginChannel to)
-	{
-		try
-		{
-			myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/iterate"), Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>()
-			{
-			});
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.error("Fail iterate plugins, from=" + from + " to=" + to, e);
-		}
-	}
+            for (FrontPluginNode node : nodes) {
+                consumer.accept(node);
+            }
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error("Fail to get plugins", e);
+        }
+    }
+
+    public void iteratePlugins(@Nonnull PluginChannel from, @Nonnull PluginChannel to) {
+        try {
+            myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/iterate"), Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>() {
+            });
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error("Fail iterate plugins, from=" + from + " to=" + to, e);
+        }
+    }
 }

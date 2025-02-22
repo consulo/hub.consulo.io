@@ -13,46 +13,40 @@ import java.nio.file.Path;
  * @author VISTALL
  * @since 18/05/2023
  */
-public class NewRepositoryNodeState extends BaseRepositoryNodeState
-{
-	private final NewInlineRepositoryStore myInlineRepositoryStore;
-	private final PluginChannel myPluginChannel;
+public class NewRepositoryNodeState extends BaseRepositoryNodeState {
+    private final NewInlineRepositoryStore myInlineRepositoryStore;
+    private final PluginChannel myPluginChannel;
 
-	public NewRepositoryNodeState(PluginChannel channel, String pluginId, NewInlineRepositoryStore inlineRepositoryStore)
-	{
-		super(pluginId);
-		myPluginChannel = channel;
-		myInlineRepositoryStore = inlineRepositoryStore;
-	}
+    public NewRepositoryNodeState(PluginChannel channel, String pluginId, NewInlineRepositoryStore inlineRepositoryStore) {
+        super(pluginId);
+        myPluginChannel = channel;
+        myInlineRepositoryStore = inlineRepositoryStore;
+    }
 
-	@Override
-	public void push(PluginNode pluginNode, String ext, ThrowableConsumer<Path, Exception> writeConsumer) throws Exception
-	{
-		try (AccessToken ignored = writeLock())
-		{
-			Path artifactPath = myInlineRepositoryStore.prepareArtifactPath(pluginNode.id, pluginNode.version, ext);
+    @Override
+    public void push(PluginNode pluginNode, String ext, ThrowableConsumer<Path, Exception> writeConsumer) throws Exception {
+        try (AccessToken ignored = writeLock()) {
+            Path artifactPath = myInlineRepositoryStore.prepareArtifactPath(pluginNode.id, pluginNode.version, ext);
 
-			writeConsumer.consume(artifactPath);
+            writeConsumer.consume(artifactPath);
 
-			prepareNode(pluginNode, artifactPath);
+            prepareNode(pluginNode, artifactPath);
 
-			pluginNode.length = Files.size(artifactPath);
-			pluginNode.targetPath = artifactPath;
-			pluginNode.cleanUp();
+            pluginNode.length = Files.size(artifactPath);
+            pluginNode.targetPath = artifactPath;
+            pluginNode.cleanUp();
 
-			_add(pluginNode);
+            _add(pluginNode);
 
-			myInlineRepositoryStore.updateMeta(pluginNode.id, pluginNode.version, ext, meta ->
-			{
-				meta.node = pluginNode;
-				meta.channels.add(myPluginChannel);
-			});
-		}
-	}
+            myInlineRepositoryStore.updateMeta(pluginNode.id, pluginNode.version, ext, meta ->
+            {
+                meta.node = pluginNode;
+                meta.channels.add(myPluginChannel);
+            });
+        }
+    }
 
-	@Override
-	protected void removeRepositoryArtifact(PluginNode target)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    protected void removeRepositoryArtifact(PluginNode target) {
+    }
 }

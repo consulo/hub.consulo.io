@@ -17,47 +17,41 @@ import java.util.Map;
  * @since 23/05/2023
  */
 @Service
-public class FrontendCacheService
-{
-	private record PluginIdAndVersion(String id, String version)
-	{
-	}
+public class FrontendCacheService {
+    private record PluginIdAndVersion(String id, String version) {
+    }
 
-	private final RepositoryChannelsService myRepositoryChannelsService;
-	private final PluginStatisticsService myPluginStatisticsService;
+    private final RepositoryChannelsService myRepositoryChannelsService;
+    private final PluginStatisticsService myPluginStatisticsService;
 
-	@Autowired
-	public FrontendCacheService(RepositoryChannelsService repositoryChannelsService, PluginStatisticsService pluginStatisticsService)
-	{
-		myRepositoryChannelsService = repositoryChannelsService;
-		myPluginStatisticsService = pluginStatisticsService;
-	}
+    @Autowired
+    public FrontendCacheService(RepositoryChannelsService repositoryChannelsService, PluginStatisticsService pluginStatisticsService) {
+        myRepositoryChannelsService = repositoryChannelsService;
+        myPluginStatisticsService = pluginStatisticsService;
+    }
 
-	public Collection<FrontPluginNode> listPlugins()
-	{
-		Map<PluginIdAndVersion, FrontPluginNode> map = new HashMap<>();
-		for(PluginChannel channel : PluginChannel.values())
-		{
-			RepositoryChannelStore service = myRepositoryChannelsService.getRepositoryByChannel(channel);
+    public Collection<FrontPluginNode> listPlugins() {
+        Map<PluginIdAndVersion, FrontPluginNode> map = new HashMap<>();
+        for (PluginChannel channel : PluginChannel.values()) {
+            RepositoryChannelStore service = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
-			service.iteratePluginNodes(pluginNode ->
-			{
-				FrontPluginNode node = map.computeIfAbsent(new PluginIdAndVersion(pluginNode.id, pluginNode.version), pluginIdAndVersion ->
-				{
-					FrontPluginNode frontPluginNode = new FrontPluginNode();
-					frontPluginNode.myPluginNode = pluginNode.clone();
+            service.iteratePluginNodes(pluginNode -> {
+                FrontPluginNode node = map.computeIfAbsent(new PluginIdAndVersion(pluginNode.id, pluginNode.version), pluginIdAndVersion ->
+                {
+                    FrontPluginNode frontPluginNode = new FrontPluginNode();
+                    frontPluginNode.myPluginNode = pluginNode.clone();
 
-					int countAll = myPluginStatisticsService.getDownloadStatCountAll(pluginNode.id);
+                    int countAll = myPluginStatisticsService.getDownloadStatCountAll(pluginNode.id);
 
-					frontPluginNode.myPluginNode.downloads = countAll;
-					frontPluginNode.myPluginNode.downloadsAll = countAll;
-					return frontPluginNode;
-				});
+                    frontPluginNode.myPluginNode.downloads = countAll;
+                    frontPluginNode.myPluginNode.downloadsAll = countAll;
+                    return frontPluginNode;
+                });
 
-				node.myChannels.add(channel);
-			});
-		}
+                node.myChannels.add(channel);
+            });
+        }
 
-		return map.values();
-	}
+        return map.values();
+    }
 }
