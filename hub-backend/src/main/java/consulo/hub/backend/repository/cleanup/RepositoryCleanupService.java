@@ -191,9 +191,12 @@ public class RepositoryCleanupService {
             try {
                 Files.deleteIfExists(path);
 
-                Path jsonFile = path.getParent().resolve(path.getFileName() + ".json");
+                Path parent = path.getParent();
+                if (parent != null) {
+                    Path jsonFile = parent.resolve(path.getFileName() + ".json");
 
-                Files.deleteIfExists(jsonFile);
+                    Files.deleteIfExists(jsonFile);
+                }
             } catch (IOException e) {
                 LOG.error("Failed to remove " + path, e);
             }
