@@ -25,13 +25,13 @@ public class StubLocalizeManager extends LocalizeManager {
     @Nonnull
     @Override
     public Map.Entry<Locale, String> getUnformattedText(@Nonnull LocalizeKey localizeKey) {
-        return Map.entry(Locale.US, "");
+        return Map.entry(getLocale(), "");
     }
 
     @Nonnull
     @Override
     public Locale parseLocale(@Nonnull String s) {
-        return Locale.ROOT;
+        return getLocale();
     }
 
     @Override
@@ -42,7 +42,13 @@ public class StubLocalizeManager extends LocalizeManager {
     @Nonnull
     @Override
     public Locale getLocale() {
-        return Locale.ROOT;
+        return Locale.US;
+    }
+
+    @Nonnull
+    @Override
+    public Locale getAutoDetectedLocale() {
+        return getLocale();
     }
 
     @Override
