@@ -19,66 +19,64 @@ import java.util.Map;
  * @since 21/08/2021
  */
 @Service
-public class BackendStorageService
-{
-	private static final Logger LOG = LoggerFactory.getLogger(BackendStorageService.class);
+public class BackendStorageService {
+    private static final Logger LOG = LoggerFactory.getLogger(BackendStorageService.class);
 
-	@Autowired
-	private ApiBackendRequestor myApiBackendRequestor;
+    @Autowired
+    private ApiBackendRequestor myApiBackendRequestor;
 
-	@Nonnull
-	public List<StorageFile> listAll(long userId)
-	{
-		try
-		{
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/list"), Map.of("userId", String.valueOf(userId)), new TypeReference<List<StorageFile>>()
-			{
-			}, List::of);
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.error("Failed to list storage files: " + userId, e);
-			return List.of();
-		}
-	}
+    @Nonnull
+    public List<StorageFile> listAll(long userId) {
+        try {
+            return myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/storage/list"),
+                Map.of("userId", String.valueOf(userId)),
+                new TypeReference<List<StorageFile>>() {
+                },
+                List::of
+            );
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error("Failed to list storage files: " + userId, e);
+            return List.of();
+        }
+    }
 
-	public Map<String, String> deleteAll(long userId)
-	{
-		try
-		{
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/deleteAll"), Map.of("userId", String.valueOf(userId)), new TypeReference<Map<String, String>>()
-			{
-			});
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.error("Failed to deleteAll: " + userId, e);
-			return Map.of();
-		}
-	}
+    public Map<String, String> deleteAll(long userId) {
+        try {
+            return myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/storage/deleteAll"),
+                Map.of("userId", String.valueOf(userId)),
+                new TypeReference<Map<String, String>>() {
+                }
+            );
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error("Failed to deleteAll: " + userId, e);
+            return Map.of();
+        }
+    }
 
-	public StorageFile find(long userId, long storageFileId)
-	{
-		try
-		{
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/storage/get"), Map.of("userId", String.valueOf(userId), "fileId", String.valueOf(storageFileId)), StorageFile.class);
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.error("Failed to get storage file: " + userId + ", fileId: " + storageFileId, e);
-			return null;
-		}
-	}
+    public StorageFile find(long userId, long storageFileId) {
+        try {
+            return myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/storage/get"),
+                Map.of("userId", String.valueOf(userId), "fileId", String.valueOf(storageFileId)),
+                StorageFile.class
+            );
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error("Failed to get storage file: " + userId + ", fileId: " + storageFileId, e);
+            return null;
+        }
+    }
 }

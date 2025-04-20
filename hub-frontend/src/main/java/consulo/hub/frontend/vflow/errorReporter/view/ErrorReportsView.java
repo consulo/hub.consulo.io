@@ -23,21 +23,21 @@ import java.util.Collections;
 @PageTitle("Error Reports")
 @Route(value = "user/errorReports", layout = MainLayout.class)
 @PermitAll
-public class ErrorReportsView extends BaseErrorReportsView
-{
-	public static final String ID = "errorReports";
+public class ErrorReportsView extends BaseErrorReportsView {
+    public static final String ID = "errorReports";
 
-	@Override
-	protected Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize)
-	{
-		UserAccount userAccout = SecurityUtil.getUserAccout();
-		if(userAccout == null)
-		{
-			return new PageImpl<>(Collections.emptyList());
-		}
+    @Override
+    protected Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize) {
+        UserAccount userAccout = SecurityUtil.getUserAccout();
+        if (userAccout == null) {
+            return new PageImpl<>(Collections.emptyList());
+        }
 
-		// -1 - invoke public api
-		return myErrorReportRepository.findByUserAndStatuses(-1, errorReportStatuses, PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC,
-				BackendErrorReporterService.CREATE_DATE)));
-	}
+        // -1 - invoke public api
+        return myErrorReportRepository.findByUserAndStatuses(
+            -1,
+            errorReportStatuses,
+            PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE))
+        );
+    }
 }

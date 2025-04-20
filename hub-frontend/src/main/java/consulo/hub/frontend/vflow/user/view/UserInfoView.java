@@ -30,74 +30,67 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PageTitle("Profile")
 @PermitAll
 @Route("user/info")
-public class UserInfoView extends VChildLayout
-{
-	@Autowired
-	private BackendUserAccountService myBackendUserAccountService;
+public class UserInfoView extends VChildLayout {
+    @Autowired
+    private BackendUserAccountService myBackendUserAccountService;
 
-	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
-	{
-		removeAll();
+    @Override
+    public void viewReady(AfterNavigationEvent afterNavigationEvent) {
+        removeAll();
 
-		UserAccount accout = SecurityUtil.getUserAccout();
-		if(accout == null)
-		{
-			return;
-		}
+        UserAccount accout = SecurityUtil.getUserAccout();
+        if (accout == null) {
+            return;
+        }
 
-		VerticalLayout changePasswordLayout = new VerticalLayout();
-		LabeledLayout panel = new LabeledLayout("Change Password", changePasswordLayout);
+        VerticalLayout changePasswordLayout = new VerticalLayout();
+        LabeledLayout panel = new LabeledLayout("Change Password", changePasswordLayout);
 
-		//just show
-		TextField emailField = new TextField();
-		emailField.setReadOnly(true);
-		emailField.setAutocomplete(Autocomplete.USERNAME);
-		emailField.setValue(accout.getUsername());
-		changePasswordLayout.add(VaadinUIUtil.labeledFill("Email", emailField));
+        //just show
+        TextField emailField = new TextField();
+        emailField.setReadOnly(true);
+        emailField.setAutocomplete(Autocomplete.USERNAME);
+        emailField.setValue(accout.getUsername());
+        changePasswordLayout.add(VaadinUIUtil.labeledFill("Email", emailField));
 
-		PasswordField oldPasswordField = new PasswordField();
-		oldPasswordField.setAutocomplete(Autocomplete.CURRENT_PASSWORD);
-		changePasswordLayout.add(VaadinUIUtil.labeledFill("Old Password", oldPasswordField));
-		PasswordField newPasswordField = new PasswordField();
-		newPasswordField.setAutocomplete(Autocomplete.NEW_PASSWORD);
-		changePasswordLayout.add(VaadinUIUtil.labeledFill("New Password", newPasswordField));
+        PasswordField oldPasswordField = new PasswordField();
+        oldPasswordField.setAutocomplete(Autocomplete.CURRENT_PASSWORD);
+        changePasswordLayout.add(VaadinUIUtil.labeledFill("Old Password", oldPasswordField));
+        PasswordField newPasswordField = new PasswordField();
+        newPasswordField.setAutocomplete(Autocomplete.NEW_PASSWORD);
+        changePasswordLayout.add(VaadinUIUtil.labeledFill("New Password", newPasswordField));
 
-		ComponentEventListener<ClickEvent<Button>> listener = clickEvent ->
-				changePassword(accout, oldPasswordField, newPasswordField);
-		changePasswordLayout.add(new Button("Change Password", listener));
+        ComponentEventListener<ClickEvent<Button>> listener = clickEvent ->
+            changePassword(accout, oldPasswordField, newPasswordField);
+        changePasswordLayout.add(new Button("Change Password", listener));
 
-		add(panel);
-	}
+        add(panel);
+    }
 
-	private void changePassword(UserAccount account, PasswordField oldPassword, PasswordField newPassword)
-	{
-		Binder<ChangePasswordRequest> binder = new Binder<>();
-		binder.forField(oldPassword)
-				.asRequired()
-				.withValidator(AuthValidators.newPasswordValidator())
-				.bind(ChangePasswordRequest::getOldPassword, ChangePasswordRequest::setOldPassword);
-		binder.forField(newPassword)
-				.asRequired()
-				.withValidator(AuthValidators.newPasswordValidator())
-				.bind(ChangePasswordRequest::getNewPassword, ChangePasswordRequest::setNewPassword);
+    private void changePassword(UserAccount account, PasswordField oldPassword, PasswordField newPassword) {
+        Binder<ChangePasswordRequest> binder = new Binder<>();
+        binder.forField(oldPassword)
+            .asRequired()
+            .withValidator(AuthValidators.newPasswordValidator())
+            .bind(ChangePasswordRequest::getOldPassword, ChangePasswordRequest::setOldPassword);
+        binder.forField(newPassword)
+            .asRequired()
+            .withValidator(AuthValidators.newPasswordValidator())
+            .bind(ChangePasswordRequest::getNewPassword, ChangePasswordRequest::setNewPassword);
 
-		ChangePasswordRequest request = new ChangePasswordRequest();
-		try
-		{
-			binder.writeBean(request);
-		}
-		catch(ValidationException ignored)
-		{
-			return;
-		}
+        ChangePasswordRequest request = new ChangePasswordRequest();
+        try {
+            binder.writeBean(request);
+        }
+        catch (ValidationException ignored) {
+            return;
+        }
 
-		if(!myBackendUserAccountService.changePassword(account.getId(), request.getOldPassword(), request.getNewPassword()))
-		{
-			Notifications.error("Failed to change password");
-			return;
-		}
+        if (!myBackendUserAccountService.changePassword(account.getId(), request.getOldPassword(), request.getNewPassword())) {
+            Notifications.error("Failed to change password");
+            return;
+        }
 
-		Notifications.info("Password changed");
-	}
+        Notifications.info("Password changed");
+    }
 }

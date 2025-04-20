@@ -25,49 +25,42 @@ import java.util.Map;
 @Route(value = "admin/config", layout = MainLayout.class)
 @RolesAllowed(Roles.ROLE_SUPERUSER)
 @PageTitle("Admin/Config")
-public class AdminConfigView extends VChildLayout
-{
-	@Autowired
-	private PropertiesServiceImpl myPropertiesService;
+public class AdminConfigView extends VChildLayout {
+    @Autowired
+    private PropertiesServiceImpl myPropertiesService;
 
-	@Autowired
-	private ApiBackendRequestor myApiBackendRequestor;
+    @Autowired
+    private ApiBackendRequestor myApiBackendRequestor;
 
-	public AdminConfigView()
-	{
-	}
+    public AdminConfigView() {
+    }
 
-	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
-	{
-		removeAll();
+    @Override
+    public void viewReady(AfterNavigationEvent afterNavigationEvent) {
+        removeAll();
 
-		ConfigPanel configPanel = new ConfigPanel(myApiBackendRequestor, myPropertiesService, "Apply", (properties) -> {})
-		{
-			@Override
-			protected void addOthers(VerticalLayout t)
-			{
-				t.add(buildGroup("Accounts", layout ->
-				{
-					try
-					{
-						Map<String, String> map = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/config/jenkins"), Map.of(), new TypeReference<Map<String, String>>()
-						{
-						});
+        ConfigPanel configPanel = new ConfigPanel(myApiBackendRequestor, myPropertiesService, "Apply", properties -> {}) {
+            @Override
+            protected void addOthers(VerticalLayout t) {
+                t.add(buildGroup("Accounts", layout -> {
+                    try {
+                        Map<String, String> map = myApiBackendRequestor.runRequest(
+                            BackendApiUrl.toPrivate("/config/jenkins"),
+                            Map.of(),
+                            new TypeReference<Map<String, String>>() {
+                            }
+                        );
 
-						for(Map.Entry<String, String> entry : map.entrySet())
-						{
-							layout.add(VaadinUIUtil.labeledFill(entry.getKey(), TinyComponents.newTextField(entry.getValue())));
-						}
-					}
-					catch(Exception ignored)
-					{
-					}
-				}));
+                        for (Map.Entry<String, String> entry : map.entrySet()) {
+                            layout.add(VaadinUIUtil.labeledFill(entry.getKey(), TinyComponents.newTextField(entry.getValue())));
+                        }
+                    }
+                    catch (Exception ignored) {
+                    }
+                }));
+            }
+        };
 
-			}
-		};
-
-		add(configPanel);
-	}
+        add(configPanel);
+    }
 }

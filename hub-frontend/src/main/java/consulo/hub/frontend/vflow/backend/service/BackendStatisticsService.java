@@ -18,34 +18,32 @@ import java.util.Map;
  * @since 21/08/2021
  */
 @Service
-public class BackendStatisticsService
-{
-	private static final Logger LOG = LoggerFactory.getLogger(BackendStatisticsService.class);
+public class BackendStatisticsService {
+    private static final Logger LOG = LoggerFactory.getLogger(BackendStatisticsService.class);
 
-	@Autowired
-	private ApiBackendRequestor myApiBackendRequestor;
+    @Autowired
+    private ApiBackendRequestor myApiBackendRequestor;
 
-	public List<StatisticEntry> listAll(long userId)
-	{
-		try
-		{
-			Map<String, String> args = Map.of();
-			if(userId != 0)
-			{
-				args = Map.of("userId", String.valueOf(userId));
-			}
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/statistics/list"), args, new TypeReference<List<StatisticEntry>>()
-			{
-			}, List::of);
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.error(e.getMessage(), e);
-			return List.of();
-		}
-	}
+    public List<StatisticEntry> listAll(long userId) {
+        try {
+            Map<String, String> args = Map.of();
+            if (userId != 0) {
+                args = Map.of("userId", String.valueOf(userId));
+            }
+            return myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/statistics/list"),
+                args,
+                new TypeReference<List<StatisticEntry>>() {
+                },
+                List::of
+            );
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return List.of();
+        }
+    }
 }

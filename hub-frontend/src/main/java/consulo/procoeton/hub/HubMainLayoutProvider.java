@@ -10,11 +10,9 @@ import org.springframework.stereotype.Service;
  * @since 04/05/2023
  */
 @Service
-public class HubMainLayoutProvider implements ProMainLayoutProvider
-{
-	@Override
-	public Class<? extends RouterLayout> getLayoutClass()
-	{
-		return MainLayout.class;
-	}
+public class HubMainLayoutProvider implements ProMainLayoutProvider {
+    @Override
+    public Class<? extends RouterLayout> getLayoutClass() {
+        return MainLayout.class;
+    }
 }

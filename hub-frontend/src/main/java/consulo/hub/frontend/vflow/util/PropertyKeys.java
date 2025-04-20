@@ -8,17 +8,16 @@ import consulo.procoeton.core.vaadin.captcha.CaptchaKeys;
  * @since 09-Nov-16
  */
 @Deprecated
-public interface PropertyKeys
-{
-	@Deprecated
-	String CAPTCHA_ENABLED_KEY = CaptchaKeys.CAPTCHA_ENABLED_KEY;
-	@Deprecated
-	String CAPTCHA_SITE_KEY = CaptchaKeys.CAPTCHA_SITE_KEY;
-	@Deprecated
-	String CAPTCHA_PRIVATE_KEY = CaptchaKeys.CAPTCHA_PRIVATE_KEY;
+public interface PropertyKeys {
+    @Deprecated
+    String CAPTCHA_ENABLED_KEY = CaptchaKeys.CAPTCHA_ENABLED_KEY;
+    @Deprecated
+    String CAPTCHA_SITE_KEY = CaptchaKeys.CAPTCHA_SITE_KEY;
+    @Deprecated
+    String CAPTCHA_PRIVATE_KEY = CaptchaKeys.CAPTCHA_PRIVATE_KEY;
 
-	@Deprecated
-	String BACKEND_HOST_URL_KEY = ApiBackendKeys.BACKEND_HOST_URL_KEY;
-	@Deprecated
-	String BACKEND_HOST_PASSWORD = ApiBackendKeys.BACKEND_HOST_PASSWORD;
+    @Deprecated
+    String BACKEND_HOST_URL_KEY = ApiBackendKeys.BACKEND_HOST_URL_KEY;
+    @Deprecated
+    String BACKEND_HOST_PASSWORD = ApiBackendKeys.BACKEND_HOST_PASSWORD;
 }

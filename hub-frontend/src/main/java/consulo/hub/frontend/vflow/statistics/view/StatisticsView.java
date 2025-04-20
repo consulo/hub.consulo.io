@@ -15,11 +15,9 @@ import java.util.List;
 @PermitAll
 @PageTitle("Statistics")
 @Route("user/statistics")
-public class StatisticsView extends BaseStatisticsView
-{
-	@Override
-	protected List<StatisticEntry> getStatistics()
-	{
-		return myStatisticRepository.listAll(SecurityUtil.getUserAccout().getId());
-	}
+public class StatisticsView extends BaseStatisticsView {
+    @Override
+    protected List<StatisticEntry> getStatistics() {
+        return myStatisticRepository.listAll(SecurityUtil.getUserAccout().getId());
+    }
 }

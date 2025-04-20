@@ -21,72 +21,71 @@ import java.util.Map;
  * @since 21/08/2021
  */
 @Service
-public class BackendUserAccountService extends BackendUserAccountServiceCore
-{
-	private static final Logger LOG = LoggerFactory.getLogger(BackendUserAccountService.class);
+public class BackendUserAccountService extends BackendUserAccountServiceCore {
+    private static final Logger LOG = LoggerFactory.getLogger(BackendUserAccountService.class);
 
-	@Autowired
-	private ApiBackendRequestor myApiBackendRequestor;
+    @Autowired
+    private ApiBackendRequestor myApiBackendRequestor;
 
-	public Map<String, String> requestOAuthKey(UserAccount account, String token, String hostName)
-	{
-		try
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put("userId", String.valueOf(account.getId()));
-			map.put("token", token);
-			map.put("hostName", hostName);
+    public Map<String, String> requestOAuthKey(UserAccount account, String token, String hostName) {
+        try {
+            Map<String, String> map = new HashMap<>();
+            map.put("userId", String.valueOf(account.getId()));
+            map.put("token", token);
+            map.put("hostName", hostName);
 
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/request"), map, new TypeReference<Map<String, String>>()
-			{
-			});
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to list tokens: " + account.getId(), e);
-			return Map.of();
-		}
-	}
+            return myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/user/oauth/request"),
+                map,
+                new TypeReference<Map<String, String>>() {
+                }
+            );
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.warn("Failed to list tokens: " + account.getId(), e);
+            return Map.of();
+        }
+    }
 
-	public SessionInfo[] listOAuthTokens(UserAccount account)
-	{
-		try
-		{
-			Map<String, String> map = new HashMap<>();
-			map.put("userId", String.valueOf(account.getId()));
+    public SessionInfo[] listOAuthTokens(UserAccount account) {
+        try {
+            Map<String, String> map = new HashMap<>();
+            map.put("userId", String.valueOf(account.getId()));
 
-			return myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/oauth/list"), map, SessionInfo[].class, () -> new SessionInfo[0]);
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to list tokens: " + account.getId(), e);
-		}
-		return new SessionInfo[0];
-	}
+            return myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/user/oauth/list"),
+                map,
+                SessionInfo[].class,
+                () -> new SessionInfo[0]
+            );
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.warn("Failed to list tokens: " + account.getId(), e);
+        }
+        return new SessionInfo[0];
+    }
 
-
-	public List<UserAccount> listAll()
-	{
-		try
-		{
-			return List.of(myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/user/list"), Map.of(), UserAccount[].class, () -> new UserAccount[0]));
-		}
-		catch(BackendServiceDownException e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			LOG.warn("Failed to list all users", e);
-			return List.of();
-		}
-	}
+    public List<UserAccount> listAll() {
+        try {
+            return List.of(myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/user/list"),
+                Map.of(),
+                UserAccount[].class,
+                () -> new UserAccount[0]
+            ));
+        }
+        catch (BackendServiceDownException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            LOG.warn("Failed to list all users", e);
+            return List.of();
+        }
+    }
 }

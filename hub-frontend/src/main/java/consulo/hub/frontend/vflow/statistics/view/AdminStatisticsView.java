@@ -15,11 +15,9 @@ import java.util.List;
 @PageTitle("Admin/Statistics")
 @RolesAllowed(Roles.ROLE_SUPERUSER)
 @Route("admin/statistics")
-public class AdminStatisticsView extends BaseStatisticsView
-{
-	@Override
-	protected List<StatisticEntry> getStatistics()
-	{
-		return myStatisticRepository.listAll(0);
-	}
+public class AdminStatisticsView extends BaseStatisticsView {
+    @Override
+    protected List<StatisticEntry> getStatistics() {
+        return myStatisticRepository.listAll(0);
+    }
 }

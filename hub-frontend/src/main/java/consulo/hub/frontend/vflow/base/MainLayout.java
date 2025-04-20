@@ -34,56 +34,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Uses(FontAwesome.Solid.Icon.class)
 @Uses(FontAwesome.Brands.Icon.class)
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-public class MainLayout extends MainLayoutBase
-{
-	@Autowired
-	public MainLayout(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService)
-	{
-		super(accessAnnotationChecker, userService, logoutService);
-	}
+public class MainLayout extends MainLayoutBase {
+    @Autowired
+    public MainLayout(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService) {
+        super(accessAnnotationChecker, userService, logoutService);
+    }
 
-	@Override
-	public String getHeaderText()
-	{
-		return "hub.consulo.io";
-	}
+    @Override
+    public String getHeaderText() {
+        return "hub.consulo.io";
+    }
 
-	@Override
-	protected void updateMenuItems(SideNav appNav)
-	{
-		appNav.addItem(new SideNavItem("Repository", RepositoryView.class, FontAwesome.Solid.PLUG.create()));
+    @Override
+    protected void updateMenuItems(SideNav appNav) {
+        appNav.addItem(new SideNavItem("Repository", RepositoryView.class, FontAwesome.Solid.PLUG.create()));
 
-		if(SecurityUtil.isLoggedIn())
-		{
-			SideNavItem homeGroup = new SideNavItem("User");
-			homeGroup.setExpanded(true);
-			appNav.addItem(homeGroup);
+        if (SecurityUtil.isLoggedIn()) {
+            SideNavItem homeGroup = new SideNavItem("User");
+            homeGroup.setExpanded(true);
+            appNav.addItem(homeGroup);
 
-			homeGroup.addItem(new SideNavItem("Dashboard", DashboardView.class, FontAwesome.Solid.CHART_BAR.create()));
-			homeGroup.addItem(new SideNavItem("Error Reports", ErrorReportsView.class, FontAwesome.Solid.BOLT.create()));
-			homeGroup.addItem(new SideNavItem("Statistics", StatisticsView.class, FontAwesome.Solid.SIGNAL.create()));
-			homeGroup.addItem(new SideNavItem("Storage", StorageView.class, FontAwesome.Solid.FOLDER_OPEN.create()));
-			homeGroup.addItem(new SideNavItem("Sessions", UserSessionsView.class, FontAwesome.Solid.KEY.create()));
-		}
+            homeGroup.addItem(new SideNavItem("Dashboard", DashboardView.class, FontAwesome.Solid.CHART_BAR.create()));
+            homeGroup.addItem(new SideNavItem("Error Reports", ErrorReportsView.class, FontAwesome.Solid.BOLT.create()));
+            homeGroup.addItem(new SideNavItem("Statistics", StatisticsView.class, FontAwesome.Solid.SIGNAL.create()));
+            homeGroup.addItem(new SideNavItem("Storage", StorageView.class, FontAwesome.Solid.FOLDER_OPEN.create()));
+            homeGroup.addItem(new SideNavItem("Sessions", UserSessionsView.class, FontAwesome.Solid.KEY.create()));
+        }
 
-		//nav.addItem("Error Reports", StubView.class, FontAwesome.Solid.BOLT);
+        //nav.addItem("Error Reports", StubView.class, FontAwesome.Solid.BOLT);
 
-		if(SecurityUtil.hasRole(Roles.ROLE_SUPERUSER))
-		{
-			SideNavItem adminGroup = new SideNavItem("Administration");
-			adminGroup.setExpanded(true);
-			appNav.addItem(adminGroup);
-			adminGroup.addItem(new SideNavItem("Users", AdminUserView.class, FontAwesome.Solid.USERS.create()));
-			adminGroup.addItem(new SideNavItem("Error Reports", AdminErrorReportsView.class, FontAwesome.Solid.BOLT.create()));
-			adminGroup.addItem(new SideNavItem("Statistics", AdminStatisticsView.class, FontAwesome.Solid.SIGNAL.create()));
-			adminGroup.addItem(new SideNavItem("Repository", AdminRepositoryView.class, FontAwesome.Solid.PLUG.create()));
-			adminGroup.addItem(new SideNavItem("Config", AdminConfigView.class, FontAwesome.Solid.WRENCH.create()));
-		}
-	}
+        if (SecurityUtil.hasRole(Roles.ROLE_SUPERUSER)) {
+            SideNavItem adminGroup = new SideNavItem("Administration");
+            adminGroup.setExpanded(true);
+            appNav.addItem(adminGroup);
+            adminGroup.addItem(new SideNavItem("Users", AdminUserView.class, FontAwesome.Solid.USERS.create()));
+            adminGroup.addItem(new SideNavItem("Error Reports", AdminErrorReportsView.class, FontAwesome.Solid.BOLT.create()));
+            adminGroup.addItem(new SideNavItem("Statistics", AdminStatisticsView.class, FontAwesome.Solid.SIGNAL.create()));
+            adminGroup.addItem(new SideNavItem("Repository", AdminRepositoryView.class, FontAwesome.Solid.PLUG.create()));
+            adminGroup.addItem(new SideNavItem("Config", AdminConfigView.class, FontAwesome.Solid.WRENCH.create()));
+        }
+    }
 
-	@Override
-	protected void updateUserMenu(SubMenu subMenu, UserAccount userAccount)
-	{
-		subMenu.addItem("Profile", event -> UI.getCurrent().navigate(UserInfoView.class));
-	}
+    @Override
+    protected void updateUserMenu(SubMenu subMenu, UserAccount userAccount) {
+        subMenu.addItem("Profile", event -> UI.getCurrent().navigate(UserInfoView.class));
+    }
 }
