@@ -130,6 +130,7 @@ public class ErrorReportComponent extends VerticalLayout {
             }
 
             Table layout = new Table();
+            layout.setClassName("error-report");
             layout.setWidth(100, Unit.PERCENTAGE);
 
             add(layout);
@@ -150,7 +151,7 @@ public class ErrorReportComponent extends VerticalLayout {
 
             labelRow.add(new Span(field.getName() + ":"));
 
-            Object rawValue = null;
+            Object rawValue;
             try {
                 rawValue = field.get(errorReport);
             }
