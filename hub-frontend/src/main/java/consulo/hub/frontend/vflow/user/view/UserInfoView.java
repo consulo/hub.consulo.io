@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author VISTALL
- * @since 27-Sep-16
+ * @since 2016-09-27
  */
 @PageTitle("Profile")
 @PermitAll

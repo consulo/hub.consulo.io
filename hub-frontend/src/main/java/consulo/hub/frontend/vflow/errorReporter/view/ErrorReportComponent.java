@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 01/05/2023
+ * @since 2023-05-01
  */
 public class ErrorReportComponent extends VerticalLayout {
     private Div myBadgeHolder;
@@ -64,8 +64,7 @@ public class ErrorReportComponent extends VerticalLayout {
 
         List<Consumer<ErrorReport>> onUpdate = new ArrayList<>();
 
-        onUpdate.add(report ->
-        {
+        onUpdate.add(report -> {
             String status = errorReport.getStatus().name().toLowerCase(Locale.US);
 
             myBadgeHolder.removeAll();
@@ -92,8 +91,7 @@ public class ErrorReportComponent extends VerticalLayout {
     ) {
         Button externalLink = new Button("External Link", new Icon(VaadinIcon.EXTERNAL_LINK));
 
-        externalLink.addClickListener((e) ->
-        {
+        externalLink.addClickListener((e) -> {
             UI ui = UI.getCurrent();
 
             String url = RouteConfiguration.forApplicationScope()
@@ -180,8 +178,7 @@ public class ErrorReportComponent extends VerticalLayout {
 
             valueRow.add((Component)textField);
 
-            onUpdate.add(report ->
-            {
+            onUpdate.add(report -> {
                 Object rawValue2 = null;
                 try {
                     rawValue2 = field.get(report);

@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 11-Mar-17
+ * @since 2016-03-11
  */
 @PageTitle("Error Report")
 @Route(value = "public/errorReport/:longId", layout = MainLayout.class)

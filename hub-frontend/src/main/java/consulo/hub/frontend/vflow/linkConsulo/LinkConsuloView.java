@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * @author VISTALL
- * @since 04/09/2021
+ * @since 2021-09-04
  */
 @PageTitle("Linking Consulo")
 @PermitAll
@@ -65,9 +65,8 @@ public class LinkConsuloView extends CenteredView {
         Button yes = new Button("Yes", listener1);
         yes.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        ComponentEventListener<ClickEvent<Button>> listener = clickEvent -> {
-            UI.getCurrent().getPage().executeJs("window.close()");
-        };
+        ComponentEventListener<ClickEvent<Button>> listener =
+            clickEvent -> UI.getCurrent().getPage().executeJs("window.close()");
         Button no = new Button("No", listener);
 
         HorizontalLayout buttonsLine = new HorizontalLayout();

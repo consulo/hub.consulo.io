@@ -13,6 +13,7 @@ import consulo.hub.shared.auth.Roles;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,12 +27,13 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 02-Nov-16
+ * @since 2016-11-02
  */
 @PageTitle("Admin/Error Reports")
 @Route(value = "admin/errorReports", layout = MainLayout.class)
 @RolesAllowed(Roles.ROLE_SUPERUSER)
 public class AdminErrorReportsView extends BaseErrorReportsView {
+    @Nonnull
     @Override
     protected ErrorReportComponent createErrorReportComponent(ErrorReport errorReport) {
         return new ErrorReportComponent(errorReport) {

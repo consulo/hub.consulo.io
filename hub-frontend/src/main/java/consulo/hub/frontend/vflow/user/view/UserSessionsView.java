@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 27-Sep-16
+ * @since 2016-09-27
  */
 @PageTitle("Sessions")
 @Route(value = "user/sessions", layout = MainLayout.class)

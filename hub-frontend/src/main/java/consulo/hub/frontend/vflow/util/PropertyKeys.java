@@ -5,7 +5,7 @@ import consulo.procoeton.core.vaadin.captcha.CaptchaKeys;
 
 /**
  * @author VISTALL
- * @since 09-Nov-16
+ * @since 2016-11-09
  */
 @Deprecated
 public interface PropertyKeys {

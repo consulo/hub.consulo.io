@@ -18,7 +18,7 @@ import java.util.Collections;
 
 /**
  * @author VISTALL
- * @since 02-Oct-16
+ * @since 2016-10-02
  */
 @PageTitle("Error Reports")
 @Route(value = "user/errorReports", layout = MainLayout.class)

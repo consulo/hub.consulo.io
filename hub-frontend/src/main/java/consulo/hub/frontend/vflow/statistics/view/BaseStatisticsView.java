@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 09/09/2021
+ * @since 2021-09-09
  */
 public abstract class BaseStatisticsView extends ServerOfflineVChildLayout {
     @Autowired

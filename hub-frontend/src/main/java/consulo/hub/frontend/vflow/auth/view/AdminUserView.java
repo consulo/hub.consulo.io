@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author VISTALL
- * @since 25-Jan-17
+ * @since 2017-01-25
  */
 @PageTitle("Admin/Users")
 @Route(value = "admin/users", layout = MainLayout.class)

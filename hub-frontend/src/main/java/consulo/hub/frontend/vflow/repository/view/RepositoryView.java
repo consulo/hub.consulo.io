@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author VISTALL
- * @since 12-Mar-17
+ * @since 2017-03-12
  */
 @Route(value = "repository/:id?", layout = MainLayout.class)
 @PageTitle("Repository")
@@ -30,7 +30,6 @@ public class RepositoryView extends VChildLayout {
     private final PropertiesServiceImpl myPropertiesService;
 
     private Component myLastRepositoryView;
-
 
     @Autowired
     public RepositoryView(

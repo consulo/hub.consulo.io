@@ -19,7 +19,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 /**
  * @author VISTALL
- * @since 30/04/2023
+ * @since 2023-04-30
  */
 @EnableCaching
 @EnableScheduling

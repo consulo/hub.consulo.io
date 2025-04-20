@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * @author VISTALL
- * @since 14-Apr-17
+ * @since 2017-04-14
  */
 @Route(value = "admin/config", layout = MainLayout.class)
 @RolesAllowed(Roles.ROLE_SUPERUSER)
@@ -42,22 +42,25 @@ public class AdminConfigView extends VChildLayout {
         ConfigPanel configPanel = new ConfigPanel(myApiBackendRequestor, myPropertiesService, "Apply", properties -> {}) {
             @Override
             protected void addOthers(VerticalLayout t) {
-                t.add(buildGroup("Accounts", layout -> {
-                    try {
-                        Map<String, String> map = myApiBackendRequestor.runRequest(
-                            BackendApiUrl.toPrivate("/config/jenkins"),
-                            Map.of(),
-                            new TypeReference<Map<String, String>>() {
-                            }
-                        );
+                t.add(buildGroup(
+                    "Accounts",
+                    layout -> {
+                        try {
+                            Map<String, String> map = myApiBackendRequestor.runRequest(
+                                BackendApiUrl.toPrivate("/config/jenkins"),
+                                Map.of(),
+                                new TypeReference<Map<String, String>>() {
+                                }
+                            );
 
-                        for (Map.Entry<String, String> entry : map.entrySet()) {
-                            layout.add(VaadinUIUtil.labeledFill(entry.getKey(), TinyComponents.newTextField(entry.getValue())));
+                            for (Map.Entry<String, String> entry : map.entrySet()) {
+                                layout.add(VaadinUIUtil.labeledFill(entry.getKey(), TinyComponents.newTextField(entry.getValue())));
+                            }
+                        }
+                        catch (Exception ignored) {
                         }
                     }
-                    catch (Exception ignored) {
-                    }
-                }));
+                ));
             }
         };
 

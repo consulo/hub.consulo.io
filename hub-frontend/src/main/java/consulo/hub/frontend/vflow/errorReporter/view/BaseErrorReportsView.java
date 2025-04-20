@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 02-Nov-16
+ * @since 2016-11-02
  */
 public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout {
     private static final int ourPageSize = 50;
@@ -44,8 +44,7 @@ public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout {
 
         myFilterBox = new MultiSelectComboBox<>(null, ErrorReportStatus.values());
 
-        myFilterBox.addValueChangeListener(e ->
-        {
+        myFilterBox.addValueChangeListener(e -> {
             Set<ErrorReportStatus> value = e.getValue();
 
             myFilters.clear();
@@ -92,7 +91,7 @@ public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout {
     private void rebuildList() {
         myReportList.removeAllItems();
 
-        Page<ErrorReport> page = null;
+        Page<ErrorReport> page;
         try {
             page = getReports(myPage, myFilters.toArray(new ErrorReportStatus[myFilters.size()]), ourPageSize);
         }
@@ -116,16 +115,14 @@ public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout {
             pageLayout.setMargin(true);
             pageLayout.setSpacing(true);
             if (page.hasPrevious()) {
-                ComponentEventListener<ClickEvent<Button>> listener = event ->
-                {
+                ComponentEventListener<ClickEvent<Button>> listener = event -> {
                     myPage--;
                     rebuildList();
                 };
                 pageLayout.add(new Button("Prev", listener));
             }
             if (page.hasNext()) {
-                ComponentEventListener<ClickEvent<Button>> listener = event ->
-                {
+                ComponentEventListener<ClickEvent<Button>> listener = event -> {
                     myPage++;
                     rebuildList();
                 };

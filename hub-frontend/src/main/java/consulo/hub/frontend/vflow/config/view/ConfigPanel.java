@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 
 /**
  * @author VISTALL
- * @since 14-Apr-17
+ * @since 2017-04-14
  */
 public class ConfigPanel extends VerticalLayout {
     private final List<Consumer<Properties>> myConsumers = new ArrayList<>();
@@ -60,8 +60,7 @@ public class ConfigPanel extends VerticalLayout {
         layout.add(buildGAGroup());
 
         Button installButton = new Button(buttonName);
-        installButton.addClickListener(event ->
-        {
+        installButton.addClickListener(event -> {
             Properties properties = new Properties();
 
             for (Consumer<Properties> consumer : myConsumers) {
@@ -93,8 +92,7 @@ public class ConfigPanel extends VerticalLayout {
         String key,
         Supplier<V> defSupplier
     ) {
-        myConsumers.add(properties ->
-        {
+        myConsumers.add(properties -> {
             String value = StringUtils.stripToNull(String.valueOf(property.getValue()));
             if (value == null) {
                 properties.remove(key);
@@ -127,39 +125,41 @@ public class ConfigPanel extends VerticalLayout {
     }
 
     private Component buildBackedGroup(ApiBackendRequestor apiBackendRequestor) {
-        return buildGroup("Backend", layout ->
-        {
-            TextField backendSecureKeyField = new TextField();
-            map(String.class, backendSecureKeyField, ApiBackendKeys.BACKEND_SECURE_KEY, () -> "backend-secure-key");
+        return buildGroup(
+            "Backend",
+            layout -> {
+                TextField backendSecureKeyField = new TextField();
+                map(String.class, backendSecureKeyField, ApiBackendKeys.BACKEND_SECURE_KEY, () -> "backend-secure-key");
 
-            TextField backendHubPasswordField = new TextField();
-            map(String.class, backendHubPasswordField, ApiBackendKeys.BACKEND_HOST_PASSWORD, () -> "backend-secure-key");
+                TextField backendHubPasswordField = new TextField();
+                map(String.class, backendHubPasswordField, ApiBackendKeys.BACKEND_HOST_PASSWORD, () -> "backend-secure-key");
 
-            TextField backendHost = new TextField();
-            map(String.class, backendHost, ApiBackendKeys.BACKEND_HOST_URL_KEY, () -> "http://localhost:22333");
+                TextField backendHost = new TextField();
+                map(String.class, backendHost, ApiBackendKeys.BACKEND_HOST_URL_KEY, () -> "http://localhost:22333");
 
-            layout.add(VaadinUIUtil.labeledFill("Backend Secure Key: ", backendSecureKeyField));
-            layout.add(VaadinUIUtil.labeledFill("Backend Password: ", backendHubPasswordField));
-            layout.add(VaadinUIUtil.labeledFill("Backend URL: ", backendHost));
+                layout.add(VaadinUIUtil.labeledFill("Backend Secure Key: ", backendSecureKeyField));
+                layout.add(VaadinUIUtil.labeledFill("Backend Password: ", backendHubPasswordField));
+                layout.add(VaadinUIUtil.labeledFill("Backend URL: ", backendHost));
 
-            ComponentEventListener<ClickEvent<Button>> listener = clickEvent -> {
-                try {
-                    apiBackendRequestor.runRequest(
-                        backendHost.getValue(),
-                        BackendApiUrl.toPrivate("/test"),
-                        Map.of(),
-                        new TypeReference<Map<String, String>>() {
-                        }
-                    );
+                ComponentEventListener<ClickEvent<Button>> listener = clickEvent -> {
+                    try {
+                        apiBackendRequestor.runRequest(
+                            backendHost.getValue(),
+                            BackendApiUrl.toPrivate("/test"),
+                            Map.of(),
+                            new TypeReference<Map<String, String>>() {
+                            }
+                        );
 
-                    Notifications.info("Success");
-                }
-                catch (Exception e) {
-                    Notifications.error("Failed");
-                }
-            };
-            layout.add(new Button("Test", listener));
-        });
+                        Notifications.info("Success");
+                    }
+                    catch (Exception e) {
+                        Notifications.error("Failed");
+                    }
+                };
+                layout.add(new Button("Test", listener));
+            }
+        );
     }
 
     private Component buildCaptchaGroup() {

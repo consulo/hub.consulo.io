@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * @author VISTALL
- * @since 09/09/2021
+ * @since 2021-09-09
  */
 @PermitAll
 @PageTitle("Statistics")

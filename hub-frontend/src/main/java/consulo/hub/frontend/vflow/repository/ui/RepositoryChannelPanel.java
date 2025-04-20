@@ -36,7 +36,7 @@ import java.util.*;
 
 /**
  * @author VISTALL
- * @since 04-Jan-17
+ * @since 2017-01-04
  */
 public class RepositoryChannelPanel extends HorizontalLayout {
     private static final Comparator<FrontPluginNode> ourPluginNodeComparator =
@@ -103,8 +103,7 @@ public class RepositoryChannelPanel extends HorizontalLayout {
 
         myListSelect.setItems(items);
 
-        myListSelect.setRenderer(new ComponentRenderer<Component, FrontPluginNode>((c) ->
-        {
+        myListSelect.setRenderer(new ComponentRenderer<Component, FrontPluginNode>((c) -> {
             HorizontalLayout row = new HorizontalLayout();
             row.setDefaultVerticalComponentAlignment(Alignment.CENTER);
             String iconBytes = c.myPluginNode.iconBytes;
@@ -132,8 +131,7 @@ public class RepositoryChannelPanel extends HorizontalLayout {
             return row;
         }));
 
-        myListSelect.addValueChangeListener(event ->
-        {
+        myListSelect.addValueChangeListener(event -> {
             FrontPluginNode node = event.getValue();
 
             String pluginId = node == null ? null : node.id();

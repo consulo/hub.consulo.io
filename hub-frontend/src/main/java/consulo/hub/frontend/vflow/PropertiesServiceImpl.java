@@ -3,6 +3,7 @@ package consulo.hub.frontend.vflow;
 import com.google.common.annotations.VisibleForTesting;
 import consulo.procoeton.core.ProPropertiesService;
 import consulo.procoeton.core.util.PropertySet;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.util.Properties;
 
 /**
  * @author VISTALL
- * @since 28-Aug-16
+ * @since 2016-08-28
  */
 @Service
 public class PropertiesServiceImpl implements ProPropertiesService {
@@ -41,6 +42,8 @@ public class PropertiesServiceImpl implements ProPropertiesService {
         myConfigDirectory.mkdirs();
     }
 
+    @Nonnull
+    @Override
     public PropertySet getPropertySet() {
         return Objects.requireNonNull(myPropertySet);
     }
@@ -49,6 +52,7 @@ public class PropertiesServiceImpl implements ProPropertiesService {
         return myPropertySet == null;
     }
 
+    @Override
     public boolean isInstalled() {
         return myPropertySet != null;
     }

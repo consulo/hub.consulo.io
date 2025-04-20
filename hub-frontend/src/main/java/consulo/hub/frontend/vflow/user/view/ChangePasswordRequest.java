@@ -2,7 +2,7 @@ package consulo.hub.frontend.vflow.user.view;
 
 /**
  * @author VISTALL
- * @since 05/05/2023
+ * @since 2023-05-05
  */
 public class ChangePasswordRequest {
     private String myOldPassword;

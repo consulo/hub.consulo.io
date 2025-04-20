@@ -46,7 +46,7 @@ import java.util.*;
 
 /**
  * @author VISTALL
- * @since 30/04/2023
+ * @since 2023-04-30
  */
 public class RepositoryItemComponent extends VerticalLayout {
     RepositoryItemComponent(
@@ -217,8 +217,7 @@ public class RepositoryItemComponent extends VerticalLayout {
                 }
 
                 Button downloadButton = new Button("Download #" + node.version(), new Icon(VaadinIcon.DOWNLOAD));
-                downloadButton.addClickListener(event ->
-                {
+                downloadButton.addClickListener(event -> {
                     // just use first channel
                     PluginChannel first = node.myChannels.iterator().next();
 
@@ -245,7 +244,7 @@ public class RepositoryItemComponent extends VerticalLayout {
     }
 
     public static <T> List<T> reverse(Collection<T> collection) {
-        List<T> newList = new ArrayList<T>(collection);
+        List<T> newList = new ArrayList<>(collection);
         Collections.reverse(newList);
         return newList;
     }
