@@ -16,63 +16,61 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author VISTALL
- * @since 12-Mar-17
+ * @since 2017-03-12
  */
 @Route(value = "repository/:id?", layout = MainLayout.class)
 @PageTitle("Repository")
 @AnonymousAllowed
-public class RepositoryView extends VChildLayout
-{
-	public static final String ID = "id";
+public class RepositoryView extends VChildLayout {
+    public static final String ID = "id";
 
-	private final BackendRepositoryService myBackendRepositoryService;
-	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
-	private final TagsLocalizeLoader myTagsLocalizeLoader;
-	private final PropertiesServiceImpl myPropertiesService;
+    private final BackendRepositoryService myBackendRepositoryService;
+    private final BackendPluginStatisticsService myBackendPluginStatisticsService;
+    private final TagsLocalizeLoader myTagsLocalizeLoader;
+    private final PropertiesServiceImpl myPropertiesService;
 
-	private Component myLastRepositoryView;
+    private Component myLastRepositoryView;
 
+    @Autowired
+    public RepositoryView(
+        PropertiesServiceImpl propertiesService,
+        BackendRepositoryService backendRepositoryService,
+        BackendPluginStatisticsService backendPluginStatisticsService,
+        TagsLocalizeLoader tagsLocalizeLoader
+    ) {
+        myPropertiesService = propertiesService;
+        myBackendRepositoryService = backendRepositoryService;
+        myBackendPluginStatisticsService = backendPluginStatisticsService;
+        myTagsLocalizeLoader = tagsLocalizeLoader;
+    }
 
-	@Autowired
-	public RepositoryView(PropertiesServiceImpl propertiesService,
-						  BackendRepositoryService backendRepositoryService,
-						  BackendPluginStatisticsService backendPluginStatisticsService,
-						  TagsLocalizeLoader tagsLocalizeLoader)
-	{
-		myPropertiesService = propertiesService;
-		myBackendRepositoryService = backendRepositoryService;
-		myBackendPluginStatisticsService = backendPluginStatisticsService;
-		myTagsLocalizeLoader = tagsLocalizeLoader;
+    @Override
+    public void viewReady(AfterNavigationEvent afterNavigationEvent) {
+        if (myPropertiesService.isNotInstalled()) {
+            return;
+        }
 
-	}
+        String id = myRouteParameters.get(ID).orElse(null);
 
-	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
-	{
-		if(myPropertiesService.isNotInstalled())
-		{
-			return;
-		}
+        rebuild(id);
+    }
 
-		String id = myRouteParameters.get(ID).orElse(null);
+    private void rebuild(String id) {
+        if (myLastRepositoryView != null) {
+            remove(myLastRepositoryView);
+        }
 
-		rebuild(id);
-	}
+        RepositoryChannelPanel repositoryChannelPanel = new RepositoryChannelPanel(
+            myBackendRepositoryService,
+            myBackendPluginStatisticsService,
+            myTagsLocalizeLoader,
+            myRouteParameters
+        );
 
-	private void rebuild(String id)
-	{
-		if(myLastRepositoryView != null)
-		{
-			remove(myLastRepositoryView);
-		}
+        add(repositoryChannelPanel);
 
-		RepositoryChannelPanel repositoryChannelPanel = new RepositoryChannelPanel(myBackendRepositoryService, myBackendPluginStatisticsService, myTagsLocalizeLoader,
-				myRouteParameters);
+        repositoryChannelPanel.selectPlugin(id);
 
-		add(repositoryChannelPanel);
-
-		repositoryChannelPanel.selectPlugin(id);
-
-		myLastRepositoryView = repositoryChannelPanel;
-	}
+        myLastRepositoryView = repositoryChannelPanel;
+    }
 }

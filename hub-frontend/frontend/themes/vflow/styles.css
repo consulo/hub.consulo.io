@@ -36,3 +36,11 @@ html
 	background: lightgray;
 	color: var(--lumo-base-color)
 }
+
+table.error-report tr td:first-child
+{
+	line-height: var(--lumo-size-m);
+	padding: var(--lumo-space-xs) var(--lumo-space-l) var(--lumo-space-xs) 0;
+	vertical-align: top;
+	width: 1%;
+}

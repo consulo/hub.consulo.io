@@ -19,55 +19,53 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 11-Mar-17
+ * @since 2016-03-11
  */
 @PageTitle("Error Report")
 @Route(value = "public/errorReport/:longId", layout = MainLayout.class)
 @AnonymousAllowed
-public class DirectErrorReportsView extends VChildLayout
-{
-	public static final String LONG_ID = "longId";
+public class DirectErrorReportsView extends VChildLayout {
+    public static final String LONG_ID = "longId";
 
-	@Autowired
-	private final BackendErrorReporterService myErrorReportRepository;
+    @Autowired
+    private final BackendErrorReporterService myErrorReportRepository;
 
-	public DirectErrorReportsView(BackendErrorReporterService errorReportRepository)
-	{
-		myErrorReportRepository = errorReportRepository;
-	}
+    public DirectErrorReportsView(BackendErrorReporterService errorReportRepository) {
+        myErrorReportRepository = errorReportRepository;
+    }
 
-	@Override
-	public void viewReady(AfterNavigationEvent afterNavigationEvent)
-	{
-		String id = myRouteParameters.get(LONG_ID).get();
+    @Override
+    public void viewReady(AfterNavigationEvent afterNavigationEvent) {
+        String id = myRouteParameters.get(LONG_ID).get();
 
-		ErrorReport report = myErrorReportRepository.findByLongId(StringUtil.notNullize(id));
-		if(report == null)
-		{
-			report = new ErrorReport();
-		}
+        ErrorReport report = myErrorReportRepository.findByLongId(StringUtil.notNullize(id));
+        if (report == null) {
+            report = new ErrorReport();
+        }
 
-		ErrorReportComponent component = new ErrorReportComponent(report)
-		{
-			@Override
-			protected void addRightButtons(ErrorReport errorReport, VerticalLayout lineLayout, HorizontalLayout rightLayout, List<Consumer<ErrorReport>> onUpdate)
-			{
-				openOrCloseDetails(errorReport, lineLayout, onUpdate);
-			}
+        ErrorReportComponent component = new ErrorReportComponent(report) {
+            @Override
+            protected void addRightButtons(
+                ErrorReport errorReport,
+                VerticalLayout lineLayout,
+                HorizontalLayout rightLayout,
+                List<Consumer<ErrorReport>> onUpdate
+            ) {
+                openOrCloseDetails(errorReport, lineLayout, onUpdate);
+            }
 
-			@Override
-			protected boolean skipField(String name)
-			{
-				return StringUtils.containsIgnoreCase(name, "user") ||
-						StringUtils.containsIgnoreCase(name, "changedByUser") ||
-						StringUtils.containsIgnoreCase(name, "assignUser") ||
-						StringUtils.containsIgnoreCase(name, "id") ||
-						StringUtils.containsIgnoreCase(name, "changeTime");
-			}
-		};
+            @Override
+            protected boolean skipField(String name) {
+                return StringUtils.containsIgnoreCase(name, "user") ||
+                    StringUtils.containsIgnoreCase(name, "changedByUser") ||
+                    StringUtils.containsIgnoreCase(name, "assignUser") ||
+                    StringUtils.containsIgnoreCase(name, "id") ||
+                    StringUtils.containsIgnoreCase(name, "changeTime");
+            }
+        };
 
-		component.setWidthFull();
-		add(component);
-		setFlexGrow(1, component);
-	}
+        component.setWidthFull();
+        add(component);
+        setFlexGrow(1, component);
+    }
 }

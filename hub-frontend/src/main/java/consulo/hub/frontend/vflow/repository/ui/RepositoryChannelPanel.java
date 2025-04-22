@@ -36,189 +36,168 @@ import java.util.*;
 
 /**
  * @author VISTALL
- * @since 04-Jan-17
+ * @since 2017-01-04
  */
-public class RepositoryChannelPanel extends HorizontalLayout
-{
-	private static final Comparator<FrontPluginNode> ourPluginNodeComparator = (o1, o2) -> VersionComparatorUtil.compare(o2.version(), o1.version());
+public class RepositoryChannelPanel extends HorizontalLayout {
+    private static final Comparator<FrontPluginNode> ourPluginNodeComparator =
+        (o1, o2) -> VersionComparatorUtil.compare(o2.version(), o1.version());
 
-	private final BackendPluginStatisticsService myBackendPluginStatisticsService;
-	private final TagsLocalizeLoader myTagsLocalizeLoader;
-	private final Multimap<String, FrontPluginNode> myPluginBuilds;
-	private final ListBox<FrontPluginNode> myListSelect;
-	private String mySelectedPluginId;
+    private final BackendPluginStatisticsService myBackendPluginStatisticsService;
+    private final TagsLocalizeLoader myTagsLocalizeLoader;
+    private final Multimap<String, FrontPluginNode> myPluginBuilds;
+    private final ListBox<FrontPluginNode> myListSelect;
+    private String mySelectedPluginId;
 
-	private HorizontalLayout myHolder;
+    private HorizontalLayout myHolder;
 
-	public RepositoryChannelPanel(@Nonnull BackendRepositoryService backendRepositoryService,
-								  @Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
-								  @Nonnull TagsLocalizeLoader tagsLocalizeLoader,
-								  RouteParameters routeParameters)
-	{
-		myBackendPluginStatisticsService = backendPluginStatisticsService;
-		myTagsLocalizeLoader = tagsLocalizeLoader;
+    public RepositoryChannelPanel(
+        @Nonnull BackendRepositoryService backendRepositoryService,
+        @Nonnull BackendPluginStatisticsService backendPluginStatisticsService,
+        @Nonnull TagsLocalizeLoader tagsLocalizeLoader,
+        RouteParameters routeParameters
+    ) {
+        myBackendPluginStatisticsService = backendPluginStatisticsService;
+        myTagsLocalizeLoader = tagsLocalizeLoader;
 
-		setSizeFull();
+        setSizeFull();
 
-		myListSelect = new ListBox<>();
-		myListSelect.setHeightFull();
-		myListSelect.setWidth(35, Unit.EM);
+        myListSelect = new ListBox<>();
+        myListSelect.setHeightFull();
+        myListSelect.setWidth(35, Unit.EM);
 
-		add(myListSelect);
+        add(myListSelect);
 
-		myHolder = VaadinUIUtil.newHorizontalLayout();
-		myHolder.setWidthFull();
+        myHolder = VaadinUIUtil.newHorizontalLayout();
+        myHolder.setWidthFull();
 
-		// we have own scrolling
-		myHolder.addClassName(LumoUtility.Overflow.AUTO);
+        // we have own scrolling
+        myHolder.addClassName(LumoUtility.Overflow.AUTO);
 
-		add(myHolder);
-		setFlexGrow(1f, myHolder);
+        add(myHolder);
+        setFlexGrow(1f, myHolder);
 
-		myPluginBuilds = TreeMultimap.create(Collections.<String>reverseOrder(Comparator.<String>naturalOrder()), ourPluginNodeComparator);
-		try
-		{
-			backendRepositoryService.listAll(node -> myPluginBuilds.put(node.id(), node));
-		}
-		catch(BackendServiceDownException ignored)
-		{
-			Notifications.serverOffline();
-		}
+        myPluginBuilds = TreeMultimap.create(Collections.<String>reverseOrder(Comparator.<String>naturalOrder()), ourPluginNodeComparator);
+        try {
+            backendRepositoryService.listAll(node -> myPluginBuilds.put(node.id(), node));
+        }
+        catch (BackendServiceDownException ignored) {
+            Notifications.serverOffline();
+        }
 
-		List<FrontPluginNode> items = new ArrayList<>();
-		for(Map.Entry<String, Collection<FrontPluginNode>> entry : myPluginBuilds.asMap().entrySet())
-		{
-			Collection<FrontPluginNode> value = entry.getValue();
-			items.add(ContainerUtil.getFirstItem(value));
-		}
+        List<FrontPluginNode> items = new ArrayList<>();
+        for (Map.Entry<String, Collection<FrontPluginNode>> entry : myPluginBuilds.asMap().entrySet()) {
+            Collection<FrontPluginNode> value = entry.getValue();
+            items.add(ContainerUtil.getFirstItem(value));
+        }
 
-		items.sort((o1, o2) ->
-		{
-			if(RepositoryUtil.isPlatformNode(o1.id()))
-			{
-				return -1;
-			}
-			else if(RepositoryUtil.isPlatformNode(o2.id()))
-			{
-				return 1;
-			}
+        items.sort((o1, o2) -> {
+            if (RepositoryUtil.isPlatformNode(o1.id())) {
+                return -1;
+            }
+            else if (RepositoryUtil.isPlatformNode(o2.id())) {
+                return 1;
+            }
 
-			return o1.name().compareToIgnoreCase(o2.name());
-		});
+            return o1.name().compareToIgnoreCase(o2.name());
+        });
 
-		myListSelect.setItems(items);
+        myListSelect.setItems(items);
 
-		myListSelect.setRenderer(new ComponentRenderer<Component, FrontPluginNode>((c) ->
-		{
-			HorizontalLayout row = new HorizontalLayout();
-			row.setDefaultVerticalComponentAlignment(Alignment.CENTER);
-			String iconBytes = c.myPluginNode.iconBytes;
-			Image image = new Image();
+        myListSelect.setRenderer(new ComponentRenderer<Component, FrontPluginNode>((c) -> {
+            HorizontalLayout row = new HorizontalLayout();
+            row.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+            String iconBytes = c.myPluginNode.iconBytes;
+            Image image = new Image();
 
-			if(RepositoryUtil.isPlatformNode(c.id()))
-			{
-				InputStream platformIcon = getClass().getResourceAsStream("/images/consuloBig.svg");
-				image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory) () -> platformIcon));
-			}
-			else if(iconBytes == null)
-			{
-				InputStream pluginIcon = getClass().getResourceAsStream("/images/pluginBig.svg");
-				image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory) () -> pluginIcon));
-			}
-			else
-			{
-				byte[] imgBytes = Base64.getDecoder().decode(iconBytes);
+            if (RepositoryUtil.isPlatformNode(c.id())) {
+                InputStream platformIcon = getClass().getResourceAsStream("/images/consuloBig.svg");
+                image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory)() -> platformIcon));
+            }
+            else if (iconBytes == null) {
+                InputStream pluginIcon = getClass().getResourceAsStream("/images/pluginBig.svg");
+                image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory)() -> pluginIcon));
+            }
+            else {
+                byte[] imgBytes = Base64.getDecoder().decode(iconBytes);
 
-				image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory) () -> new ByteArrayInputStream(imgBytes)));
-			}
+                image.setSrc(new StreamResource(c.id() + ".svg", (InputStreamFactory)() -> new ByteArrayInputStream(imgBytes)));
+            }
 
-			image.setHeight(3, Unit.EM);
-			image.setWidth(3, Unit.EM);
-			row.add(image);
+            image.setHeight(3, Unit.EM);
+            image.setWidth(3, Unit.EM);
+            row.add(image);
 
-			row.add(new Span(c.name()));
-			return row;
-		}));
+            row.add(new Span(c.name()));
+            return row;
+        }));
 
-		myListSelect.addValueChangeListener(event ->
-		{
-			FrontPluginNode node = event.getValue();
+        myListSelect.addValueChangeListener(event -> {
+            FrontPluginNode node = event.getValue();
 
-			String pluginId = node == null ? null : node.id();
+            String pluginId = node == null ? null : node.id();
 
-			mySelectedPluginId = pluginId;
+            mySelectedPluginId = pluginId;
 
-			selectPlugin(pluginId);
+            selectPlugin(pluginId);
 
-			myHolder.removeAll();
+            myHolder.removeAll();
 
-			if(!StringUtils.isEmpty(pluginId))
-			{
-				Component component = build(pluginId);
-				if(component != null)
-				{
-					myHolder.add(component);
-				}
-			}
+            if (!StringUtils.isEmpty(pluginId)) {
+                Component component = build(pluginId);
+                if (component != null) {
+                    myHolder.add(component);
+                }
+            }
 
-			RouterUtil.updateUrl(RepositoryView.class, () -> routeParameters, Map.of(RepositoryView.ID, pluginId));
-		});
-	}
+            RouterUtil.updateUrl(RepositoryView.class, () -> routeParameters, Map.of(RepositoryView.ID, pluginId));
+        });
+    }
 
-	public void selectPlugin(@Nullable String pluginId)
-	{
-		if(pluginId == null)
-		{
-			myListSelect.setValue(null);
-		}
-		else
-		{
-			Collection<FrontPluginNode> nodes = myPluginBuilds.get(pluginId);
-			if(nodes.isEmpty())
-			{
-				myListSelect.setValue(null);
-			}
-			else
-			{
-				myListSelect.setValue(ContainerUtil.getFirstItem(nodes));
-			}
-		}
-	}
+    public void selectPlugin(@Nullable String pluginId) {
+        if (pluginId == null) {
+            myListSelect.setValue(null);
+        }
+        else {
+            Collection<FrontPluginNode> nodes = myPluginBuilds.get(pluginId);
+            if (nodes.isEmpty()) {
+                myListSelect.setValue(null);
+            }
+            else {
+                myListSelect.setValue(ContainerUtil.getFirstItem(nodes));
+            }
+        }
+    }
 
-	@Nullable
-	public String getSelectedPluginId()
-	{
-		return mySelectedPluginId;
-	}
+    @Nullable
+    public String getSelectedPluginId() {
+        return mySelectedPluginId;
+    }
 
-	private Component build(String pluginId)
-	{
-		// all plugin nodes
-		Collection<FrontPluginNode> pluginNodes = myPluginBuilds.get(pluginId);
+    private Component build(String pluginId) {
+        // all plugin nodes
+        Collection<FrontPluginNode> pluginNodes = myPluginBuilds.get(pluginId);
 
-		// version -> nodes
-		SortedSetMultimap<String, FrontPluginNode> sortByVersion = TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
+        // version -> nodes
+        SortedSetMultimap<String, FrontPluginNode> sortByVersion =
+            TreeMultimap.create(Collections.reverseOrder(StringUtil::naturalCompare), ourPluginNodeComparator);
 
-		for(FrontPluginNode pluginNode : pluginNodes)
-		{
-			sortByVersion.put(pluginNode.platformVersion(), pluginNode);
-		}
+        for (FrontPluginNode pluginNode : pluginNodes) {
+            sortByVersion.put(pluginNode.platformVersion(), pluginNode);
+        }
 
-		FrontPluginNode lastPluginNodeByVersion = null;
+        FrontPluginNode lastPluginNodeByVersion = null;
 
-		Map<String, Collection<FrontPluginNode>> sorted = sortByVersion.asMap();
+        Map<String, Collection<FrontPluginNode>> sorted = sortByVersion.asMap();
 
-		for(Map.Entry<String, Collection<FrontPluginNode>> entry : sorted.entrySet())
-		{
-			lastPluginNodeByVersion = entry.getValue().iterator().next();
-			break;
-		}
+        for (Map.Entry<String, Collection<FrontPluginNode>> entry : sorted.entrySet()) {
+            lastPluginNodeByVersion = entry.getValue().iterator().next();
+            break;
+        }
 
-		if(lastPluginNodeByVersion != null)
-		{
-			return new RepositoryItemComponent(lastPluginNodeByVersion, myTagsLocalizeLoader, myBackendPluginStatisticsService, sorted);
-		}
+        if (lastPluginNodeByVersion != null) {
+            return new RepositoryItemComponent(lastPluginNodeByVersion, myTagsLocalizeLoader, myBackendPluginStatisticsService, sorted);
+        }
 
-		return null;
-	}
+        return null;
+    }
 }
