@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 21/08/2021
+ * @since 2021-08-21
  */
 @Service
 public class BackendRepositoryService {
@@ -28,8 +28,12 @@ public class BackendRepositoryService {
 
     public void cleanup() {
         try {
-            myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/cleanup"), Map.of(), new TypeReference<Map<String, String>>() {
-            });
+            myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/repository/cleanup"),
+                Map.of(),
+                new TypeReference<Map<String, String>>() {
+                }
+            );
         }
         catch (BackendServiceDownException e) {
             throw e;
@@ -41,7 +45,8 @@ public class BackendRepositoryService {
 
     public void listAll(@Nonnull Consumer<FrontPluginNode> consumer) {
         try {
-            FrontPluginNode[] nodes = myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of(), FrontPluginNode[].class);
+            FrontPluginNode[] nodes =
+                myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/list"), Map.of(), FrontPluginNode[].class);
             if (nodes == null) {
                 nodes = new FrontPluginNode[0];
             }
@@ -60,8 +65,12 @@ public class BackendRepositoryService {
 
     public void iteratePlugins(@Nonnull PluginChannel from, @Nonnull PluginChannel to) {
         try {
-            myApiBackendRequestor.runRequest(BackendApiUrl.toPrivate("/repository/iterate"), Map.of("from", from.name(), "to", to.name()), new TypeReference<Map<String, String>>() {
-            });
+            myApiBackendRequestor.runRequest(
+                BackendApiUrl.toPrivate("/repository/iterate"),
+                Map.of("from", from.name(), "to", to.name()),
+                new TypeReference<Map<String, String>>() {
+                }
+            );
         }
         catch (BackendServiceDownException e) {
             throw e;

@@ -19,24 +19,22 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 /**
  * @author VISTALL
- * @since 30/04/2023
+ * @since 2023-04-30
  */
 @EnableCaching
 @EnableScheduling
 @EnableWebSocket
 @SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class,
-		UserDetailsServiceAutoConfiguration.class
+    DataSourceAutoConfiguration.class,
+    UserDetailsServiceAutoConfiguration.class
 })
 @EnableVaadin({"consulo.hub.frontend.vflow", "consulo.procoeton.core", "consulo.procoeton.hub"})
 @ComponentScan(basePackageClasses = {ProCore.class, Application.class}, basePackages = "consulo.hub.frontend.vflow")
 @Push(PushMode.MANUAL)
 @Theme(value = "vflow")
 @Uses(AppLayout.class)
-public class Application implements AppShellConfigurator
-{
-	public static void main(String[] args)
-	{
-		SpringApplication.run(Application.class, args);
-	}
+public class Application implements AppShellConfigurator {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 }

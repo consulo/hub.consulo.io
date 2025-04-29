@@ -35,159 +35,145 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 19-Feb-17
+ * @since 2017-02-19
  */
 @PageTitle("Storage")
 @Route(value = "user/storage", layout = MainLayout.class)
 @PermitAll
-public class StorageView extends ServerOfflineVChildLayout
-{
-	public static final String ID = "storage";
+public class StorageView extends ServerOfflineVChildLayout {
+    public static final String ID = "storage";
 
-	private final BackendStorageService myBackendStorageService;
+    private final BackendStorageService myBackendStorageService;
 
-	private final Button myWipeDataButton;
+    private final Button myWipeDataButton;
 
-	private final ListBox<Map.Entry<String, Long>> myItems;
+    private final ListBox<Map.Entry<String, Long>> myItems;
 
-	private final VerticalLayout myUpdateInfoPanel;
+    private final VerticalLayout myUpdateInfoPanel;
 
-	@Autowired
-	public StorageView(BackendStorageService backendStorageService)
-	{
-		super(true);
+    @Autowired
+    public StorageView(BackendStorageService backendStorageService) {
+        super(true);
 
-		myBackendStorageService = backendStorageService;
-		myItems = new ListBox<>();
-		myUpdateInfoPanel = new VerticalLayout();
-		myWipeDataButton = new Button("Wipe All");
-		
-		myWipeDataButton.addClickListener(event -> {
-			myBackendStorageService.deleteAll(AuthUtil.getUserId());
+        myBackendStorageService = backendStorageService;
+        myItems = new ListBox<>();
+        myUpdateInfoPanel = new VerticalLayout();
+        myWipeDataButton = new Button("Wipe All");
 
-			myItems.setItems(new ArrayList<>());
-			myItems.setItemLabelGenerator(s -> "");
-			myUpdateInfoPanel.removeAll();
-		});
-	}
+        myWipeDataButton.addClickListener(event -> {
+            myBackendStorageService.deleteAll(AuthUtil.getUserId());
 
-	@Override
-	public Component getHeaderRightComponent()
-	{
-		return myWipeDataButton;
-	}
+            myItems.setItems(new ArrayList<>());
+            myItems.setItemLabelGenerator(s -> "");
+            myUpdateInfoPanel.removeAll();
+        });
+    }
 
-	@Override
-	protected void buildLayout(Consumer<Component> uiBuilder)
-	{
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication == null)
-		{
-			return;
-		}
+    @Override
+    public Component getHeaderRightComponent() {
+        return myWipeDataButton;
+    }
 
-		myUpdateInfoPanel.removeAll();
+    @Override
+    protected void buildLayout(Consumer<Component> uiBuilder) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return;
+        }
 
-		List<StorageFile> files = myBackendStorageService.listAll(AuthUtil.getUserId());
+        myUpdateInfoPanel.removeAll();
 
-		HorizontalLayout panel = new HorizontalLayout();
+        List<StorageFile> files = myBackendStorageService.listAll(AuthUtil.getUserId());
 
-		VerticalLayout rightLayout = new VerticalLayout();
-		rightLayout.addClassName(LumoUtility.Overflow.AUTO);
-		rightLayout.setSpacing(false);
-		rightLayout.setSizeFull();
+        HorizontalLayout panel = new HorizontalLayout();
 
-		myItems.setSizeFull();
+        VerticalLayout rightLayout = new VerticalLayout();
+        rightLayout.addClassName(LumoUtility.Overflow.AUTO);
+        rightLayout.setSpacing(false);
+        rightLayout.setSizeFull();
 
-		TextArea textArea = new TextArea();
-		textArea.setLabel("Text: ");
-		textArea.setSizeFull();
-		rightLayout.add(textArea);
+        myItems.setSizeFull();
 
-		myUpdateInfoPanel.setSizeFull();
-		myUpdateInfoPanel.setSpacing(false);
+        TextArea textArea = new TextArea();
+        textArea.setLabel("Text: ");
+        textArea.setSizeFull();
+        rightLayout.add(textArea);
 
-		LabeledLayout bottom = new LabeledLayout("Updated by", myUpdateInfoPanel);
-		bottom.setSizeFull();
-		rightLayout.add(bottom);
+        myUpdateInfoPanel.setSizeFull();
+        myUpdateInfoPanel.setSpacing(false);
 
-		myItems.addValueChangeListener(event1 ->
-		{
-			StorageFile file = myBackendStorageService.find(AuthUtil.getUserId(), event1.getValue().getValue());
+        LabeledLayout bottom = new LabeledLayout("Updated by", myUpdateInfoPanel);
+        bottom.setSizeFull();
+        rightLayout.add(bottom);
 
-			String text = "not found";
+        myItems.addValueChangeListener(event1 ->
+        {
+            StorageFile file = myBackendStorageService.find(AuthUtil.getUserId(), event1.getValue().getValue());
 
-			myUpdateInfoPanel.removeAll();
+            String text = "not found";
 
-			if(file != null)
-			{
-				try
-				{
-					byte[] bytes = StreamUtil.loadFromStream(new UnsyncByteArrayInputStream(file.getFileData()));
-					text = new String(bytes, StandardCharsets.UTF_8);
-				}
-				catch(Exception e)
-				{
-					text = ExceptionUtil.getThrowableText(e);
-				}
+            myUpdateInfoPanel.removeAll();
 
-				addFields(InformationBean.class, file.getUpdateBy(), myUpdateInfoPanel);
-				addFields(StorageFileUpdateBy.class, file.getUpdateBy(), myUpdateInfoPanel);
-			}
+            if (file != null) {
+                try {
+                    byte[] bytes = StreamUtil.loadFromStream(new UnsyncByteArrayInputStream(file.getFileData()));
+                    text = new String(bytes, StandardCharsets.UTF_8);
+                }
+                catch (Exception e) {
+                    text = ExceptionUtil.getThrowableText(e);
+                }
 
-			textArea.setReadOnly(false);
-			textArea.setValue(text);
-			textArea.setReadOnly(true);
-		});
+                addFields(InformationBean.class, file.getUpdateBy(), myUpdateInfoPanel);
+                addFields(StorageFileUpdateBy.class, file.getUpdateBy(), myUpdateInfoPanel);
+            }
 
-		Map<String, Long> captions = new TreeMap<>();
-		for(StorageFile file : files)
-		{
-			captions.put(file.getFilePath(), file.getId());
-		}
-		myItems.setItems(captions.entrySet());
-		myItems.setItemLabelGenerator(Map.Entry::getKey);
+            textArea.setReadOnly(false);
+            textArea.setValue(text);
+            textArea.setReadOnly(true);
+        });
 
-		panel.add(myItems);
-		panel.add(rightLayout);
-		panel.setSizeFull();
+        Map<String, Long> captions = new TreeMap<>();
+        for (StorageFile file : files) {
+            captions.put(file.getFilePath(), file.getId());
+        }
+        myItems.setItems(captions.entrySet());
+        myItems.setItemLabelGenerator(Map.Entry::getKey);
 
-		uiBuilder.accept(panel);
-	}
+        panel.add(myItems);
+        panel.add(rightLayout);
+        panel.setSizeFull();
 
-	private void addFields(Class clazz, Object value, VerticalLayout verticalLayout)
-	{
-		Field[] declaredFields = clazz.getDeclaredFields();
-		for(Field declaredField : declaredFields)
-		{
-			declaredField.setAccessible(true);
+        uiBuilder.accept(panel);
+    }
 
-			String name = declaredField.getName();
+    private void addFields(Class clazz, Object value, VerticalLayout verticalLayout) {
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            declaredField.setAccessible(true);
 
-			HorizontalLayout layout = new HorizontalLayout();
-			layout.setSpacing(false);
-			layout.setMargin(false);
-			layout.setWidthFull();
+            String name = declaredField.getName();
 
-			verticalLayout.add(layout);
-			layout.add(new Span(name + ": "));
-			try
-			{
-				Object fieldValue = declaredField.get(value);
-				if(name.equalsIgnoreCase("time"))
-				{
-					fieldValue = new Date((Long) fieldValue);
-				}
+            HorizontalLayout layout = new HorizontalLayout();
+            layout.setSpacing(false);
+            layout.setMargin(false);
+            layout.setWidthFull();
 
-				TextField field = TinyComponents.newTextField(String.valueOf(fieldValue));
-				field.setWidthFull();
-				field.setReadOnly(true);
-				layout.add(field);
-			}
-			catch(IllegalAccessException e)
-			{
-				throw new RuntimeException(e);
-			}
-		}
-	}
+            verticalLayout.add(layout);
+            layout.add(new Span(name + ": "));
+            try {
+                Object fieldValue = declaredField.get(value);
+                if (name.equalsIgnoreCase("time")) {
+                    fieldValue = new Date((Long)fieldValue);
+                }
+
+                TextField field = TinyComponents.newTextField(String.valueOf(fieldValue));
+                field.setWidthFull();
+                field.setReadOnly(true);
+                layout.add(field);
+            }
+            catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

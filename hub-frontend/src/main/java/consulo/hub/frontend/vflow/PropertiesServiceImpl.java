@@ -3,6 +3,7 @@ package consulo.hub.frontend.vflow;
 import com.google.common.annotations.VisibleForTesting;
 import consulo.procoeton.core.ProPropertiesService;
 import consulo.procoeton.core.util.PropertySet;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,92 +20,79 @@ import java.util.Properties;
 
 /**
  * @author VISTALL
- * @since 28-Aug-16
+ * @since 2016-08-28
  */
 @Service
-public class PropertiesServiceImpl implements ProPropertiesService
-{
-	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesServiceImpl.class);
+public class PropertiesServiceImpl implements ProPropertiesService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesServiceImpl.class);
 
-	private final File myConfigDirectory;
+    private final File myConfigDirectory;
 
-	private PropertySet myPropertySet;
+    private PropertySet myPropertySet;
 
-	@Autowired
-	public PropertiesServiceImpl()
-	{
-		this(null);
-	}
+    @Autowired
+    public PropertiesServiceImpl() {
+        this(null);
+    }
 
-	@VisibleForTesting
-	public PropertiesServiceImpl(String home)
-	{
-		myConfigDirectory = home == null ? new File(".hub-frontend") : new File(home, ".hub-frontend");
+    @VisibleForTesting
+    public PropertiesServiceImpl(String home) {
+        myConfigDirectory = home == null ? new File(".hub-frontend") : new File(home, ".hub-frontend");
 
-		myConfigDirectory.mkdirs();
-	}
+        myConfigDirectory.mkdirs();
+    }
 
-	public PropertySet getPropertySet()
-	{
-		return Objects.requireNonNull(myPropertySet);
-	}
+    @Nonnull
+    @Override
+    public PropertySet getPropertySet() {
+        return Objects.requireNonNull(myPropertySet);
+    }
 
-	public boolean isNotInstalled()
-	{
-		return myPropertySet == null;
-	}
+    public boolean isNotInstalled() {
+        return myPropertySet == null;
+    }
 
-	public boolean isInstalled()
-	{
-		return myPropertySet != null;
-	}
+    @Override
+    public boolean isInstalled() {
+        return myPropertySet != null;
+    }
 
-	public void resetProperties()
-	{
-		myPropertySet = null;
-	}
+    public void resetProperties() {
+        myPropertySet = null;
+    }
 
-	public void setProperties(Properties properties)
-	{
-		File file = new File(myConfigDirectory, "config.xml");
-		FileSystemUtils.deleteRecursively(file);
+    public void setProperties(Properties properties) {
+        File file = new File(myConfigDirectory, "config.xml");
+        FileSystemUtils.deleteRecursively(file);
 
-		try (FileOutputStream fileOutputStream = new FileOutputStream(file))
-		{
-			properties.storeToXML(fileOutputStream, "hub.consulo.io");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+            properties.storeToXML(fileOutputStream, "hub.consulo.io");
 
-			reloadProperties();
-		}
-		catch(IOException e)
-		{
-			LOGGER.error(e.getMessage(), e);
-		}
-	}
+            reloadProperties();
+        }
+        catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
 
-	private void reloadProperties()
-	{
-		File file = new File(myConfigDirectory, "config.xml");
-		if(file.exists())
-		{
-			Properties properties = new Properties();
-			try
-			{
-				try (FileInputStream in = new FileInputStream(file))
-				{
-					properties.loadFromXML(in);
-				}
-				myPropertySet = new PropertySet(properties);
-			}
-			catch(Exception e)
-			{
-				LOGGER.error(e.getMessage(), e);
-			}
-		}
-	}
+    private void reloadProperties() {
+        File file = new File(myConfigDirectory, "config.xml");
+        if (file.exists()) {
+            Properties properties = new Properties();
+            try {
+                try (FileInputStream in = new FileInputStream(file)) {
+                    properties.loadFromXML(in);
+                }
+                myPropertySet = new PropertySet(properties);
+            }
+            catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	@PostConstruct
-	public void contextInitialized()
-	{
-		reloadProperties();
-	}
+    @PostConstruct
+    public void contextInitialized() {
+        reloadProperties();
+    }
 }

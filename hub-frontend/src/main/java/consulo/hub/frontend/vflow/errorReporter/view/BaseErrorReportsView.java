@@ -25,139 +25,119 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 02-Nov-16
+ * @since 2016-11-02
  */
-public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout
-{
-	private static final int ourPageSize = 50;
+public abstract class BaseErrorReportsView extends ServerOfflineVChildLayout {
+    private static final int ourPageSize = 50;
 
-	@Autowired
-	protected BackendErrorReporterService myErrorReportRepository;
+    @Autowired
+    protected BackendErrorReporterService myErrorReportRepository;
 
-	protected final Set<ErrorReportStatus> myFilters = new HashSet<>();
-	private int myPage = 0;
-	protected ScrollableLayout myReportList;
-	protected int myLastPageSize;
-	private final MultiSelectComboBox<ErrorReportStatus> myFilterBox;
+    protected final Set<ErrorReportStatus> myFilters = new HashSet<>();
+    private int myPage = 0;
+    protected ScrollableLayout myReportList;
+    protected int myLastPageSize;
+    private final MultiSelectComboBox<ErrorReportStatus> myFilterBox;
 
-	public BaseErrorReportsView()
-	{
-		super(true);
+    public BaseErrorReportsView() {
+        super(true);
 
-		myFilterBox = new MultiSelectComboBox<>(null, ErrorReportStatus.values());
+        myFilterBox = new MultiSelectComboBox<>(null, ErrorReportStatus.values());
 
-		myFilterBox.addValueChangeListener(e ->
-		{
-			Set<ErrorReportStatus> value = e.getValue();
+        myFilterBox.addValueChangeListener(e -> {
+            Set<ErrorReportStatus> value = e.getValue();
 
-			myFilters.clear();
+            myFilters.clear();
 
-			myFilters.addAll(value);
+            myFilters.addAll(value);
 
-			rebuildList();
-		});
-	}
+            rebuildList();
+        });
+    }
 
-	@Override
-	public Component getHeaderRightComponent()
-	{
-		return allowFilters() ? myFilterBox : null;
-	}
+    @Override
+    public Component getHeaderRightComponent() {
+        return allowFilters() ? myFilterBox : null;
+    }
 
-	protected abstract Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize);
+    protected abstract Page<ErrorReport> getReports(int page, ErrorReportStatus[] errorReportStatuses, int pageSize);
 
-	@Override
-	protected void buildLayout(Consumer<Component> uiBuilder)
-	{
-		removeAll();
+    @Override
+    protected void buildLayout(Consumer<Component> uiBuilder) {
+        removeAll();
 
-		myReportList = new ScrollableLayout();
+        myReportList = new ScrollableLayout();
 
-		if(allowFilters())
-		{
-			myFilterBox.setValue(ErrorReportStatus.UNKNOWN);
-		}
+        if (allowFilters()) {
+            myFilterBox.setValue(ErrorReportStatus.UNKNOWN);
+        }
 
-		uiBuilder.accept(myReportList);
+        uiBuilder.accept(myReportList);
 
-		if(allowFilters())
-		{
-			myFilters.add(ErrorReportStatus.UNKNOWN);
-		}
-		else
-		{
-			Collections.addAll(myFilters, ErrorReportStatus.values());
-		}
+        if (allowFilters()) {
+            myFilters.add(ErrorReportStatus.UNKNOWN);
+        }
+        else {
+            Collections.addAll(myFilters, ErrorReportStatus.values());
+        }
 
-		rebuildList();
-	}
+        rebuildList();
+    }
 
-	protected boolean allowFilters()
-	{
-		return true;
-	}
+    protected boolean allowFilters() {
+        return true;
+    }
 
-	private void rebuildList()
-	{
-		myReportList.removeAllItems();
+    private void rebuildList() {
+        myReportList.removeAllItems();
 
-		Page<ErrorReport> page = null;
-		try
-		{
-			page = getReports(myPage, myFilters.toArray(new ErrorReportStatus[myFilters.size()]), ourPageSize);
-		}
-		catch(BackendServiceDownException e)
-		{
-			return;
-		}
+        Page<ErrorReport> page;
+        try {
+            page = getReports(myPage, myFilters.toArray(new ErrorReportStatus[myFilters.size()]), ourPageSize);
+        }
+        catch (BackendServiceDownException e) {
+            return;
+        }
 
-		myLastPageSize = page.getNumberOfElements();
+        myLastPageSize = page.getNumberOfElements();
 
-		updateHeader();
+        updateHeader();
 
-		for(ErrorReport errorReport : page)
-		{
-			ErrorReportComponent lineLayout = createErrorReportComponent(errorReport);
-			lineLayout.setWidth(100, Unit.PERCENTAGE);
+        for (ErrorReport errorReport : page) {
+            ErrorReportComponent lineLayout = createErrorReportComponent(errorReport);
+            lineLayout.setWidth(100, Unit.PERCENTAGE);
 
-			myReportList.addItem(lineLayout);
-		}
+            myReportList.addItem(lineLayout);
+        }
 
-		if(page.hasPrevious() || page.hasNext())
-		{
-			HorizontalLayout pageLayout = VaadinUIUtil.newHorizontalLayout();
-			pageLayout.setMargin(true);
-			pageLayout.setSpacing(true);
-			if(page.hasPrevious())
-			{
-				ComponentEventListener<ClickEvent<Button>> listener = event ->
-				{
-					myPage--;
-					rebuildList();
-				};
-				pageLayout.add(new Button("Prev", listener));
-			}
-			if(page.hasNext())
-			{
-				ComponentEventListener<ClickEvent<Button>> listener = event ->
-				{
-					myPage++;
-					rebuildList();
-				};
-				pageLayout.add(new Button("Next", listener));
-			}
-			myReportList.addItem(pageLayout);
-		}
-	}
+        if (page.hasPrevious() || page.hasNext()) {
+            HorizontalLayout pageLayout = VaadinUIUtil.newHorizontalLayout();
+            pageLayout.setMargin(true);
+            pageLayout.setSpacing(true);
+            if (page.hasPrevious()) {
+                ComponentEventListener<ClickEvent<Button>> listener = event -> {
+                    myPage--;
+                    rebuildList();
+                };
+                pageLayout.add(new Button("Prev", listener));
+            }
+            if (page.hasNext()) {
+                ComponentEventListener<ClickEvent<Button>> listener = event -> {
+                    myPage++;
+                    rebuildList();
+                };
+                pageLayout.add(new Button("Next", listener));
+            }
+            myReportList.addItem(pageLayout);
+        }
+    }
 
-	@Nonnull
-	protected ErrorReportComponent createErrorReportComponent(ErrorReport errorReport)
-	{
-		return new ErrorReportComponent(errorReport);
-	}
+    @Nonnull
+    protected ErrorReportComponent createErrorReportComponent(ErrorReport errorReport) {
+        return new ErrorReportComponent(errorReport);
+    }
 
-	protected void updateHeader()
-	{
-		//myLabel.setValue(String.format("Error Reports (%d, page: %d)", myLastPageSize, myPage));
-	}
+    protected void updateHeader() {
+        //myLabel.setValue(String.format("Error Reports (%d, page: %d)", myLastPageSize, myPage));
+    }
 }

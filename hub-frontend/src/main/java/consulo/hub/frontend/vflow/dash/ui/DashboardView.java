@@ -34,123 +34,116 @@ import java.util.function.Consumer;
 @Route(value = "user/dashboard", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 @PermitAll
-public class DashboardView extends ServerOfflineVChildLayout
-{
-	@Autowired
-	protected BackendErrorReporterService myErrorReportRepository;
+public class DashboardView extends ServerOfflineVChildLayout {
+    @Autowired
+    protected BackendErrorReporterService myErrorReportRepository;
 
-	public DashboardView()
-	{
-		super(true);
-	}
+    public DashboardView() {
+        super(true);
+    }
 
-	private Component buildLastPluginComments()
-	{
-		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
-		verticalLayout.setSizeFull();
-		//verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.add(new Span("Not Implemented Yet"));
+    private Component buildLastPluginComments() {
+        VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
+        verticalLayout.setSizeFull();
+        //verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        verticalLayout.add(new Span("Not Implemented Yet"));
 
-		return panel("Last Plugin Comments", verticalLayout);
-	}
+        return panel("Last Plugin Comments", verticalLayout);
+    }
 
-	private Component buildLastSettingsUpdate()
-	{
-		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
-		verticalLayout.setSizeFull();
-		//verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
-		verticalLayout.add(new Span("Not Implemented Yet"));
+    private Component buildLastSettingsUpdate() {
+        VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
+        verticalLayout.setSizeFull();
+        //verticalLayout.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
+        verticalLayout.add(new Span("Not Implemented Yet"));
 
-		return panel("Last Settings Update", verticalLayout);
-	}
+        return panel("Last Settings Update", verticalLayout);
+    }
 
-	private Component buildLastErrorReports()
-	{
-		Page<ErrorReport> reportList = myErrorReportRepository.findByUser(-1, PageRequest.of(0, 30, Sort.by(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE)));
+    private Component buildLastErrorReports() {
+        Page<ErrorReport> reportList = myErrorReportRepository.findByUser(
+            -1,
+            PageRequest.of(0, 30, Sort.by(Sort.Direction.DESC, BackendErrorReporterService.CREATE_DATE))
+        );
 
-		VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
-		verticalLayout.addClassName("bodyMargin");
+        VerticalLayout verticalLayout = VaadinUIUtil.newVerticalLayout();
+        verticalLayout.addClassName("bodyMargin");
 
-		HorizontalLayout legendLayout = VaadinUIUtil.newHorizontalLayout();
-		legendLayout.setWidth(100, Unit.PERCENTAGE);
-		legendLayout.setSpacing(true);
+        HorizontalLayout legendLayout = VaadinUIUtil.newHorizontalLayout();
+        legendLayout.setWidth(100, Unit.PERCENTAGE);
+        legendLayout.setSpacing(true);
 
-		for(ErrorReportStatus reporterStatus : ErrorReportStatus.values())
-		{
-			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
+        for (ErrorReportStatus reporterStatus : ErrorReportStatus.values()) {
+            VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
 
-			Span label = new Span(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
-			label.addClassName(LumoUtility.FontWeight.BOLD);
-			lineLayout.add(label);
-			//lineLayout.addStyleName("errorViewLineLayout");
-			//lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
-			legendLayout.add(lineLayout);
-		}
-		verticalLayout.add(legendLayout);
+            Span label = new Span(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+            label.addClassName(LumoUtility.FontWeight.BOLD);
+            lineLayout.add(label);
+            //lineLayout.addStyleName("errorViewLineLayout");
+            //lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
+            legendLayout.add(lineLayout);
+        }
+        verticalLayout.add(legendLayout);
 
-		for(ErrorReport errorReport : reportList)
-		{
-			HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
-			//shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-			shortLine.setWidth(100, Unit.PERCENTAGE);
+        for (ErrorReport errorReport : reportList) {
+            HorizontalLayout shortLine = VaadinUIUtil.newHorizontalLayout();
+            //shortLine.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
+            shortLine.setWidth(100, Unit.PERCENTAGE);
 
-			VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
-			lineLayout.setWidth(100, Unit.PERCENTAGE);
-			lineLayout.add(shortLine);
-			//lineLayout.addStyleName("errorViewLineLayout");
+            VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
+            lineLayout.setWidth(100, Unit.PERCENTAGE);
+            lineLayout.add(shortLine);
+            //lineLayout.addStyleName("errorViewLineLayout");
 
-			//lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
+            //lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(errorReport.getStatus().name().toLowerCase(Locale.US)));
 
-			HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
-			leftLayout.setWidth(100, Unit.PERCENTAGE);
-			leftLayout.setSpacing(true);
-			leftLayout.add(new Span("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
-			leftLayout.add(new Span("At: " + new Date(errorReport.getCreateDate())));
+            HorizontalLayout leftLayout = VaadinUIUtil.newHorizontalLayout();
+            leftLayout.setWidth(100, Unit.PERCENTAGE);
+            leftLayout.setSpacing(true);
+            leftLayout.add(new Span("Message: " + StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 30, 10)));
+            leftLayout.add(new Span("At: " + new Date(errorReport.getCreateDate())));
 
-			shortLine.add(leftLayout);
-			//shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
+            shortLine.add(leftLayout);
+            //shortLine.setComponentAlignment(leftLayout, Alignment.MIDDLE_LEFT);
 
-			verticalLayout.add(lineLayout);
-		}
+            verticalLayout.add(lineLayout);
+        }
 
-		return panel("Last Error Reports", verticalLayout);
-	}
+        return panel("Last Error Reports", verticalLayout);
+    }
 
-	@Nonnull
-	private static Component panel(String cap, Component component)
-	{
-		LabeledLayout panel = new LabeledLayout(cap, component);
-		panel.setSizeFull();
-		return panel;
-	}
+    @Nonnull
+    private static Component panel(String cap, Component component) {
+        LabeledLayout panel = new LabeledLayout(cap, component);
+        panel.setSizeFull();
+        return panel;
+    }
 
-	@Override
-	protected void buildLayout(Consumer<Component> uiBuilder)
-	{
-		UserAccount userAccount = SecurityUtil.getUserAccout();
-		if(userAccount == null)
-		{
-			return;
-		}
+    @Override
+    protected void buildLayout(Consumer<Component> uiBuilder) {
+        UserAccount userAccount = SecurityUtil.getUserAccout();
+        if (userAccount == null) {
+            return;
+        }
 
-		HorizontalLayout fillLayout = VaadinUIUtil.newHorizontalLayout();
-		fillLayout.addClassName("bodyMargin");
-		fillLayout.setSizeFull();
-		fillLayout.setSpacing(true);
-		//fillLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
+        HorizontalLayout fillLayout = VaadinUIUtil.newHorizontalLayout();
+        fillLayout.addClassName("bodyMargin");
+        fillLayout.setSizeFull();
+        fillLayout.setSpacing(true);
+        //fillLayout.setDefaultComponentAlignment(Alignment.TOP_CENTER);
 
-		Component lastPluginComments = buildLastPluginComments();
-		fillLayout.add(lastPluginComments);
-		//fillLayout.setExpandRatio(lastPluginComments, 0.33f);
+        Component lastPluginComments = buildLastPluginComments();
+        fillLayout.add(lastPluginComments);
+        //fillLayout.setExpandRatio(lastPluginComments, 0.33f);
 
-		Component lastSettingsUpdate = buildLastSettingsUpdate();
-		fillLayout.add(lastSettingsUpdate);
-		//fillLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
+        Component lastSettingsUpdate = buildLastSettingsUpdate();
+        fillLayout.add(lastSettingsUpdate);
+        //fillLayout.setExpandRatio(lastSettingsUpdate, 0.33f);
 
-		Component lastErrorReports = buildLastErrorReports();
-		fillLayout.add(lastErrorReports);
-		//fillLayout.setExpandRatio(lastErrorReports, 0.33f);
+        Component lastErrorReports = buildLastErrorReports();
+        fillLayout.add(lastErrorReports);
+        //fillLayout.setExpandRatio(lastErrorReports, 0.33f);
 
-		uiBuilder.accept(fillLayout);
-	}
+        uiBuilder.accept(fillLayout);
+    }
 }

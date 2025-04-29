@@ -14,44 +14,38 @@ import java.util.Map;
 
 /**
  * @author VISTALL
- * @since 03/11/2021
+ * @since 2021-11-03
  */
 @Service
-public class TagsLocalizeLoader
-{
-	private static final Logger LOG = LoggerFactory.getLogger(TagsLocalizeLoader.class);
+public class TagsLocalizeLoader {
+    private static final Logger LOG = LoggerFactory.getLogger(TagsLocalizeLoader.class);
 
-	private Map<String, String> myTagsText = new HashMap<>();
+    private Map<String, String> myTagsText = new HashMap<>();
 
-	@PostConstruct
-	public void init()
-	{
-		try (InputStream resourceAsStream = TagsLocalizeLoader.class.getResourceAsStream("/consulo.platform.base.RepositoryTagLocalize.yaml"))
-		{
-			Yaml yaml = new Yaml();
+    @PostConstruct
+    public void init() {
+        try (InputStream resourceAsStream = TagsLocalizeLoader.class.getResourceAsStream("/consulo.platform.base.RepositoryTagLocalize.yaml")) {
+            Yaml yaml = new Yaml();
 
-			Map<String, Map<String, String>> data = yaml.load(resourceAsStream);
+            Map<String, Map<String, String>> data = yaml.load(resourceAsStream);
 
-			for(Map.Entry<String, Map<String, String>> entry : data.entrySet())
-			{
-				String key = entry.getKey();
+            for (Map.Entry<String, Map<String, String>> entry : data.entrySet()) {
+                String key = entry.getKey();
 
-				Map<String, String> value = entry.getValue();
+                Map<String, String> value = entry.getValue();
 
-				String text = value.get("text");
+                String text = value.get("text");
 
-				myTagsText.put(key, text);
-			}
-		}
-		catch(IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+                myTagsText.put(key, text);
+            }
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Nonnull
-	public String getTagLocalize(String tagId)
-	{
-		return myTagsText.getOrDefault(tagId, tagId);
-	}
+    @Nonnull
+    public String getTagLocalize(String tagId) {
+        return myTagsText.getOrDefault(tagId, tagId);
+    }
 }
