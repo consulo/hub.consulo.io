@@ -22,7 +22,7 @@ public class StatisticUsageGroup
 	@JsonProperty("id")
 	private String usageGroupId;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OrderColumn
 	private List<StatisticUsageGroupValue> values = new ArrayList<>();
 
