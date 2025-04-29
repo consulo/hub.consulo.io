@@ -27,7 +27,7 @@ public class StatisticEntry
 	@OneToOne
 	private UserAccount user;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OrderColumn
 	private List<StatisticUsageGroup> groups = new ArrayList<>();
 
