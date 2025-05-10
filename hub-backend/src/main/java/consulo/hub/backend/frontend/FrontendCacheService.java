@@ -4,6 +4,8 @@ import consulo.hub.backend.repository.PluginStatisticsService;
 import consulo.hub.backend.repository.RepositoryChannelStore;
 import consulo.hub.backend.repository.RepositoryChannelsService;
 import consulo.hub.shared.repository.FrontPluginNode;
+import consulo.hub.shared.repository.FrontPluginNodeById;
+import consulo.hub.shared.repository.FrontPluginVersionInfo;
 import consulo.hub.shared.repository.PluginChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,31 @@ public class FrontendCacheService {
     public FrontendCacheService(RepositoryChannelsService repositoryChannelsService, PluginStatisticsService pluginStatisticsService) {
         myRepositoryChannelsService = repositoryChannelsService;
         myPluginStatisticsService = pluginStatisticsService;
+    }
+
+    public Collection<FrontPluginNodeById> listPluginsById() {
+        Map<String, FrontPluginNodeById> map = new HashMap<>();
+        
+        for (PluginChannel channel : PluginChannel.values()) {
+            RepositoryChannelStore service = myRepositoryChannelsService.getRepositoryByChannel(channel);
+
+            service.iteratePluginNodes(pluginNode -> {
+                FrontPluginNodeById nodeById = map.computeIfAbsent(pluginNode.id, s -> {
+                    FrontPluginNodeById node = new FrontPluginNodeById(pluginNode);
+                    node.myDownloads = myPluginStatisticsService.getDownloadStatCountAll(pluginNode.id);
+                    return node;
+                });
+
+                FrontPluginVersionInfo versionInfo =
+                    nodeById.myVersions.computeIfAbsent(pluginNode.version, FrontPluginVersionInfo::new);
+
+                versionInfo.myDate = pluginNode.date;
+
+                versionInfo.myChannels.add(channel);
+            });
+        }
+
+        return map.values();
     }
 
     public Collection<FrontPluginNode> listPlugins() {

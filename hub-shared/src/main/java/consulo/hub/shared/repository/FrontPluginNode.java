@@ -9,65 +9,53 @@ import java.util.TreeSet;
  * @author VISTALL
  * @since 23/05/2023
  */
-public class FrontPluginNode
-{
-	@JsonUnwrapped
-	public PluginNode myPluginNode;
+public class FrontPluginNode {
+    @JsonUnwrapped
+    public PluginNode myPluginNode;
 
-	public Set<PluginChannel> myChannels = new TreeSet<>();
+    public Set<PluginChannel> myChannels = new TreeSet<>();
 
-	public String id()
-	{
-		return myPluginNode.id;
-	}
+    public String id() {
+        return myPluginNode.id;
+    }
 
-	public String version()
-	{
-		return myPluginNode.version;
-	}
+    public String version() {
+        return myPluginNode.version;
+    }
 
-	public String name()
-	{
-		return myPluginNode.name;
-	}
+    public String name() {
+        return myPluginNode.name;
+    }
 
-	public String platformVersion()
-	{
-		return myPluginNode.platformVersion;
-	}
+    public String platformVersion() {
+        return myPluginNode.platformVersion;
+    }
 
-	public String[] tags()
-	{
-		return myPluginNode.tags;
-	}
+    public String[] tags() {
+        return myPluginNode.tags;
+    }
 
-	public boolean experimental()
-	{
-		return myPluginNode.experimental;
-	}
+    public boolean experimental() {
+        return myPluginNode.experimental;
+    }
 
-	public PluginNode.Permission[] permissions()
-	{
-		return myPluginNode.permissions;
-	}
+    public PluginNode.Permission[] permissions() {
+        return myPluginNode.permissions;
+    }
 
-	public String vendor()
-	{
-		return myPluginNode.vendor;
-	}
+    public String vendor() {
+        return myPluginNode.vendor;
+    }
 
-	public String description()
-	{
-		return myPluginNode.description;
-	}
+    public String description() {
+        return myPluginNode.description;
+    }
 
-	public int downloads()
-	{
-		return myPluginNode.downloads;
-	}
+    public int downloads() {
+        return myPluginNode.downloads;
+    }
 
-	public long date()
-	{
-		return myPluginNode.date;
-	}
+    public long date() {
+        return myPluginNode.date;
+    }
 }

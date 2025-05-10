@@ -3,44 +3,53 @@
 
 html
 {
-	--lumo-border-radius-s: calc(var(--lumo-size-m) / 6);
-	--lumo-border-radius-m: calc(var(--lumo-size-m) / 4);
-	--lumo-border-radius-l: calc(var(--lumo-size-m) / 3);
+--lumo-border-radius-s: calc(var(--lumo-size-m) / 6);
+--lumo-border-radius-m: calc(var(--lumo-size-m) / 4);
+--lumo-border-radius-l: calc(var(--lumo-size-m) / 3);
 
-	--safe-area-inset-top: var(--lumo-space-s);
-	--safe-area-inset-bottom: var(--lumo-space-s);
-	--safe-area-inset-left: var(--lumo-space-s);
-	--safe-area-inset-right: var(--lumo-space-s);
+--safe-area-inset-top: var(--lumo-space-s);
+--safe-area-inset-bottom: var(--lumo-space-s);
+--safe-area-inset-left: var(--lumo-space-s);
+--safe-area-inset-right: var(--lumo-space-s);
 }
 
 .badge-unknown
 {
-	background: tomato;
-	color: var(--lumo-base-color)
+    background: tomato;
+    color: var(--lumo-base-color)
 }
 
 .badge-fixed
 {
-	background: limegreen;
-	color: var(--lumo-base-color)
+    background: limegreen;
+    color: var(--lumo-base-color)
 }
 
 .badge-duplicate
 {
-	background: gray;
-	color: var(--lumo-base-color)
+    background: gray;
+    color: var(--lumo-base-color)
 }
 
 .badge-obsolete
 {
-	background: lightgray;
-	color: var(--lumo-base-color)
+    background: lightgray;
+    color: var(--lumo-base-color)
 }
 
 table.error-report tr td:first-child
 {
-	line-height: var(--lumo-size-m);
-	padding: var(--lumo-space-xs) var(--lumo-space-l) var(--lumo-space-xs) 0;
-	vertical-align: top;
-	width: 1%;
+    line-height: var(--lumo-size-m);
+    padding: var(--lumo-space-xs) var(--lumo-space-l) var(--lumo-space-xs) 0;
+    vertical-align: top;
+    width: 1%;
+}
+
+.plugins-card-holder
+{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2em;
+    margin: 20px 0;
 }

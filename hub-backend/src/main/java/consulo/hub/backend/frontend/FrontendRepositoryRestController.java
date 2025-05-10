@@ -4,6 +4,7 @@ import consulo.hub.backend.repository.PluginStatisticsService;
 import consulo.hub.backend.repository.RepositoryChannelIterationService;
 import consulo.hub.backend.repository.cleanup.RepositoryCleanupService;
 import consulo.hub.shared.repository.FrontPluginNode;
+import consulo.hub.shared.repository.FrontPluginNodeById;
 import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +39,11 @@ public class FrontendRepositoryRestController {
     @RequestMapping("/api/private/repository/list")
     public Collection<FrontPluginNode> listPlugins() {
         return myFrontendCacheService.listPlugins();
+    }
+
+    @RequestMapping("/api/private/repository/listById")
+    public Collection<FrontPluginNodeById> listPluginsById() {
+        return myFrontendCacheService.listPluginsById();
     }
 
     @RequestMapping("/api/private/repository/downloadStat")

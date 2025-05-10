@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>hub.consulo.io</comment>
+    <comment>hub.consulo.io</comment>
+    <entry key="backend.host.key">https://hub.consulo.io</entry>
+    <entry key="backend.host.oauth.key">f05f6be9-33e0-43e6-9e5f-bdddb9af7580</entry>
+    <entry key="backend.host.password">f7fiE2kiWLr9Hm73HOMktqbkaUSwCmu0</entry>
+    <entry key="backend.secure.key">VSc12crtxsC#@ctzsdgv2d3tbvcz3ct13vt1ca</entry>
 </properties>
