@@ -19,53 +19,47 @@ import java.util.List;
  * @since 03/09/2021
  */
 @Service
-public class SpecialAccountRegistrator
-{
-	@Autowired
-	private UserAccountService myUserAccountService;
+public class SpecialAccountRegistrator {
+    @Autowired
+    private UserAccountService myUserAccountService;
 
-	@Autowired
-	private UserAccountRepository myUserRepository;
+    @Autowired
+    private UserAccountRepository myUserRepository;
 
-	@Autowired
-	private PasswordEncoder myPasswordEncoder;
+    @Autowired
+    private PasswordEncoder myPasswordEncoder;
 
-	@PostConstruct
-	public void check() throws IOException
-	{
-		registerUserIfNeed(ServiceAccounts.JENKINS_DEPLOY, UserAccount.ROLE_SUPERDEPLOYER);
-		registerUserIfNeed(ServiceAccounts.HUB, UserAccount.ROLE_HUB);
-	}
+    @PostConstruct
+    public void check() throws IOException {
+        registerUserIfNeed(ServiceAccounts.JENKINS_DEPLOY, UserAccount.ROLE_SUPERDEPLOYER);
+        registerUserIfNeed(ServiceAccounts.HUB, UserAccount.ROLE_HUB);
+    }
 
-	private void registerUserIfNeed(String email, int rights) throws IOException
-	{
-		UserAccount user = myUserAccountService.findUser(email);
-		if(user == null)
-		{
-			String password = savePassword(email);
+    private void registerUserIfNeed(String email, int rights) throws IOException {
+        UserAccount user = myUserAccountService.findUser(email);
+        if (user == null) {
+            String password = savePassword(email);
 
-			myUserAccountService.registerUser(email, password, rights);
-		}
-		else if(user.getPassword() == null)
-		{
-			String newPassword = savePassword(email);
+            myUserAccountService.registerUser(email, password, rights);
+        }
+        else if (user.getPassword() == null) {
+            String newPassword = savePassword(email);
 
-			user.setPassword(myPasswordEncoder.encode(newPassword));
+            user.setPassword(myPasswordEncoder.encode(newPassword));
 
-			myUserRepository.saveAndFlush(user);
-		}
-	}
+            myUserRepository.saveAndFlush(user);
+        }
+    }
 
-	private String savePassword(String email) throws IOException
-	{
-		String password = RandomStringUtils.randomAlphanumeric(32);
+    private String savePassword(String email) throws IOException {
+        String password = RandomStringUtils.randomAlphanumeric(32);
 
-		Path path = Path.of(email.replace("@", "__").replace(".", "_") + ".txt");
+        Path path = Path.of(email.replace("@", "__").replace(".", "_") + ".txt");
 
-		Files.deleteIfExists(path);
+        Files.deleteIfExists(path);
 
-		Files.write(path, List.of(password));
+        Files.write(path, List.of(password));
 
-		return password;
-	}
+        return password;
+    }
 }
