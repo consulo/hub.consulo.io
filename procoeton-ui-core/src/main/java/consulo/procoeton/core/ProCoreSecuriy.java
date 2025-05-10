@@ -21,42 +21,37 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
  */
 @Configuration
 @EnableWebSecurity
-public class ProCoreSecuriy extends VaadinWebSecurity
-{
-	@Autowired
-	private OAuth2InfoService myOAuth2InfoService;
+public class ProCoreSecuriy extends VaadinWebSecurity {
+    @Autowired
+    private OAuth2InfoService myOAuth2InfoService;
 
-	@Autowired
-	@Lazy
-	private ObjectProvider<BackendRequestFactory> myBackendRequestFactory;
+    @Autowired
+    @Lazy
+    private ObjectProvider<BackendRequestFactory> myBackendRequestFactory;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception
-	{
-		http.rememberMe(it -> it.rememberMeServices(rememberMeServices()));
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.rememberMe(it -> it.rememberMeServices(rememberMeServices()));
 
-		super.configure(http);
+        super.configure(http);
 
-		setLoginView(http, LoginView.class);
-	}
+        setLoginView(http, LoginView.class);
+    }
 
-	@Bean
-	public LogoutHandler logoutHandler()
-	{
-		return (LogoutHandler) rememberMeServices();
-	}
+    @Bean
+    public LogoutHandler logoutHandler() {
+        return (LogoutHandler) rememberMeServices();
+    }
 
-	@Bean
-	public RememberMeServices rememberMeServices()
-	{
-		OAuth2AbstractRememberMeServices services = new OAuth2AbstractRememberMeServices(myOAuth2InfoService, myBackendRequestFactory);
-		services.setAlwaysRemember(true);
-		return services;
-	}
+    @Bean
+    public RememberMeServices rememberMeServices() {
+        OAuth2AbstractRememberMeServices services = new OAuth2AbstractRememberMeServices(myOAuth2InfoService, myBackendRequestFactory);
+        services.setAlwaysRemember(true);
+        return services;
+    }
 
-	@Bean
-	public VaadinAuthenticationManager vaadinAuthenticationManager()
-	{
-		return new VaadinAuthenticationManager();
-	}
+    @Bean
+    public VaadinAuthenticationManager vaadinAuthenticationManager() {
+        return new VaadinAuthenticationManager();
+    }
 }

@@ -1,20 +1,21 @@
-package consulo.procoeton.hub;
+package consulo.app.plugins.frontend;
 
 import com.vaadin.flow.router.RouterLayout;
-import consulo.hub.frontend.vflow.base.MainLayout;
+import consulo.app.plugins.frontend.ui.PluginsAppLayout;
 import consulo.procoeton.core.vaadin.service.ProMainLayoutProvider;
-import jakarta.annotation.Nonnull;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author VISTALL
- * @since 2023-05-04
+ * @since 2025-05-10
  */
 @Component
-public class HubMainLayoutProvider implements ProMainLayoutProvider {
+public class PluginsProMainLayoutProvider implements ProMainLayoutProvider {
     @Nonnull
     @Override
     public Class<? extends RouterLayout> getLayoutClass() {
-        return MainLayout.class;
+        return PluginsAppLayout.class;
     }
 }

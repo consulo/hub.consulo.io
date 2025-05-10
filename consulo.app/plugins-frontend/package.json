@@ -1,6 +1,7 @@
 {
   "name": "no-name",
   "license": "UNLICENSED",
+  "type": "module",
   "dependencies": {
     "@flowingcode/font-awesome-iron-iconset": "5.1.0",
     "@polymer/polymer": "3.5.2",
@@ -99,15 +100,14 @@
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "lit": "$lit",
     "@polymer/polymer": "$@polymer/polymer",
+    "apexcharts": "$apexcharts",
+    "onecolor": "$onecolor",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "date-fns": "$date-fns",
     "@flowingcode/font-awesome-iron-iconset": "$@flowingcode/font-awesome-iron-iconset",
-    "apexcharts": "$apexcharts",
-    "onecolor": "$onecolor",
     "@vaadin/react-components": "$@vaadin/react-components",
     "react-dom": "$react-dom",
     "react": "$react",
     "react-router": "$react-router"
-  },
-  "type": "module"
+  }
 }
