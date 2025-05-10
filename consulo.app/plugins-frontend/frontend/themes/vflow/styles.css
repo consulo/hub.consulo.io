@@ -1,16 +1,9 @@
 @import url('./main-layout.css');
 @import url('./scrollbar.css');
+@import url('@fontsource/inter/index.css');
 
-html
-{
---lumo-border-radius-s: calc(var(--lumo-size-m) / 6);
---lumo-border-radius-m: calc(var(--lumo-size-m) / 4);
---lumo-border-radius-l: calc(var(--lumo-size-m) / 3);
+html {
 
---safe-area-inset-top: var(--lumo-space-s);
---safe-area-inset-bottom: var(--lumo-space-s);
---safe-area-inset-left: var(--lumo-space-s);
---safe-area-inset-right: var(--lumo-space-s);
 }
 
 .badge-unknown
@@ -37,19 +30,39 @@ html
     color: var(--lumo-base-color)
 }
 
-table.error-report tr td:first-child
-{
-    line-height: var(--lumo-size-m);
-    padding: var(--lumo-space-xs) var(--lumo-space-l) var(--lumo-space-xs) 0;
-    vertical-align: top;
-    width: 1%;
-}
-
 .plugins-card-holder
 {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 2em;
-    margin: 20px 0;
+}
+
+.plugins-header-header-data {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    align-self: center;
+    white-space: nowrap;
+}
+
+.plugins-header-header-data > div {
+    border-bottom: 2px solid var(--lumo-contrast-20pct);
+    width: 100%;
+}
+
+.plugin-icon-card {
+    width: 10em;
+    height: 10em;
+}
+
+.plugin-icon-card img {
+    width: 8em;
+    height: 8em;
+}
+
+.plugin-card-description {
+    line-break: anywhere;
+    overflow: hidden;
+    max-height: 4em;
 }

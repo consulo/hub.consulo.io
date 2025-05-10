@@ -33,6 +33,10 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
     protected void configure(HttpSecurity http) throws Exception {
         http.rememberMe(it -> it.rememberMeServices(rememberMeServices()));
 
+        http.authorizeHttpRequests(it -> {
+            it.requestMatchers("/line-awesome/**").permitAll();
+        });
+
         super.configure(http);
 
         setLoginView(http, LoginView.class);

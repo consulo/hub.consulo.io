@@ -34,177 +34,160 @@ import java.util.Optional;
 @Uses(FontAwesome.Solid.Icon.class)
 @Uses(FontAwesome.Brands.Icon.class)
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-public abstract class MainLayoutBase extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver
-{
-	private H2 myViewTitle;
+public abstract class MainLayoutBase extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver {
+    private H2 myViewTitle;
 
-	private HorizontalLayout myTopLayout;
-	private HorizontalLayout myCustomizedTopLayout;
+    private HorizontalLayout myTopLayout;
+    private HorizontalLayout myCustomizedTopLayout;
 
-	private final AccessAnnotationChecker myAccessAnnotationChecker;
-	private final UserService myUserService;
-	private final LogoutService myLogoutService;
+    private final AccessAnnotationChecker myAccessAnnotationChecker;
+    private final UserService myUserService;
+    private final LogoutService myLogoutService;
 
-	private final Footer myFooter;
-	private final SideNav myAppNav;
+    private final Footer myFooter;
+    private final SideNav myAppNav;
 
-	public MainLayoutBase(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService)
-	{
-		myAccessAnnotationChecker = accessAnnotationChecker;
-		myUserService = userService;
-		myLogoutService = logoutService;
+    public MainLayoutBase(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService) {
+        myAccessAnnotationChecker = accessAnnotationChecker;
+        myUserService = userService;
+        myLogoutService = logoutService;
 
-		setPrimarySection(Section.DRAWER);
+        setPrimarySection(Section.DRAWER);
 
-		myFooter = new Footer();
-		myAppNav = new SideNav();
+        myFooter = new Footer();
+        myAppNav = new SideNav();
 
-		addDrawerContent();
-		addHeaderContent();
-	}
+        addDrawerContent();
+        addHeaderContent();
+    }
 
-	private void addHeaderContent()
-	{
-		DrawerToggle toggle = new DrawerToggle();
-		toggle.getElement().setAttribute("aria-label", "Menu toggle");
+    private void addHeaderContent() {
+        DrawerToggle toggle = new DrawerToggle();
+        toggle.getElement().setAttribute("aria-label", "Menu toggle");
 
-		myViewTitle = new H2();
-		myViewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        myViewTitle = new H2();
+        myViewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-		myCustomizedTopLayout = new HorizontalLayout();
-		myTopLayout = new HorizontalLayout(myViewTitle, myCustomizedTopLayout);
-		myTopLayout.setWidthFull();
-		myTopLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        myCustomizedTopLayout = new HorizontalLayout();
+        myTopLayout = new HorizontalLayout(myViewTitle, myCustomizedTopLayout);
+        myTopLayout.setWidthFull();
+        myTopLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
-		myTopLayout.setAlignSelf(FlexComponent.Alignment.END, myCustomizedTopLayout);
-		myCustomizedTopLayout.addClassName(LumoUtility.Margin.Left.AUTO);
-		myCustomizedTopLayout.addClassName(LumoUtility.Margin.Right.MEDIUM);
+        myTopLayout.setAlignSelf(FlexComponent.Alignment.END, myCustomizedTopLayout);
+        myCustomizedTopLayout.addClassName(LumoUtility.Margin.Left.AUTO);
+        myCustomizedTopLayout.addClassName(LumoUtility.Margin.Right.MEDIUM);
 
-		addToNavbar(true, toggle, myTopLayout);
-	}
+        addToNavbar(true, toggle, myTopLayout);
+    }
 
-	public abstract String getHeaderText();
+    public abstract String getHeaderText();
 
-	private void addDrawerContent()
-	{
-		H1 appName = new H1(getHeaderText());
-		appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.AUTO);
+    private void addDrawerContent() {
+        H1 appName = new H1(getHeaderText());
+        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.AUTO);
 
-		HorizontalLayout layout = new HorizontalLayout(appName);
-		layout.setWidthFull();
-		layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        HorizontalLayout layout = new HorizontalLayout(appName);
+        layout.setWidthFull();
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		Header header = new Header(layout);
+        Header header = new Header(layout);
 
-		Scroller scroller = new Scroller(myAppNav);
+        Scroller scroller = new Scroller(myAppNav);
 
-		addToDrawer(header, scroller, myFooter);
-	}
+        addToDrawer(header, scroller, myFooter);
+    }
 
-	private void updateMenuItems()
-	{
-		myAppNav.removeAll();
+    private void updateMenuItems() {
+        myAppNav.removeAll();
 
-		updateMenuItems(myAppNav);
-	}
+        updateMenuItems(myAppNav);
+    }
 
-	protected abstract void updateMenuItems(SideNav appNav);
+    protected abstract void updateMenuItems(SideNav appNav);
 
-	private void updateLoginInfo()
-	{
-		myFooter.removeAll();
+    private void updateLoginInfo() {
+        myFooter.removeAll();
 
-		Component content = getContent();
-		if(content instanceof LoginView)
-		{
-			return;
-		}
+        Component content = getContent();
+        if (content instanceof LoginView) {
+            return;
+        }
 
-		Optional<UserAccount> maybeUser = myUserService.getCurrentUser();
-		if(maybeUser.isPresent())
-		{
-			UserAccount user = maybeUser.get();
+        Optional<UserAccount> maybeUser = myUserService.getCurrentUser();
+        if (maybeUser.isPresent()) {
+            UserAccount user = maybeUser.get();
 
-			Avatar avatar = new Avatar(user.getUsername());
-			avatar.setThemeName("xsmall");
-			avatar.getElement().setAttribute("tabindex", "-1");
+            Avatar avatar = new Avatar(user.getUsername());
+            avatar.setThemeName("xsmall");
+            avatar.getElement().setAttribute("tabindex", "-1");
 
-			MenuBar userMenu = new MenuBar();
-			userMenu.setThemeName("tertiary-inline contrast");
+            MenuBar userMenu = new MenuBar();
+            userMenu.setThemeName("tertiary-inline contrast");
 
-			MenuItem userNameItem = userMenu.addItem("");
-			Div div = new Div();
-			div.add(avatar);
-			div.add(user.getUsername());
-			div.add(new Icon("lumo", "dropdown"));
-			div.getElement().getStyle().set("display", "flex");
-			div.getElement().getStyle().set("align-items", "center");
-			div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
-			userNameItem.add(div);
+            MenuItem userNameItem = userMenu.addItem("");
+            Div div = new Div();
+            div.add(avatar);
+            div.add(user.getUsername());
+            div.add(new Icon("lumo", "dropdown"));
+            div.getElement().getStyle().set("display", "flex");
+            div.getElement().getStyle().set("align-items", "center");
+            div.getElement().getStyle().set("gap", "var(--lumo-space-s)");
+            userNameItem.add(div);
 
-			updateUserMenu(userNameItem.getSubMenu(), user);
+            updateUserMenu(userNameItem.getSubMenu(), user);
 
-			userNameItem.getSubMenu().addItem("Toggle Theme", e ->
-			{
-				UI ui = UI.getCurrent();
-				ThemeList themeList = ui.getElement().getThemeList();
-				if(themeList.contains("dark"))
-				{
-					themeList.remove("dark");
-				}
-				else
-				{
-					themeList.add("dark");
-				}
-			});
+            userNameItem.getSubMenu().addItem("Toggle Theme", e ->
+            {
+                UI ui = UI.getCurrent();
+                ThemeList themeList = ui.getElement().getThemeList();
+                if (themeList.contains("dark")) {
+                    themeList.remove("dark");
+                }
+                else {
+                    themeList.add("dark");
+                }
+            });
 
-			userNameItem.getSubMenu().addItem("Sign Out", e -> myLogoutService.logout(UI.getCurrent(), true));
+            userNameItem.getSubMenu().addItem("Sign Out", e -> myLogoutService.logout(UI.getCurrent(), true));
 
-			myFooter.add(userMenu);
-		}
-		else
-		{
-			Anchor loginLink = new Anchor("login", "Sign in");
-			myFooter.add(loginLink);
-		}
-	}
+            myFooter.add(userMenu);
+        }
+        else {
+            Anchor loginLink = new Anchor("login", "Sign in");
+            myFooter.add(loginLink);
+        }
+    }
 
-	protected abstract void updateUserMenu(SubMenu subMenu, UserAccount userAccount);
+    protected abstract void updateUserMenu(SubMenu subMenu, UserAccount userAccount);
 
-	@Override
-	protected void afterNavigation()
-	{
-		super.afterNavigation();
-		myViewTitle.setText(getCurrentPageTitle());
-		updateMenuItems();
-		updateLoginInfo();
-	}
+    @Override
+    protected void afterNavigation() {
+        super.afterNavigation();
+        myViewTitle.setText(getCurrentPageTitle());
+        updateMenuItems();
+        updateLoginInfo();
+    }
 
-	private String getCurrentPageTitle()
-	{
-		PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-		return title == null ? "" : title.value();
-	}
+    private String getCurrentPageTitle() {
+        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
+        return title == null ? "" : title.value();
+    }
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent event)
-	{
-		myCustomizedTopLayout.removeAll();
-	}
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        myCustomizedTopLayout.removeAll();
+    }
 
-	@Override
-	public void afterNavigation(AfterNavigationEvent afterNavigationEvent)
-	{
-		Component content = getContent();
-		if(content instanceof ChildLayout childLayout)
-		{
-			Component headerRightComponent = childLayout.getHeaderRightComponent();
-			if(headerRightComponent != null)
-			{
-				myCustomizedTopLayout.add(headerRightComponent);
-			}
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        Component content = getContent();
+        if (content instanceof ChildLayout childLayout) {
+            Component headerRightComponent = childLayout.getHeaderRightComponent();
+            if (headerRightComponent != null) {
+                myCustomizedTopLayout.add(headerRightComponent);
+            }
 
-			childLayout.viewReady(afterNavigationEvent);
-		}
-	}
+            childLayout.viewReady(afterNavigationEvent);
+        }
+    }
 }

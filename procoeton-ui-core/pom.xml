@@ -73,6 +73,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.parttio</groupId>
+            <artifactId>line-awesome</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.appreciated</groupId>
             <artifactId>apexcharts</artifactId>
             <version>24.0.0</version>
