@@ -2,6 +2,8 @@ package consulo.app.plugins.frontend.ui;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.SvgIcon;
@@ -50,7 +52,9 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
         myThemeIconHolder.removeAll();
 
         SvgIcon icon = isDark ? LineAwesomeIcon.SUN.create() : LineAwesomeIcon.MOON.create();
-        icon.addSingleClickListener(e -> {
+        Button changeThemes = new Button(icon);
+        changeThemes.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        changeThemes.addSingleClickListener(e -> {
             ThemeList themeList = UI.getCurrent().getElement().getThemeList();
             boolean dartCurrent = themeList.contains(Lumo.DARK);
 
@@ -65,7 +69,7 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
             ThemeUtil.notifyUpdate();
         });
 
-        myThemeIconHolder.add(icon);
+        myThemeIconHolder.add(changeThemes);
     }
 
     private HorizontalLayout getNavigation() {
