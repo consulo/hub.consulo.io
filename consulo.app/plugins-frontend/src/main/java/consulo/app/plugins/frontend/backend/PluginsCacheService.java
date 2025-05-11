@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +64,11 @@ public class PluginsCacheService {
         sortByDownloads.removeIf(node -> RepositoryUtil.isPlatformNode(node.id));
         sortByDownloads.sort((o1, o2) -> Integer.compareUnsigned(o2.downloads, o1.downloads));
 
-        return new PluginsCache(sortByDownloads);
+        Map<String, PluginNode> map = new HashMap<>();
+        for (PluginNode node : pluginNodes) {
+            map.put(node.id, node);
+        }
+
+        return new PluginsCache(sortByDownloads, map);
     }
 }

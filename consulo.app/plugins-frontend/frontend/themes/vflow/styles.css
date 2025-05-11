@@ -52,13 +52,14 @@ html {
 }
 
 .plugin-icon-card {
-    width: 10em;
-    height: 10em;
+    height: 100%;
+    align-content: center;
+    text-align: center;
 }
 
 .plugin-icon-card img {
-    width: 8em;
-    height: 8em;
+    width: 5em;
+    height: 5em;
 }
 
 .plugin-card-description {

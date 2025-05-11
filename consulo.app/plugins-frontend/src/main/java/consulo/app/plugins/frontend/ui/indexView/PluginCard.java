@@ -8,10 +8,11 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.theme.lumo.Lumo;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.ui.PluginView;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.vaadin.ThemeChangeNotifier;
+import consulo.procoeton.core.vaadin.ThemeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
@@ -35,15 +36,18 @@ public class PluginCard extends Card implements ClickNotifier<PluginCard>, Theme
 
     public PluginCard(PluginNode node) {
         myNode = node;
+        addClassName("plugin-card");
         addThemeVariants(CardVariant.LUMO_COVER_MEDIA, CardVariant.LUMO_HORIZONTAL, CardVariant.LUMO_ELEVATED);
-        setHeight(10, Unit.EM);
-        setMaxHeight(10, Unit.EM);
+        setHeight(8, Unit.EM);
+        setMaxHeight(8, Unit.EM);
         setMaxWidth(MAX_WIDTH, Unit.EM);
         setMinWidth(MAX_WIDTH, Unit.EM);
 
-        updateImage(UI.getCurrent().getElement().getThemeList().contains(Lumo.DARK));
+        updateImage(ThemeUtil.isDark());
 
-        setTitle(new Div(node.name));
+        Div title = new Div(node.name);
+        title.addClassName(LumoUtility.FontSize.XLARGE);
+        setTitle(title);
 
         if (!StringUtils.isBlank(node.vendor)) {
             setSubtitle(new Div(node.vendor));
