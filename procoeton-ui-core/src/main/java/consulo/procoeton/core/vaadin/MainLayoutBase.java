@@ -3,7 +3,6 @@ package consulo.procoeton.core.vaadin;
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -18,13 +17,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.dom.ThemeList;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.service.LogoutService;
 import consulo.procoeton.core.service.UserService;
-import consulo.procoeton.core.vaadin.ui.ChildLayout;
 import consulo.procoeton.core.vaadin.view.login.LoginView;
 
 import java.util.Optional;
@@ -34,7 +34,7 @@ import java.util.Optional;
 @Uses(FontAwesome.Solid.Icon.class)
 @Uses(FontAwesome.Brands.Icon.class)
 @JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-public abstract class MainLayoutBase extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver {
+public abstract class MainLayoutBase extends SimpleAppLayout {
     private H2 myViewTitle;
 
     private HorizontalLayout myTopLayout;
@@ -175,19 +175,17 @@ public abstract class MainLayoutBase extends AppLayout implements AfterNavigatio
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
+        super.beforeEnter(event);
+
         myCustomizedTopLayout.removeAll();
     }
 
     @Override
-    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
-        Component content = getContent();
-        if (content instanceof ChildLayout childLayout) {
-            Component headerRightComponent = childLayout.getHeaderRightComponent();
-            if (headerRightComponent != null) {
-                myCustomizedTopLayout.add(headerRightComponent);
-            }
+    protected void handleHeaderRightComponent(Component headerRightComponent) {
+        myCustomizedTopLayout.add(headerRightComponent);
+    }
 
-            childLayout.viewReady(afterNavigationEvent);
-        }
+    @Override
+    protected void handleDarkTheme() {
     }
 }

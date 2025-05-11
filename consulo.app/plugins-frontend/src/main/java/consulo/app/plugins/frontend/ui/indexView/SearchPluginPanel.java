@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -18,16 +19,18 @@ import static consulo.app.plugins.frontend.ui.indexView.WelcomePluginsPanel.crea
  */
 public class SearchPluginPanel extends PluginsPanel {
     private final VerticalLayout myLayout;
-    private final List<PluginNode> myPluginNodes;
+    private final PluginsCacheService myPluginsCacheService;
 
-    public SearchPluginPanel(List<PluginNode> pluginNodes) {
-        myPluginNodes = pluginNodes;
+    public SearchPluginPanel(PluginsCacheService pluginsCacheService) {
+        myPluginsCacheService = pluginsCacheService;
         myLayout = VaadinUIUtil.newVerticalLayout();
         myLayout.add(WelcomePluginsPanel.createPluginsHeader("Search Result"));
     }
 
     public void updatePlugins(String searchStr) {
-        List<PluginNode> nodes = myPluginNodes.parallelStream().filter(node -> isAccepted(node, searchStr)).toList();
+        List<PluginNode> sorted = myPluginsCacheService.getPluginsCache().sortedByDownloads();
+
+        List<PluginNode> nodes = sorted.parallelStream().filter(node -> isAccepted(node, searchStr)).toList();
 
         myLayout.removeAll();
         myLayout.add(WelcomePluginsPanel.createPluginsHeader("Found " + nodes.size() + " Plugins"));

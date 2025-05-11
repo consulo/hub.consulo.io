@@ -7,10 +7,10 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import consulo.app.plugins.frontend.backend.PluginsCache;
+import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
-
-import java.util.List;
 
 /**
  * @author VISTALL
@@ -23,7 +23,7 @@ public class WelcomePluginsPanel extends PluginsPanel {
 
     private VerticalLayout myLayout;
 
-    public WelcomePluginsPanel(List<PluginNode> pluginNodes) {
+    public WelcomePluginsPanel(PluginsCacheService pluginsCacheService) {
         myLayout = VaadinUIUtil.newVerticalLayout();
 
 //        myLayout.add(createPluginsHeader("Popular Plugins"));
@@ -35,11 +35,13 @@ public class WelcomePluginsPanel extends PluginsPanel {
 //            popularPlugins.add(new PluginCard(node).getComponent());
 //        }
 
+        PluginsCache cache = pluginsCacheService.getPluginsCache();
+
         myLayout.add(createPluginsHeader("Most Downloaded Plugins"));
         Div mostDownloadedPlugins = createPluginsDiv();
         myLayout.add(mostDownloadedPlugins);
         for (int i = 0; i < MAX_MOST_DOWNLOADED_PLUGINS; i++) {
-            PluginNode node = pluginNodes.get(i);
+            PluginNode node = cache.sortedByDownloads().get(i);
 
             mostDownloadedPlugins.add(new PluginCard(node).getComponent());
         }
