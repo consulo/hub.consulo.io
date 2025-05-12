@@ -184,8 +184,4 @@ public abstract class MainLayoutBase extends SimpleAppLayout {
     protected void handleHeaderRightComponent(Component headerRightComponent) {
         myCustomizedTopLayout.add(headerRightComponent);
     }
-
-    @Override
-    protected void handleDarkTheme() {
-    }
 }
