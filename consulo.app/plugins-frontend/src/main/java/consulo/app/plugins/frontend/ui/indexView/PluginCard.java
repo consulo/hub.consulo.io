@@ -6,8 +6,6 @@ import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.router.RouteParameters;
-import com.vaadin.flow.server.InputStreamFactory;
-import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.ui.PluginView;
 import consulo.hub.shared.repository.PluginNode;
@@ -15,10 +13,8 @@ import consulo.procoeton.core.vaadin.ThemeChangeNotifier;
 import consulo.procoeton.core.vaadin.ThemeUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Map;
 
 /**
@@ -73,26 +69,8 @@ public class PluginCard extends Card implements ClickNotifier<PluginCard>, Theme
         Div imageHolder = new Div();
         imageHolder.addClassName("plugin-icon-card");
 
-        PluginNode node = myNode;
-
-        String iconBytes = isDark ? node.iconDarkBytes : node.iconBytes;
-        if (iconBytes == null) {
-            iconBytes = node.iconBytes;
-        }
-
         Image image = new Image();
-
-        if (iconBytes == null) {
-            image.setSrc(new StreamResource(node.id + ".svg", (InputStreamFactory) () -> {
-                return getClass().getResourceAsStream("/images/pluginBig.svg");
-            }));
-        }
-        else {
-            byte[] imgBytes = Base64.getDecoder().decode(iconBytes);
-
-            image.setSrc(new StreamResource(node.id + ".svg", (InputStreamFactory) () -> new ByteArrayInputStream(imgBytes)));
-        }
-
+        image.setSrc("/i/" + myNode.id + "?version=" + myNode.version + "&dark=" + isDark);
         imageHolder.add(image);
 
         setMedia(imageHolder);

@@ -28,8 +28,6 @@ import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.ByteArrayInputStream;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 
@@ -192,21 +190,7 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
     }
 
     private void updateImage(PluginNode node, boolean isDark) {
-        String iconBytes = isDark ? node.iconDarkBytes : node.iconBytes;
-        if (iconBytes == null) {
-            iconBytes = node.iconBytes;
-        }
-
-        if (iconBytes == null) {
-            myImage.setSrc(new StreamResource(node.id + ".svg", (InputStreamFactory) () -> {
-                return getClass().getResourceAsStream("/images/pluginBig.svg");
-            }));
-        }
-        else {
-            byte[] imgBytes = Base64.getDecoder().decode(iconBytes);
-
-            myImage.setSrc(new StreamResource(node.id + ".svg", (InputStreamFactory) () -> new ByteArrayInputStream(imgBytes)));
-        }
+        myImage.setSrc("/i/" + node.id + "?version=" + node.version + "&dark=" + isDark);
     }
 
     @Override

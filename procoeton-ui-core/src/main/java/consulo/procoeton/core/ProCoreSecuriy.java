@@ -29,6 +29,10 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
     @Lazy
     private ObjectProvider<BackendRequestFactory> myBackendRequestFactory;
 
+    @Autowired
+    @Lazy
+    private ObjectProvider<ProCoreSecurityExtender> mySecurityExtenders;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.rememberMe(it -> it.rememberMeServices(rememberMeServices()));
@@ -36,6 +40,10 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
         http.authorizeHttpRequests(it -> {
             it.requestMatchers("/line-awesome/**").permitAll();
         });
+
+        for (ProCoreSecurityExtender extender : mySecurityExtenders) {
+            extender.extend(http);
+        }
 
         super.configure(http);
 
