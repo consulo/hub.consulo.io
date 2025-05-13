@@ -7,45 +7,59 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import consulo.app.plugins.frontend.backend.FeaturePluginsService;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.hub.shared.repository.PluginNode;
-import consulo.procoeton.core.vaadin.ThemeUtil;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+
+import java.util.List;
 
 /**
  * @author VISTALL
  * @since 2025-05-10
  */
 public class WelcomePluginsPanel extends PluginsPanel {
-    public static final int MAX_POPULAR_PLUGINS = 6;
-
     public static final int MAX_MOST_DOWNLOADED_PLUGINS = 12;
+    private final PluginsCacheService myPluginsCacheService;
+    private final FeaturePluginsService myFeaturePluginsService;
 
     private VerticalLayout myLayout;
-    private final Div myMostDownloadedPlugins;
 
-    public WelcomePluginsPanel(PluginsCacheService pluginsCacheService) {
+    public WelcomePluginsPanel(PluginsCacheService pluginsCacheService,
+                               FeaturePluginsService featurePluginsService) {
+        myPluginsCacheService = pluginsCacheService;
+        myFeaturePluginsService = featurePluginsService;
         myLayout = VaadinUIUtil.newVerticalLayout();
+    }
 
-//        myLayout.add(createPluginsHeader("Popular Plugins"));
-//        Div popularPlugins = createPluginsDiv();
-//        myLayout.add(popularPlugins);
-//        for (int i = 0; i < MAX_POPULAR_PLUGINS; i++) {
-//            PluginNode node = pluginNodes.get(i);
-//
-//            popularPlugins.add(new PluginCard(node).getComponent());
-//        }
+    public void viewReady() {
+        PluginsCache cache = myPluginsCacheService.getPluginsCache();
 
-        PluginsCache cache = pluginsCacheService.getPluginsCache();
+        List<String> featuredPlugins = myFeaturePluginsService.getFeaturedPlugins();
+        if (!featuredPlugins.isEmpty()) {
+            myLayout.add(createPluginsHeader("Featured Plugins"));
+
+            Div featuredDivHolder = createPluginsDiv();
+
+            myLayout.add(featuredDivHolder);
+
+            for (String featuredPlugin : featuredPlugins) {
+                PluginNode node = cache.mappped().get(featuredPlugin);
+
+                featuredDivHolder.add(new PluginCard(node));
+            }
+        }
 
         myLayout.add(createPluginsHeader("Most Downloaded Plugins"));
-        myMostDownloadedPlugins = createPluginsDiv();
-        myLayout.add(myMostDownloadedPlugins);
+
+        Div downloadedPlugins = createPluginsDiv();
+        myLayout.add(downloadedPlugins);
+
         for (int i = 0; i < MAX_MOST_DOWNLOADED_PLUGINS; i++) {
             PluginNode node = cache.sortedByDownloads().get(i);
 
-            myMostDownloadedPlugins.add(new PluginCard(node).getComponent());
+            downloadedPlugins.add(new PluginCard(node));
         }
     }
 

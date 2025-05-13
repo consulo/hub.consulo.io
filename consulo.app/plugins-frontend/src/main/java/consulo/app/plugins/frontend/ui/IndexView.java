@@ -7,8 +7,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import consulo.app.plugins.frontend.backend.FeaturePluginsService;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.ui.indexView.PluginCard;
 import consulo.app.plugins.frontend.ui.indexView.SearchPluginPanel;
@@ -29,17 +31,13 @@ public class IndexView extends VChildLayout {
 
     private final SearchPluginPanel mySearchPluginPanel;
 
-    private final PluginsCacheService myPluginsCacheService;
-
-    public IndexView(PluginsCacheService pluginsCacheService) {
-        myPluginsCacheService = pluginsCacheService;
-
+    public IndexView(PluginsCacheService pluginsCacheService, FeaturePluginsService featurePluginsService) {
         HorizontalLayout searchLayout = VaadinUIUtil.newHorizontalLayout();
         searchLayout.setJustifyContentMode(JustifyContentMode.CENTER);
         searchLayout.setWidthFull();
 
-        myWelcomePanel = new WelcomePluginsPanel(myPluginsCacheService);
-        mySearchPluginPanel = new SearchPluginPanel(myPluginsCacheService);
+        myWelcomePanel = new WelcomePluginsPanel(pluginsCacheService, featurePluginsService);
+        mySearchPluginPanel = new SearchPluginPanel(pluginsCacheService);
 
         VerticalLayout holder = VaadinUIUtil.newVerticalLayout();
 
@@ -77,5 +75,10 @@ public class IndexView extends VChildLayout {
         add(holder);
 
         holder.add(myWelcomePanel.getComponent());
+    }
+
+    @Override
+    public void viewReady(AfterNavigationEvent afterNavigationEvent) {
+        myWelcomePanel.viewReady();
     }
 }
