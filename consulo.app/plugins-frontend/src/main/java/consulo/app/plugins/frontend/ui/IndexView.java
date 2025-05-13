@@ -50,6 +50,7 @@ public class IndexView extends VChildLayout implements HasDynamicTitle {
 
         TextField searchField = new TextField();
         searchField.setAutofocus(true);
+        searchField.setClearButtonVisible(true);
         searchField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
         searchField.setPrefixComponent(LineAwesomeIcon.SEARCH_SOLID.create());
         searchField.setPlaceholder("Searching Plugin by Name or Tag...");
