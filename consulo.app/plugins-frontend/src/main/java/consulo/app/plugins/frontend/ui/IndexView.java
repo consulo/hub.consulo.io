@@ -1,6 +1,5 @@
 package consulo.app.plugins.frontend.ui;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

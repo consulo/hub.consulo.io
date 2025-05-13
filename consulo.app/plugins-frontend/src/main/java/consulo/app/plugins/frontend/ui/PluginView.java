@@ -18,6 +18,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.ui.indexView.PluginCard;
+import consulo.app.plugins.frontend.ui.pluginView.InstallOrDownloadButtonPanel;
 import consulo.app.plugins.frontend.ui.urlInfo.ExternalUrl;
 import consulo.app.plugins.frontend.ui.urlInfo.PluginUrlInfo;
 import consulo.hub.shared.repository.PluginNode;
@@ -52,6 +53,8 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
 
     private final H1 myNameSpan;
     private final Span myVendorSpan;
+
+    private InstallOrDownloadButtonPanel myInstallOrDownloadButtonPanel;
 
     private final TabSheet myInfoTabs;
 
@@ -95,8 +98,12 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
         nameAndVendor.add(myNameSpan);
         nameAndVendor.add(myVendorSpan);
 
+        myInstallOrDownloadButtonPanel = new InstallOrDownloadButtonPanel();
+
+        myHeaderLayout.setWidthFull();
         myHeaderLayout.add(imageHolder);
         myHeaderLayout.add(nameAndVendor);
+        myHeaderLayout.add(myInstallOrDownloadButtonPanel);
 
         myInfoTabs = new TabSheet();
         myInfoTabs.setWidthFull();
