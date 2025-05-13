@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
@@ -73,13 +74,12 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
         add(myContentLayout);
 
-        myHeaderLayout = VaadinUIUtil.newHorizontalLayout();
+        myHeaderLayout = new HorizontalLayout();
         myNameSpan = new H1();
         myVendorSpan = new Span();
         myVendorSpan.addClassName(LumoUtility.TextColor.SECONDARY);
 
         myDescriptionLayout = new HorizontalLayout();
-        myDescriptionLayout.setMargin(false);
         myDescriptionLayout.addClassNames(LumoUtility.Margin.Top.LARGE, LumoUtility.Margin.Bottom.LARGE);
         myDescriptionLayout.setWidthFull();
 
@@ -125,7 +125,9 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
         myTagRowLayout.removeAll();
 
         for (int i = 0; i < myInfoTabs.getTabCount(); i++) {
-            myInfoTabs.remove(i);
+            Tab tab = myInfoTabs.getTabAt(i);
+
+            myInfoTabs.remove(tab);
         }
 
         RouteParameters parameters = afterNavigationEvent.getRouteParameters();
@@ -139,7 +141,9 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
         updateImage(myNode, ThemeUtil.isDark());
 
-        Html html = new Html("<div>" + StringUtils.defaultString(myNode.description) + "</div>");
+        String description = StringUtils.defaultString(myNode.description);
+
+        Html html = new Html("<div>" + description + "</div>");
         html.getStyle().setWidth("100%");
         myDescriptionLayout.add(html);
 
