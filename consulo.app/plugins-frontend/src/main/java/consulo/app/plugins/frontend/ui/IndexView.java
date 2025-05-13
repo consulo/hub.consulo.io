@@ -12,6 +12,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.app.plugins.frontend.backend.FeaturePluginsService;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
+import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
 import consulo.app.plugins.frontend.ui.indexView.PluginCard;
 import consulo.app.plugins.frontend.ui.indexView.SearchPluginPanel;
 import consulo.app.plugins.frontend.ui.indexView.WelcomePluginsPanel;
@@ -27,11 +28,15 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Route(value = "/", layout = PluginsAppLayout.class)
 @AnonymousAllowed
 public class IndexView extends VChildLayout {
-    private final WelcomePluginsPanel myWelcomePanel;
+    private final TagsLocalizeLoader myTagsLocalizeLoader;
 
+    private final WelcomePluginsPanel myWelcomePanel;
     private final SearchPluginPanel mySearchPluginPanel;
 
-    public IndexView(PluginsCacheService pluginsCacheService, FeaturePluginsService featurePluginsService) {
+    public IndexView(PluginsCacheService pluginsCacheService,
+                     FeaturePluginsService featurePluginsService,
+                     TagsLocalizeLoader tagsLocalizeLoader) {
+        myTagsLocalizeLoader = tagsLocalizeLoader;
         HorizontalLayout searchLayout = VaadinUIUtil.newHorizontalLayout();
         searchLayout.setJustifyContentMode(JustifyContentMode.CENTER);
         searchLayout.setWidthFull();

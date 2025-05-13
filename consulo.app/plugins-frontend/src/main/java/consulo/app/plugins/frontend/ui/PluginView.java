@@ -17,6 +17,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
+import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
 import consulo.app.plugins.frontend.ui.indexView.PluginCard;
 import consulo.app.plugins.frontend.ui.pluginView.InstallOrDownloadButtonPanel;
 import consulo.app.plugins.frontend.ui.urlInfo.ExternalUrl;
@@ -44,9 +45,11 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
 
     private final VerticalLayout myContentLayout;
     private final PluginsCacheService myPluginsCacheService;
+    private final TagsLocalizeLoader myTagsLocalizeLoader;
 
     private final HorizontalLayout myHeaderLayout;
     private final HorizontalLayout myDescriptionLayout;
+    private final HorizontalLayout myTagRowLayout;
     private final HorizontalLayout myFooterLayout;
     private final Image myImage;
     private PluginNode myNode;
@@ -58,8 +61,9 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
 
     private final TabSheet myInfoTabs;
 
-    public PluginView(PluginsCacheService pluginsCacheService) {
+    public PluginView(PluginsCacheService pluginsCacheService, TagsLocalizeLoader tagsLocalizeLoader) {
         myPluginsCacheService = pluginsCacheService;
+        myTagsLocalizeLoader = tagsLocalizeLoader;
 
         myContentLayout = VaadinUIUtil.newVerticalLayout();
         myContentLayout.setMaxWidth(PluginCard.MAX_WIDTH * PluginCard.MAX_COLUMNS + PluginCard.EXTRA_GAP, Unit.EM);
@@ -108,7 +112,10 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
         myInfoTabs = new TabSheet();
         myInfoTabs.setWidthFull();
 
+        myTagRowLayout = new HorizontalLayout();
+
         myContentLayout.add(myHeaderLayout);
+        myContentLayout.add(myTagRowLayout);
         myContentLayout.add(myDescriptionLayout);
         myContentLayout.add(myFooterLayout);
         myContentLayout.add(myInfoTabs);
@@ -118,6 +125,7 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
     public void viewReady(AfterNavigationEvent afterNavigationEvent) {
         myDescriptionLayout.removeAll();
         myFooterLayout.removeAll();
+        myTagRowLayout.removeAll();
 
         for (int i = 0; i < myInfoTabs.getTabCount(); i++) {
             myInfoTabs.remove(i);
@@ -193,6 +201,10 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
             }
 
             myInfoTabs.add("Dependencies", list);
+        }
+
+        for (String tag : myNode.tags) {
+            myTagRowLayout.add(new Badge(myTagsLocalizeLoader.getTagLocalize(tag)));
         }
     }
 
