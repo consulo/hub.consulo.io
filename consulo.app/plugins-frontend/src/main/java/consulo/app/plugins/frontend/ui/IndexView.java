@@ -1,5 +1,6 @@
 package consulo.app.plugins.frontend.ui;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -8,6 +9,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.app.plugins.frontend.backend.FeaturePluginsService;
@@ -27,7 +29,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  */
 @Route(value = "/", layout = PluginsAppLayout.class)
 @AnonymousAllowed
-public class IndexView extends VChildLayout {
+public class IndexView extends VChildLayout implements HasDynamicTitle {
     private final TagsLocalizeLoader myTagsLocalizeLoader;
 
     private final WelcomePluginsPanel myWelcomePanel;
@@ -85,5 +87,10 @@ public class IndexView extends VChildLayout {
     @Override
     public void viewReady(AfterNavigationEvent afterNavigationEvent) {
         myWelcomePanel.viewReady();
+    }
+
+    @Override
+    public String getPageTitle() {
+        return "Plugins for Consulo";
     }
 }

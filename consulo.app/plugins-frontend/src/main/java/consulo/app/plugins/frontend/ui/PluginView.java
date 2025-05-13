@@ -7,10 +7,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteParameters;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -39,7 +36,7 @@ import java.util.Optional;
  */
 @Route(value = "/v/:pluginId/:pluginName?", layout = PluginsAppLayout.class)
 @AnonymousAllowed
-public class PluginView extends VChildLayout implements ThemeChangeNotifier {
+public class PluginView extends VChildLayout implements ThemeChangeNotifier, HasDynamicTitle {
     public static final String PLUGIN_ID = "pluginId";
     public static final String PLUGIN_NAME = "pluginName";
 
@@ -215,5 +212,10 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
     @Override
     public void onThemeChange(boolean isDark) {
         updateImage(myNode, isDark);
+    }
+
+    @Override
+    public String getPageTitle() {
+        return myNode == null ? "Plugin" : myNode.name;
     }
 }
