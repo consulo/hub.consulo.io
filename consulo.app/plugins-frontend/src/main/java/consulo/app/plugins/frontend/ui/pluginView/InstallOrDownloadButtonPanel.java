@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.html.Div;
 import org.apache.commons.lang3.StringUtils;
@@ -43,10 +44,12 @@ public class InstallOrDownloadButtonPanel extends Div {
             ConsuloAboutResponse response = gson.fromJson(body, ConsuloAboutResponse.class);
 
             if (response.success && response.data != null && "Consulo".equals(response.data.name)) {
-                add(new Button("Install to Consulo #" + response.data.build, event -> {
+                Button button = new Button("Install to Consulo #" + response.data.build, event -> {
                     String url = "http://localhost:62242/api/plugins/install?pluginId=" + myPluginIdSupplier.get();
                     getElement().executeJs("installPluginToConsulo($0, $1)", url, getElement());
-                }));
+                });
+                button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                add(button);
             }
         }
         catch (Exception ignored) {
