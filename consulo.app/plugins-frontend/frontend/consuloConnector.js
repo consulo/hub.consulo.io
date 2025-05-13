@@ -1,4 +1,4 @@
-window.connectToConsulo = function(element) {
+window.connectToConsulo = function(url, element) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4) {
@@ -7,7 +7,14 @@ window.connectToConsulo = function(element) {
       element.$server.handleConsuloResponse(xhttp.readyState, body);
     }
   };
-  xhttp.open("GET", "http://localhost:62242/api/about");
+  xhttp.open("GET", url);
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.send();
+}
+
+window.installPluginToConsulo = function(url, element) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", url);
   xhttp.setRequestHeader("Content-Type", "application/json");
   xhttp.send();
 }

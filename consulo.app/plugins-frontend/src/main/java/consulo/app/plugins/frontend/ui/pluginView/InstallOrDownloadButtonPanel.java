@@ -6,8 +6,9 @@ import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.notification.Notification;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.function.Supplier;
 
 /**
  * @author VISTALL
@@ -15,7 +16,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 @JavaScript("./consuloConnector.js")
 public class InstallOrDownloadButtonPanel extends Div {
-    public InstallOrDownloadButtonPanel() {
+    private final Supplier<String> myPluginIdSupplier;
+
+    public InstallOrDownloadButtonPanel(Supplier<String> pluginIdSupplier) {
+        myPluginIdSupplier = pluginIdSupplier;
         getStyle().set("alignContent", "center");
     }
 
@@ -23,7 +27,7 @@ public class InstallOrDownloadButtonPanel extends Div {
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
 
-        getElement().executeJs("connectToConsulo($0)", getElement());
+        getElement().executeJs("connectToConsulo($0, $1)", "http://localhost:62242/api/about", getElement());
     }
 
     @ClientCallable
@@ -40,8 +44,8 @@ public class InstallOrDownloadButtonPanel extends Div {
 
             if (response.success && response.data != null && "Consulo".equals(response.data.name)) {
                 add(new Button("Install to Consulo #" + response.data.build, event -> {
-                    Notification notification = new Notification("No implemented for now", 5000, Notification.Position.TOP_END);
-                    notification.open();
+                    String url = "http://localhost:62242/api/plugins/install?pluginId=" + myPluginIdSupplier.get();
+                    getElement().executeJs("installPluginToConsulo($0, $1)", url, getElement());
                 }));
             }
         }

@@ -98,7 +98,7 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier {
         nameAndVendor.add(myNameSpan);
         nameAndVendor.add(myVendorSpan);
 
-        myInstallOrDownloadButtonPanel = new InstallOrDownloadButtonPanel();
+        myInstallOrDownloadButtonPanel = new InstallOrDownloadButtonPanel(() -> myNode.id);
 
         myHeaderLayout.setWidthFull();
         myHeaderLayout.add(imageHolder);
