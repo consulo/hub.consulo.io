@@ -1,5 +1,6 @@
 package consulo.app.plugins.frontend.ui;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -43,8 +44,6 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
             .set("position", "absolute");
 
         addToNavbar(title, navigation, myThemeIconHolder);
-
-        onThemeChange(ThemeUtil.isDark());
     }
 
     @Override

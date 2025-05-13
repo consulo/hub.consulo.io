@@ -37,4 +37,17 @@ public class SimpleAppLayout extends AppLayout implements AfterNavigationObserve
             childLayout.viewReady(afterNavigationEvent);
         }
     }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        handleDarkTheme();
+    }
+
+    protected void handleDarkTheme() {
+        getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
+            ui.getElement().getThemeList().add(Lumo.DARK);
+
+            ThemeUtil.notifyUpdate();
+        }));
+    }
 }

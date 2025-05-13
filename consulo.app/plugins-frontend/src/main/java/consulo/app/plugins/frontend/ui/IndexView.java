@@ -1,5 +1,6 @@
 package consulo.app.plugins.frontend.ui;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -11,7 +12,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.ui.indexView.PluginCard;
-import consulo.app.plugins.frontend.ui.indexView.PluginsPanel;
 import consulo.app.plugins.frontend.ui.indexView.SearchPluginPanel;
 import consulo.app.plugins.frontend.ui.indexView.WelcomePluginsPanel;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
@@ -26,7 +26,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Route(value = "/", layout = PluginsAppLayout.class)
 @AnonymousAllowed
 public class IndexView extends VChildLayout {
-    private final PluginsPanel myWelcomePanel;
+    private final WelcomePluginsPanel myWelcomePanel;
 
     private final SearchPluginPanel mySearchPluginPanel;
 
