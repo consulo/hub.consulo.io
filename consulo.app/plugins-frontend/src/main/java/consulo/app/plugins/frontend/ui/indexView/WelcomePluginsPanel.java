@@ -34,6 +34,8 @@ public class WelcomePluginsPanel extends PluginsPanel {
     }
 
     public void viewReady() {
+        myLayout.removeAll();
+
         PluginsCache cache = myPluginsCacheService.getPluginsCache();
 
         List<String> featuredPlugins = myFeaturePluginsService.getFeaturedPlugins();
