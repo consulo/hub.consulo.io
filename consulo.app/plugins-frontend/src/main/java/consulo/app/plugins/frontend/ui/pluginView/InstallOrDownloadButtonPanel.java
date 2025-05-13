@@ -44,9 +44,13 @@ public class InstallOrDownloadButtonPanel extends Div {
             ConsuloAboutResponse response = gson.fromJson(body, ConsuloAboutResponse.class);
 
             if (response.success && response.data != null && "Consulo".equals(response.data.name)) {
-                Button button = new Button("Install to Consulo #" + response.data.build, event -> {
+                Button button = new Button("Install to Consulo #" + response.data.build);
+                button.addSingleClickListener(event -> {
                     String url = "http://localhost:62242/api/plugins/install?pluginId=" + myPluginIdSupplier.get();
+                    
                     getElement().executeJs("installPluginToConsulo($0, $1)", url, getElement());
+
+                    button.setEnabled(false);
                 });
                 button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 add(button);
