@@ -87,6 +87,8 @@ public class IndexView extends VChildLayout implements HasDynamicTitle {
     @Override
     public void viewReady(AfterNavigationEvent afterNavigationEvent) {
         myWelcomePanel.viewReady();
+
+        PluginView.updateIconJS(UI.getCurrent(), "/i/consulo.plugin");
     }
 
     @Override

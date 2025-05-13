@@ -1,6 +1,7 @@
 package consulo.app.plugins.frontend.ui;
 
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -210,7 +211,22 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
     }
 
     private void updateImage(PluginNode node, boolean isDark) {
-        myImage.setSrc("/i/" + node.id + "?version=" + node.version + "&dark=" + isDark);
+        String icon = "/i/" + node.id + "?version=" + node.version + "&dark=" + isDark;
+
+        myImage.setSrc(icon);
+
+        updateIconJS(UI.getCurrent(), icon);
+    }
+
+    public static void updateIconJS(UI ui, String url) {
+        ui.getPage().executeJs("""
+                  (function() {
+                     var link = document.querySelector("link[rel~='icon']");
+                  if (link) {
+                      link.href = $0;
+                  }
+                  })()
+            """, url);
     }
 
     @Override
@@ -220,6 +236,6 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
     @Override
     public String getPageTitle() {
-        return myNode == null ? "Plugin" : myNode.name;
+        return "Consulo: " + (myNode == null ? " <no plugin>" : myNode.name);
     }
 }
