@@ -116,6 +116,8 @@
         <module>hub-plugin-analyzer-rt</module>
         <module>hub-plugin-analyzer-container-rt</module>
 
+        <module>consulo.cloud/www-frontend</module>
+        
         <module>consulo.app/plugins-frontend</module>
     </modules>
 </project>

@@ -42,7 +42,7 @@
     </repositories>
 
     <properties>
-        <start-class>consulo.hub.frontend.WebServiceApplication</start-class>
+        <start-class>consulo.app.plugins.frontend.Application</start-class>
     </properties>
 
     <profiles>
