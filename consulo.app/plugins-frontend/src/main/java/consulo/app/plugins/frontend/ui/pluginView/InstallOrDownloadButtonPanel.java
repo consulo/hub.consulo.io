@@ -44,7 +44,19 @@ public class InstallOrDownloadButtonPanel extends Div {
             ConsuloAboutResponse response = gson.fromJson(body, ConsuloAboutResponse.class);
 
             if (response.success && response.data != null && "Consulo".equals(response.data.name)) {
-                Button button = new Button("Install to Consulo #" + response.data.build);
+                String text;
+                boolean enabled = true;
+
+                String pluginId = myPluginIdSupplier.get();
+                if (response.data.plugins != null && response.data.plugins.contains(pluginId)) {
+                    text = "Installed to Consulo #" + response.data.build;
+                    enabled = false;
+                } else {
+                    text = "Install to Consulo #" + response.data.build;
+                }
+
+                Button button = new Button(text);
+                button.setEnabled(enabled);
                 button.addSingleClickListener(event -> {
                     String url = "http://localhost:62242/api/plugins/install?pluginId=" + myPluginIdSupplier.get();
                     
