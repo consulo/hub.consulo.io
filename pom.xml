@@ -119,5 +119,7 @@
         <module>consulo.cloud/www-frontend</module>
         
         <module>consulo.app/plugins-frontend</module>
+        
+        <module>review/review-backend</module>
     </modules>
 </project>
