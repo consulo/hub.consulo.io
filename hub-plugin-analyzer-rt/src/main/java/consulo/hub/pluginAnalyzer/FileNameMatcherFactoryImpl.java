@@ -13,26 +13,22 @@ import jakarta.annotation.Nonnull;
  * @author VISTALL
  * @since 07/05/2023
  */
-public class FileNameMatcherFactoryImpl extends FileNameMatcherFactory
-{
-	@Nonnull
-	@Override
-	public FileNameMatcher createExtensionFileNameMatcher(@Nonnull String extension)
-	{
-		return new ExtensionFileNameMatcherImpl(extension);
-	}
+public class FileNameMatcherFactoryImpl extends FileNameMatcherFactory {
+    @Nonnull
+    @Override
+    public FileNameMatcher createExtensionFileNameMatcher(@Nonnull String extension) {
+        return new ExtensionFileNameMatcherImpl(extension);
+    }
 
-	@Nonnull
-	@Override
-	public FileNameMatcher createExactFileNameMatcher(@Nonnull String fileName, boolean ignoreCase)
-	{
-		return new ExactFileNameMatcherImpl(fileName, ignoreCase);
-	}
+    @Nonnull
+    @Override
+    public FileNameMatcher createExactFileNameMatcher(@Nonnull String fileName, boolean ignoreCase) {
+        return new ExactFileNameMatcherImpl(fileName, ignoreCase);
+    }
 
-	@Nonnull
-	@Override
-	public FileNameMatcher createWildcardFileNameMatcher(@Nonnull String pattern)
-	{
-		return new WildcardFileNameMatcherImpl(pattern);
-	}
+    @Nonnull
+    @Override
+    public FileNameMatcher createWildcardFileNameMatcher(@Nonnull String pattern) {
+        return new WildcardFileNameMatcherImpl(pattern);
+    }
 }

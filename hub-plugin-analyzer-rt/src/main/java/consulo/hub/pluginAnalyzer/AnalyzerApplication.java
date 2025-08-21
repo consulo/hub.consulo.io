@@ -6,9 +6,10 @@ import consulo.annotation.component.ComponentScope;
 import consulo.application.AccessToken;
 import consulo.application.Application;
 import consulo.application.event.ApplicationListener;
+import consulo.component.ComponentManager;
 import consulo.component.bind.InjectingBinding;
 import consulo.component.impl.internal.BaseComponentManager;
-import consulo.component.impl.internal.ComponentBinding;
+import consulo.component.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingContainer;
 import consulo.component.internal.inject.InjectingContainerBuilder;
 import consulo.disposer.Disposable;
@@ -33,314 +34,272 @@ import java.util.function.Supplier;
  * @author VISTALL
  * @since 06/05/2023
  */
-public class AnalyzerApplication extends BaseComponentManager implements Application
-{
-	private final ComponentBinding myComponentBinding;
-	private final Disposable myLastDisposable;
+public class AnalyzerApplication extends BaseComponentManager implements Application {
+    private final ComponentBinding myComponentBinding;
+    private final Disposable myLastDisposable;
 
-	public AnalyzerApplication(Disposable lastDisposable, ComponentBinding componentBinding)
-	{
-		super(null, "AnalyzerApplication", ComponentScope.APPLICATION, componentBinding, false);
-		myLastDisposable = lastDisposable;
-		myComponentBinding = componentBinding;
+    public AnalyzerApplication(Disposable lastDisposable, ComponentBinding componentBinding) {
+        super(null, "AnalyzerApplication", ComponentScope.APPLICATION, componentBinding, false);
+        myLastDisposable = lastDisposable;
+        myComponentBinding = componentBinding;
 
-		buildInjectingContainer();
-	}
+        buildInjectingContainer();
+    }
 
-	@Override
-	protected void fillListenerDescriptors(MultiMap<String, InjectingBinding> mapByTopic)
-	{
-	}
+    @Override
+    public ComponentManager getApplication() {
+        return this;
+    }
 
-	@Nonnull
-	@Override
-	protected InjectingContainer findRootContainer()
-	{
-		return InjectingContainer.root(getClass().getClassLoader());
-	}
+    @Override
+    protected void fillListenerDescriptors(MultiMap<String, InjectingBinding> mapByTopic) {
+    }
 
-	@Override
-	protected void bootstrapInjectingContainer(@Nonnull InjectingContainerBuilder builder)
-	{
-		super.bootstrapInjectingContainer(builder);
+    @Nonnull
+    @Override
+    protected InjectingContainer findRootContainer() {
+        return InjectingContainer.root(getClass().getClassLoader());
+    }
 
-		builder.bind(Application.class).to(this);
-		// this fix for ArchiveFileType which require ArchiveFileType VirtualFileManager inside contructor
-		builder.bind(VirtualFileManager.class).to(new StubVirtualFileManager());
-		builder.bind(FileNameMatcherFactory.class).to(new FileNameMatcherFactoryImpl());
-		builder.bind(ProjectManager.class).to(new StubProjectManager(this, myComponentBinding));
-	}
+    @Override
+    protected void bootstrapInjectingContainer(@Nonnull InjectingContainerBuilder builder) {
+        super.bootstrapInjectingContainer(builder);
 
-	@Override
-	public void runReadAction(@Nonnull Runnable action)
-	{
-		action.run();
-	}
+        builder.bind(Application.class).to(this);
+        // this fix for ArchiveFileType which require ArchiveFileType VirtualFileManager inside contructor
+        builder.bind(VirtualFileManager.class).to(new StubVirtualFileManager());
+        builder.bind(FileNameMatcherFactory.class).to(new FileNameMatcherFactoryImpl());
+        builder.bind(ProjectManager.class).to(new StubProjectManager(this, myComponentBinding));
+    }
 
-	@Override
-	public <T> T runReadAction(@Nonnull Supplier<T> computation)
-	{
-		return computation.get();
-	}
+    @Override
+    public void runReadAction(@Nonnull Runnable action) {
+        action.run();
+    }
 
-	@Override
-	public boolean tryRunReadAction(@Nonnull Runnable action)
-	{
-		action.run();
-		return true;
-	}
+    @Override
+    public <T> T runReadAction(@Nonnull Supplier<T> computation) {
+        return computation.get();
+    }
 
-	@RequiredUIAccess
-	@Override
-	public void runWriteAction(@Nonnull Runnable action)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean tryRunReadAction(@Nonnull Runnable action) {
+        action.run();
+        return true;
+    }
 
-	@RequiredUIAccess
-	@Override
-	public <T> T runWriteAction(@Nonnull Supplier<T> computation)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @RequiredUIAccess
+    @Override
+    public void runWriteAction(@Nonnull Runnable action) {
+        throw new UnsupportedOperationException();
+    }
 
-	@RequiredReadAction
-	@Override
-	public void assertReadAccessAllowed()
-	{
+    @RequiredUIAccess
+    @Override
+    public <T> T runWriteAction(@Nonnull Supplier<T> computation) {
+        throw new UnsupportedOperationException();
+    }
 
-	}
+    @RequiredReadAction
+    @Override
+    public void assertReadAccessAllowed() {
 
-	@RequiredWriteAction
-	@Override
-	public void assertWriteAccessAllowed()
-	{
+    }
 
-	}
+    @RequiredWriteAction
+    @Override
+    public void assertWriteAccessAllowed() {
 
-	@RequiredUIAccess
-	@Override
-	public void assertIsDispatchThread()
-	{
+    }
 
-	}
+    @RequiredUIAccess
+    @Override
+    public void assertIsDispatchThread() {
 
-	@Override
-	public void addApplicationListener(@Nonnull ApplicationListener listener)
-	{
+    }
 
-	}
+    @Override
+    public void addApplicationListener(@Nonnull ApplicationListener listener) {
 
-	@Override
-	public void addApplicationListener(@Nonnull ApplicationListener listener, @Nonnull Disposable parent)
-	{
+    }
 
-	}
+    @Override
+    public void addApplicationListener(@Nonnull ApplicationListener listener, @Nonnull Disposable parent) {
 
-	@Override
-	public void removeApplicationListener(@Nonnull ApplicationListener listener)
-	{
+    }
 
-	}
+    @Override
+    public void removeApplicationListener(@Nonnull ApplicationListener listener) {
 
-	@RequiredUIAccess
-	@Override
-	public void saveAll()
-	{
+    }
 
-	}
+    @RequiredUIAccess
+    @Override
+    public void saveAll() {
 
-	@Override
-	public void saveSettings()
-	{
+    }
 
-	}
+    @Override
+    public void saveSettings() {
 
-	@Override
-	public void exit()
-	{
+    }
 
-	}
+    @Override
+    public void exit() {
 
-	@Override
-	public boolean isReadAccessAllowed()
-	{
-		return true;
-	}
+    }
 
-	@Override
-	public boolean isDispatchThread()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isReadAccessAllowed() {
+        return true;
+    }
 
-	@Override
-	public boolean isWriteThread()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isDispatchThread() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void invokeLater(@Nonnull Runnable runnable)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isWriteThread() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void invokeLater(@Nonnull Runnable runnable, @Nonnull BooleanSupplier expired)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void invokeLater(@Nonnull Runnable runnable) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void invokeLater(@Nonnull Runnable runnable, @Nonnull consulo.ui.ModalityState state)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void invokeLater(@Nonnull Runnable runnable, @Nonnull BooleanSupplier expired) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void invokeLater(@Nonnull Runnable runnable, @Nonnull consulo.ui.ModalityState state, @Nonnull BooleanSupplier expired)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void invokeLater(@Nonnull Runnable runnable, @Nonnull consulo.ui.ModalityState state) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public void invokeAndWait(@Nonnull Runnable runnable, @Nonnull consulo.ui.ModalityState modalityState)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void invokeLater(@Nonnull Runnable runnable, @Nonnull consulo.ui.ModalityState state, @Nonnull BooleanSupplier expired) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nonnull
-	@Override
-	public ModalityState getCurrentModalityState()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public void invokeAndWait(@Nonnull Runnable runnable, @Nonnull consulo.ui.ModalityState modalityState) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nonnull
-	@Override
-	public ModalityState getModalityStateForComponent(@Nonnull Component c)
-	{
-		return getNoneModalityState();
-	}
+    @Nonnull
+    @Override
+    public ModalityState getCurrentModalityState() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nonnull
-	@Override
-	public ModalityState getDefaultModalityState()
-	{
-		return getNoneModalityState();
-	}
+    @Nonnull
+    @Override
+    public ModalityState getModalityStateForComponent(@Nonnull Component c) {
+        return getNoneModalityState();
+    }
 
-	@Nonnull
-	@Override
-	public ModalityState getNoneModalityState()
-	{
-		return ModalityState.nonModal();
-	}
+    @Nonnull
+    @Override
+    public ModalityState getDefaultModalityState() {
+        return getNoneModalityState();
+    }
 
-	@Nonnull
-	@Override
-	public ModalityState getAnyModalityState()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Nonnull
+    @Override
+    public ModalityState getNoneModalityState() {
+        return ModalityState.nonModal();
+    }
 
-	@Override
-	public long getStartTime()
-	{
-		return 0;
-	}
+    @Nonnull
+    @Override
+    public ModalityState getAnyModalityState() {
+        throw new UnsupportedOperationException();
+    }
 
-	@RequiredUIAccess
-	@Override
-	public long getIdleTime()
-	{
-		return 0;
-	}
+    @Override
+    public long getStartTime() {
+        return 0;
+    }
 
-	@Override
-	public boolean isHeadlessEnvironment()
-	{
-		return true;
-	}
+    @RequiredUIAccess
+    @Override
+    public long getIdleTime() {
+        return 0;
+    }
 
-	@Nonnull
-	@Override
-	public Future<?> executeOnPooledThread(@Nonnull Runnable action)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isHeadlessEnvironment() {
+        return true;
+    }
 
-	@Nonnull
-	@Override
-	public <T> Future<T> executeOnPooledThread(@Nonnull Callable<T> action)
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Nonnull
+    @Override
+    public Future<?> executeOnPooledThread(@Nonnull Runnable action) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean isDisposeInProgress()
-	{
-		return false;
-	}
+    @Nonnull
+    @Override
+    public <T> Future<T> executeOnPooledThread(@Nonnull Callable<T> action) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public boolean isRestartCapable()
-	{
-		return false;
-	}
+    @Override
+    public boolean isDisposeInProgress() {
+        return false;
+    }
 
-	@Override
-	public boolean isActive()
-	{
-		return true;
-	}
+    @Override
+    public boolean isRestartCapable() {
+        return false;
+    }
 
-	@Nonnull
-	@Override
-	public Image getIcon()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isActive() {
+        return true;
+    }
 
-	@Nonnull
-	@Override
-	public UIAccess getLastUIAccess()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Nonnull
+    @Override
+    public Image getIcon() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nonnull
-	@Override
-	public AccessToken acquireReadActionLock()
-	{
-		throw new UnsupportedOperationException();
-	}
+    @Nonnull
+    @Override
+    public UIAccess getLastUIAccess() {
+        throw new UnsupportedOperationException();
+    }
 
-	@RequiredUIAccess
-	@Nonnull
-	@Override
-	public AccessToken acquireWriteActionLock(@Nonnull Class marker)
-	{
-		return AccessToken.EMPTY_ACCESS_TOKEN;
-	}
+    @Nonnull
+    @Override
+    public AccessToken acquireReadActionLock() {
+        throw new UnsupportedOperationException();
+    }
 
-	@RequiredUIAccess
-	@Override
-	public <T, E extends Throwable> T runWriteAction(@Nonnull ThrowableSupplier<T, E> computation) throws E
-	{
-		throw new UnsupportedOperationException();
-	}
+    @RequiredUIAccess
+    @Nonnull
+    @Override
+    public AccessToken acquireWriteActionLock(@Nonnull Class marker) {
+        return AccessToken.EMPTY_ACCESS_TOKEN;
+    }
 
-	@Override
-	public boolean hasWriteAction(@Nonnull Class<?> actionClass)
-	{
-		return false;
-	}
+    @RequiredUIAccess
+    @Override
+    public <T, E extends Throwable> T runWriteAction(@Nonnull ThrowableSupplier<T, E> computation) throws E {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public <T, E extends Throwable> T runReadAction(@Nonnull ThrowableSupplier<T, E> computation) throws E
-	{
-		return computation.get();
-	}
+    @Override
+    public boolean hasWriteAction(@Nonnull Class<?> actionClass) {
+        return false;
+    }
+
+    @Override
+    public <T, E extends Throwable> T runReadAction(@Nonnull ThrowableSupplier<T, E> computation) throws E {
+        return computation.get();
+    }
 }

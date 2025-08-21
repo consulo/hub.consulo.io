@@ -1,6 +1,6 @@
 package consulo.hub.pluginAnalyzer;
 
-import consulo.component.impl.internal.ComponentBinding;
+import consulo.component.internal.ComponentBinding;
 import consulo.disposer.Disposable;
 import consulo.project.Project;
 import consulo.project.ProjectManager;

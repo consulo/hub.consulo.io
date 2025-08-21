@@ -7,7 +7,7 @@ import consulo.application.internal.plugin.PluginsLoader;
 import consulo.component.extension.ExtensionPoint;
 import consulo.component.extension.preview.ExtensionPreview;
 import consulo.component.extension.preview.ExtensionPreviewRecorder;
-import consulo.component.impl.internal.ComponentBinding;
+import consulo.component.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingBindingLoader;
 import consulo.component.internal.inject.TopicBindingLoader;
 import consulo.disposer.AutoDisposable;
