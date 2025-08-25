@@ -68,7 +68,7 @@ public class StubLocalizeManager extends LocalizeManager {
     }
 
     @Override
-    public long getModificationCount() {
+    public byte getModificationCount() {
         return 0;
     }
 
