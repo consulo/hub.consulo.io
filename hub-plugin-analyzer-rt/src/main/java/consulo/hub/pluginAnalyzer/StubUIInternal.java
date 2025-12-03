@@ -5,6 +5,7 @@ import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.color.ColorValue;
 import consulo.ui.font.FontManager;
+import consulo.ui.image.EmptyImage;
 import consulo.ui.image.Image;
 import consulo.ui.image.ImageKey;
 import consulo.ui.image.canvas.Canvas2D;
@@ -30,7 +31,7 @@ import java.util.function.Supplier;
  * @since 2019-07-06
  */
 public class StubUIInternal extends UIInternal {
-    private static final Image stubImage = new Image() {
+    private static final EmptyImage stubImage = new EmptyImage() {
         @Override
         public int getHeight() {
             return 0;
@@ -220,7 +221,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public Image _ImageEffects_empty(int i, int i1) {
+    public EmptyImage _ImageEffects_empty(int i, int i1) {
         return stubImage;
     }
 
