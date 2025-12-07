@@ -19,7 +19,7 @@
     <repositories>
         <repository>
             <id>consulo</id>
-            <url>https://maven.consulo.io/repository/snapshots/</url>
+            <url>https://maven.consulo.dev/repository/snapshots/</url>
             <snapshots>
                 <updatePolicy>interval:60</updatePolicy>
             </snapshots>
@@ -87,7 +87,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>consulo-plugin</id>
-            <url>https://maven.consulo.io/repository/snapshots/</url>
+            <url>https://maven.consulo.dev/repository/snapshots/</url>
             <snapshots>
                 <updatePolicy>interval:60</updatePolicy>
             </snapshots>
