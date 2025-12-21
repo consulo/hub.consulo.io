@@ -1,6 +1,5 @@
 package consulo.app.plugins.frontend.ui;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -9,20 +8,22 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.dom.ThemeList;
+import com.vaadin.flow.component.page.ColorScheme;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.procoeton.core.vaadin.SimpleAppLayout;
 import consulo.procoeton.core.vaadin.ThemeChangeNotifier;
 import consulo.procoeton.core.vaadin.ThemeUtil;
+import jakarta.annotation.security.PermitAll;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * @author VISTALL
  * @since 2025-05-11
  */
+@PermitAll
 @PreserveOnRefresh
 public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNotifier {
     private Div myThemeIconHolder;
@@ -54,15 +55,13 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
         Button changeThemes = new Button(icon);
         changeThemes.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         changeThemes.addSingleClickListener(e -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-            boolean dartCurrent = themeList.contains(Lumo.DARK);
+            Page page = UI.getCurrent().getPage();
+            boolean dartCurrent = page.getColorScheme() == ColorScheme.Value.DARK;
 
             if (dartCurrent) {
-                themeList.remove(Lumo.DARK);
-                themeList.add(Lumo.LIGHT);
+                page.setColorScheme(ColorScheme.Value.LIGHT);
             } else {
-                themeList.remove(Lumo.LIGHT);
-                themeList.add(Lumo.DARK);
+                page.setColorScheme(ColorScheme.Value.DARK);
             }
 
             ThemeUtil.notifyUpdate();

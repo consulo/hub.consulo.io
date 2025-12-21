@@ -1,6 +1,6 @@
 package consulo.procoeton.core;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import consulo.procoeton.core.auth.OAuth2AbstractRememberMeServices;
 import consulo.procoeton.core.auth.VaadinAuthenticationManager;
 import consulo.procoeton.core.backend.BackendRequestFactory;
@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
@@ -21,7 +22,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
  */
 @Configuration
 @EnableWebSecurity
-public class ProCoreSecuriy extends VaadinWebSecurity {
+public class ProCoreSecurity {
     @Autowired
     private OAuth2InfoService myOAuth2InfoService;
 
@@ -33,8 +34,8 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
     @Lazy
     private ObjectProvider<ProCoreSecurityExtender> mySecurityExtenders;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.rememberMe(it -> it.rememberMeServices(rememberMeServices()));
 
         http.authorizeHttpRequests(it -> {
@@ -45,14 +46,21 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
             extender.extend(http);
         }
 
-        super.configure(http);
+        http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
+            configurer.loginView(LoginView.class);
+            configurer.enableNavigationAccessControl(false);
 
-        setLoginView(http, LoginView.class);
+            configurer.anyRequest(authorizedUrl -> {
+                authorizedUrl.permitAll();
+            });
+        });
+
+        return http.build();
     }
 
     @Bean
-    public LogoutHandler logoutHandler() {
-        return (LogoutHandler) rememberMeServices();
+    public LogoutHandler logoutHandler(OAuth2AbstractRememberMeServices oAuth2AbstractRememberMeServices) {
+        return oAuth2AbstractRememberMeServices::logout;
     }
 
     @Bean

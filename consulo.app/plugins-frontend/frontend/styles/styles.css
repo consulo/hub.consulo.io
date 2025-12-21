@@ -1,7 +1,3 @@
-@import url('./main-layout.css');
-@import url('./scrollbar.css');
-@import url('@fontsource/inter/index.css');
-
 html {
 
 }
@@ -9,25 +5,25 @@ html {
 .badge-unknown
 {
     background: tomato;
-    color: var(--lumo-base-color)
+    color: var(--vaadin-text-color)
 }
 
 .badge-fixed
 {
     background: limegreen;
-    color: var(--lumo-base-color)
+    color: var(--vaadin-text-color)
 }
 
 .badge-duplicate
 {
     background: gray;
-    color: var(--lumo-base-color)
+    color: var(--vaadin-text-color)
 }
 
 .badge-obsolete
 {
     background: lightgray;
-    color: var(--lumo-base-color)
+    color: var(--vaadin-text-color)
 }
 
 .plugins-card-holder

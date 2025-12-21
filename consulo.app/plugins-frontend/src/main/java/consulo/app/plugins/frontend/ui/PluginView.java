@@ -12,7 +12,6 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
@@ -27,6 +26,7 @@ import consulo.procoeton.core.vaadin.ThemeUtil;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import jakarta.annotation.security.PermitAll;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -37,7 +37,7 @@ import java.util.Optional;
  * @since 2025-05-11
  */
 @Route(value = "/v/:pluginId/:pluginName?", layout = PluginsAppLayout.class)
-@AnonymousAllowed
+@PermitAll
 public class PluginView extends VChildLayout implements ThemeChangeNotifier, HasDynamicTitle {
     public static final String PLUGIN_ID = "pluginId";
     public static final String PLUGIN_NAME = "pluginName";
