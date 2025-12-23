@@ -171,11 +171,6 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public Hyperlink _Components_hyperlink(@Nonnull LocalizeValue s) {
-        return null;
-    }
-
-    @Override
     public ImageBox _Components_imageBox(Image image) {
         return null;
     }
@@ -238,16 +233,6 @@ public class StubUIInternal extends UIInternal {
     @Override
     public Image _ImageEffects_resize(Image image, int i, int i1) {
         return stubImage;
-    }
-
-    @Override
-    public MenuItem _MenuItem_create(@Nonnull LocalizeValue s) {
-        return null;
-    }
-
-    @Override
-    public Menu _Menu_create(@Nonnull LocalizeValue s) {
-        return null;
     }
 
     @Override
@@ -323,7 +308,12 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public TextBoxWithExpandAction _Components_textBoxWithExpandAction(Image image, String s, Function<String, List<String>> function, Function<List<String>, String> function1) {
+    public TextBoxWithExpandAction _Components_textBoxWithExpandAction(
+        Image image,
+        String s,
+        Function<String, List<String>> function,
+        Function<List<String>, String> function1
+    ) {
         return null;
     }
 
