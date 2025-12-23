@@ -171,7 +171,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public Hyperlink _Components_hyperlink(String s) {
+    public Hyperlink _Components_hyperlink(@Nonnull LocalizeValue s) {
         return null;
     }
 
@@ -201,7 +201,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public Image _ImageEffects_layered(Image[] images) {
+    public Image _ImageEffects_layered(@Nonnull Image[] images) {
         return stubImage;
     }
 
@@ -241,12 +241,12 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public MenuItem _MenuItem_create(String s) {
+    public MenuItem _MenuItem_create(@Nonnull LocalizeValue s) {
         return null;
     }
 
     @Override
-    public Menu _Menu_create(String s) {
+    public Menu _Menu_create(@Nonnull LocalizeValue s) {
         return null;
     }
 
@@ -310,9 +310,9 @@ public class StubUIInternal extends UIInternal {
         return null;
     }
 
-    @RequiredUIAccess
     @Nonnull
     @Override
+    @RequiredUIAccess
     public UIAccess _UIAccess_get() {
         return null;
     }
