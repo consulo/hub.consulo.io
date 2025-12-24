@@ -171,11 +171,6 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public Hyperlink _Components_hyperlink(String s) {
-        return null;
-    }
-
-    @Override
     public ImageBox _Components_imageBox(Image image) {
         return null;
     }
@@ -201,7 +196,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public Image _ImageEffects_layered(Image[] images) {
+    public Image _ImageEffects_layered(@Nonnull Image[] images) {
         return stubImage;
     }
 
@@ -238,16 +233,6 @@ public class StubUIInternal extends UIInternal {
     @Override
     public Image _ImageEffects_resize(Image image, int i, int i1) {
         return stubImage;
-    }
-
-    @Override
-    public MenuItem _MenuItem_create(String s) {
-        return null;
-    }
-
-    @Override
-    public Menu _Menu_create(String s) {
-        return null;
     }
 
     @Override
@@ -310,9 +295,9 @@ public class StubUIInternal extends UIInternal {
         return null;
     }
 
-    @RequiredUIAccess
     @Nonnull
     @Override
+    @RequiredUIAccess
     public UIAccess _UIAccess_get() {
         return null;
     }
@@ -323,7 +308,12 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public TextBoxWithExpandAction _Components_textBoxWithExpandAction(Image image, String s, Function<String, List<String>> function, Function<List<String>, String> function1) {
+    public TextBoxWithExpandAction _Components_textBoxWithExpandAction(
+        Image image,
+        String s,
+        Function<String, List<String>> function,
+        Function<List<String>, String> function1
+    ) {
         return null;
     }
 
