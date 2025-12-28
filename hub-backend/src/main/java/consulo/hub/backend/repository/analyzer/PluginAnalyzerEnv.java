@@ -37,6 +37,7 @@ import consulo.project.ProjectManager;
 import consulo.project.ui.wm.ToolWindowManager;
 import consulo.task.TaskRepositoryType;
 import consulo.ui.Component;
+import consulo.ui.ex.IconDeferrer;
 import consulo.util.collection.Maps;
 import consulo.util.collection.primitive.ints.IntMaps;
 import consulo.util.collection.trove.impl.TroveCollectionFactory;
@@ -97,10 +98,12 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(DisposerInternalImpl.class);
         // trove collection impl
         myPlatformClassGroup.requireClass(TroveCollectionFactory.class);
-        // data-hoder-api
+        // data-holder-api
         myPlatformClassGroup.requireClass(UserDataHolder.class);
         // ui-api
         myPlatformClassGroup.requireClass(Component.class);
+        // ui-ex-api
+        myPlatformClassGroup.requireClass(IconDeferrer.class);
         // util-collections-primitive
         myPlatformClassGroup.requireClass(IntMaps.class);
         // util-collection
