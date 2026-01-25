@@ -56,7 +56,6 @@ public class PluginNode implements Cloneable {
     public String id;
     public String name;
     public String description;
-    public String category;
     public String vendor;
     public String vendorUrl;
     public String vendorEmail;

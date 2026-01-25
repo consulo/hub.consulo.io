@@ -273,7 +273,6 @@ public class PluginDeployService {
         }
 
         pluginNode.name = pluginDescriptor.getName();
-        pluginNode.category = pluginDescriptor.getCategory();
         pluginNode.url = pluginDescriptor.getUrl();
         pluginNode.description = pluginDescriptor.getDescription();
         pluginNode.vendor = pluginDescriptor.getVendor();
