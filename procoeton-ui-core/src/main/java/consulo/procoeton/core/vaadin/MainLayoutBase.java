@@ -7,7 +7,6 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
@@ -17,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.dom.ThemeList;
+import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
@@ -33,7 +33,6 @@ import java.util.Optional;
 @Uses(FontAwesome.Regular.Icon.class)
 @Uses(FontAwesome.Solid.Icon.class)
 @Uses(FontAwesome.Brands.Icon.class)
-@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public abstract class MainLayoutBase extends SimpleAppLayout {
     private H2 myViewTitle;
 
@@ -161,8 +160,9 @@ public abstract class MainLayoutBase extends SimpleAppLayout {
     protected abstract void updateUserMenu(SubMenu subMenu, UserAccount userAccount);
 
     @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        super.afterNavigation(afterNavigationEvent);
+
         myViewTitle.setText(getCurrentPageTitle());
         updateMenuItems();
         updateLoginInfo();

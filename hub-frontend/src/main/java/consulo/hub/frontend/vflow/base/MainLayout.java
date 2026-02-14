@@ -3,7 +3,6 @@ package consulo.hub.frontend.vflow.base;
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -33,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Uses(FontAwesome.Regular.Icon.class)
 @Uses(FontAwesome.Solid.Icon.class)
 @Uses(FontAwesome.Brands.Icon.class)
-@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
 public class MainLayout extends MainLayoutBase {
     @Autowired
     public MainLayout(AccessAnnotationChecker accessAnnotationChecker, UserService userService, LogoutService logoutService) {

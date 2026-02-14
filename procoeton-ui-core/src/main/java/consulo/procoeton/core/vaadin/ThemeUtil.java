@@ -2,7 +2,7 @@ package consulo.procoeton.core.vaadin;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.theme.lumo.Lumo;
+import com.vaadin.flow.component.page.ColorScheme;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -15,7 +15,7 @@ public class ThemeUtil {
     public static void notifyUpdate() {
         UI ui = UI.getCurrent();
 
-        boolean isDark = ui.getElement().getThemeList().contains(Lumo.DARK);
+        boolean isDark = ui.getPage().getColorScheme() == ColorScheme.Value.DARK;
 
         visitRecursive(ui, c -> {
             if (c instanceof ThemeChangeNotifier themeChangeNotifier) {
@@ -25,7 +25,7 @@ public class ThemeUtil {
     }
 
     public static boolean isDark() {
-        return UI.getCurrent().getElement().getThemeList().contains(Lumo.DARK);
+        return UI.getCurrent().getPage().getColorScheme() == ColorScheme.Value.DARK;
     }
 
     private static void visitRecursive(Component component, Consumer<Component> consumer) {
