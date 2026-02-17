@@ -39,6 +39,9 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
 
         http.authorizeHttpRequests(it -> {
             it.requestMatchers("/line-awesome/**").permitAll();
+            it.requestMatchers("/robots.txt").permitAll();
+            it.requestMatchers("/sitemap.xml").permitAll();
+            it.requestMatchers("/sitemap**").permitAll();
         });
 
         for (ProCoreSecurityExtender extender : mySecurityExtenders) {
@@ -51,8 +54,8 @@ public class ProCoreSecuriy extends VaadinWebSecurity {
     }
 
     @Bean
-    public LogoutHandler logoutHandler() {
-        return (LogoutHandler) rememberMeServices();
+    public LogoutHandler logoutHandler(OAuth2AbstractRememberMeServices rememberMeServices) {
+        return rememberMeServices::logout;
     }
 
     @Bean

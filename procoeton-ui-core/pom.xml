@@ -93,6 +93,12 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin</groupId>
+                    <artifactId>vaadin-copilot</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
