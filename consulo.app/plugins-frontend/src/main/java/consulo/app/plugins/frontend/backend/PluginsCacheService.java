@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -82,7 +83,7 @@ public class PluginsCacheService {
         }
 
         // shutdown case - just return empty
-        return new PluginsCache(List.of(), Map.of());
+        return new PluginsCache(List.of(), Map.of(), Map.of());
     }
 
     private PluginsCache load() {
@@ -97,6 +98,6 @@ public class PluginsCacheService {
             map.put(node.id, node);
         }
 
-        return new PluginsCache(sortByDownloads, map);
+        return new PluginsCache(sortByDownloads, map, new ConcurrentHashMap<>());
     }
 }

@@ -46,6 +46,11 @@ public class SitemapCacheService {
         return Objects.requireNonNull(mySitemap);
     }
 
+    @Nonnull
+    public String getPluginUrl(PluginNode pluginNode) {
+        return mySitemapServerUrl + "/v/" + URLEncoder.encode(pluginNode.id, StandardCharsets.UTF_8) + "/" + URLEncoder.encode(pluginNode.name, StandardCharsets.UTF_8);
+    }
+
     private Sitemap build(PluginsCache pluginsCache) throws IOException {
         Namespace namespace = Namespace.getNamespace("http://www.sitemaps.org/schemas/sitemap/0.9");
 
@@ -62,7 +67,7 @@ public class SitemapCacheService {
 
             Element locElement = new Element("loc", namespace);
             urlElement.addContent(locElement);
-            locElement.setText(mySitemapServerUrl + "/v/" + URLEncoder.encode(pluginNode.id, StandardCharsets.UTF_8) + "/" + URLEncoder.encode(pluginNode.name, StandardCharsets.UTF_8));
+            locElement.setText(getPluginUrl(pluginNode));
         }
 
         Document document = new Document(urlset);
