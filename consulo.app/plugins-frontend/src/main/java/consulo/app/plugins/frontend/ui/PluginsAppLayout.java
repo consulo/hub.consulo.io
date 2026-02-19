@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.PreserveOnRefresh;
@@ -29,24 +30,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  */
 @PreserveOnRefresh
 public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNotifier {
-    private static final String REMOVE_LD_JS =
-        """
-            let node = document.querySelector('head script[type="application/ld+json"]');
-            if (node) {
-                node.remove();
-            }
-            """;
-
-    private static final String INSERT_LD_JS = """
-            let node = document.querySelector('head script[type="application/ld+json"]');
-
-            if (!node) {
-                node = document.createElement('script');
-                node.type = 'application/ld+json';
-                document.head.appendChild(node);
-            }
-            node.textContent = $0;
-        """;
+    private static final String APPLICATION_LD_JSON = "application/ld+json";
 
     private final ObjectMapper myObjectMapper;
     private final PluginsCacheService myPluginsCacheService;
@@ -84,8 +68,7 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
     public void beforeEnter(BeforeEnterEvent event) {
         super.beforeEnter(event);
 
-        String js = REMOVE_LD_JS;
-        String json = "";
+        String json = null;
         if (event.getNavigationTarget() == PluginView.class) {
             String pluginId = event.getRouteParameters().get(PluginView.PLUGIN_ID).orElse(null);
             if (pluginId != null) {
@@ -97,13 +80,34 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
                 );
                 
                 if (jsonLd != null) {
-                    js = INSERT_LD_JS;
                     json = jsonLd;
                 }
             }
         }
 
-        UI.getCurrent().getPage().executeJs(js, json);
+        Element element = UI.getCurrent().getElement();
+
+        Element scriptTag = element.getChildren()
+            .filter(c -> "script".equals(c.getTag()) && APPLICATION_LD_JSON.equals(c.getAttribute("type")))
+            .findAny()
+            .orElse(null);
+
+        if (json == null) {
+            if (scriptTag != null) {
+                scriptTag.removeFromParent();
+            }
+        } else {
+            if (scriptTag != null) {
+                scriptTag.setText(json);
+            } else {
+
+                scriptTag = new Element("script");
+                scriptTag.setAttribute("type", APPLICATION_LD_JSON);
+                scriptTag.setText(json);
+
+                element.insertChild(0, scriptTag);
+            }
+        }
     }
 
     @Override
