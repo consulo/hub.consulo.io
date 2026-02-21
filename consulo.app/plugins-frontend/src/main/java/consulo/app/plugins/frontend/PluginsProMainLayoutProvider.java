@@ -98,6 +98,12 @@ public class PluginsProMainLayoutProvider implements ProMainLayoutProvider {
 
                             head.appendChild(linkTag);
                         }
+
+                        Element canonicalLink = new Element("link");
+                        canonicalLink = canonicalLink.attr("href", mySitemapCacheService.getPluginUrl(node));
+                        canonicalLink = canonicalLink.attr("rel", "canonical");
+
+                        head.appendChild(canonicalLink);
                     }
                 }
             }
