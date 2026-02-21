@@ -241,6 +241,6 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
     @Override
     public String getPageTitle() {
-        return myNode == null ? "?" : myNode.name + " Plugin for Consulo. Multi-language IDE";
+        return myNode == null ? "?" : myNode.name + " Plugin for Consulo (Multi-language IDE)";
     }
 }

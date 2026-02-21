@@ -68,7 +68,7 @@ public record PluginsCache(List<PluginNode> sortedByDownloads,
 
     public static String getDescription(PluginNode node) {
         if (StringUtils.isBlank(node.description)) {
-            return node.name + " Plugin for Consulo. Multi-language IDE";
+            return node.name + " Plugin for Consulo (Multi-language IDE)";
         }
 
         return node.description;
