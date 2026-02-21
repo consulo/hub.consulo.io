@@ -83,19 +83,21 @@ public class PluginsProMainLayoutProvider implements ProMainLayoutProvider {
 
                         head.appendChild(metaTag);
 
-                        Elements elements = head.getElementsByAttributeValue("rel", "icon");
-                        for (Element element : elements) {
-                            if ("link".equals(element.tagName())) {
-                                element.remove();
+                        if (node.iconBytes != null) {
+                            Elements elements = head.getElementsByAttributeValue("rel", "icon");
+                            for (Element element : elements) {
+                                if ("link".equals(element.tagName())) {
+                                    element.remove();
+                                }
                             }
-                        }
 
-                        Element linkTag = new Element("link");
-                        linkTag = linkTag.attr("href", PluginView.getImageUrl(node, false));
-                        linkTag = linkTag.attr("rel", "icon");
-                        linkTag = linkTag.attr("type", "image/svg+xml");
-                        
-                        head.appendChild(linkTag);
+                            Element linkTag = new Element("link");
+                            linkTag = linkTag.attr("href", PluginView.getImageUrl(node, false));
+                            linkTag = linkTag.attr("rel", "icon");
+                            linkTag = linkTag.attr("type", "image/svg+xml");
+
+                            head.appendChild(linkTag);
+                        }
                     }
                 }
             }
