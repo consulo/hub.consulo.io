@@ -6,6 +6,7 @@ import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
 import consulo.app.plugins.frontend.sitemap.JsonLd;
 import consulo.app.plugins.frontend.sitemap.SitemapCacheService;
 import consulo.hub.shared.repository.PluginNode;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ public record PluginsCache(List<PluginNode> sortedByDownloads,
         JsonLd jsonLd = new JsonLd();
         jsonLd.name = node.name;
         jsonLd.headline = node.name;
-        jsonLd.description = node.description;
+        jsonLd.description = getDescription(node);
         jsonLd.softwareVersion = node.version;
         jsonLd.url = sitemapCacheService.getPluginUrl(node);
 
@@ -63,5 +64,13 @@ public record PluginsCache(List<PluginNode> sortedByDownloads,
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getDescription(PluginNode node) {
+        if (StringUtils.isBlank(node.description)) {
+            return node.name + " Plugin for Consulo. Multi-language IDE";
+        }
+
+        return node.description;
     }
 }

@@ -34,6 +34,7 @@ import java.util.Optional;
 
 /**
  * @author VISTALL
+ * @see consulo.app.plugins.frontend.PluginsProMainLayoutProvider
  * @since 2025-05-11
  */
 @Route(value = "/v/:pluginId/:pluginName?", layout = PluginsAppLayout.class)
@@ -210,8 +211,12 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
         }
     }
 
+    public static String getImageUrl(PluginNode node, boolean isDark) {
+        return "/i/" + node.id + "?version=" + node.version + "&dark=" + isDark;
+    }
+
     private void updateImage(PluginNode node, boolean isDark) {
-        String icon = "/i/" + node.id + "?version=" + node.version + "&dark=" + isDark;
+        String icon = getImageUrl(node, isDark);
 
         myImage.setSrc(icon);
 
@@ -236,6 +241,6 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
     @Override
     public String getPageTitle() {
-        return "Consulo: " + (myNode == null ? " <no plugin>" : myNode.name);
+        return myNode == null ? "?" : myNode.name + " Plugin for Consulo. Multi-language IDE";
     }
 }

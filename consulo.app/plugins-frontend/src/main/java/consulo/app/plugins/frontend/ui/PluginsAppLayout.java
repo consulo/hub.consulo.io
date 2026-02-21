@@ -30,7 +30,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  */
 @PreserveOnRefresh
 public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNotifier {
-    private static final String APPLICATION_LD_JSON = "application/ld+json";
+    public static final String APPLICATION_LD_JSON = "application/ld+json";
 
     private final ObjectMapper myObjectMapper;
     private final PluginsCacheService myPluginsCacheService;

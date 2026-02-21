@@ -8,6 +8,7 @@ import com.vaadin.flow.server.RouteRegistry;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,46 +19,46 @@ import java.util.List;
  * @since 04/05/2023
  */
 @Component
-public class ProVaadinServiceInitListener implements VaadinServiceInitListener
-{
-	private final ProMainLayoutProvider myProMainLayoutProvider;
+public class ProVaadinServiceInitListener implements VaadinServiceInitListener {
+    private final ProMainLayoutProvider myProMainLayoutProvider;
 
-	@Autowired
-	public ProVaadinServiceInitListener(ProMainLayoutProvider proMainLayoutProvider)
-	{
-		myProMainLayoutProvider = proMainLayoutProvider;
-	}
+    @Autowired
+    public ProVaadinServiceInitListener(ProMainLayoutProvider proMainLayoutProvider) {
+        myProMainLayoutProvider = proMainLayoutProvider;
+    }
 
-	@Override
-	public void serviceInit(ServiceInitEvent se)
-	{
-		VaadinService source = se.getSource();
+    @Override
+    public void serviceInit(ServiceInitEvent se) {
+        VaadinService source = se.getSource();
 
-		source.addUIInitListener(event -> {
-			UI ui = event.getUI();
+        source.addUIInitListener(event -> {
+            UI ui = event.getUI();
 
-			// add to service?
-		});
+            // add to service?
+        });
 
-		// Since we don't ref primary layout in annotations @Route since its expose all IMPl to API module
-		// we re-register routers with correct layout
-		RouteRegistry registry = source.getRouter().getRegistry();
+        IndexHtmlRequestListener indexHtmlRequestListener = myProMainLayoutProvider.createIndexHtmlRequestListener();
+        if (indexHtmlRequestListener != null) {
+            se.addIndexHtmlRequestListener(indexHtmlRequestListener);
+        }
 
-		List<RouteData> registeredRoutes = registry.getRegisteredRoutes();
+        // Since we don't ref primary layout in annotations @Route since its expose all IMPl to API module
+        // we re-register routers with correct layout
+        RouteRegistry registry = source.getRouter().getRegistry();
 
-		registry.clean();
+        List<RouteData> registeredRoutes = registry.getRegisteredRoutes();
 
-		List<Class<? extends RouterLayout>> parentLayouts = List.of(myProMainLayoutProvider.getLayoutClass());
+        registry.clean();
 
-		for(RouteData route : registeredRoutes)
-		{
-			registry.setRoute(route.getTemplate(), route.getNavigationTarget(), parentLayouts);
+        List<Class<? extends RouterLayout>> parentLayouts = List.of(myProMainLayoutProvider.getLayoutClass());
 
-			// register alias too
-			for(RouteAliasData data : route.getRouteAliases())
-			{
-				registry.setRoute(data.getTemplate(), data.getNavigationTarget(), parentLayouts);
-			}
-		}
-	}
+        for (RouteData route : registeredRoutes) {
+            registry.setRoute(route.getTemplate(), route.getNavigationTarget(), parentLayouts);
+
+            // register alias too
+            for (RouteAliasData data : route.getRouteAliases()) {
+                registry.setRoute(data.getTemplate(), data.getNavigationTarget(), parentLayouts);
+            }
+        }
+    }
 }
