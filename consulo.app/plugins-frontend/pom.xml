@@ -57,6 +57,10 @@
                     <exclusions>
                         <exclusion>
                             <groupId>com.vaadin</groupId>
+                            <artifactId>vaadin-copilot</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>com.vaadin</groupId>
                             <artifactId>vaadin-dev</artifactId>
                         </exclusion>
                     </exclusions>

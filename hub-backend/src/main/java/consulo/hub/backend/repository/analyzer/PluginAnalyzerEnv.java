@@ -37,9 +37,11 @@ import consulo.project.ProjectManager;
 import consulo.project.ui.wm.ToolWindowManager;
 import consulo.task.TaskRepositoryType;
 import consulo.ui.Component;
+import consulo.ui.ex.IconDeferrer;
 import consulo.util.collection.Maps;
 import consulo.util.collection.primitive.ints.IntMaps;
 import consulo.util.collection.trove.impl.TroveCollectionFactory;
+import consulo.util.concurrent.coroutine.CoroutineContextOwner;
 import consulo.util.dataholder.UserDataHolder;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.nodep.ArrayUtilRt;
@@ -97,10 +99,12 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(DisposerInternalImpl.class);
         // trove collection impl
         myPlatformClassGroup.requireClass(TroveCollectionFactory.class);
-        // data-hoder-api
+        // data-holder-api
         myPlatformClassGroup.requireClass(UserDataHolder.class);
         // ui-api
         myPlatformClassGroup.requireClass(Component.class);
+        // ui-ex-api
+        myPlatformClassGroup.requireClass(IconDeferrer.class);
         // util-collections-primitive
         myPlatformClassGroup.requireClass(IntMaps.class);
         // util-collection
@@ -137,6 +141,8 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(LocalizeKey.class);
         // project api
         myPlatformClassGroup.requireClass(ProjectManager.class);
+        // coroutine util
+        myPlatformClassGroup.requireClass(CoroutineContextOwner.class);
         // language api
         myPlatformClassGroup.requireClass(LanguageFileType.class);
         // language editor api

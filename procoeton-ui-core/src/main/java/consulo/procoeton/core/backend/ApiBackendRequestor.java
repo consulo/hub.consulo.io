@@ -122,7 +122,7 @@ public class ApiBackendRequestor {
         catch (HttpHostConnectException | HttpConnectTimeoutException e) {
             throw new BackendServiceDownException(e);
         }
-        catch (IOException ignored) {
+        catch (Throwable ignored) {
             return defaultValueGetter.get();
         }
     }

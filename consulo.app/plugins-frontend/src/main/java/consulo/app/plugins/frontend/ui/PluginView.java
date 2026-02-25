@@ -1,8 +1,13 @@
 package consulo.app.plugins.frontend.ui;
 
+import com.google.gson.Gson;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -12,12 +17,13 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
 import consulo.app.plugins.frontend.ui.indexView.PluginCard;
-import consulo.app.plugins.frontend.ui.pluginView.InstallOrDownloadButtonPanel;
+import consulo.app.plugins.frontend.ui.pluginView.ConsuloAboutResponse;
 import consulo.app.plugins.frontend.ui.urlInfo.ExternalUrl;
 import consulo.app.plugins.frontend.ui.urlInfo.PluginUrlInfo;
 import consulo.hub.shared.repository.PluginNode;
@@ -34,10 +40,12 @@ import java.util.Optional;
 
 /**
  * @author VISTALL
+ * @see consulo.app.plugins.frontend.PluginsProMainLayoutProvider
  * @since 2025-05-11
  */
 @Route(value = "/v/:pluginId/:pluginName?", layout = PluginsAppLayout.class)
 @PermitAll
+@JavaScript("./consuloConnector.js")
 public class PluginView extends VChildLayout implements ThemeChangeNotifier, HasDynamicTitle {
     public static final String PLUGIN_ID = "pluginId";
     public static final String PLUGIN_NAME = "pluginName";
@@ -56,7 +64,7 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
     private final H1 myNameSpan;
     private final Span myVendorSpan;
 
-    private InstallOrDownloadButtonPanel myInstallOrDownloadButtonPanel;
+    private Div myInstallOrDownloadButtonPanel;
 
     private final TabSheet myInfoTabs;
 
@@ -100,7 +108,8 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
         nameAndVendor.add(myNameSpan);
         nameAndVendor.add(myVendorSpan);
 
-        myInstallOrDownloadButtonPanel = new InstallOrDownloadButtonPanel(() -> myNode.id);
+        myInstallOrDownloadButtonPanel = new Div();
+        myInstallOrDownloadButtonPanel.getStyle().set("alignContent", "center");
 
         myHeaderLayout.setWidthFull();
         myHeaderLayout.add(imageHolder);
@@ -208,10 +217,69 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
         for (String tag : myNode.tags) {
             myTagRowLayout.add(new Badge(myTagsLocalizeLoader.getTagLocalize(tag)));
         }
+
+        updateInstallState();
+    }
+
+    public void updateInstallState() {
+        myInstallOrDownloadButtonPanel.removeAll();
+
+        Button installButton = new Button("Install to Consulo");
+        installButton.addClickListener(event -> {
+            getElement().executeJs("connectToConsulo($0, $1)", "http://localhost:62242/api/about", getElement());
+        });
+
+        myInstallOrDownloadButtonPanel.add(installButton);
+    }
+
+    @ClientCallable
+    public void handleConsuloResponse(int state, String body) {
+        myInstallOrDownloadButtonPanel.removeAll();
+
+        if (StringUtils.isBlank(body)) {
+            return;
+        }
+
+        Gson gson = new Gson();
+        try {
+            ConsuloAboutResponse response = gson.fromJson(body, ConsuloAboutResponse.class);
+
+            if (response.success && response.data != null && "Consulo".equals(response.data.name)) {
+                String text;
+                boolean enabled = true;
+
+                String pluginId = myNode.id;
+                if (response.data.plugins != null && response.data.plugins.contains(pluginId)) {
+                    text = "Installed to Consulo #" + response.data.build;
+                    enabled = false;
+                }
+                else {
+                    text = "Install to Consulo #" + response.data.build;
+                }
+
+                Button button = new Button(text);
+                button.setEnabled(enabled);
+                button.addSingleClickListener(event -> {
+                    String url = "http://localhost:62242/api/plugins/install?pluginId=" + myNode.id;
+
+                    getElement().executeJs("installPluginToConsulo($0, $1)", url, getElement());
+
+                    button.setEnabled(false);
+                });
+                button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                myInstallOrDownloadButtonPanel.add(button);
+            }
+        }
+        catch (Exception ignored) {
+        }
+    }
+
+    public static String getImageUrl(PluginNode node, boolean isDark) {
+        return "/i/" + node.id + "?version=" + node.version + "&dark=" + isDark;
     }
 
     private void updateImage(PluginNode node, boolean isDark) {
-        String icon = "/i/" + node.id + "?version=" + node.version + "&dark=" + isDark;
+        String icon = getImageUrl(node, isDark);
 
         myImage.setSrc(icon);
 
@@ -231,11 +299,15 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
     @Override
     public void onThemeChange(boolean isDark) {
+        if (myNode == null) {
+            return;
+        }
+
         updateImage(myNode, isDark);
     }
 
     @Override
     public String getPageTitle() {
-        return "Consulo: " + (myNode == null ? " <no plugin>" : myNode.name);
+        return myNode == null ? "?" : myNode.name + " Plugin for Consulo (Multi-language IDE)";
     }
 }

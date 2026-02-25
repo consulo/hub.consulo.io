@@ -5,7 +5,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinRequest;
 import consulo.procoeton.core.vaadin.ui.ChildLayout;
+import jakarta.servlet.http.Cookie;
 
 /**
  * @author VISTALL
@@ -39,10 +41,30 @@ public class SimpleAppLayout extends AppLayout implements AfterNavigationObserve
     }
 
     protected void handleDarkTheme() {
-        getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
-            ui.getPage().setColorScheme(ColorScheme.Value.DARK);
+        boolean darkTheme = readDarkThemeCookie();
 
-            ThemeUtil.notifyUpdate();
-        }));
+        getUI().ifPresent(ui -> {
+            if (darkTheme) {
+                ui.getPage().setColorScheme(ColorScheme.Value.DARK);
+            }
+            ui.getPage().executeJs("document.documentElement.classList.remove('dark-loading')");
+        });
+
+        ThemeUtil.notifyUpdate();
+    }
+
+    protected boolean readDarkThemeCookie() {
+        VaadinRequest request = VaadinRequest.getCurrent();
+        if (request != null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("darkTheme".equals(cookie.getName())) {
+                        return Boolean.parseBoolean(cookie.getValue());
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

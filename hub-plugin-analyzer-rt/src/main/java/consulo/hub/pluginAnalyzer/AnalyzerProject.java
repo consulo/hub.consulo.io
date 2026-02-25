@@ -7,6 +7,7 @@ import consulo.component.internal.ComponentBinding;
 import consulo.component.internal.inject.InjectingContainer;
 import consulo.component.internal.inject.InjectingContainerBuilder;
 import consulo.project.Project;
+import consulo.util.concurrent.coroutine.CoroutineContext;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -101,5 +102,11 @@ public class AnalyzerProject extends BaseComponentManager implements Project {
     @Override
     public boolean isInitialized() {
         return true;
+    }
+
+    @Nonnull
+    @Override
+    public CoroutineContext coroutineContext() {
+        throw new UnsupportedOperationException();
     }
 }

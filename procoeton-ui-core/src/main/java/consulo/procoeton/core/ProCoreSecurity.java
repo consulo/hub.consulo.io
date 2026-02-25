@@ -40,6 +40,9 @@ public class ProCoreSecurity {
 
         http.authorizeHttpRequests(it -> {
             it.requestMatchers("/line-awesome/**").permitAll();
+            it.requestMatchers("/robots.txt").permitAll();
+            it.requestMatchers("/sitemap.xml").permitAll();
+            it.requestMatchers("/sitemap**").permitAll();
         });
 
         for (ProCoreSecurityExtender extender : mySecurityExtenders) {
@@ -59,8 +62,8 @@ public class ProCoreSecurity {
     }
 
     @Bean
-    public LogoutHandler logoutHandler(OAuth2AbstractRememberMeServices oAuth2AbstractRememberMeServices) {
-        return oAuth2AbstractRememberMeServices::logout;
+    public LogoutHandler logoutHandler(OAuth2AbstractRememberMeServices rememberMeServices) {
+        return rememberMeServices::logout;
     }
 
     @Bean

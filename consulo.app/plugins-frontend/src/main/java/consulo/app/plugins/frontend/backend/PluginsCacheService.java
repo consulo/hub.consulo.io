@@ -1,6 +1,7 @@
 package consulo.app.plugins.frontend.backend;
 
 import consulo.app.plugins.frontend.backend.service.BackendRepositoryService;
+import consulo.app.plugins.frontend.sitemap.SitemapCacheService;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.util.RepositoryUtil;
 import jakarta.annotation.Nonnull;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,16 +25,18 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class PluginsCacheService {
     private static final Logger LOG = LoggerFactory.getLogger(PluginsCacheService.class);
-    
+
     private volatile PluginsCache myPluginsCache;
 
     private final BackendRepositoryService myBackendRepositoryService;
+    private final SitemapCacheService mySitemapCacheService;
 
     private boolean myShutdown;
 
     @Autowired
-    public PluginsCacheService(BackendRepositoryService backendRepositoryService) {
+    public PluginsCacheService(BackendRepositoryService backendRepositoryService, SitemapCacheService sitemapCacheService) {
         myBackendRepositoryService = backendRepositoryService;
+        mySitemapCacheService = sitemapCacheService;
     }
 
     @PostConstruct
@@ -59,6 +64,12 @@ public class PluginsCacheService {
         while (!myShutdown) {
             PluginsCache cache = load();
             if (cache.isValid()) {
+                try {
+                    mySitemapCacheService.rebuild(cache);
+                }
+                catch (IOException e) {
+                    LOG.error("Fail to build sitemap cache", e);
+                }
                 return cache;
             }
 
@@ -72,7 +83,7 @@ public class PluginsCacheService {
         }
 
         // shutdown case - just return empty
-        return new PluginsCache(List.of(), Map.of());
+        return new PluginsCache(List.of(), Map.of(), Map.of());
     }
 
     private PluginsCache load() {
@@ -87,6 +98,6 @@ public class PluginsCacheService {
             map.put(node.id, node);
         }
 
-        return new PluginsCache(sortByDownloads, map);
+        return new PluginsCache(sortByDownloads, map, new ConcurrentHashMap<>());
     }
 }
