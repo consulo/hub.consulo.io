@@ -46,24 +46,30 @@ public class SimpleAppLayout extends AppLayout implements AfterNavigationObserve
     }
 
     protected void handleDarkTheme() {
-        boolean isDark = false;
+        boolean darkTheme = readDarkThemeCookie();
+
+        getUI().ifPresent(ui -> {
+            if (darkTheme) {
+                ui.getElement().getThemeList().add(Lumo.DARK);
+            }
+            ui.getPage().executeJs("document.documentElement.classList.remove('dark-loading')");
+        });
+
+        ThemeUtil.notifyUpdate();
+    }
+
+    protected boolean readDarkThemeCookie() {
         VaadinRequest request = VaadinRequest.getCurrent();
         if (request != null) {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if ("darkTheme".equals(cookie.getName())) {
-                        isDark = Boolean.parseBoolean(cookie.getValue());
-                        break;
+                        return Boolean.parseBoolean(cookie.getValue());
                     }
                 }
             }
         }
-
-        if (isDark) {
-            getUI().ifPresent(ui -> ui.getElement().getThemeList().add(Lumo.DARK));
-        }
-
-        ThemeUtil.notifyUpdate();
+        return false;
     }
 }

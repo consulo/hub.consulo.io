@@ -1,6 +1,7 @@
 package consulo.app.plugins.frontend.ui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -65,6 +66,12 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
     }
 
     @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        onThemeChange(ThemeUtil.isDark());
+    }
+
+    @Override
     public void beforeEnter(BeforeEnterEvent event) {
         super.beforeEnter(event);
 
@@ -119,7 +126,8 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
         Button changeThemes = new Button(icon);
         changeThemes.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         changeThemes.addSingleClickListener(e -> {
-            ThemeList themeList = UI.getCurrent().getElement().getThemeList();
+            UI ui = UI.getCurrent();
+            ThemeList themeList = ui.getElement().getThemeList();
             boolean dartCurrent = themeList.contains(Lumo.DARK);
 
             if (dartCurrent) {
@@ -130,6 +138,10 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
                 themeList.remove(Lumo.LIGHT);
                 themeList.add(Lumo.DARK);
             }
+
+            boolean newDark = !dartCurrent;
+            ui.getPage().executeJs(
+                "document.cookie = 'darkTheme=' + $0 + ';path=/;max-age=31536000;SameSite=Lax'", newDark);
 
             ThemeUtil.notifyUpdate();
         });
