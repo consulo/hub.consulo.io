@@ -298,6 +298,10 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
     @Override
     public void onThemeChange(boolean isDark) {
+        if (myNode == null) {
+            return;
+        }
+
         updateImage(myNode, isDark);
     }
 

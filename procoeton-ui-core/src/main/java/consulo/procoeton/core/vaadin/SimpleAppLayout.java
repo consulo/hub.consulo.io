@@ -4,8 +4,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.theme.lumo.Lumo;
 import consulo.procoeton.core.vaadin.ui.ChildLayout;
+import jakarta.servlet.http.Cookie;
 
 /**
  * @author VISTALL
@@ -44,10 +46,24 @@ public class SimpleAppLayout extends AppLayout implements AfterNavigationObserve
     }
 
     protected void handleDarkTheme() {
-        getUI().ifPresent(ui -> ui.getPage().executeJs("return window.matchMedia('(prefers-color-scheme: dark)').matches;").then(Boolean.class, isDark -> {
-            ui.getElement().getThemeList().add(Lumo.DARK);
+        boolean isDark = false;
+        VaadinRequest request = VaadinRequest.getCurrent();
+        if (request != null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("darkTheme".equals(cookie.getName())) {
+                        isDark = Boolean.parseBoolean(cookie.getValue());
+                        break;
+                    }
+                }
+            }
+        }
 
-            ThemeUtil.notifyUpdate();
-        }));
+        if (isDark) {
+            getUI().ifPresent(ui -> ui.getElement().getThemeList().add(Lumo.DARK));
+        }
+
+        ThemeUtil.notifyUpdate();
     }
 }
