@@ -6,22 +6,23 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
 import consulo.app.plugins.frontend.sitemap.SitemapCacheService;
-import consulo.procoeton.core.vaadin.SimpleAppLayout;
+import consulo.procoeton.core.vaadin.NoMenuAppLayout;
 import consulo.procoeton.core.vaadin.ThemeChangeNotifier;
 import consulo.procoeton.core.vaadin.ThemeUtil;
+import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import jakarta.annotation.security.PermitAll;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -31,14 +32,14 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  */
 @PermitAll
 @PreserveOnRefresh
-public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNotifier {
+public class PluginsAppLayout extends NoMenuAppLayout implements ThemeChangeNotifier {
     public static final String APPLICATION_LD_JSON = "application/ld+json";
 
     private final ObjectMapper myObjectMapper;
     private final PluginsCacheService myPluginsCacheService;
     private final TagsLocalizeLoader myTagsLocalizeLoader;
     private final SitemapCacheService mySitemapCacheService;
-    private Div myThemeIconHolder;
+    private HorizontalLayout myThemeIconHolder;
 
     public PluginsAppLayout(ObjectMapper objectMapper,
                             PluginsCacheService pluginsCacheService,
@@ -49,15 +50,19 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
         myTagsLocalizeLoader = tagsLocalizeLoader;
         mySitemapCacheService = sitemapCacheService;
 
-        HorizontalLayout navigation = getNavigation();
+        HorizontalLayout topElement = new HorizontalLayout();
+        topElement.setWidthFull();
+        topElement.getStyle().setAlignItems(Style.AlignItems.BASELINE);
+        topElement.addClassNames(ProcoetonStyles.JustifyContent.CENTER, ProcoetonStyles.Padding.SMALL);
+        topElement.add(createLink(IndexView.class));
 
-        myThemeIconHolder = new Div();
-        myThemeIconHolder.getStyle().set("font-size", "var(--lumo-font-size-l)")
-            .set("right", "var(--lumo-space-l)")
-            .set("margin", "0")
-            .set("position", "absolute");
+        myThemeIconHolder = VaadinUIUtil.newHorizontalLayout();
 
-        addToNavbar(navigation, myThemeIconHolder);
+        topElement.add(myThemeIconHolder);
+
+        add(topElement);
+
+        setHeightFull();
     }
 
     @Override
@@ -120,7 +125,7 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
 
         SvgIcon icon = isDark ? LineAwesomeIcon.SUN.create() : LineAwesomeIcon.MOON.create();
         Button changeThemes = new Button(icon);
-        changeThemes.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        changeThemes.addThemeVariants(ButtonVariant.AURA_TERTIARY);
         changeThemes.addSingleClickListener(e -> {
             Page page = UI.getCurrent().getPage();
 
@@ -144,22 +149,9 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
         myThemeIconHolder.add(changeThemes);
     }
 
-    private HorizontalLayout getNavigation() {
-        HorizontalLayout navigation = new HorizontalLayout();
-        navigation.addClassNames(LumoUtility.JustifyContent.CENTER,
-            LumoUtility.Gap.SMALL, LumoUtility.Height.MEDIUM,
-            LumoUtility.Width.FULL);
-        navigation.add(createLink(IndexView.class));
-        return navigation;
-    }
-
     private RouterLink createLink(Class<? extends Component> viewClass) {
         RouterLink link = new RouterLink("Plugins Repository", viewClass);
-
-        link.addClassNames(LumoUtility.Display.FLEX,
-            LumoUtility.AlignItems.CENTER,
-            LumoUtility.Padding.Horizontal.MEDIUM,
-            LumoUtility.TextColor.SECONDARY, LumoUtility.FontWeight.MEDIUM);
+        link.addClassNames(ProcoetonStyles.FontSize.LARGE, ProcoetonStyles.FontWeight.BOLD);
         link.getStyle().set("text-decoration", "none");
 
         return link;

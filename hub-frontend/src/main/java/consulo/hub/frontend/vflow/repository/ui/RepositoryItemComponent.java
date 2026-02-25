@@ -35,6 +35,7 @@ import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.vaadin.util.Notifications;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 
@@ -68,7 +69,7 @@ public class RepositoryItemComponent extends VerticalLayout {
             || RepositoryUtil.isPlatformNode(pluginNode.id())) {
             HorizontalLayout tagsPanel = new HorizontalLayout();
             if (pluginNode.experimental()) {
-                tagsPanel.add(new Badge("EXPERIMENTAL", "error"));
+                tagsPanel.add(new Badge("EXPERIMENTAL", ProcoetonStyles.Badge.ERROR));
             }
 
             if (pluginNode.tags() != null) {
@@ -201,13 +202,13 @@ public class RepositoryItemComponent extends VerticalLayout {
                 Collections.sort(channels);
 
                 if (channels.size() == 1 && channels.get(0) == PluginChannel.nightly) {
-                    row.add(new Badge(PluginChannel.nightly.name(), "error"));
+                    row.add(new Badge(PluginChannel.nightly.name(), ProcoetonStyles.Badge.ERROR));
                 }
                 else {
                     for (PluginChannel channel : channels) {
                         String[] classes;
                         if (channel == PluginChannel.release) {
-                            classes = new String[]{"success"};
+                            classes = new String[]{ProcoetonStyles.Badge.SUCCESS};
                         }
                         else {
                             classes = new String[0];

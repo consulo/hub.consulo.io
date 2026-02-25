@@ -43,10 +43,14 @@ public class IndexView extends VChildLayout implements HasDynamicTitle {
         searchLayout.setJustifyContentMode(JustifyContentMode.CENTER);
         searchLayout.setWidthFull();
 
+        setPadding(false);
+        
         myWelcomePanel = new WelcomePluginsPanel(pluginsCacheService, featurePluginsService);
         mySearchPluginPanel = new SearchPluginPanel(pluginsCacheService);
 
         VerticalLayout holder = VaadinUIUtil.newVerticalLayout();
+        holder.setPadding(false);
+        holder.setMargin(false);
 
         TextField searchField = new TextField();
         searchField.setAutofocus(true);

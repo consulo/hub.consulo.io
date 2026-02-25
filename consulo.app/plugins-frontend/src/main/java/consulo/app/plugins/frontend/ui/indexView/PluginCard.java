@@ -6,11 +6,11 @@ import com.vaadin.flow.component.card.CardVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.router.RouteParameters;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.ui.PluginView;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.vaadin.ThemeChangeNotifier;
 import consulo.procoeton.core.vaadin.ThemeUtil;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URLEncoder;
@@ -42,7 +42,7 @@ public class PluginCard extends Card implements ClickNotifier<PluginCard>, Theme
         updateImage(ThemeUtil.isDark());
 
         Div title = new Div(node.name);
-        title.addClassName(LumoUtility.FontSize.XLARGE);
+        title.addClassName(ProcoetonStyles.FontSize.XLARGE);
         setTitle(title);
 
         if (!StringUtils.isBlank(node.vendor)) {

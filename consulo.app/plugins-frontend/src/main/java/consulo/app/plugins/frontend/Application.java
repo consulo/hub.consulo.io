@@ -34,9 +34,10 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @NpmPackage(value = "@fontsource/inter", version = "4.5.0")
 @NpmPackage(value = "@vaadin/polymer-legacy-adapter", version = "24.8.14")
 @StyleSheet(Aura.STYLESHEET)
-@CssImport("styles/styles.css")
-@CssImport("styles/scrollbar.css")
+@CssImport("./styles/styles.css")
+@CssImport("./styles/scrollbar.css")
 @CssImport("@fontsource/inter/index.css")
+@CssImport("./procoeton-ui.css")
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

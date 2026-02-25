@@ -1,6 +1,6 @@
 html {
-
 }
+
 
 .badge-unknown
 {
@@ -43,7 +43,7 @@ html {
 }
 
 .plugins-header-header-data > div {
-    border-bottom: 2px solid var(--lumo-contrast-20pct);
+    border-bottom: 2px solid var(--vaadin-border-color-secondary);
     width: 100%;
 }
 

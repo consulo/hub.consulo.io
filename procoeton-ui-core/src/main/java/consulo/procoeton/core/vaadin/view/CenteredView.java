@@ -4,8 +4,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import jakarta.annotation.Nullable;
 
 /**
@@ -21,7 +21,7 @@ public abstract class CenteredView extends VChildLayout
 		myCenterLayout.setPadding(false);
 		myCenterLayout.setMargin(false);
 		myCenterLayout.setWidth("var(--_vaadin-app-layout-drawer-offset-size)");
-		myCenterLayout.addClassName(LumoUtility.Margin.AUTO);
+		myCenterLayout.addClassName(ProcoetonStyles.Margin.AUTO);
 		add(myCenterLayout);
 		setJustifyContentMode(JustifyContentMode.CENTER);
 		setHorizontalComponentAlignment(Alignment.CENTER, myCenterLayout);
