@@ -41,6 +41,7 @@ import consulo.ui.ex.IconDeferrer;
 import consulo.util.collection.Maps;
 import consulo.util.collection.primitive.ints.IntMaps;
 import consulo.util.collection.trove.impl.TroveCollectionFactory;
+import consulo.util.concurrent.coroutine.CoroutineContextOwner;
 import consulo.util.dataholder.UserDataHolder;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.nodep.ArrayUtilRt;
@@ -140,6 +141,8 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(LocalizeKey.class);
         // project api
         myPlatformClassGroup.requireClass(ProjectManager.class);
+        // coroutine util
+        myPlatformClassGroup.requireClass(CoroutineContextOwner.class);
         // language api
         myPlatformClassGroup.requireClass(LanguageFileType.class);
         // language editor api
