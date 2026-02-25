@@ -7,7 +7,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.dom.Element;
@@ -47,14 +46,8 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
         myPluginsCacheService = pluginsCacheService;
         myTagsLocalizeLoader = tagsLocalizeLoader;
         mySitemapCacheService = sitemapCacheService;
-        H1 title = new H1("plugins.consulo.app");
-        title.getStyle().set("font-size", "var(--lumo-font-size-l)")
-            .set("left", "var(--lumo-space-l)")
-            .set("margin", "0")
-            .set("position", "absolute");
 
         HorizontalLayout navigation = getNavigation();
-        navigation.getElement();
 
         myThemeIconHolder = new Div();
         myThemeIconHolder.getStyle().set("font-size", "var(--lumo-font-size-l)")
@@ -62,7 +55,7 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
             .set("margin", "0")
             .set("position", "absolute");
 
-        addToNavbar(title, navigation, myThemeIconHolder);
+        addToNavbar(navigation, myThemeIconHolder);
     }
 
     @Override
@@ -159,7 +152,7 @@ public class PluginsAppLayout extends SimpleAppLayout implements ThemeChangeNoti
     }
 
     private RouterLink createLink(Class<? extends Component> viewClass) {
-        RouterLink link = new RouterLink("Home", viewClass);
+        RouterLink link = new RouterLink("Plugins Repository", viewClass);
 
         link.addClassNames(LumoUtility.Display.FLEX,
             LumoUtility.AlignItems.CENTER,
