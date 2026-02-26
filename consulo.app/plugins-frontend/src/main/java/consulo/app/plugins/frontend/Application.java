@@ -32,7 +32,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @Push(PushMode.MANUAL)
 @NpmPackage(value = "@vaadin/polymer-legacy-adapter", version = "24.8.14")
 @StyleSheet(Aura.STYLESHEET)
-@CssImport("./plugins-app.css")
+@CssImport("./css/plugins-app.css")
 @CssImport("./scrollbar.css")
 @CssImport("./procoeton-ui.css")
 public class Application implements AppShellConfigurator {
