@@ -8,7 +8,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendErrorReporterService;
 import consulo.hub.frontend.vflow.base.MainLayout;
 import consulo.hub.shared.auth.SecurityUtil;
@@ -18,6 +17,7 @@ import consulo.hub.shared.errorReporter.domain.ErrorReportStatus;
 import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.security.PermitAll;
@@ -77,7 +77,7 @@ public class DashboardView extends ServerOfflineVChildLayout {
             VerticalLayout lineLayout = VaadinUIUtil.newVerticalLayout();
 
             Span label = new Span(StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));
-            label.addClassName(LumoUtility.FontWeight.BOLD);
+            label.addClassName(ProcoetonStyles.FontWeight.BOLD);
             lineLayout.add(label);
             //lineLayout.addStyleName("errorViewLineLayout");
             //lineLayout.addStyleName("errorViewLineLayout" + StringUtil.capitalize(reporterStatus.name().toLowerCase(Locale.US)));

@@ -2,6 +2,7 @@ package consulo.hub.backend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import consulo.hub.backend.github.release.GithubReleaseService;
 import consulo.hub.backend.github.release.impl.GithubReleaseServiceImpl;
 import consulo.hub.backend.impl.AsyncTempFileServiceImpl;
@@ -9,9 +10,7 @@ import consulo.hub.backend.impl.WorkDirectoryServiceImpl;
 import consulo.hub.backend.repository.analyzer.PluginAnalyzerRunnerFactory;
 import consulo.hub.backend.repository.analyzer.externalProcess.ExternalProcessPluginAnalyzerRunnerFactory;
 import consulo.hub.backend.repository.impl.store.neww.NewRepositoryChannelsService;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.MultipartConfigElement;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +27,13 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
  */
 @Configuration
 public class BackendConfiguration {
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.registerModule(new JavaTimeModule());
+        return objectMapper;
+    }
 
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
@@ -71,10 +75,5 @@ public class BackendConfiguration {
     @Bean
     public PluginAnalyzerRunnerFactory pluginAnalyzerRunnerFactory(ObjectMapper objectMapper, TempFileService tempFileService) {
         return new ExternalProcessPluginAnalyzerRunnerFactory(objectMapper, tempFileService);
-    }
-
-    @PostConstruct
-    public void setup() {
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 }

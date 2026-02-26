@@ -24,7 +24,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginChannel;
@@ -101,13 +100,13 @@ public class RepositoryItemComponent extends VerticalLayout {
 
         if (!StringUtils.isEmpty(pluginNode.description())) {
             Html descriptiopnLabel = new Html("<div>" + pluginNode.description() + "</div>");
-            descriptiopnLabel.addClassName(LumoUtility.FontSize.XSMALL);
-            descriptiopnLabel.addClassName(LumoUtility.Width.FULL);
+            descriptiopnLabel.addClassName(ProcoetonStyles.FontSize.XSMALL);
+            descriptiopnLabel.addClassName(ProcoetonStyles.Width.FULL);
             //descriptiopnLabel.addClassName(LumoUtility.Padding.SMALL);
             //descriptiopnLabel.addClassName(LumoUtility.Border.ALL);
             //descriptiopnLabel.addClassName(LumoUtility.BorderRadius.SMALL);
             //descriptiopnLabel.addClassName(LumoUtility.BorderColor.CONTRAST_10);
-            descriptiopnLabel.addClassName(LumoUtility.Background.CONTRAST_20);
+            //descriptiopnLabel.addClassName(ProcoetonStyles.Background.CONTRAST_20);
 
             add(descriptiopnLabel);
         }
@@ -231,7 +230,7 @@ public class RepositoryItemComponent extends VerticalLayout {
 
                     UI.getCurrent().getPage().open(builder.toString(), "");
                 });
-                downloadButton.addClassName(LumoUtility.Margin.Left.AUTO);
+                downloadButton.addClassName(ProcoetonStyles.Margin.Left.AUTO);
                 row.add(downloadButton);
                 row.setAlignSelf(Alignment.END, downloadButton);
 

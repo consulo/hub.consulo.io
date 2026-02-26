@@ -11,11 +11,7 @@ public class Badge extends Span {
     public Badge(String text, String... classes) {
         super(text);
 
-        if (classes.length > 0) {
-            addClassNames(classes);
-        }
-        else {
-            addClassName(ProcoetonStyles.Badge.BASE);
-        }
+        addClassName(ProcoetonStyles.Badge.BASE);
+        addClassNames(classes);
     }
 }

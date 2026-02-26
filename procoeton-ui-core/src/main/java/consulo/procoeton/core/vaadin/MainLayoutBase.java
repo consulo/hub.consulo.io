@@ -15,16 +15,17 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.service.LogoutService;
 import consulo.procoeton.core.service.UserService;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import consulo.procoeton.core.vaadin.view.login.LoginView;
 
 import java.util.Optional;
@@ -65,7 +66,7 @@ public abstract class MainLayoutBase extends SimpleAppLayout {
         toggle.getElement().setAttribute("aria-label", "Menu toggle");
 
         myViewTitle = new H2();
-        myViewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        myViewTitle.addClassNames(ProcoetonStyles.FontSize.LARGE, ProcoetonStyles.Margin.NONE);
 
         myCustomizedTopLayout = new HorizontalLayout();
         myTopLayout = new HorizontalLayout(myViewTitle, myCustomizedTopLayout);
@@ -73,8 +74,8 @@ public abstract class MainLayoutBase extends SimpleAppLayout {
         myTopLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         myTopLayout.setAlignSelf(FlexComponent.Alignment.END, myCustomizedTopLayout);
-        myCustomizedTopLayout.addClassName(LumoUtility.Margin.Left.AUTO);
-        myCustomizedTopLayout.addClassName(LumoUtility.Margin.Right.MEDIUM);
+        myCustomizedTopLayout.addClassName(ProcoetonStyles.Margin.Left.AUTO);
+        myCustomizedTopLayout.addClassName(ProcoetonStyles.Margin.Right.MEDIUM);
 
         addToNavbar(true, toggle, myTopLayout);
     }
@@ -83,13 +84,10 @@ public abstract class MainLayoutBase extends SimpleAppLayout {
 
     private void addDrawerContent() {
         H1 appName = new H1(getHeaderText());
-        appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.AUTO);
 
-        HorizontalLayout layout = new HorizontalLayout(appName);
-        layout.setWidthFull();
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        Header header = new Header(layout);
+        Header header = new Header(appName);
+        header.getStyle().setAlignSelf(Style.AlignSelf.CENTER);
+        header.getStyle().setMargin("1.1em");
 
         Scroller scroller = new Scroller(myAppNav);
 

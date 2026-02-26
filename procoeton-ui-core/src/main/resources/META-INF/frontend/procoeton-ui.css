@@ -318,7 +318,7 @@
 .procoeton-ui-border-color-transparent { border-color: transparent !important; }
 
 .procoeton-ui-border-color-base {
-  border-color: var(--aura-contrast-10pct, var(--lumo-contrast-10pct, rgba(0,0,0,0.12))) !important;
+  border-color: var(--aura-contrast-10pct, var(--vaadin-border-color, rgba(0,0,0,0.12))) !important;
 }
 
 .procoeton-ui-border-color-contrast {
@@ -367,10 +367,10 @@
   --procoeton-ui-badge-font-size: var(--procoeton-ui-font-size-s, 0.875rem);
   --procoeton-ui-badge-font-size-small: var(--procoeton-ui-font-size-xs, 0.8125rem);
 
-  --procoeton-ui-badge-border: var(--vaadin-border-color, var(--aura-contrast-10pct, rgba(0,0,0,0.12)));
+  --procoeton-ui-badge-border: var(--vaadin-border-color);
 
   --procoeton-ui-color-text: var(--vaadin-text-color, var(--aura-neutral, #1f2937));
-  --procoeton-ui-color-contrast: var(--vaadin-text-color, var(--aura-neutral, #111827));
+  --procoeton-ui-color-contrast: var(--vaadin-border-color);
 
   --procoeton-ui-color-primary: var(--vaadin-primary-color, #2563eb);
   --procoeton-ui-color-success: var(--vaadin-success-color, #16a34a);

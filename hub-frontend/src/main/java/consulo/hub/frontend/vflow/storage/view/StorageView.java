@@ -10,7 +10,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendStorageService;
 import consulo.hub.frontend.vflow.base.MainLayout;
 import consulo.hub.shared.base.InformationBean;
@@ -20,6 +19,7 @@ import consulo.procoeton.core.util.AuthUtil;
 import consulo.procoeton.core.vaadin.ui.LabeledLayout;
 import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.TinyComponents;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import consulo.util.io.StreamUtil;
 import consulo.util.io.UnsyncByteArrayInputStream;
 import consulo.util.lang.ExceptionUtil;
@@ -88,7 +88,7 @@ public class StorageView extends ServerOfflineVChildLayout {
         HorizontalLayout panel = new HorizontalLayout();
 
         VerticalLayout rightLayout = new VerticalLayout();
-        rightLayout.addClassName(LumoUtility.Overflow.AUTO);
+        rightLayout.addClassName(ProcoetonStyles.Overflow.AUTO);
         rightLayout.setSpacing(false);
         rightLayout.setSizeFull();
 

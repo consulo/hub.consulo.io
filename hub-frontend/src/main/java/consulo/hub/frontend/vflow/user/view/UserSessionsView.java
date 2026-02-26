@@ -8,7 +8,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendUserAccountService;
 import consulo.hub.frontend.vflow.base.MainLayout;
 import consulo.hub.shared.auth.HubClaimNames;
@@ -17,6 +16,7 @@ import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.hub.shared.auth.oauth2.domain.SessionInfo;
 import consulo.procoeton.core.vaadin.ui.ServerOfflineVChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
@@ -64,7 +64,7 @@ public class UserSessionsView extends ServerOfflineVChildLayout {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         layout.setWidthFull();
-        layout.addClassNames(LumoUtility.Border.ALL, LumoUtility.BorderRadius.MEDIUM, LumoUtility.BorderColor.CONTRAST_10);
+        layout.addClassNames(ProcoetonStyles.Border.SOLID, ProcoetonStyles.BorderRadius.MEDIUM, ProcoetonStyles.BorderColor.BASE);
 
         Map<String, Object> additionalInfo = token.getAdditionalInfo();
         if (additionalInfo == null) {
