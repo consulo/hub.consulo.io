@@ -11,7 +11,7 @@
         <consulo.version>3-SNAPSHOT</consulo.version>
         <spring.boot.version>4.0.1</spring.boot.version>
         <spring.version>7.0.2</spring.version>
-        <vaadin.version>25.0.0</vaadin.version>
+        <vaadin.version>25.0.6</vaadin.version>
         <vaadin.flow.version>${vaadin.version}</vaadin.flow.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
     </properties>

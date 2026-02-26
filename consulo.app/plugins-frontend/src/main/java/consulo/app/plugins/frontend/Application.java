@@ -25,18 +25,15 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 @EnableScheduling
 @EnableWebSocket
 @SpringBootApplication(exclude = {
-    //DataSourceAutoConfiguration.class,
     UserDetailsServiceAutoConfiguration.class
 })
 @EnableVaadin({"consulo.app.plugins.frontend", "consulo.procoeton.core"})
 @ComponentScan(basePackageClasses = {ProCore.class, Application.class}, basePackages = "consulo.app.plugins.frontend")
 @Push(PushMode.MANUAL)
-@NpmPackage(value = "@fontsource/inter", version = "4.5.0")
 @NpmPackage(value = "@vaadin/polymer-legacy-adapter", version = "24.8.14")
 @StyleSheet(Aura.STYLESHEET)
-@CssImport("./styles/styles.css")
-@CssImport("./styles/scrollbar.css")
-@CssImport("@fontsource/inter/index.css")
+@CssImport("./plugins-app.css")
+@CssImport("./scrollbar.css")
 @CssImport("./procoeton-ui.css")
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
