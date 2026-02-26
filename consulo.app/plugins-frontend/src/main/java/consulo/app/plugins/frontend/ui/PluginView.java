@@ -17,8 +17,6 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
@@ -32,6 +30,8 @@ import consulo.procoeton.core.vaadin.ThemeUtil;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
+import jakarta.annotation.security.PermitAll;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -43,7 +43,7 @@ import java.util.Optional;
  * @since 2025-05-11
  */
 @Route(value = "/v/:pluginId/:pluginName?", layout = PluginsAppLayout.class)
-@AnonymousAllowed
+@PermitAll
 @JavaScript("./consuloConnector.js")
 public class PluginView extends VChildLayout implements ThemeChangeNotifier, HasDynamicTitle {
     public static final String PLUGIN_ID = "pluginId";
@@ -73,25 +73,23 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
         myContentLayout = VaadinUIUtil.newVerticalLayout();
         myContentLayout.setMaxWidth(PluginCard.MAX_WIDTH * PluginCard.MAX_COLUMNS + PluginCard.EXTRA_GAP, Unit.EM);
+        myContentLayout.setHeightFull();
         myContentLayout.getStyle().setAlignSelf(Style.AlignSelf.CENTER);
-        myContentLayout.addClassNames(LumoUtility.Border.ALL,
-            LumoUtility.BorderRadius.LARGE,
-            LumoUtility.BorderColor.CONTRAST_10,
-            LumoUtility.Padding.LARGE
-        );
+        myContentLayout.addClassNames(ProcoetonStyles.Padding.LARGE);
 
         add(myContentLayout);
 
         myHeaderLayout = new HorizontalLayout();
         myNameSpan = new H1();
         myVendorSpan = new Span();
-        myVendorSpan.addClassName(LumoUtility.TextColor.SECONDARY);
+        myVendorSpan.addClassName(ProcoetonStyles.TextColor.SECONDARY);
 
         myDescriptionLayout = new HorizontalLayout();
-        myDescriptionLayout.addClassNames(LumoUtility.Margin.Top.LARGE, LumoUtility.Margin.Bottom.LARGE);
+        myDescriptionLayout.addClassNames(ProcoetonStyles.Margin.Top.LARGE, ProcoetonStyles.Margin.Bottom.LARGE);
         myDescriptionLayout.setWidthFull();
 
         myFooterLayout = new HorizontalLayout();
+        myFooterLayout.addClassNames(ProcoetonStyles.Padding.Top.MEDIUM, ProcoetonStyles.Padding.Bottom.MEDIUM);
         myFooterLayout.setWidthFull();
 
         Div imageHolder = new Div();
@@ -103,7 +101,7 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
         imageHolder.add(myImage);
 
         VerticalLayout nameAndVendor = VaadinUIUtil.newVerticalLayout();
-        nameAndVendor.addClassName(LumoUtility.Padding.Left.LARGE);
+        nameAndVendor.addClassName(ProcoetonStyles.Padding.Left.LARGE);
         nameAndVendor.add(myNameSpan);
         nameAndVendor.add(myVendorSpan);
 
@@ -116,7 +114,7 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
         myHeaderLayout.add(myInstallOrDownloadButtonPanel);
 
         myInfoTabs = new TabSheet();
-        myInfoTabs.setWidthFull();
+        myInfoTabs.setSizeFull();
 
         myTagRowLayout = new HorizontalLayout();
 

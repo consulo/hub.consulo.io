@@ -14,9 +14,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.RouteParameters;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.errorReporter.domain.ErrorReport;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
@@ -55,7 +55,7 @@ public class ErrorReportComponent extends VerticalLayout {
         leftLayout.setSpacing(true);
         SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd HH:mm");
         Span label = new Span(format.format(new Date(errorReport.getCreateDate())));
-        label.addClassName(LumoUtility.Whitespace.NOWRAP);
+        label.getStyle().setWhiteSpace(Style.WhiteSpace.NOWRAP);
         leftLayout.add(label);
         leftLayout.add(new Span(StringUtil.shortenTextWithEllipsis(errorReport.getMessage(), 128, 3)));
 

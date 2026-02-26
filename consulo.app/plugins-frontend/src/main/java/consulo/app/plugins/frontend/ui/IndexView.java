@@ -11,7 +11,6 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import consulo.app.plugins.frontend.backend.FeaturePluginsService;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.app.plugins.frontend.service.TagsLocalizeLoader;
@@ -20,6 +19,7 @@ import consulo.app.plugins.frontend.ui.indexView.SearchPluginPanel;
 import consulo.app.plugins.frontend.ui.indexView.WelcomePluginsPanel;
 import consulo.procoeton.core.vaadin.ui.VChildLayout;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import jakarta.annotation.security.PermitAll;
 import org.apache.commons.lang3.StringUtils;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -28,7 +28,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @since 2025-05-10
  */
 @Route(value = "/", layout = PluginsAppLayout.class)
-@AnonymousAllowed
+@PermitAll
 public class IndexView extends VChildLayout implements HasDynamicTitle {
     private final TagsLocalizeLoader myTagsLocalizeLoader;
 
@@ -43,10 +43,14 @@ public class IndexView extends VChildLayout implements HasDynamicTitle {
         searchLayout.setJustifyContentMode(JustifyContentMode.CENTER);
         searchLayout.setWidthFull();
 
+        setPadding(false);
+        
         myWelcomePanel = new WelcomePluginsPanel(pluginsCacheService, featurePluginsService);
         mySearchPluginPanel = new SearchPluginPanel(pluginsCacheService);
 
         VerticalLayout holder = VaadinUIUtil.newVerticalLayout();
+        holder.setPadding(false);
+        holder.setMargin(false);
 
         TextField searchField = new TextField();
         searchField.setAutofocus(true);

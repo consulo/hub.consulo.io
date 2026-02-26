@@ -29,135 +29,119 @@ import java.util.*;
  * @since 22/08/2021
  */
 @RestController
-public class FrontendUserRestController
-{
-	private static final Logger LOG = LoggerFactory.getLogger(FrontendUserRestController.class);
+public class FrontendUserRestController {
+    private static final Logger LOG = LoggerFactory.getLogger(FrontendUserRestController.class);
 
-	@Autowired
-	private LocalAuthenticationProvider myLocalAuthenticationProvider;
+    @Autowired
+    private LocalAuthenticationProvider myLocalAuthenticationProvider;
 
-	@Autowired
-	private UserAccountService myUserAccountService;
+    @Autowired
+    private UserAccountService myUserAccountService;
 
-	@Autowired
-	private PasswordEncoder myPasswordEncoder;
+    @Autowired
+    private PasswordEncoder myPasswordEncoder;
 
-	@Autowired
-	private UserAccountAuthorizationRepository myUserAccountAuthorizationRepository;
+    @Autowired
+    private UserAccountAuthorizationRepository myUserAccountAuthorizationRepository;
 
-	@Autowired
-	private OAuth2AuthorizationService myOAuth2AuthorizationService;
+    @Autowired
+    private OAuth2AuthorizationService myOAuth2AuthorizationService;
 
-	@Autowired
-	private ObjectMapper myObjectMapper;
+    @Autowired
+    private ObjectMapper myObjectMapper;
 
-	@Autowired
-	private UserAccountRepository myUserAccountRepository;
+    @Autowired
+    private UserAccountRepository myUserAccountRepository;
 
-	@Autowired
-	private OAuthKeyRequestService myOAuthKeyRequestService;
+    @Autowired
+    private OAuthKeyRequestService myOAuthKeyRequestService;
 
-	@RequestMapping("/api/private/user/register")
-	public UserAccount registerUser(@RequestParam("email") String email, @RequestParam("password") String password, @AuthenticationPrincipal UserAccount hub)
-	{
-		UserAccount userAccount = myUserAccountService.registerUser(email, password);
-		return Objects.requireNonNull(userAccount, "null is not allowed");
-	}
+    @RequestMapping("/api/private/user/register")
+    public UserAccount registerUser(@RequestParam("email") String email,
+                                    @RequestParam("password") String password,
+                                    @AuthenticationPrincipal UserAccount hub) {
+        UserAccount userAccount = myUserAccountService.registerUser(email, password);
+        return Objects.requireNonNull(userAccount, "null is not allowed");
+    }
 
-	@RequestMapping("/api/private/user/list")
-	public List<UserAccount> listUsers(@AuthenticationPrincipal UserAccount adminUser)
-	{
-		return myUserAccountRepository.findAll();
-	}
+    @RequestMapping("/api/private/user/list")
+    public List<UserAccount> listUsers(@AuthenticationPrincipal UserAccount adminUser) {
+        return myUserAccountRepository.findAll();
+    }
 
-	@RequestMapping("/api/private/user/oauth/request")
-	public Map<String, String> requestKey(@RequestParam("userId") long userId, @RequestParam("token") String token, @RequestParam("hostName") String hostName)
-	{
-		myOAuthKeyRequestService.addRequest(userId, token, hostName);
-		return Map.of("token", token);
-	}
+    @RequestMapping("/api/private/user/oauth/request")
+    public Map<String, String> requestKey(@RequestParam("userId") long userId, @RequestParam("token") String token, @RequestParam("hostName") String hostName) {
+        myOAuthKeyRequestService.addRequest(userId, token, hostName);
+        return Map.of("token", token);
+    }
 
-	@RequestMapping("/api/private/user/changePassword")
-	public UserAccount userChangePassword(@RequestParam("userId") long userId, @RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword)
-	{
-		return myUserAccountService.changePassword(userId, oldPassword, newPassword);
-	}
+    @RequestMapping("/api/private/user/changePassword")
+    public UserAccount userChangePassword(@RequestParam("userId") long userId, @RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword) {
+        return myUserAccountService.changePassword(userId, oldPassword, newPassword);
+    }
 
-	@RequestMapping("/api/private/user/oauth/list")
-	public List<SessionInfo> userOAuthKeys(@AuthenticationPrincipal UserAccount account)
-	{
-		List<UserAccountAuthorization> tokens = myUserAccountAuthorizationRepository.findAllByRegisteredClientId(String.valueOf(account.getId()));
+    @RequestMapping("/api/private/user/oauth/list")
+    public List<SessionInfo> userOAuthKeys(@AuthenticationPrincipal UserAccount account) {
+        List<UserAccountAuthorization> tokens = myUserAccountAuthorizationRepository.findAllByRegisteredClientId(String.valueOf(account.getId()));
 
-		List<SessionInfo> list = new ArrayList<>(tokens.size());
-		for(UserAccountAuthorization token : tokens)
-		{
-			SessionInfo tokenInfo = mapToInfo(token);
-			if(tokenInfo != null)
-			{
-				list.add(tokenInfo);
-			}
-		}
+        List<SessionInfo> list = new ArrayList<>(tokens.size());
+        for (UserAccountAuthorization token : tokens) {
+            SessionInfo tokenInfo = mapToInfo(token);
+            if (tokenInfo != null) {
+                list.add(tokenInfo);
+            }
+        }
 
-		return list;
-	}
+        return list;
+    }
 
-	private SessionInfo mapToInfo(UserAccountAuthorization authInfo)
-	{
-		OAuth2Authorization authorization = ((JpaOAuth2AuthorizationService) myOAuth2AuthorizationService).toObject(authInfo);
+    private SessionInfo mapToInfo(UserAccountAuthorization authInfo) {
+        OAuth2Authorization authorization = ((JpaOAuth2AuthorizationService) myOAuth2AuthorizationService).toObject(authInfo);
 
-		OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getAccessToken();
-		if(accessToken == null)
-		{
-			return null;
-		}
+        OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getAccessToken();
+        if (accessToken == null) {
+            return null;
+        }
 
-		Map<String, Object> claims = accessToken.getClaims();
-		return new SessionInfo(authInfo.getId(), claims);
-	}
+        Map<String, Object> claims = accessToken.getClaims();
+        return new SessionInfo(authInfo.getId(), claims);
+    }
 
-	@RequestMapping("/api/private/user/oauth/revoke/id")
-	public SessionInfo userOAuthKeyRevokeId(@RequestParam("tokenId") String tokenId, @AuthenticationPrincipal UserAccount account)
-	{
-		Optional<UserAccountAuthorization> optional = myUserAccountAuthorizationRepository.findById(tokenId);
-		if(optional.isPresent())
-		{
-			UserAccountAuthorization authorization = optional.get();
+    @RequestMapping("/api/private/user/oauth/revoke/id")
+    public SessionInfo userOAuthKeyRevokeId(@RequestParam("tokenId") String tokenId, @AuthenticationPrincipal UserAccount account) {
+        Optional<UserAccountAuthorization> optional = myUserAccountAuthorizationRepository.findById(tokenId);
+        if (optional.isPresent()) {
+            UserAccountAuthorization authorization = optional.get();
 
-			if(!Objects.equals(authorization.getPrincipalName(), account.getUsername()))
-			{
-				throw new IllegalArgumentException("Wrong user %s for token %s - expected %s".formatted(authorization.getPrincipalName(), tokenId, account.getUsername()));
-			}
+            if (!Objects.equals(authorization.getPrincipalName(), account.getUsername())) {
+                throw new IllegalArgumentException("Wrong user %s for token %s - expected %s".formatted(authorization.getPrincipalName(), tokenId, account.getUsername()));
+            }
 
-			myUserAccountAuthorizationRepository.deleteById(tokenId);
+            myUserAccountAuthorizationRepository.deleteById(tokenId);
 
-			return mapToInfo(authorization);
-		}
-		else
-		{
-			throw new IllegalArgumentException("Can't find token: %s, userID: %d".formatted(tokenId, account.getId()));
-		}
-	}
+            return mapToInfo(authorization);
+        }
+        else {
+            throw new IllegalArgumentException("Can't find token: %s, userID: %d".formatted(tokenId, account.getId()));
+        }
+    }
 
-	@RequestMapping("/api/private/user/oauth/revoke/token")
-	public SessionInfo userOAuthKeyRevokeToken(@RequestParam("token") String token, @AuthenticationPrincipal UserAccount account)
-	{
-		Optional<UserAccountAuthorization> optional = myUserAccountAuthorizationRepository.findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValue(token);
-		if(optional.isPresent())
-		{
-			UserAccountAuthorization authorization = optional.get();
+    @RequestMapping("/api/private/user/oauth/revoke/token")
+    public SessionInfo userOAuthKeyRevokeToken(@RequestParam("token") String token, @AuthenticationPrincipal UserAccount account) {
+        Optional<UserAccountAuthorization> optional = myUserAccountAuthorizationRepository.findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValue(token);
+        if (optional.isPresent()) {
+            UserAccountAuthorization authorization = optional.get();
 
-			if(!Objects.equals(authorization.getPrincipalName(), account.getUsername()))
-			{
-				throw new IllegalArgumentException("Wrong user %s for token %s - expected %s".formatted(authorization.getPrincipalName(), token, account.getUsername()));
-			}
+            if (!Objects.equals(authorization.getPrincipalName(), account.getUsername())) {
+                throw new IllegalArgumentException("Wrong user %s for token %s - expected %s".formatted(authorization.getPrincipalName(), token, account.getUsername()));
+            }
 
-			myUserAccountAuthorizationRepository.delete(authorization);
+            myUserAccountAuthorizationRepository.delete(authorization);
 
-			return mapToInfo(authorization);
-		}
-		else
-		{
-			throw new IllegalArgumentException("Can't find token: %s, userID: %d".formatted(token, account.getId()));
-		}
-	}
+            return mapToInfo(authorization);
+        }
+        else {
+            throw new IllegalArgumentException("Can't find token: %s, userID: %d".formatted(token, account.getId()));
+        }
+    }
 }

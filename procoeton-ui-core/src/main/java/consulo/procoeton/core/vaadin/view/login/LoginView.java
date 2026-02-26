@@ -16,7 +16,6 @@ import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WebBrowser;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.shared.auth.HubClaimNames;
 import consulo.hub.shared.auth.domain.UserAccount;
 import consulo.procoeton.core.OAuth2InfoService;
@@ -28,6 +27,7 @@ import consulo.procoeton.core.backend.BackendRequestFactory;
 import consulo.procoeton.core.vaadin.captcha.Captcha;
 import consulo.procoeton.core.vaadin.captcha.CaptchaFactory;
 import consulo.procoeton.core.vaadin.util.Notifications;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import consulo.procoeton.core.vaadin.view.CenteredView;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -125,7 +125,7 @@ public class LoginView extends CenteredView implements BeforeEnterObserver {
         layout.add(loginButton);
 
         Anchor registeAnchor = new Anchor("/register", "Register");
-        registeAnchor.addClassName(LumoUtility.Margin.AUTO);
+        registeAnchor.addClassName(ProcoetonStyles.Margin.AUTO);
         layout.add(registeAnchor);
     }
 
@@ -135,10 +135,10 @@ public class LoginView extends CenteredView implements BeforeEnterObserver {
         newRequest.parameter(HubClaimNames.CLIENT_NAME, application);
         newRequest.parameter(HubClaimNames.SUB_CLIENT_NAME, myAuth2InfoService.getClientName());
 
+        newRequest.header("Content-Type", "application/x-www-form-urlencoded");
         newRequest.authorizationHeader("Basic " + Base64.getEncoder().encodeToString((request.getEmail() + ":" + request.getPassword()).getBytes(StandardCharsets.UTF_8)));
 
-        newRequest.execute(ui, (uu, token) ->
-        {
+        newRequest.execute(ui, (uu, token) -> {
             if (token == null) {
                 throw new BadCredentialsException("");
             }

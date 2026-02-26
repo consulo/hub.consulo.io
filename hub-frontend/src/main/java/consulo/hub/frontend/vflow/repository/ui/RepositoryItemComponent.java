@@ -24,7 +24,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.shared.repository.FrontPluginNode;
 import consulo.hub.shared.repository.PluginChannel;
@@ -35,6 +34,7 @@ import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.vaadin.util.Notifications;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 
@@ -68,7 +68,7 @@ public class RepositoryItemComponent extends VerticalLayout {
             || RepositoryUtil.isPlatformNode(pluginNode.id())) {
             HorizontalLayout tagsPanel = new HorizontalLayout();
             if (pluginNode.experimental()) {
-                tagsPanel.add(new Badge("EXPERIMENTAL", "error"));
+                tagsPanel.add(new Badge("EXPERIMENTAL", ProcoetonStyles.Badge.ERROR));
             }
 
             if (pluginNode.tags() != null) {
@@ -100,13 +100,13 @@ public class RepositoryItemComponent extends VerticalLayout {
 
         if (!StringUtils.isEmpty(pluginNode.description())) {
             Html descriptiopnLabel = new Html("<div>" + pluginNode.description() + "</div>");
-            descriptiopnLabel.addClassName(LumoUtility.FontSize.XSMALL);
-            descriptiopnLabel.addClassName(LumoUtility.Width.FULL);
+            descriptiopnLabel.addClassName(ProcoetonStyles.FontSize.XSMALL);
+            descriptiopnLabel.addClassName(ProcoetonStyles.Width.FULL);
             //descriptiopnLabel.addClassName(LumoUtility.Padding.SMALL);
             //descriptiopnLabel.addClassName(LumoUtility.Border.ALL);
             //descriptiopnLabel.addClassName(LumoUtility.BorderRadius.SMALL);
             //descriptiopnLabel.addClassName(LumoUtility.BorderColor.CONTRAST_10);
-            descriptiopnLabel.addClassName(LumoUtility.Background.CONTRAST_20);
+            //descriptiopnLabel.addClassName(ProcoetonStyles.Background.CONTRAST_20);
 
             add(descriptiopnLabel);
         }
@@ -201,13 +201,13 @@ public class RepositoryItemComponent extends VerticalLayout {
                 Collections.sort(channels);
 
                 if (channels.size() == 1 && channels.get(0) == PluginChannel.nightly) {
-                    row.add(new Badge(PluginChannel.nightly.name(), "error"));
+                    row.add(new Badge(PluginChannel.nightly.name(), ProcoetonStyles.Badge.ERROR));
                 }
                 else {
                     for (PluginChannel channel : channels) {
                         String[] classes;
                         if (channel == PluginChannel.release) {
-                            classes = new String[]{"success"};
+                            classes = new String[]{ProcoetonStyles.Badge.SUCCESS};
                         }
                         else {
                             classes = new String[0];
@@ -230,7 +230,7 @@ public class RepositoryItemComponent extends VerticalLayout {
 
                     UI.getCurrent().getPage().open(builder.toString(), "");
                 });
-                downloadButton.addClassName(LumoUtility.Margin.Left.AUTO);
+                downloadButton.addClassName(ProcoetonStyles.Margin.Left.AUTO);
                 row.add(downloadButton);
                 row.setAlignSelf(Alignment.END, downloadButton);
 

@@ -1,6 +1,0 @@
-@import "../scrollbar.css";
-
-[part='drawer']
-{
-	width: 20em;
-}

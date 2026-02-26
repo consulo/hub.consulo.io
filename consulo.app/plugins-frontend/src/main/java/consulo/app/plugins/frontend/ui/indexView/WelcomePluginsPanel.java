@@ -6,12 +6,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.app.plugins.frontend.backend.FeaturePluginsService;
 import consulo.app.plugins.frontend.backend.PluginsCache;
 import consulo.app.plugins.frontend.backend.PluginsCacheService;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 
 import java.util.List;
 
@@ -73,11 +73,11 @@ public class WelcomePluginsPanel extends PluginsPanel {
         holder.add(left);
 
         Span header = new Span(str);
-        header.addClassNames(LumoUtility.Margin.LARGE,
-            LumoUtility.Padding.MEDIUM,
-            LumoUtility.TextColor.SECONDARY,
-            LumoUtility.FontSize.MEDIUM,
-            LumoUtility.FontWeight.SEMIBOLD
+        header.addClassNames(ProcoetonStyles.Margin.LARGE,
+            ProcoetonStyles.Padding.MEDIUM,
+            ProcoetonStyles.TextColor.SECONDARY,
+            ProcoetonStyles.FontSize.MEDIUM,
+            ProcoetonStyles.FontWeight.SEMIBOLD
         );
         holder.add(header);
         holder.setWidthFull();

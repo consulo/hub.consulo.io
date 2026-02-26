@@ -9,9 +9,9 @@
 
     <properties>
         <consulo.version>3-SNAPSHOT</consulo.version>
-        <spring.boot.version>3.4.5</spring.boot.version>
-        <spring.version>6.2.6</spring.version>
-        <vaadin.version>24.7.3</vaadin.version>
+        <spring.boot.version>4.0.1</spring.boot.version>
+        <spring.version>7.0.2</spring.version>
+        <vaadin.version>25.0.6</vaadin.version>
         <vaadin.flow.version>${vaadin.version}</vaadin.flow.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
     </properties>
@@ -73,13 +73,13 @@
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
-                <version>6.0.0</version>
+                <version>6.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.19.0</version>
+                <version>2.20</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

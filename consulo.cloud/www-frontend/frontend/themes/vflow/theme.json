@@ -1,9 +1,0 @@
-{
-  "lumoImports" : [ "typography", "color", "spacing", "badge", "utility" ],
-  "assets" : {
-    "@fontsource/inter" : {
-      "*.css" : "@fontsource/inter",
-      "files/*" : "@fontsource/inter/files"
-    }
-  }
-}

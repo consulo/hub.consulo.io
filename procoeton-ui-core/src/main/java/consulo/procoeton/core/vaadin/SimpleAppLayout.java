@@ -3,9 +3,9 @@ package consulo.procoeton.core.vaadin;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.theme.lumo.Lumo;
 import consulo.procoeton.core.vaadin.ui.ChildLayout;
 import jakarta.servlet.http.Cookie;
 
@@ -15,11 +15,6 @@ import jakarta.servlet.http.Cookie;
  */
 @PreserveOnRefresh
 public class SimpleAppLayout extends AppLayout implements AfterNavigationObserver, BeforeEnterObserver {
-    @Override
-    protected void afterNavigation() {
-        super.afterNavigation();
-    }
-
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
     }
@@ -50,7 +45,7 @@ public class SimpleAppLayout extends AppLayout implements AfterNavigationObserve
 
         getUI().ifPresent(ui -> {
             if (darkTheme) {
-                ui.getElement().getThemeList().add(Lumo.DARK);
+                ui.getPage().setColorScheme(ColorScheme.Value.DARK);
             }
             ui.getPage().executeJs("document.documentElement.classList.remove('dark-loading')");
         });

@@ -13,7 +13,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import consulo.hub.frontend.vflow.backend.service.BackendPluginStatisticsService;
 import consulo.hub.frontend.vflow.backend.service.BackendRepositoryService;
 import consulo.hub.frontend.vflow.repository.view.RepositoryView;
@@ -22,6 +21,7 @@ import consulo.hub.shared.repository.util.RepositoryUtil;
 import consulo.procoeton.core.backend.BackendServiceDownException;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
 import consulo.procoeton.core.vaadin.util.Notifications;
+import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
 import consulo.procoeton.core.vaadin.util.RouterUtil;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
@@ -71,7 +71,7 @@ public class RepositoryChannelPanel extends HorizontalLayout {
         myHolder.setWidthFull();
 
         // we have own scrolling
-        myHolder.addClassName(LumoUtility.Overflow.AUTO);
+        myHolder.addClassName(ProcoetonStyles.Overflow.AUTO);
 
         add(myHolder);
         setFlexGrow(1f, myHolder);
