@@ -258,7 +258,7 @@ public class BackendSecurity {
             registry.requestMatchers("/**").denyAll();
         });
 
-        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(c -> c.ignoringRequestMatchers("/**"));
 
         return http.build();
     }
