@@ -88,6 +88,11 @@ public class PluginsCacheService {
 
     private PluginsCache load() {
         PluginNode[] pluginNodes = myBackendRepositoryService.listOldPlugins();
+        for (PluginNode pluginNode : pluginNodes) {
+            if (pluginNode.tags == null) {
+                pluginNode.tags = new String[0];
+            }
+        }
 
         List<PluginNode> sortByDownloads = new ArrayList<>(List.of(pluginNodes));
         sortByDownloads.removeIf(node -> RepositoryUtil.isPlatformNode(node.id));
