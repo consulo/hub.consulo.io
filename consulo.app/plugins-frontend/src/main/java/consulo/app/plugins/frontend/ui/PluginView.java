@@ -185,7 +185,18 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
                         continue;
                     }
 
-                    list.add(new ListItem(new RouterLink(depPlugin.name, PluginView.class, new RouteParameters(Map.of(PLUGIN_ID, dependency)))));
+                    HorizontalLayout layout = new HorizontalLayout();
+                    layout.setAlignItems(Alignment.CENTER);
+
+                    Image depIcon = new Image(getImageUrl(depPlugin, ThemeUtil.isDark()), depPlugin.name);
+                    depIcon.setWidth(1.5f, Unit.EM);
+                    depIcon.setHeight(1.5f, Unit.EM);
+
+                    RouterLink link = new RouterLink(depPlugin.name, PluginView.class, new RouteParameters(Map.of(PLUGIN_ID, dependency)));
+                    link.getStyle().setTextDecoration("none");
+
+                    layout.add(depIcon, link);
+                    list.add(new ListItem(layout));
                 }
             }
 
@@ -198,12 +209,15 @@ public class PluginView extends VChildLayout implements ThemeChangeNotifier, Has
 
                     HorizontalLayout layout = new HorizontalLayout();
                     layout.setAlignItems(Alignment.CENTER);
-                    layout.add(new Badge("optional"));
-                    layout.add(new RouterLink(depPlugin.name,
-                        PluginView.class,
-                        new RouteParameters(Map.of(PLUGIN_ID, dependency))
-                    ));
 
+                    Image depIcon = new Image(getImageUrl(depPlugin, ThemeUtil.isDark()), depPlugin.name);
+                    depIcon.setWidth(1.5f, Unit.EM);
+                    depIcon.setHeight(1.5f, Unit.EM);
+
+                    RouterLink link = new RouterLink(depPlugin.name, PluginView.class, new RouteParameters(Map.of(PLUGIN_ID, dependency)));
+                    link.getStyle().setTextDecoration("none");
+
+                    layout.add(depIcon, new Badge("optional"), link);
                     list.add(new ListItem(layout));
                 }
             }
