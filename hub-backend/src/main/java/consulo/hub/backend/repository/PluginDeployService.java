@@ -314,7 +314,7 @@ public class PluginDeployService {
         }
 
         pluginNode.dependencies = deps.stream().map(PluginId::getIdString).toArray(String[]::new);
-        //pluginNode.incompatibleWiths = Arrays.stream(pluginDescriptor.getIncompatibleWithPlugindIds()).map(PluginId::getIdString).toArray(String[]::new);
+        pluginNode.incompatibleWiths = Arrays.stream(pluginDescriptor.getIncompatibleWithPluginIds()).map(PluginId::getIdString).toArray(String[]::new);
 
         RepositoryChannelStore repositoryChannelStore = myRepositoryChannelsService.getRepositoryByChannel(channel);
 
