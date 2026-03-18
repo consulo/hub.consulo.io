@@ -34,15 +34,14 @@ public class PluginCard extends Card implements ClickNotifier<PluginCard>, Theme
         myNode = node;
         addClassName("plugin-card");
         addThemeVariants(CardVariant.LUMO_COVER_MEDIA, CardVariant.LUMO_HORIZONTAL, CardVariant.LUMO_ELEVATED);
-        setHeight(8, Unit.EM);
-        setMaxHeight(8, Unit.EM);
+        setHeight(10, Unit.EM);
+        setMaxHeight(10, Unit.EM);
         setMaxWidth(MAX_WIDTH, Unit.EM);
         setMinWidth(MAX_WIDTH, Unit.EM);
 
         updateImage(ThemeUtil.isDark());
 
         Div title = new Div(node.name);
-        title.addClassName(ProcoetonStyles.FontSize.XLARGE);
         setTitle(title);
 
         if (!StringUtils.isBlank(node.vendor)) {
