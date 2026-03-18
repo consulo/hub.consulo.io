@@ -30,6 +30,7 @@ import consulo.hub.shared.repository.PluginChannel;
 import consulo.hub.shared.repository.PluginNode;
 import consulo.hub.shared.repository.domain.RepositoryDownloadInfo;
 import consulo.hub.shared.repository.util.RepositoryUtil;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import consulo.procoeton.core.vaadin.ui.Badge;
 import consulo.procoeton.core.vaadin.ui.LazyComponent;
 import consulo.procoeton.core.vaadin.ui.util.VaadinUIUtil;
@@ -68,7 +69,7 @@ public class RepositoryItemComponent extends VerticalLayout {
             || RepositoryUtil.isPlatformNode(pluginNode.id())) {
             HorizontalLayout tagsPanel = new HorizontalLayout();
             if (pluginNode.experimental()) {
-                tagsPanel.add(new Badge("EXPERIMENTAL", ProcoetonStyles.Badge.ERROR));
+                tagsPanel.add(new Badge("EXPERIMENTAL", BadgeVariant.ERROR));
             }
 
             if (pluginNode.tags() != null) {
@@ -201,18 +202,18 @@ public class RepositoryItemComponent extends VerticalLayout {
                 Collections.sort(channels);
 
                 if (channels.size() == 1 && channels.get(0) == PluginChannel.nightly) {
-                    row.add(new Badge(PluginChannel.nightly.name(), ProcoetonStyles.Badge.ERROR));
+                    row.add(new Badge(PluginChannel.nightly.name(), BadgeVariant.ERROR));
                 }
                 else {
                     for (PluginChannel channel : channels) {
-                        String[] classes;
+                        BadgeVariant[] variants;
                         if (channel == PluginChannel.release) {
-                            classes = new String[]{ProcoetonStyles.Badge.SUCCESS};
+                            variants = new BadgeVariant[]{BadgeVariant.SUCCESS};
                         }
                         else {
-                            classes = new String[0];
+                            variants = new BadgeVariant[0];
                         }
-                        row.add(new Badge(channel.name(), classes));
+                        row.add(new Badge(channel.name(), variants));
                     }
                 }
 

@@ -1,17 +1,16 @@
 package consulo.procoeton.core.vaadin.ui;
 
-import com.vaadin.flow.component.html.Span;
-import consulo.procoeton.core.vaadin.util.ProcoetonStyles;
+import com.vaadin.flow.component.badge.BadgeVariant;
 
 /**
  * @author VISTALL
  * @since 30/04/2023
  */
-public class Badge extends Span {
-    public Badge(String text, String... classes) {
+public class Badge extends com.vaadin.flow.component.badge.Badge {
+    public Badge(String text, BadgeVariant... variants) {
         super(text);
-
-        addClassName(ProcoetonStyles.Badge.BASE);
-        addClassNames(classes);
+        if (variants.length > 0) {
+            addThemeVariants(variants);
+        }
     }
 }

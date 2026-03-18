@@ -416,38 +416,6 @@ public final class ProcoetonStyles {
         public static final String SCROLL = "procoeton-ui-overflow-scroll";
     }
 
-  /* =========================
-     Badge (Aura-friendly)
-     ========================= */
-
-    public static final class Badge {
-        private Badge() {
-        }
-
-        /**
-         * Base badge style
-         */
-        public static final String BASE = "procoeton-ui-badge";
-
-        /**
-         * Size
-         */
-        public static final String SMALL = "procoeton-ui-badge--small";
-
-        /**
-         * Variants
-         */
-        public static final String DEFAULT = "procoeton-ui-badge--default";
-        public static final String SUCCESS = "procoeton-ui-badge--success";
-        public static final String WARNING = "procoeton-ui-badge--warning";
-        public static final String ERROR = "procoeton-ui-badge--error";
-        public static final String CONTRAST = "procoeton-ui-badge--contrast";
-
-        /**
-         * Emphasis
-         */
-        public static final String PRIMARY = "procoeton-ui-badge--primary";
-    }
 
   /* =========================
      Misc
