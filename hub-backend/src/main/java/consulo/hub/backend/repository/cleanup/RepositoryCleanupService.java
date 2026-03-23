@@ -176,7 +176,13 @@ public class RepositoryCleanupService {
                     }
 
                     for (PluginNode node : pluginNodes) {
-                        filesToRemove.add(Objects.requireNonNull(node.targetPath));
+                        Path artifactPath = Objects.requireNonNull(node.targetPath);
+                        filesToRemove.add(artifactPath);
+
+                        // co-located native packages built by PluginPackageStore
+                        Path pkgDir = artifactPath.getParent();
+                        filesToRemove.add(pkgDir.resolve(node.id + "_" + node.version + ".deb"));
+                        filesToRemove.add(pkgDir.resolve(node.id + "_" + node.version + ".pkg.tar.gz"));
 
                         state.remove(node.version, node.platformVersion);
                     }

@@ -1,0 +1,23 @@
+class ${className} < Formula
+  desc "${desc}"
+  homepage "https://consulo.io"
+  version "${version}"
+#if($url)
+  url "${url}"
+#end
+#if($sha256)
+  sha256 "${sha256}"
+#end
+
+  def install
+    libexec.install Dir["*"]
+    bin.write_exec_script libexec/"bin/consulo"
+  end
+
+  def caveats
+    <<~EOS
+      Consulo has been installed. Launch it with: consulo
+      Install plugins with: brew install consulo-plugin-<id>
+    EOS
+  end
+end

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repomd xmlns="http://linux.duke.edu/metadata/repo">
+  <revision>${timestamp}</revision>
+  <data type="primary">
+    <checksum type="sha256">${primarySha256}</checksum>
+    <open-checksum type="sha256">${primaryOpenSha256}</open-checksum>
+    <location href="repodata/primary.xml.gz"/>
+    <timestamp>${timestamp}</timestamp>
+    <size>${gzSize}</size>
+    <open-size>${xmlSize}</open-size>
+  </data>
+</repomd>

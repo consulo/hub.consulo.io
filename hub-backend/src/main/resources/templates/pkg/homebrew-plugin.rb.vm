@@ -1,0 +1,20 @@
+class ${className} < Formula
+  desc "${desc}"
+  homepage "${homepage}"
+  version "${version}"
+#if($url)
+  url "${url}"
+#end
+#if($sha256)
+  sha256 "${sha256}"
+#end
+
+  depends_on "consulo-with-jdk" => :recommended
+#foreach($dep in $deps)
+  depends_on "consulo-plugin-${dep}"
+#end
+
+  def install
+    (share/"consulo/plugins").install Dir["*"]
+  end
+end

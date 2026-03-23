@@ -1,0 +1,39 @@
+#set($first = true)
+#foreach($pkg in $packages)
+#if(!$first)
+
+#end
+Package: ${pkg.name}
+Version: ${pkg.version}
+Architecture: ${pkg.arch}
+Maintainer: ${pkg.maintainer}
+#if($pkg.installedSize)
+Installed-Size: ${pkg.installedSize}
+#end
+#if($pkg.provides)
+Provides: ${pkg.provides}
+#end
+#if($pkg.depends)
+Depends: ${pkg.depends}
+#end
+Filename: ${pkg.filename}
+#if($pkg.size)
+Size: ${pkg.size}
+#end
+#if($pkg.md5)
+MD5sum: ${pkg.md5}
+#end
+#if($pkg.sha256)
+SHA256: ${pkg.sha256}
+#end
+#if($pkg.homepage)
+Homepage: ${pkg.homepage}
+#end
+Section: devel
+Priority: optional
+Description: ${pkg.descSummary}
+#if($pkg.descBody)
+${pkg.descBody}
+#end
+#set($first = false)
+#end

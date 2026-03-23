@@ -255,6 +255,12 @@ public class BackendSecurity {
 
             registry.requestMatchers("/error").permitAll();
 
+            // package manager repository endpoints (APT, RPM, Pacman, Homebrew)
+            registry.requestMatchers("/api/apt/**").permitAll();
+            registry.requestMatchers("/api/rpm/**").permitAll();
+            registry.requestMatchers("/api/pacman/**").permitAll();
+            registry.requestMatchers("/api/homebrew/**").permitAll();
+
             registry.requestMatchers("/**").denyAll();
         });
 

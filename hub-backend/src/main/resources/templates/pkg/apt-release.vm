@@ -1,0 +1,16 @@
+Origin: Consulo
+Label: Consulo Plugin Repository
+Suite: ${channel}
+Codename: ${channel}
+Architectures: ${architectures}
+Components: main
+Description: Consulo IDE Plugin Repository
+Date: ${date}
+MD5Sum:
+#foreach($e in $md5)
+ ${e.hash} ${e.size} ${e.path}
+#end
+SHA256:
+#foreach($e in $sha256)
+ ${e.hash} ${e.size} ${e.path}
+#end

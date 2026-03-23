@@ -163,8 +163,12 @@ public class NewInlineRepositoryStore {
                         Files.walkFileTree(path, new SimpleFileVisitor<>() {
                             @Override
                             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                                if (file.getFileName().toString().endsWith(".json")) {
+                                String name = file.getFileName().toString();
+                                if (name.endsWith(".json")) {
                                     processJsonFile(file, repositoryChannelsService);
+                                }
+                                else if (name.endsWith(".deb") || name.endsWith(".pkg.tar.gz")) {
+                                    removePackageIfZombie(file, name);
                                 }
                                 return FileVisitResult.CONTINUE;
                             }
@@ -315,5 +319,37 @@ public class NewInlineRepositoryStore {
 
     public boolean isLoading() {
         return myLoading.get();
+    }
+
+    /**
+     * Deletes a co-located .deb or .pkg.tar.gz file if no matching artifact .json exists alongside it.
+     * A package file "{id}_{version}.deb" is valid only while "{id}_{version}.{origExt}.json" exists.
+     */
+    private void removePackageIfZombie(Path file, String name) {
+        // strip the package extension to get the "id_version" base
+        String base;
+        if (name.endsWith(".deb")) {
+            base = name.substring(0, name.length() - 4);
+        }
+        else {
+            // .pkg.tar.gz
+            base = name.substring(0, name.length() - 11);
+        }
+
+        Path parent = file.getParent();
+        try {
+            boolean hasJson;
+            try (var ds = Files.newDirectoryStream(parent, base + ".*.json")) {
+                hasJson = ds.iterator().hasNext();
+            }
+
+            if (!hasJson) {
+                Files.deleteIfExists(file);
+                LOG.warn("Zombie package file removed: {}", file);
+            }
+        }
+        catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 }

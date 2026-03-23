@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xmlns="http://linux.duke.edu/metadata/common"
+          xmlns:rpm="http://linux.duke.edu/metadata/rpm"
+          packages="${packages.size()}">
+#foreach($pkg in $packages)
+  <package type="rpm">
+    <name>${pkg.name}</name>
+    <arch>noarch</arch>
+    <version epoch="0" ver="${pkg.version}" rel="1"/>
+#if($pkg.sha256)
+    <checksum type="sha256">${pkg.sha256}</checksum>
+#end
+    <summary>${pkg.summary}</summary>
+#if($pkg.description)
+    <description>${pkg.description}</description>
+#end
+#if($pkg.url)
+    <url>${pkg.url}</url>
+#end
+    <time file="${pkg.ts}" build="${pkg.ts}"/>
+    <size package="${pkg.size}" installed="${pkg.size}" archive="${pkg.size}"/>
+    <location href="${pkg.href}"/>
+    <format>
+      <rpm:requires>
+        <rpm:entry name="(consulo-with-jdk or consulo-without-jdk)"/>
+#foreach($dep in $pkg.deps)
+        <rpm:entry name="${dep}"/>
+#end
+      </rpm:requires>
+    </format>
+  </package>
+#end
+</metadata>
