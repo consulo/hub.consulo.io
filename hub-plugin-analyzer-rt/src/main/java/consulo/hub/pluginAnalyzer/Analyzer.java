@@ -8,8 +8,7 @@ import consulo.component.extension.ExtensionPoint;
 import consulo.component.extension.preview.ExtensionPreview;
 import consulo.component.extension.preview.ExtensionPreviewRecorder;
 import consulo.component.internal.ComponentBinding;
-import consulo.component.internal.inject.InjectingBindingLoader;
-import consulo.component.internal.inject.TopicBindingLoader;
+import consulo.component.internal.inject.*;
 import consulo.disposer.AutoDisposable;
 import consulo.hub.pluginAnalyzer.logger.SilentLoggerFactory;
 import consulo.logging.internal.LoggerFactoryInitializer;
@@ -30,25 +29,39 @@ public class Analyzer {
 
             List<ExtensionPreview> previews = new ArrayList<>();
 
-            try (InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader()) {
-                injectingBindingLoader.analyzeBindings();
+            NewInjectingBindingCollector injectingBindingCollector = new NewInjectingBindingCollector();
+            NewTopicBindingCollector topicBindingCollector = new NewTopicBindingCollector();
 
-                AnalyzerApplication application = new AnalyzerApplication(disposable, new ComponentBinding(injectingBindingLoader, new TopicBindingLoader()));
-                ApplicationManager.setApplication(application, disposable);
+            NewBindingLoader bindingLoader = new NewBindingLoader(injectingBindingCollector, topicBindingCollector);
 
-                ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
+            List<Runnable> actions = new ArrayList<>();
 
-                recorders.forEachExtensionSafe(recorder -> recorder.analyze(it ->
-                {
-                    ExtensionPreview extensionPreview = (ExtensionPreview) it;
+            bindingLoader.init(actions);
 
-                    if (!targetPluginId.equals(extensionPreview.implPluginId().getIdString())) {
-                        return;
-                    }
+            actions.parallelStream().forEach(Runnable::run);
 
-                    previews.add(extensionPreview);
-                }));
-            }
+            InjectingBindingLoader injectingBindingLoader = new InjectingBindingLoader(
+                injectingBindingCollector.getServices(),
+                injectingBindingCollector.getExtensions(),
+                injectingBindingCollector.getTopics(),
+                injectingBindingCollector.getActions()
+            );
+
+            TopicBindingLoader topicBindingLoader = new TopicBindingLoader(topicBindingCollector.getBindings());
+            AnalyzerApplication application = new AnalyzerApplication(disposable, new ComponentBinding(injectingBindingLoader, topicBindingLoader));
+            ApplicationManager.setApplication(application, disposable);
+
+            ExtensionPoint<ExtensionPreviewRecorder> recorders = application.getExtensionPoint(ExtensionPreviewRecorder.class);
+
+            recorders.forEachExtensionSafe(recorder -> recorder.analyze(it -> {
+                ExtensionPreview extensionPreview = (ExtensionPreview) it;
+
+                if (!targetPluginId.equals(extensionPreview.implPluginId().getIdString())) {
+                    return;
+                }
+
+                previews.add(extensionPreview);
+            }));
 
             if (previews.isEmpty()) {
                 return List.of();
