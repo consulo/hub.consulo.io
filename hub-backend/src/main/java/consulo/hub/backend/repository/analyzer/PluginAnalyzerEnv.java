@@ -3,6 +3,7 @@ package consulo.hub.backend.repository.analyzer;
 import com.google.gson.Gson;
 import consulo.annotation.component.ComponentScope;
 import consulo.application.Application;
+import consulo.build.ui.BuildViewManager;
 import consulo.compiler.Compiler;
 import consulo.compiler.artifact.ArtifactType;
 import consulo.component.ComponentManager;
@@ -43,6 +44,7 @@ import consulo.util.collection.primitive.ints.IntMaps;
 import consulo.util.collection.trove.impl.TroveCollectionFactory;
 import consulo.util.concurrent.coroutine.CoroutineContextOwner;
 import consulo.util.dataholder.UserDataHolder;
+import consulo.util.io.CharSequenceReader;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.nodep.ArrayUtilRt;
 import consulo.util.xml.serializer.XmlSerializerUtil;
@@ -109,6 +111,8 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(IntMaps.class);
         // util-collection
         myPlatformClassGroup.requireClass(Maps.class);
+        // util-io
+        myPlatformClassGroup.requireClass(CharSequenceReader.class);
         // util-lang
         myPlatformClassGroup.requireClass(ObjectUtil.class);
         // trove
@@ -181,6 +185,8 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(VcsLogObjectsFactory.class);
         // language-editor-ui api
         myPlatformClassGroup.requireClass(TreeClassChooserFactory.class);
+        // build-ui-api
+        myPlatformClassGroup.requireClass(BuildViewManager.class);
 
         // recorders impl
         myAnalyzerClassGroup.requireClass(ModuleExtensionPreviewRecorder.class);

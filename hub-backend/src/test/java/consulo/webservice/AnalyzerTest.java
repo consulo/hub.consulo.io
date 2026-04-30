@@ -45,7 +45,8 @@ public class AnalyzerTest extends Assert {
             "com.intellij.git",
             "mobi.hsz.idea.gitignore",
             "org.jetbrains.idea.maven",
-            "org.jetbrains.plugins.javaFX"
+            "org.jetbrains.plugins.javaFX",
+            "consulo.python"
         };
 
     private static Path ourTempDir;
@@ -181,6 +182,15 @@ public class AnalyzerTest extends Assert {
 
         assertEquals(pluginNode.id, "consulo.unity3d");
         assertNotNull(pluginNode.iconDarkBytes);
+    }
+
+    @Test
+    public void testPyType() throws Exception {
+        PluginNode pluginNode = findPlugin("consulo.python");
+
+        assertEquals(pluginNode.id, "consulo.python");
+        assetExtensionPreview("consulo.python", "consulo.virtualFileSystem.fileType.FileTypeFactory", "*|py");
+
     }
 
     private void assetExtensionPreview(String pluginId, String apiClass, String... requiredValues) throws Exception {
