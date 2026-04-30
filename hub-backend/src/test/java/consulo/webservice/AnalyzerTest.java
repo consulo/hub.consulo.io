@@ -115,6 +115,7 @@ public class AnalyzerTest extends Assert {
 
     @Test
     public void testJavaPlugin() throws Exception {
+        assetExtensionPreview("consulo.java", "consulo.ide.newModule.NewModuleBuilder", "consulo.java.impl.ide.newProjectOrModule.JavaNewModuleBuilder");
         assetExtensionPreview("consulo.java", "consulo.module.content.layer.ModuleExtensionProvider", "java");
         assetExtensionPreview("consulo.java", "consulo.execution.configuration.ConfigurationType", "JavaApplication");
     }
