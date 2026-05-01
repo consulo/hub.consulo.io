@@ -23,13 +23,14 @@ import consulo.fileEditor.FileEditorProvider;
 import consulo.hub.backend.TempFileService;
 import consulo.hub.pluginAnalyzer.Analyzer;
 import consulo.hub.pluginAnalyzer.container.ContainerBoot;
-import consulo.ide.newModule.NewModuleBuilder;
+import consulo.ide.ServiceManager;
 import consulo.language.codeStyle.ProjectCodeStyleSettingsManager;
 import consulo.language.editor.action.CodeInsightActionHandler;
 import consulo.language.editor.ui.TreeClassChooserFactory;
 import consulo.language.file.LanguageFileType;
 import consulo.localize.LocalizeKey;
 import consulo.module.content.layer.ModuleExtensionProvider;
+import consulo.module.creation.scratch.NewModuleBuilder;
 import consulo.module.extension.MutableModuleExtension;
 import consulo.navigation.NavigationItem;
 import consulo.platform.base.icon.PlatformIconGroup;
@@ -188,8 +189,10 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(TreeClassChooserFactory.class);
         // build-ui-api
         myPlatformClassGroup.requireClass(BuildViewManager.class);
-        // ide-api
+        // module-creating-api
         myPlatformClassGroup.requireClass(NewModuleBuilder.class);
+        // ide-api
+        myPlatformClassGroup.requireClass(ServiceManager.class);
 
         // recorders impl
         myAnalyzerClassGroup.requireClass(ModuleExtensionPreviewRecorder.class);
