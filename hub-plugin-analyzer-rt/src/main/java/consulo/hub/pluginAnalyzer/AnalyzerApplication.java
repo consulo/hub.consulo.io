@@ -20,6 +20,7 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.util.collection.MultiMap;
 import consulo.util.lang.function.ThrowableSupplier;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
 import jakarta.annotation.Nonnull;
@@ -86,6 +87,11 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
     public boolean tryRunReadAction(@Nonnull Runnable action) {
         action.run();
         return true;
+    }
+
+    @Override
+    public <T, E extends Throwable> boolean tryRunReadAction(SimpleReference<T> simpleReference, ThrowableSupplier<T, E> throwableSupplier) throws E {
+        throw new UnsupportedOperationException();
     }
 
     @RequiredUIAccess
