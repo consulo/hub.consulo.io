@@ -11,12 +11,13 @@ import consulo.ui.image.ImageKey;
 import consulo.ui.image.canvas.Canvas2D;
 import consulo.ui.internal.UIInternal;
 import consulo.ui.layout.*;
-import consulo.ui.model.ListModel;
-import consulo.ui.model.MutableListModel;
+import consulo.ui.model.FlatDataModel;
+import consulo.ui.model.MutableFlatDataModel;
 import consulo.ui.style.StyleManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -145,7 +146,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public <E> ComboBox<E> _Components_comboBox(ListModel<E> listModel) {
+    public <E> ComboBox<E> _Components_comboBox(FlatDataModel<E> flatDataModel) {
         return null;
     }
 
@@ -166,7 +167,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public <E> ListBox<E> _Components_listBox(ListModel<E> listModel) {
+    public <E> ListBox<E> _Components_listBox(FlatDataModel<E> flatDataModel) {
         return null;
     }
 
@@ -286,12 +287,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public <T> ListModel<T> _ListModel_create(Collection<? extends T> collection) {
-        return null;
-    }
-
-    @Override
-    public <T> MutableListModel<T> _MutableListModel_create(Collection<? extends T> collection) {
+    public <T> MutableFlatDataModel<T> _FlatDataModel_create(Collection<? extends T> collection) {
         return null;
     }
 

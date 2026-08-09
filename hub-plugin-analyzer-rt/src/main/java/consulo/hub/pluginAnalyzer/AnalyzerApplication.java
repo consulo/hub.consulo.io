@@ -19,14 +19,17 @@ import consulo.ui.UIAccess;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import consulo.util.collection.MultiMap;
+import consulo.util.concurrent.coroutine.Continuation;
 import consulo.util.lang.function.ThrowableSupplier;
 import consulo.util.lang.ref.SimpleReference;
 import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
 import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -141,8 +144,13 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
 
     @RequiredUIAccess
     @Override
-    public void saveAll() {
+    public @Nullable Continuation<Void> saveAll() {
+        return null;
+    }
 
+    @Override
+    public CompletableFuture<Void> saveAllWithProgress(UIAccess uiAccess) {
+        return null;
     }
 
     @Override
@@ -162,11 +170,6 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
 
     @Override
     public boolean isDispatchThread() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isWriteThread() {
         throw new UnsupportedOperationException();
     }
 
@@ -278,19 +281,6 @@ public class AnalyzerApplication extends BaseComponentManager implements Applica
     @Override
     public UIAccess getLastUIAccess() {
         throw new UnsupportedOperationException();
-    }
-
-    @Nonnull
-    @Override
-    public AccessToken acquireReadActionLock() {
-        throw new UnsupportedOperationException();
-    }
-
-    @RequiredUIAccess
-    @Nonnull
-    @Override
-    public AccessToken acquireWriteActionLock(@Nonnull Class marker) {
-        return AccessToken.EMPTY_ACCESS_TOKEN;
     }
 
     @RequiredUIAccess

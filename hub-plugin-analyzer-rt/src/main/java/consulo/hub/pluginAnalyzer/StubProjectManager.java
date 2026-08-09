@@ -13,6 +13,9 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author VISTALL
  * @since 07/05/2023
@@ -36,39 +39,24 @@ public class StubProjectManager implements ProjectManager {
         return myDefaultProject;
     }
 
-    @Nonnull
-    @Override
-    public AsyncResult<Project> openProjectAsync(@Nonnull VirtualFile virtualFile, @Nonnull UIAccess uiAccess, @Nonnull ProjectOpenContext projectOpenContext) {
-        return AsyncResult.rejected();
-    }
-
-    @Nonnull
-    @Override
-    public AsyncResult<Project> openProjectAsync(@Nonnull VirtualFile virtualFile, @Nonnull UIAccess uiAccess) {
-        return AsyncResult.rejected();
-    }
-
-    @Nonnull
-    @Override
-    public AsyncResult<Project> openProjectAsync(@Nonnull Project project, @Nonnull UIAccess uiAccess, @Nonnull ProjectOpenContext projectOpenContext) {
-        return AsyncResult.rejected();
-    }
-
-    @Nonnull
-    @Override
-    public AsyncResult<Project> openProjectAsync(@Nonnull Project project, @Nonnull UIAccess uiAccess) {
-        return AsyncResult.rejected();
-    }
-
     @Override
     public boolean isProjectOpened(Project project) {
         return false;
     }
 
-    @Nonnull
     @Override
-    public AsyncResult<Void> closeAndDisposeAsync(@Nonnull Project project, @Nonnull UIAccess uiAccess, boolean b, boolean b1, boolean b2) {
-        return AsyncResult.rejected();
+    public CompletableFuture<Boolean> closeAndDisposeAsync(Project project, UIAccess uiAccess, boolean b, boolean b1, boolean b2) {
+        return CompletableFuture.completedFuture(false);
+    }
+
+    @Override
+    public CompletableFuture<Project> openProjectAsync(Path path, UIAccess uiAccess, ProjectOpenContext projectOpenContext) {
+        return CompletableFuture.failedFuture(new IllegalArgumentException());
+    }
+
+    @Override
+    public CompletableFuture<Boolean> closeAndDisposeAsync(Project project, UIAccess uiAccess) {
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override
@@ -85,12 +73,6 @@ public class StubProjectManager implements ProjectManager {
     @Override
     public Project[] getOpenProjects() {
         return new Project[0];
-    }
-
-    @RequiredUIAccess
-    @Override
-    public boolean closeProject(@Nonnull Project project) {
-        return false;
     }
 
     @Override
