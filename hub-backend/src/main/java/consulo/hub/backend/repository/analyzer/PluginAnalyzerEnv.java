@@ -43,7 +43,6 @@ import consulo.ui.Component;
 import consulo.ui.ex.IconDeferrer;
 import consulo.util.collection.Maps;
 import consulo.util.collection.primitive.ints.IntMaps;
-import consulo.util.collection.trove.impl.TroveCollectionFactory;
 import consulo.util.concurrent.coroutine.CoroutineContextOwner;
 import consulo.util.dataholder.UserDataHolder;
 import consulo.util.io.CharSequenceReader;
@@ -56,6 +55,7 @@ import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
 import consulo.versionControlSystem.log.VcsLogObjectsFactory;
 import consulo.virtualFileSystem.internal.VirtualFileTracker;
 import gnu.trove.TIntIntHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import jakarta.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,8 +101,6 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(Disposer.class);
         // disposer-impl
         myPlatformClassGroup.requireClass(DisposerInternalImpl.class);
-        // trove collection impl
-        myPlatformClassGroup.requireClass(TroveCollectionFactory.class);
         // data-holder-api
         myPlatformClassGroup.requireClass(UserDataHolder.class);
         // ui-api
@@ -119,6 +117,8 @@ public class PluginAnalyzerEnv {
         myPlatformClassGroup.requireClass(ObjectUtil.class);
         // trove
         myPlatformClassGroup.requireClass(TIntIntHashMap.class);
+        // fast utl
+        myPlatformClassGroup.requireClass(Object2BooleanMap.class);
         // slf4j
         myPlatformClassGroup.requireClass(Logger.class);
         // annotation
