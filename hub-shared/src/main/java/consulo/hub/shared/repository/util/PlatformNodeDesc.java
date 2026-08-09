@@ -14,6 +14,8 @@ public record PlatformNodeDesc(String id, String name, Set<String> oldIds, Strin
     private static Map<String, PlatformNodeDesc> ourOldMapping = new HashMap<>();
 
     static {
+        add(new PlatformNodeDesc("consulo.dist.web", "Platform (Web)", Set.of(), "tar.gz"));
+
         add(new PlatformNodeDesc("consulo.dist.linux.no.jre", "Platform (Linux, without JRE)", Set.of("consulo-linux-no-jre"), "tar.gz"));
         add(new PlatformNodeDesc("consulo.dist.linux", "Platform (Linux, with JRE x86)", Set.of("consulo-linux"), "tar.gz"));
         add(new PlatformNodeDesc("consulo.dist.linux64", "Platform (Linux, with JRE x64)", Set.of("consulo-linux64"), "tar.gz"));
