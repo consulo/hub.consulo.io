@@ -17,7 +17,7 @@ public class RepositoryCleanuper {
         myRepositoryChannelsService = repositoryChannelsService;
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void cleanup() {
         myRepositoryChannelsService.runCleanUpAsync();
     }
