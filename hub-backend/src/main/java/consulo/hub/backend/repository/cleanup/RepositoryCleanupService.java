@@ -25,6 +25,13 @@ import java.util.*;
 public class RepositoryCleanupService {
     public static final int ourMaxBuildCount = 25;
 
+    /**
+     * valhalla holds experimental snapshot builds (3-SNAPSHOT, 4-SNAPSHOT) with own numbering.
+     * It never participates in the release cycle analysis. While disabled, its artifacts are purged on cleanup.
+     * The enum value itself can't be removed - store metadata and statistics still reference it.
+     */
+    public static final boolean VALHALLA_ENABLED = false;
+
     private static final int ourMaxRemovePerSession = 100;
 
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryCleanupService.class);
@@ -42,17 +49,26 @@ public class RepositoryCleanupService {
     }
 
     public void runCleanUp() {
+        for (PluginChannel channel : PluginChannel.values()) {
+            if (myRepositoryChannelsService.getRepositoryByChannel(channel).isLoading()) {
+                return;
+            }
+        }
+
+        Set<Path> filesToRemove = new LinkedHashSet<>();
+
+        if (!VALHALLA_ENABLED) {
+            purgeValhalla(filesToRemove);
+        }
+
         Map<PlatformNodeDesc, Map<PluginChannel, TreeSet<BuildNumber>>> versions = new LinkedHashMap<>();
 
-        PluginChannel[] pluginChannels = PluginChannel.values();
+        PluginChannel[] pluginChannels = analysisChannels();
 
         // first of all we collect all versions, groupped by channed
         for (PluginChannel channel : pluginChannels) {
             for (PlatformNodeDesc nodeDesc : PlatformNodeDesc.values()) {
                 RepositoryChannelStore channelStore = myRepositoryChannelsService.getRepositoryByChannel(channel);
-                if (channelStore.isLoading()) {
-                    return;
-                }
 
                 RepositoryNodeState pluginsState = channelStore.getState(nodeDesc.id());
                 if (pluginsState == null) {
@@ -64,9 +80,14 @@ public class RepositoryCleanupService {
                 for (Map.Entry<String, NavigableSet<PluginNode>> entry : map.entrySet()) {
                     String platformVersion = entry.getKey();
 
+                    BuildNumber buildNumber = BuildNumber.fromString(platformVersion);
+                    if (buildNumber == null) {
+                        continue;
+                    }
+
                     versions.computeIfAbsent(nodeDesc, (p) -> new TreeMap<>())
                         .computeIfAbsent(channel, pluginChannel -> new TreeSet<>())
-                        .add(BuildNumber.fromString(platformVersion));
+                        .add(buildNumber);
                 }
             }
         }
@@ -121,8 +142,6 @@ public class RepositoryCleanupService {
             }
         }
 
-        Set<Path> filesToRemove = new LinkedHashSet<>();
-
         for (PlatformNodeDesc desc : PlatformNodeDesc.values()) {
             for (PluginChannel channel : pluginChannels) {
                 RepositoryChannelStore store = myRepositoryChannelsService.getRepositoryByChannel(channel);
@@ -138,7 +157,7 @@ public class RepositoryCleanupService {
                         continue;
                     }
 
-                    filesToRemove.add(Objects.requireNonNull(node.targetPath));
+                    addNodeFiles(filesToRemove, node);
 
                     state.remove(toRemoveBuild, toRemoveBuild);
                 }
@@ -169,20 +188,16 @@ public class RepositoryCleanupService {
                     continue;
                 }
                 
+                NavigableMap<String, NavigableSet<PluginNode>> pluginsByPlatformVersion = state.getPluginsByPlatformVersion();
+
                 for (String toRemoveBuild : toRemoveBuilds) {
-                    NavigableSet<PluginNode> pluginNodes = state.getPluginsByPlatformVersion().get(toRemoveBuild);
+                    NavigableSet<PluginNode> pluginNodes = pluginsByPlatformVersion.get(toRemoveBuild);
                     if (pluginNodes == null) {
                         continue;
                     }
 
                     for (PluginNode node : pluginNodes) {
-                        Path artifactPath = Objects.requireNonNull(node.targetPath);
-                        filesToRemove.add(artifactPath);
-
-                        // co-located native packages built by PluginPackageStore
-                        Path pkgDir = artifactPath.getParent();
-                        filesToRemove.add(pkgDir.resolve(node.id + "_" + node.version + ".deb"));
-                        filesToRemove.add(pkgDir.resolve(node.id + "_" + node.version + ".pkg.tar.gz"));
+                        addNodeFiles(filesToRemove, node);
 
                         state.remove(node.version, node.platformVersion);
                     }
@@ -211,6 +226,62 @@ public class RepositoryCleanupService {
         long diff = (System.currentTimeMillis() - startTime) / 1000L;
 
         LOG.info("CleanUp: Finished to remove files in {} seconds", diff);
+    }
+
+    private void purgeValhalla(Set<Path> filesToRemove) {
+        RepositoryChannelStore valhallaStore = myRepositoryChannelsService.getRepositoryByChannel(PluginChannel.valhalla);
+
+        List<PluginNode> nodes = new ArrayList<>();
+        valhallaStore.iteratePluginNodes(nodes::add);
+
+        if (nodes.isEmpty()) {
+            return;
+        }
+
+        for (PluginNode node : nodes) {
+            boolean shared = false;
+            for (PluginChannel channel : PluginChannel.values()) {
+                if (channel == PluginChannel.valhalla) {
+                    continue;
+                }
+
+                if (myRepositoryChannelsService.getRepositoryByChannel(channel).isInRepository(node.id, node.version, node.platformVersion)) {
+                    shared = true;
+                    break;
+                }
+            }
+
+            valhallaStore.remove(node.id, node.version, node.platformVersion);
+
+            if (!shared) {
+                addNodeFiles(filesToRemove, node);
+            }
+        }
+
+        LOG.info("CleanUp: purged {} valhalla nodes", nodes.size());
+    }
+
+    private static PluginChannel[] analysisChannels() {
+        return Arrays.stream(PluginChannel.values())
+            .filter(channel -> channel != PluginChannel.valhalla)
+            .toArray(PluginChannel[]::new);
+    }
+
+    private static void addNodeFiles(Set<Path> filesToRemove, PluginNode node) {
+        Path artifactPath = node.targetPath;
+        if (artifactPath == null) {
+            LOG.warn("CleanUp: no target path for node {}:{}", node.id, node.version);
+            return;
+        }
+
+        filesToRemove.add(artifactPath);
+
+        // co-located native packages built by PluginPackageStore
+        Path pkgDir = artifactPath.getParent();
+        if (pkgDir != null) {
+            filesToRemove.add(pkgDir.resolve(node.id + "_" + node.version + ".deb"));
+            filesToRemove.add(pkgDir.resolve(node.id + "_" + node.version + ".pkg.tar.gz"));
+        }
     }
 
     private static boolean allTrue(boolean[] states) {
