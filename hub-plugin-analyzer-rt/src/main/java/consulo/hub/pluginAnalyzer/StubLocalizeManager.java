@@ -22,6 +22,11 @@ public class StubLocalizeManager extends LocalizeManager {
         return LocalizeValue.of(s);
     }
 
+    @Override
+    public LocalizeValue fromException(Throwable throwable) {
+        return LocalizeValue.empty();
+    }
+
     @Nonnull
     @Override
     public Map.Entry<Locale, String> getUnformattedText(@Nonnull LocalizeKey localizeKey) {
@@ -56,9 +61,8 @@ public class StubLocalizeManager extends LocalizeManager {
         return true;
     }
 
-    @Nonnull
     @Override
-    public Set<Locale> getAvaliableLocales() {
+    public Set<Locale> getAvailableLocales() {
         return Set.of();
     }
 
