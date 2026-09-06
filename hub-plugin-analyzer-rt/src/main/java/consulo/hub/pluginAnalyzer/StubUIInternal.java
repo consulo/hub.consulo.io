@@ -17,7 +17,6 @@ import consulo.ui.style.StyleManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -91,7 +90,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public DockLayout _Layouts_dock(int gap) {
+    public DockLayout _Layouts_dock(Space space) {
         return null;
     }
 
@@ -101,7 +100,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public VerticalLayout _Layouts_vertical(int gap) {
+    public VerticalLayout _Layouts_vertical(Space space) {
         return null;
     }
 
@@ -131,7 +130,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public HorizontalLayout _Layouts_horizontal(int i) {
+    public HorizontalLayout _Layouts_horizontal(Space space) {
         return null;
     }
 
@@ -242,7 +241,7 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
-    public ValueGroup<Boolean> _ValueGroups_boolGroup() {
+    public <V> RadioGroup<V> _Components_radioGroup() {
         return null;
     }
 
