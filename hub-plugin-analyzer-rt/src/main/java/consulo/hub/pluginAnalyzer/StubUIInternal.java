@@ -110,17 +110,17 @@ public class StubUIInternal extends UIInternal {
     }
 
     @Override
+    public PlaceholderLayout _Layouts_placeholder() {
+        return null;
+    }
+
+    @Override
     public TwoComponentSplitLayout _TwoComponentSplitLayout_create(SplitLayoutPosition splitLayoutPosition) {
         return null;
     }
 
     @Override
     public ThreeComponentSplitLayout _ThreeComponentSplitLayout_create(SplitLayoutPosition splitLayoutPosition) {
-        return null;
-    }
-
-    @Override
-    public TabbedLayout _Layouts_tabbed() {
         return null;
     }
 
@@ -162,11 +162,6 @@ public class StubUIInternal extends UIInternal {
     @Nonnull
     @Override
     public IntBox _Components_intBox(int i) {
-        return null;
-    }
-
-    @Override
-    public <E> ListBox<E> _Components_listBox(FlatDataModel<E> flatDataModel) {
         return null;
     }
 
@@ -271,12 +266,6 @@ public class StubUIInternal extends UIInternal {
     @Nullable
     @Override
     public Window _Window_getActiveWindow() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public Window _Window_getFocusedWindow() {
         return null;
     }
 

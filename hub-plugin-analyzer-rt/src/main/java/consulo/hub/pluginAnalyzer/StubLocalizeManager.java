@@ -6,6 +6,7 @@ import consulo.localize.LocalizeManager;
 import consulo.localize.LocalizeManagerListener;
 import consulo.localize.LocalizeValue;
 import jakarta.annotation.Nonnull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +32,16 @@ public class StubLocalizeManager extends LocalizeManager {
     @Override
     public Map.Entry<Locale, String> getUnformattedText(@Nonnull LocalizeKey localizeKey) {
         return Map.entry(getLocale(), "");
+    }
+
+    @Override
+    public @Nullable String getUnformattedText(LocalizeKey localizeKey, Locale locale) {
+        return null;
+    }
+
+    @Override
+    public Locale getDefaultLocale() {
+        return Locale.US;
     }
 
     @Nonnull

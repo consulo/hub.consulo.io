@@ -80,9 +80,8 @@ public class StubProjectManager implements ProjectManager {
 
     }
 
-    @Nullable
     @Override
-    public Project createProject(String s, String s1) {
+    public @Nullable Project createProject(String s, String s1, UIAccess uiAccess) {
         return null;
     }
 
